@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../main.dart';
 
 class TambahIuranPage extends StatefulWidget {
   const TambahIuranPage({super.key});
@@ -16,6 +17,7 @@ class _TambahIuranPageState extends State<TambahIuranPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Tambah Iuran")),
+      drawer: const AppSidebar(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

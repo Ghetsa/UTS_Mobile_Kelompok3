@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../main.dart';
 
 class DetailPage extends StatelessWidget {
   const DetailPage({super.key});
@@ -9,6 +10,7 @@ class DetailPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text("Detail Iuran")),
+      drawer: const AppSidebar(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
