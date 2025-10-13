@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       title: 'Iuran Warga',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: const Color(0xFFE6D7C4), // background halaman
+        scaffoldBackgroundColor: const Color(0xFFE6D7C4),   // background halaman
       ),
       initialRoute: '/',
       routes: {
