@@ -17,6 +17,12 @@ void main() {
   runApp(const MyApp());
 }
 
+class AppColors {
+  static const Color primaryDark = Color(0xFF5C4E43); // Coklat gelap elegan
+  static const Color secondaryCream = Color(0xFFEDE8D2); // Krem lembut
+  static const Color accentGold = Color(0xFFC7B68D); // Emas lembut
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -26,8 +32,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Iuran Warga',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: const Color(0xFFE6D7C4),   // background halaman
+        scaffoldBackgroundColor: AppColors.secondaryCream,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: AppColors.primaryDark,
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
       ),
       initialRoute: '/',
       routes: {
@@ -49,43 +59,57 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// Widget Sidebar
 class AppSidebar extends StatelessWidget {
   const AppSidebar({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
+
     return Drawer(
       child: Container(
-        color: const Color(0xFF4B3D1A), // warna background sidebar
+        color: AppColors.secondaryCream, // ☕ sidebar warna krem lembut
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
-              decoration: BoxDecoration(color: Color(0xFF4B3D1A)),
+              decoration: BoxDecoration(
+                color: AppColors.primaryDark, // 🟤 header coklat gelap elegan
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(radius: 25, backgroundColor: Colors.white),
+                  CircleAvatar(radius: 25, backgroundColor: AppColors.secondaryCream),
                   SizedBox(height: 10),
-                  Text("Admin Jawara",
-                      style: TextStyle(color: Color(0xFFE6D7C4), fontSize: 16)),
-                  Text("admin1@gmail.com",
-                      style: TextStyle(color: Color(0xFFE6D7C4), fontSize: 12)),
+                  Text(
+                    "Admin Jawara",
+                    style: TextStyle(
+                      color: AppColors.accentGold,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    "admin1@gmail.com",
+                    style: TextStyle(
+                      color: Color(0xFFF8F7F3),
+                      fontSize: 12,
+                    ),
+                  ),
                 ],
               ),
             ),
-            _buildMenuItem(Icons.dashboard, "Dashboard", "/", context),
-            _buildMenuItem(Icons.people, "Data Warga & Rumah", "/data", context),
-            _buildMenuItem(Icons.receipt_long, "Pemasukan", "/iuran", context),
-            _buildMenuItem(Icons.insert_chart, "Laporan Keuangan", "/laporan", context),
-            _buildMenuItem(Icons.people_alt, "Manajemen Pengguna", "/manajemen", context),
-            _buildMenuItem(Icons.swap_horiz, "Channel Transfer", "/channel", context),
-            _buildMenuItem(Icons.history, "Log Aktifitas", "/log", context),
-            _buildMenuItem(Icons.message, "Pesan Warga", "/pesan", context),
-            _buildMenuItem(Icons.event, "Kegiatan & Broadcast", "/kegiatan", context),
-            _buildMenuItem(Icons.wallet, "Pengeluaran", "/pengeluaran", context),
-            _buildMenuItem(Icons.family_restroom, "Mutasi Keluarga", "/mutasi", context),
+            _buildMenuItem(Icons.dashboard, "Dashboard", "/", context, currentRoute),
+            _buildMenuItem(Icons.people, "Data Warga & Rumah", "/data", context, currentRoute),
+            _buildMenuItem(Icons.receipt_long, "Pemasukan", "/iuran", context, currentRoute),
+            _buildMenuItem(Icons.insert_chart, "Laporan Keuangan", "/laporan", context, currentRoute),
+            _buildMenuItem(Icons.people_alt, "Manajemen Pengguna", "/manajemen", context, currentRoute),
+            _buildMenuItem(Icons.swap_horiz, "Channel Transfer", "/channel", context, currentRoute),
+            _buildMenuItem(Icons.history, "Log Aktifitas", "/log", context, currentRoute),
+            _buildMenuItem(Icons.message, "Pesan Warga", "/pesan", context, currentRoute),
+            _buildMenuItem(Icons.event, "Kegiatan & Broadcast", "/kegiatan", context, currentRoute),
+            _buildMenuItem(Icons.wallet, "Pengeluaran", "/pengeluaran", context, currentRoute),
+            _buildMenuItem(Icons.family_restroom, "Mutasi Keluarga", "/mutasi", context, currentRoute),
           ],
         ),
       ),
@@ -93,16 +117,40 @@ class AppSidebar extends StatelessWidget {
   }
 
   static Widget _buildMenuItem(
-      IconData icon, String title, String route, BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: const Color(0xFFE6D7C4)), // ikon warna krem
-      title: Text(title, style: const TextStyle(color: Color(0xFFE6D7C4))), // teks krem
-      onTap: () {
-        Navigator.pop(context);
-        if (ModalRoute.of(context)?.settings.name != route) {
-          Navigator.pushNamed(context, route);
-        }
-      },
+      IconData icon, String title, String route, BuildContext context, String currentRoute) {
+    final bool isActive = route == currentRoute;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isActive
+            ? AppColors.primaryDark // 🟤 warna aktif (coklat gelap)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: isActive
+              ? AppColors.accentGold // ✨ ikon emas saat aktif
+              : AppColors.primaryDark, // ikon coklat gelap saat nonaktif
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: isActive
+                ? AppColors.accentGold // teks emas saat aktif
+                : AppColors.primaryDark, // teks coklat saat nonaktif
+            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+          ),
+        ),
+        onTap: () {
+          Navigator.pop(context);
+          if (ModalRoute.of(context)?.settings.name != route) {
+            Navigator.pushNamed(context, route);
+          }
+        },
+      ),
     );
   }
 }
