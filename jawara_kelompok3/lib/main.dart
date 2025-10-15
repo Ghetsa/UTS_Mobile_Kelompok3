@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jawara_kelompok3/MutasiKeluarga/Tambah/tambahMutasi.dart';
 import 'ChannelTransfer/channel_transfer.dart';
 import 'Dashboard/dashboard_page.dart';
 import 'DataWargaDanRumah/data_warga_page.dart';
@@ -7,7 +8,6 @@ import 'LaporanKeuangan/laporan_keuangan.dart';
 import 'LogAktifitas/log_aktifitas.dart';
 import 'ManajemenPengguna/manajemen_pengguna.dart';
 import 'MutasiKeluarga/Daftar/daftarMutasi.dart';
-import 'MutasiKeluarga/Tambah/tambahMutasi.dart';
 import 'Pengeluaran/pengeluaran.dart';
 import 'PesanWarga/pesan_warga.dart';
 import 'Pemasukan/kategoriIuran/pages/iuran_page.dart';
@@ -58,8 +58,8 @@ class MyApp extends StatelessWidget {
         '/pengeluaran': (context) => const PengeluaranPage(),
 
         // === Mutasi Keluarga ===
-        '/Daftar/tambah-mutasi': (context) => const TambahMutasiPage(),
         '/Daftar/daftar-mutasi': (context) => const DaftarMutasiPage(),
+        '/Daftar/tambah-mutasi': (context) => const TambahMutasiPage(),
       },
     );
   }
@@ -125,8 +125,8 @@ class AppSidebar extends StatelessWidget {
               title: const Text("Mutasi Keluarga",
                   style: TextStyle(color: Color(0xFFE6D7C4))),
               children: [
-                _buildSubMenuItem("Daftar", "/Daftar/tambah-mutasi", context),
-                _buildSubMenuItem("Tambah", "/Daftar/daftar-mutasi", context),
+                _buildSubMenuItem("Daftar", "/Daftar/daftar-mutasi", context),
+                _buildSubMenuItem("Tambah", "/Daftar/tambah-mutasi", context),
               ],
             ),
           ],
