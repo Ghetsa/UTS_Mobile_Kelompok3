@@ -67,8 +67,6 @@ class AppSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
-
     return Drawer(
       child: Container(
         color: const Color(0xFF4B3D1A),
@@ -76,29 +74,16 @@ class AppSidebar extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Color(0xFF1E3A8A), // 🔵 biru gelap (sama dengan AppBar)
-              ),
+              decoration: BoxDecoration(color: Color(0xFF4B3D1A)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(radius: 25, backgroundColor: Color(0xFFF8FAFC)),
+                  CircleAvatar(radius: 25, backgroundColor: Colors.white),
                   SizedBox(height: 10),
-                  Text(
-                    "Admin Jawara",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    "admin1@gmail.com",
-                    style: TextStyle(
-                      color: Color(0xFFE0E7FF), // teks biru muda lembut
-                      fontSize: 12,
-                    ),
-                  ),
+                  Text("Admin Jawara",
+                      style: TextStyle(color: Color(0xFFE6D7C4), fontSize: 16)),
+                  Text("admin1@gmail.com",
+                      style: TextStyle(color: Color(0xFFE6D7C4), fontSize: 12)),
                 ],
               ),
             ),
