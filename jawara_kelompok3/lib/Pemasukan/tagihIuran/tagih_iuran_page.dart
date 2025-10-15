@@ -55,7 +55,7 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 10),
                     ),
-                    value: selectedIuran,
+                    initialValue: selectedIuran,
                     hint: const Text("-- Pilih Iuran --"),
                     items: iuranList.map((iuran) {
                       return DropdownMenuItem(

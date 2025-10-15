@@ -71,12 +71,10 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                             firstDate: DateTime(2000),
                             lastDate: DateTime(2100),
                           );
-                          if (pickedDate != null) {
-                            setState(() {
-                              _selectedDate = pickedDate;
-                            });
-                          }
-                        },
+                          setState(() {
+                            _selectedDate = pickedDate;
+                          });
+                                                },
                       ),
                     ],
                   ),
@@ -85,7 +83,7 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
 
                 // Kategori
                 DropdownButtonFormField<String>(
-                  value: _kategori,
+                  initialValue: _kategori,
                   decoration: const InputDecoration(
                     labelText: "Kategori Pemasukan",
                     border: OutlineInputBorder(),

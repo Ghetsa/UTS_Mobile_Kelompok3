@@ -106,6 +106,19 @@ class AppSidebar extends StatelessWidget {
               ],
             ),
 
+            // === Kegiatan ===
+            ExpansionTile(
+              leading: const Icon(Icons.receipt_long, color: Color(0xFFE6D7C4)),
+              title: const Text("Pemasukan",
+                  style: TextStyle(color: Color(0xFFE6D7C4))),
+              children: [
+                _buildSubMenuItem("Kegiatan - Daftar", "/pemasukan/pages/kategori", context),
+                _buildSubMenuItem("Kegiatan - Tambah", "/pemasukan/tagihIuran", context),
+                _buildSubMenuItem("Broadcast - Daftar", "/pemasukan/tagihan", context),
+                _buildSubMenuItem("Broadcast - Tambah", "/pemasukan/tagihan", context),
+              ],
+            ),
+
             // === Menu utama lain ===
             _buildMenuItem(Icons.insert_chart, "Laporan Keuangan", "/laporan", context),
             _buildMenuItem(Icons.people_alt, "Manajemen Pengguna", "/manajemen", context),

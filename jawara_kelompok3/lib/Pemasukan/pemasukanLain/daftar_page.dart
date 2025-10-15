@@ -55,7 +55,7 @@ class PemasukanLainDaftarPage extends StatelessWidget {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: DataTable(
-                    headingRowColor: MaterialStateProperty.all(Colors.grey.shade200),
+                    headingRowColor: WidgetStateProperty.all(Colors.grey.shade200),
                     columns: const [
                       DataColumn(label: Text("No")),
                       DataColumn(label: Text("Nama")),

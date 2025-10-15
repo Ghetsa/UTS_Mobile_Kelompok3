@@ -102,7 +102,7 @@ class TagihanPage extends StatelessWidget {
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: DataTable(
-                      headingRowColor: MaterialStateProperty.all(Colors.grey[200]),
+                      headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
                       columns: const [
                         DataColumn(label: Text("No")),
                         DataColumn(label: Text("Nama Keluarga")),
