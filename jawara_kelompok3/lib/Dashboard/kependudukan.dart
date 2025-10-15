@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../theme/app_theme.dart'; // pastikan path ini sesuai dengan struktur project-mu
+import '../Theme/app_theme.dart';
+import '../layout/sidebar.dart';
 
 class DashboardKependudukanPage extends StatelessWidget {
   const DashboardKependudukanPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
+      drawer: const AppSidebar(), // ✅ Tambahkan sidebar agar konsisten
+      backgroundColor: AppTheme.backgroundBlueWhite,
       appBar: AppBar(
         title: const Text('Dashboard Kependudukan'),
         centerTitle: true,
         elevation: 0,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             // ======= STAT KOTAK ATAS =======
@@ -28,8 +27,8 @@ class DashboardKependudukanPage extends StatelessWidget {
                   child: _StatCard(
                     title: "🏠 Total Keluarga",
                     value: "6",
-                    background: Colors.blue.shade100,
-                    textColor: Colors.blue.shade800,
+                    background: AppTheme.lightBlue,
+                    textColor: AppTheme.primaryBlue,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -37,13 +36,13 @@ class DashboardKependudukanPage extends StatelessWidget {
                   child: _StatCard(
                     title: "👥 Total Penduduk",
                     value: "8",
-                    background: Colors.green.shade100,
-                    textColor: Colors.green.shade800,
+                    background: AppTheme.lightGreen,
+                    textColor: AppTheme.primaryGreen,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
             // ======= GRID CHARTS =======
             GridView.count(
@@ -56,32 +55,38 @@ class DashboardKependudukanPage extends StatelessWidget {
               children: const [
                 _PieCard(
                   title: '🔘 Status Penduduk',
-                  color: Colors.yellow,
+                  color: AppTheme.lightGreen,
+                  textColor: AppTheme.primaryGreen,
                   data: {'Aktif': 100},
                 ),
                 _PieCard(
                   title: '⚤ Jenis Kelamin',
-                  color: Colors.purple,
+                  color: AppTheme.lightBlue,
+                  textColor: AppTheme.primaryBlue,
                   data: {'Laki-laki': 88, 'Perempuan': 12},
                 ),
                 _PieCard(
                   title: '💼 Pekerjaan Penduduk',
-                  color: Colors.pink,
+                  color: AppTheme.lightGreen,
+                  textColor: AppTheme.primaryGreen,
                   data: {'Lainnya': 100},
                 ),
                 _PieCard(
                   title: '👪 Peran dalam Keluarga',
-                  color: Colors.indigo,
+                  color: AppTheme.lightBlue,
+                  textColor: AppTheme.primaryBlue,
                   data: {'Kepala Keluarga': 75, 'Anak': 13, 'Anggota Lain': 12},
                 ),
                 _PieCard(
                   title: '🙏 Agama',
-                  color: Colors.red,
+                  color: AppTheme.lightGreen,
+                  textColor: AppTheme.primaryGreen,
                   data: {'Islam': 50, 'Katolik': 50},
                 ),
                 _PieCard(
                   title: '👨🏻‍🎓 Pendidikan',
-                  color: Colors.teal,
+                  color: AppTheme.lightBlue,
+                  textColor: AppTheme.primaryBlue,
                   data: {'Sarjana/Diploma': 100},
                 ),
               ],
@@ -142,20 +147,21 @@ class _StatCard extends StatelessWidget {
 class _PieCard extends StatelessWidget {
   final String title;
   final Map<String, double> data;
-  final MaterialColor color;
+  final Color color;
+  final Color textColor;
 
   const _PieCard({
     required this.title,
     required this.data,
     required this.color,
+    required this.textColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: color.shade100,
+        color: color,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -171,9 +177,7 @@ class _PieCard extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: color.shade800),
+                fontWeight: FontWeight.bold, fontSize: 16, color: textColor),
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -184,18 +188,18 @@ class _PieCard extends StatelessWidget {
                 sections: data.entries.map((e) {
                   final index = data.keys.toList().indexOf(e.key);
                   final colorList = [
-                    color.shade800,
-                    Colors.red.shade400,
-                    Colors.green.shade600,
-                    Colors.blue.shade600,
-                    Colors.orange.shade600,
+                    AppTheme.primaryGreen,
+                    AppTheme.primaryBlue,
+                    Colors.orange,
+                    Colors.pink,
+                    Colors.indigo,
                   ];
                   return PieChartSectionData(
                     value: e.value,
                     title: "${e.key} ${e.value.toStringAsFixed(0)}%",
                     color: colorList[index % colorList.length],
-                    titleStyle: TextStyle(
-                      color: theme.colorScheme.onPrimary,
+                    titleStyle: const TextStyle(
+                      color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),

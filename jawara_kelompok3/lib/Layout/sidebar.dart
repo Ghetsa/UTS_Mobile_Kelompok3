@@ -67,19 +67,19 @@ class AppSidebar extends StatelessWidget {
                 ),
                 children: [
                   _buildSubMenuItem(
-                    "Kategori Iuran",
+                    "Kegiatan",
                     "/dashboard/kegiatan",
                     context,
                     currentRoute,
                   ),
                   _buildSubMenuItem(
-                    "Tagih Iuran",
+                    "Kependudukan",
                     "/dashboard/kependudukan",
                     context,
                     currentRoute,
                   ),
                   _buildSubMenuItem(
-                    "Tagihan",
+                    "Keuangan",
                     "/dashboard/keuangan",
                     context,
                     currentRoute,
