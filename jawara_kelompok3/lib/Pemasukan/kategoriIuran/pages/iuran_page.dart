@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../main.dart';
+import '../../../theme/app_theme.dart';
+import '../../../layout/sidebar.dart';
 import '../widgets/info_box.dart';
 
 class KategoriIuranPage extends StatelessWidget {
@@ -25,8 +26,6 @@ class KategoriIuranPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Kategori Iuran"),
-        backgroundColor: const Color(0xFF2D531A),
-        foregroundColor: const Color(0xFFEBDDD0),
       ),
       drawer: const AppSidebar(),
       body: Padding(
@@ -45,14 +44,12 @@ class KategoriIuranPage extends StatelessWidget {
                   onPressed: () {
                     Navigator.pushNamed(context, '/pemasukan/pages/tambah_kategori');
                   },
-                  icon: const Icon(Icons.add_circle_outline,
-                      color: Color(0xFFEBDDD0)),
+                  icon: const Icon(Icons.add_circle_outline, color: Colors.white),
                   label: const Text("Tambah"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2D531A),
-                    foregroundColor: const Color(0xFFEBDDD0),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
+                    backgroundColor: AppTheme.primaryBlue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -62,14 +59,12 @@ class KategoriIuranPage extends StatelessWidget {
                   onPressed: () {
                     Navigator.pushNamed(context, '/pemasukan/pages/detail_kategori');
                   },
-                  icon: const Icon(Icons.filter_list,
-                      color: Color(0xFFEBDDD0)),
+                  icon: const Icon(Icons.filter_list, color: Colors.white),
                   label: const Text("Filter"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2D531A),
-                    foregroundColor: const Color(0xFFEBDDD0),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
+                    backgroundColor: AppTheme.primaryBlue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -84,12 +79,14 @@ class KategoriIuranPage extends StatelessWidget {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
+                  headingRowColor: WidgetStateProperty.all(AppTheme.lightBlue),
+                  dataRowColor: WidgetStateProperty.all(Colors.white),
                   columns: const [
-                    DataColumn(label: Text("No")),
-                    DataColumn(label: Text("Nama Iuran")),
-                    DataColumn(label: Text("Jenis Iuran")),
-                    DataColumn(label: Text("Nominal")),
-                    DataColumn(label: Text("Aksi")),
+                    DataColumn(label: Text("No", style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(label: Text("Nama Iuran", style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(label: Text("Jenis Iuran", style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(label: Text("Nominal", style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(label: Text("Aksi", style: TextStyle(fontWeight: FontWeight.bold))),
                   ],
                   rows: dataIuran.map((row) {
                     return DataRow(
@@ -100,7 +97,7 @@ class KategoriIuranPage extends StatelessWidget {
                         DataCell(Text(row["nominal"]!)),
                         DataCell(
                           IconButton(
-                            icon: const Icon(Icons.more_vert),
+                            icon: const Icon(Icons.more_vert, color: AppTheme.primaryBlue),
                             onPressed: () {
                               Navigator.pushNamed(
                                 context,

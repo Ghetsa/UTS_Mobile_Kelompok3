@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
+import '../Layout/sidebar.dart';
 
 class LogAktifitasPage extends StatelessWidget {
   const LogAktifitasPage({super.key});

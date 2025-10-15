@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../main.dart';
+import '../../Layout/sidebar.dart';
+import '../../theme/app_theme.dart'; // pastikan path sesuai lokasi AppTheme.dart
 
 class PemasukanLainTambahPage extends StatefulWidget {
   const PemasukanLainTambahPage({super.key});
@@ -16,23 +18,31 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Pemasukan Lain - Tambah"),
-        backgroundColor: const Color(0xFF4B3D1A),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: Colors.white,
       ),
+      drawer: const AppSidebar(),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Card(
           elevation: 3,
+          color: theme.colorScheme.background,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: ListView(
               children: [
-                const Text(
+                Text(
                   "Buat Pemasukan Non Iuran Baru",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                  ),
                 ),
                 const SizedBox(height: 16),
 
@@ -60,10 +70,11 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                           _selectedDate == null
                               ? "--/--/----"
                               : "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}",
+                          style: theme.textTheme.bodyMedium,
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.calendar_today),
+                        icon: Icon(Icons.calendar_today, color: theme.iconTheme.color),
                         onPressed: () async {
                           DateTime? pickedDate = await showDatePicker(
                             context: context,
@@ -118,10 +129,15 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                   padding: const EdgeInsets.all(20),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
+                    border: Border.all(color: theme.colorScheme.secondary),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text("Upload bukti pemasukan (.png/.jpg)"),
+                  child: Text(
+                    "Upload bukti pemasukan (.png/.jpg)",
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
 
@@ -130,16 +146,20 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.indigo,
+                        backgroundColor: theme.colorScheme.primary,
                         foregroundColor: Colors.white,
                       ),
                       onPressed: () {
-                        // Simpan logika submit
+                        // Logika simpan
                       },
                       child: const Text("Submit"),
                     ),
                     const SizedBox(width: 16),
                     OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: theme.colorScheme.primary,
+                        side: BorderSide(color: theme.colorScheme.primary),
+                      ),
                       onPressed: () {
                         _namaController.clear();
                         _nominalController.clear();

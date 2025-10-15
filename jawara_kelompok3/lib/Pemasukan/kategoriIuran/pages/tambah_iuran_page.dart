@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../main.dart';
+import '../../../Layout/sidebar.dart';
+import '../../../theme/app_theme.dart'; // pastikan path sesuai lokasi AppTheme.dart
 
 class TambahKategoriPage extends StatefulWidget {
   const TambahKategoriPage({super.key});
@@ -15,11 +17,13 @@ class _TambahKategoriPageState extends State<TambahKategoriPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Tambah Kategori Iuran"),
-        backgroundColor: const Color(0xFF2D531A),
-        foregroundColor: const Color(0xFFEBDDD0),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: Colors.white,
       ),
       drawer: const AppSidebar(),
       body: Padding(
@@ -30,13 +34,17 @@ class _TambahKategoriPageState extends State<TambahKategoriPage> {
             children: [
               TextFormField(
                 controller: namaController,
-                decoration: const InputDecoration(labelText: "Nama Iuran"),
+                decoration: const InputDecoration(
+                  labelText: "Nama Iuran",
+                ),
                 validator: (value) =>
                     value!.isEmpty ? "Tidak boleh kosong" : null,
               ),
               TextFormField(
                 controller: nominalController,
-                decoration: const InputDecoration(labelText: "Nominal"),
+                decoration: const InputDecoration(
+                  labelText: "Nominal",
+                ),
                 keyboardType: TextInputType.number,
                 validator: (value) =>
                     value!.isEmpty ? "Tidak boleh kosong" : null,
@@ -48,13 +56,15 @@ class _TambahKategoriPageState extends State<TambahKategoriPage> {
                     Navigator.pop(context);
                   }
                 },
-                icon: const Icon(Icons.save, color: Color(0xFFEBDDD0)),
+                icon: Icon(Icons.save, color: theme.colorScheme.onPrimary),
                 label: const Text("Simpan"),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2D531A),
-                  foregroundColor: const Color(0xFFEBDDD0),
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 12),
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
