@@ -17,12 +17,6 @@ void main() {
   runApp(const MyApp());
 }
 
-class AppColors {
-  static const Color primaryDark = Color(0xFF5C4E43); // Coklat gelap elegan
-  static const Color secondaryCream = Color(0xFFEDE8D2); // Krem lembut
-  static const Color accentGold = Color(0xFFC7B68D); // Emas lembut
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -32,9 +26,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Iuran Warga',
       theme: ThemeData(
-        scaffoldBackgroundColor: AppColors.secondaryCream,
+        scaffoldBackgroundColor: const Color(0xFFF8FAFC), // putih kebiruan lembut
         appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.primaryDark,
+          backgroundColor: Color(0xFF1E3A8A), // biru navy modern
           foregroundColor: Colors.white,
           elevation: 0,
         ),
@@ -68,23 +62,23 @@ class AppSidebar extends StatelessWidget {
 
     return Drawer(
       child: Container(
-        color: AppColors.secondaryCream, // ☕ sidebar warna krem lembut
+        color: const Color(0xFFDBEAFE), // 💙 biru muda lembut untuk sidebar
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
               decoration: BoxDecoration(
-                color: AppColors.primaryDark, // 🟤 header coklat gelap elegan
+                color: Color(0xFF1E3A8A), // 🔵 biru gelap (sama dengan AppBar)
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(radius: 25, backgroundColor: AppColors.secondaryCream),
+                  CircleAvatar(radius: 25, backgroundColor: Color(0xFFF8FAFC)),
                   SizedBox(height: 10),
                   Text(
                     "Admin Jawara",
                     style: TextStyle(
-                      color: AppColors.accentGold,
+                      color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -92,7 +86,7 @@ class AppSidebar extends StatelessWidget {
                   Text(
                     "admin1@gmail.com",
                     style: TextStyle(
-                      color: Color(0xFFF8F7F3),
+                      color: Color(0xFFE0E7FF), // teks biru muda lembut
                       fontSize: 12,
                     ),
                   ),
@@ -123,7 +117,7 @@ class AppSidebar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: isActive
-            ? AppColors.primaryDark // 🟤 warna aktif (coklat gelap)
+            ? const Color(0xFF1E3A8A) // biru tua untuk item aktif
             : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
@@ -132,15 +126,15 @@ class AppSidebar extends StatelessWidget {
         leading: Icon(
           icon,
           color: isActive
-              ? AppColors.accentGold // ✨ ikon emas saat aktif
-              : AppColors.primaryDark, // ikon coklat gelap saat nonaktif
+              ? Colors.white
+              : const Color(0xFF1E40AF), // ikon biru gelap untuk nonaktif
         ),
         title: Text(
           title,
           style: TextStyle(
             color: isActive
-                ? AppColors.accentGold // teks emas saat aktif
-                : AppColors.primaryDark, // teks coklat saat nonaktif
+                ? Colors.white
+                : const Color(0xFF1E293B), // teks abu kebiruan
             fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
           ),
         ),
