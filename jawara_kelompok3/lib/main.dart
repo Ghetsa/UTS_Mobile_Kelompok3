@@ -6,7 +6,8 @@ import 'KegiatanDanBroadcast/kegiatan.dart';
 import 'LaporanKeuangan/laporan_keuangan.dart';
 import 'LogAktifitas/log_aktifitas.dart';
 import 'ManajemenPengguna/manajemen_pengguna.dart';
-import 'MutasiKeluarga/mutasi_keluarga.dart';
+import 'MutasiKeluarga/Daftar/daftarMutasi.dart';
+import 'MutasiKeluarga/Tambah/tambahMutasi.dart';
 import 'Pengeluaran/pengeluaran.dart';
 import 'PesanWarga/pesan_warga.dart';
 import 'Pemasukan/kategoriIuran/pages/iuran_page.dart';
@@ -55,7 +56,10 @@ class MyApp extends StatelessWidget {
         '/pesan': (context) => const PesanWargaPage(),
         '/kegiatan': (context) => const KegiatanBroadcastPage(),
         '/pengeluaran': (context) => const PengeluaranPage(),
-        '/mutasi': (context) => const MutasiKeluargaPage(),
+
+        // === Mutasi Keluarga ===
+        '/Daftar/tambah-mutasi': (context) => const TambahMutasiPage(),
+        '/Daftar/daftar-mutasi': (context) => const DaftarMutasiPage(),
       },
     );
   }
@@ -104,20 +108,7 @@ class AppSidebar extends StatelessWidget {
                 _buildSubMenuItem("Pemasukan Lain - Daftar", "/pemasukan/pemasukanLain-daftar", context),
                 _buildSubMenuItem("Pemasukan Lain - Tambah", "/pemasukan/pemasukanLain-tambah", context),
               ],
-            ),
-
-            // === Kegiatan ===
-            ExpansionTile(
-              leading: const Icon(Icons.receipt_long, color: Color(0xFFE6D7C4)),
-              title: const Text("Pemasukan",
-                  style: TextStyle(color: Color(0xFFE6D7C4))),
-              children: [
-                _buildSubMenuItem("Kegiatan - Daftar", "/pemasukan/pages/kategori", context),
-                _buildSubMenuItem("Kegiatan - Tambah", "/pemasukan/tagihIuran", context),
-                _buildSubMenuItem("Broadcast - Daftar", "/pemasukan/tagihan", context),
-                _buildSubMenuItem("Broadcast - Tambah", "/pemasukan/tagihan", context),
-              ],
-            ),
+            ),            
 
             // === Menu utama lain ===
             _buildMenuItem(Icons.insert_chart, "Laporan Keuangan", "/laporan", context),
@@ -127,7 +118,17 @@ class AppSidebar extends StatelessWidget {
             _buildMenuItem(Icons.message, "Pesan Warga", "/pesan", context),
             _buildMenuItem(Icons.event, "Kegiatan & Broadcast", "/kegiatan", context),
             _buildMenuItem(Icons.wallet, "Pengeluaran", "/pengeluaran", context),
-            _buildMenuItem(Icons.family_restroom, "Mutasi Keluarga", "/mutasi", context),
+
+            // === Mutasi Keluarga ===
+            ExpansionTile(
+              leading: const Icon(Icons.family_restroom, color: Color(0xFFE6D7C4)),
+              title: const Text("Mutasi Keluarga",
+                  style: TextStyle(color: Color(0xFFE6D7C4))),
+              children: [
+                _buildSubMenuItem("Daftar", "/Daftar/tambah-mutasi", context),
+                _buildSubMenuItem("Tambah", "/Daftar/daftar-mutasi", context),
+              ],
+            ),
           ],
         ),
       ),
