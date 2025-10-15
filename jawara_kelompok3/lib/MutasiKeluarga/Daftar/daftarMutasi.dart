@@ -9,17 +9,15 @@ class DaftarMutasiPage extends StatelessWidget {
     final List<Map<String, String>> mutasi = [
       {
         "no": "1",
-        "nama": "Joki by firman",
-        "jenis": "Mutasi Masuk",
         "tanggal": "13 Oktober 2025",
-        "nominal": "Rp 49.999.997,00",
+        "keluarga": "Keluarga Firman",
+        "jenis": "Mutasi Masuk",
       },
       {
         "no": "2",
-        "nama": "tes",
-        "jenis": "Mutasi Keluar",
         "tanggal": "12 Agustus 2025",
-        "nominal": "Rp 10.000,00",
+        "keluarga": "Keluarga Siregar",
+        "jenis": "Mutasi Keluar",
       },
     ];
 
@@ -66,10 +64,9 @@ class DaftarMutasiPage extends StatelessWidget {
                     ),
                     columns: const [
                       DataColumn(label: Text("No")),
-                      DataColumn(label: Text("Nama")),
-                      DataColumn(label: Text("Jenis Mutasi")),
                       DataColumn(label: Text("Tanggal")),
-                      DataColumn(label: Text("Nominal")),
+                      DataColumn(label: Text("Keluarga")),
+                      DataColumn(label: Text("Jenis Mutasi")),
                       DataColumn(label: Text("Aksi")),
                     ],
                     rows: mutasi
@@ -77,10 +74,9 @@ class DaftarMutasiPage extends StatelessWidget {
                           (item) => DataRow(
                             cells: [
                               DataCell(Text(item["no"]!)),
-                              DataCell(Text(item["nama"]!)),
-                              DataCell(Text(item["jenis"]!)),
                               DataCell(Text(item["tanggal"]!)),
-                              DataCell(Text(item["nominal"]!)),
+                              DataCell(Text(item["keluarga"]!)),
+                              DataCell(Text(item["jenis"]!)),
                               DataCell(
                                 IconButton(
                                   icon: const Icon(Icons.more_horiz),
