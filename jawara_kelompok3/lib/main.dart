@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
-import 'Pemasukan/pages/iuran_page.dart';
-import 'Pemasukan/pages/tambah_iuran_page.dart';
-import 'Pemasukan/pages/detail_page.dart';
-import 'Channel transfer/channel_transfer.dart';
+import 'ChannelTransfer/channel_transfer.dart';
 import 'Dashboard/dashboard_page.dart';
-import 'Data warga dan rumah/data_warga_page.dart';
-import 'Kegiatan dan broadcast/kegiatan.dart';
-import 'Laporan keuangan/laporan_keuangan.dart';
-import 'Log aktifitas/log_aktifitas.dart';
-import 'Manajemen pengguna/manajemen_pengguna.dart';
-import 'Mutasi keluarga/mutasi_keluarga.dart';
+import 'DataWargaDanRumah/data_warga_page.dart';
+import 'KegiatanDanBroadcast/kegiatan.dart';
+import 'LaporanKeuangan/laporan_keuangan.dart';
+import 'LogAktifitas/log_aktifitas.dart';
+import 'ManajemenPengguna/manajemen_pengguna.dart';
+import 'MutasiKeluarga/mutasi_keluarga.dart';
 import 'Pengeluaran/pengeluaran.dart';
-import 'Pesan warga/pesan_warga.dart';
+import 'PesanWarga/pesan_warga.dart';
+import 'Pemasukan/kategoriIuran/pages/iuran_page.dart';
+import 'Pemasukan/kategoriIuran/pages/tambah_iuran_page.dart';
+import 'Pemasukan/kategoriIuran/pages/detail_page.dart';
+import 'Pemasukan/tagihIuran/tagih_iuran_page.dart';
+import 'Pemasukan/tagihan/tagihan_page.dart';
+import 'Pemasukan/pemasukanLain/daftar_page.dart';
+import 'Pemasukan/pemasukanLain/tambah_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,14 +31,22 @@ class MyApp extends StatelessWidget {
       title: 'Iuran Warga',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: const Color(0xFFE6D7C4),   // background halaman
+        scaffoldBackgroundColor: const Color(0xFFE6D7C4), // background halaman
       ),
       initialRoute: '/',
       routes: {
         '/': (context) => const DashboardPage(),
-        '/iuran': (context) => const IuranPage(),
-        '/tambah': (context) => const TambahIuranPage(),
-        '/detail': (context) => const DetailPage(),
+
+        // === Pemasukan ===
+       '/pemasukan/pages/kategori': (context) => const KategoriIuranPage(),
+       '/pemasukan/pages/tambah_kategori': (context) => const TambahKategoriPage(),
+       '/pemasukan/pages/detail_kategori': (context) => const DetailKategoriPage(),
+       '/pemasukan/tagihIuran': (context) => const TagihIuranPage(),
+       '/pemasukan/tagihan': (context) => const TagihanPage(),
+       '/pemasukan/pemasukanLain-daftar': (context) => const PemasukanLainDaftarPage(),
+       '/pemasukan/pemasukanLain-tambah': (context) => const PemasukanLainTambahPage(),
+
+        // === Menu utama lain ===
         '/data': (context) => const DataWargaPage(),
         '/laporan': (context) => const LaporanKeuanganPage(),
         '/manajemen': (context) => const ManajemenPenggunaPage(),
@@ -49,7 +61,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// Widget Sidebar
+/// Sidebar 
 class AppSidebar extends StatelessWidget {
   const AppSidebar({super.key});
 
@@ -57,7 +69,7 @@ class AppSidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        color: const Color(0xFF4B3D1A), // warna background sidebar
+        color: const Color(0xFF4B3D1A),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -75,9 +87,26 @@ class AppSidebar extends StatelessWidget {
                 ],
               ),
             ),
+
+            // === Menu utama ===
             _buildMenuItem(Icons.dashboard, "Dashboard", "/", context),
             _buildMenuItem(Icons.people, "Data Warga & Rumah", "/data", context),
-            _buildMenuItem(Icons.receipt_long, "Pemasukan", "/iuran", context),
+
+            // === Pemasukan ===
+            ExpansionTile(
+              leading: const Icon(Icons.receipt_long, color: Color(0xFFE6D7C4)),
+              title: const Text("Pemasukan",
+                  style: TextStyle(color: Color(0xFFE6D7C4))),
+              children: [
+                _buildSubMenuItem("Kategori Iuran", "/pemasukan/pages/kategori", context),
+                _buildSubMenuItem("Tagih Iuran", "/pemasukan/tagihIuran", context),
+                _buildSubMenuItem("Tagihan", "/pemasukan/tagihan", context),
+                _buildSubMenuItem("Pemasukan Lain - Daftar", "/pemasukan/pemasukanLain-daftar", context),
+                _buildSubMenuItem("Pemasukan Lain - Tambah", "/pemasukan/pemasukanLain-tambah", context),
+              ],
+            ),
+
+            // === Menu utama lain ===
             _buildMenuItem(Icons.insert_chart, "Laporan Keuangan", "/laporan", context),
             _buildMenuItem(Icons.people_alt, "Manajemen Pengguna", "/manajemen", context),
             _buildMenuItem(Icons.swap_horiz, "Channel Transfer", "/channel", context),
@@ -92,11 +121,29 @@ class AppSidebar extends StatelessWidget {
     );
   }
 
+  /// Menu utama biasa
   static Widget _buildMenuItem(
       IconData icon, String title, String route, BuildContext context) {
     return ListTile(
-      leading: Icon(icon, color: const Color(0xFFE6D7C4)), // ikon warna krem
-      title: Text(title, style: const TextStyle(color: Color(0xFFE6D7C4))), // teks krem
+      leading: Icon(icon, color: const Color(0xFFE6D7C4)),
+      title: Text(title, style: const TextStyle(color: Color(0xFFE6D7C4))),
+      onTap: () {
+        Navigator.pop(context);
+        if (ModalRoute.of(context)?.settings.name != route) {
+          Navigator.pushNamed(context, route);
+        }
+      },
+    );
+  }
+
+  /// Submenu
+  static Widget _buildSubMenuItem(
+      String title, String route, BuildContext context) {
+    return ListTile(
+      dense: true,
+      contentPadding: const EdgeInsets.only(left: 60.0), // indent
+      title: Text(title,
+          style: const TextStyle(color: Color(0xFFE6D7C4), fontSize: 14)),
       onTap: () {
         Navigator.pop(context);
         if (ModalRoute.of(context)?.settings.name != route) {
