@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../Layout/sidebar.dart';
 import '../mutasi_model.dart';
 import 'detailMutasi.dart';
 
@@ -15,6 +16,7 @@ class DaftarMutasiPage extends StatefulWidget {
 class _DaftarMutasiPageState extends State<DaftarMutasiPage> {
   String? filterJenis;
   String? filterKeluarga;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<Mutasi> getFilteredMutasi() {
     var daftar = MutasiStorage.daftar;
@@ -33,8 +35,16 @@ class _DaftarMutasiPageState extends State<DaftarMutasiPage> {
     final mutasiList = getFilteredMutasi();
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: const AppSidebar(),
       appBar: AppBar(
         title: const Text("Daftar Mutasi Keluarga"),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+          ),
+        ),
         backgroundColor: theme.colorScheme.primary,
         actions: [
           IconButton(
