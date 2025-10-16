@@ -5,8 +5,13 @@ import '../Dashboard/kegiatan.dart';
 import '../Dashboard/keuangan.dart';
 import '../Dashboard/kependudukan.dart';
 
+// === Warga dan Rumah ===
+import '../DataWargaDanRumah/Rumah/DaftarRumah.dart';
+import '../DataWargaDanRumah/Rumah/TambahRumah.dart';
+import '../DataWargaDanRumah/Warga/DaftarWarga.dart';
+import '../DataWargaDanRumah/Warga/TambahWarga.dart';
+
 // === Menu Utama ===
-import '../DataWargaDanRumah/data_warga_page.dart';
 import '../LaporanKeuangan/pages/semua_pemasukan_page.dart';
 import '../LaporanKeuangan/pages/semua_pengeluaran_page.dart';
 import '../LaporanKeuangan/pages/cetak_laporan_page.dart';
@@ -36,6 +41,14 @@ class AppRoutes {
     '/dashboard/keuangan': (context) => const DashboardKeuanganPage(),
     '/dashboard/kependudukan': (context) => const DashboardKependudukanPage(),
 
+    // === Data Warga ===
+    '/warga/daftar': (context) => const DaftarWargaPage(),
+    '/warga/tambah': (context) => const TambahWargaPage(),
+
+    // === Data Rumah ===
+    '/rumah/daftar': (context) => const DaftarRumahPage(),
+    '/rumah/tambah': (context) => const TambahRumahPage(),
+
     // === Pemasukan ===
     '/pemasukan/pages/kategori': (context) => const KategoriIuranPage(),
     '/pemasukan/pages/tambah_kategori': (context) => const TambahKategoriPage(),
@@ -44,15 +57,21 @@ class AppRoutes {
     '/pemasukan/pemasukanLain-daftar': (context) => const PemasukanLainDaftarPage(),
     '/pemasukan/pemasukanLain-tambah': (context) => const PemasukanLainTambahPage(),
 
+    // === Laporan Keuangan ===
+    '/laporan/semua-pemasukan': (context) => const SemuaPemasukanPage(),
+    '/laporan/semua-pengeluaran': (context) => const SemuaPengeluaranPage(),
+    '/laporan/cetak': (context) => const CetakLaporanPage(),
+
     // === Pengeluaran ===
     '/pengeluaran': (context) => const PengeluaranPage(),
 
     // === Kegiatan & Broadcast ===
     '/kegiatan': (context) => const KegiatanBroadcastPage(),
 
-    // === Data Warga dan Rumah ===
-    '/data': (context) => const DataWargaPage(),
-    // '/laporan': (context) => const LaporanKeuanganPage(),
+    // === Mutasi Keluarga ===
+    '/mutasi': (context) => const MutasiKeluargaPage(),
+
+    // === Manajemen Pengguna ===
     '/manajemen': (context) => const ManajemenPenggunaPage(),
 
     // === Channel Transfer ===

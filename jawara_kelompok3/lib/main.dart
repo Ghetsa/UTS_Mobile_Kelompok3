@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'routes/app_routes.dart';
-import 'Dashboard/kegiatan.dart';
 import 'Theme/app_theme.dart'; // ✅ import theme
 
 void main() {
