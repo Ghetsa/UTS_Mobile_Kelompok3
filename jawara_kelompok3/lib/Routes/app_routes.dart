@@ -27,7 +27,6 @@ import '../LogAktifitas/log_aktifitas.dart';
 import '../PesanWarga/pesan_warga.dart';
 import '../KegiatanDanBroadcast/kegiatan.dart';
 import '../Pengeluaran/pengeluaran.dart';
-import '../MutasiKeluarga/mutasi_keluarga.dart';
 
 // === Pemasukan ===
 import '../Pemasukan/kategoriIuran/pages/iuran_page.dart';
@@ -36,6 +35,10 @@ import '../Pemasukan/tagihIuran/tagih_iuran_page.dart';
 import '../Pemasukan/tagihan/tagihan_page.dart';
 import '../Pemasukan/pemasukanLain/daftar_page.dart';
 import '../Pemasukan/pemasukanLain/tambah_page.dart';
+
+// === Mutasi Keluarga ===
+import '../MutasiKeluarga/Daftar/daftarMutasi.dart';
+import '../MutasiKeluarga/Tambah/tambahMutasi.dart' as mutasi_tambah;
 
 class AppRoutes {
   static final Map<String, WidgetBuilder> routes = {
@@ -83,7 +86,8 @@ class AppRoutes {
     '/kegiatan': (context) => const KegiatanBroadcastPage(),
 
     // === Mutasi Keluarga ===
-    '/mutasi': (context) => const MutasiKeluargaPage(),
+    '/mutasi/daftar': (context) => const DaftarMutasiPage(),
+    '/mutasi/tambah': (context) => const mutasi_tambah.TambahMutasiPage(),
 
     // === Manajemen Pengguna ===
     '/manajemen': (context) => const ManajemenPenggunaPage(),

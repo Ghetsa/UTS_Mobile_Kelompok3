@@ -47,9 +47,11 @@ class AppSidebar extends StatelessWidget {
 
             // === Dashboard ===
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                leading: const Icon(Icons.receipt_long, color: AppTheme.primaryBlue),
+                leading:
+                    const Icon(Icons.receipt_long, color: AppTheme.primaryBlue),
                 title: const Text(
                   "Dashboard",
                   style: TextStyle(
@@ -58,16 +60,20 @@ class AppSidebar extends StatelessWidget {
                   ),
                 ),
                 children: [
-                  _buildSubMenuItem("Kegiatan", "/dashboard/kegiatan", context, currentRoute),
-                  _buildSubMenuItem("Kependudukan", "/dashboard/kependudukan", context, currentRoute),
-                  _buildSubMenuItem("Keuangan", "/dashboard/keuangan", context, currentRoute),
+                  _buildSubMenuItem(
+                      "Kegiatan", "/dashboard/kegiatan", context, currentRoute),
+                  _buildSubMenuItem("Kependudukan", "/dashboard/kependudukan",
+                      context, currentRoute),
+                  _buildSubMenuItem(
+                      "Keuangan", "/dashboard/keuangan", context, currentRoute),
                 ],
               ),
             ),
 
             // === Data Warga & Rumah ===
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
                 leading: const Icon(Icons.people, color: AppTheme.primaryBlue),
                 title: const Text(
@@ -78,20 +84,27 @@ class AppSidebar extends StatelessWidget {
                   ),
                 ),
                 children: [
-                  _buildSubMenuItem("Warga - Daftar", "/warga/daftar", context, currentRoute),
-                  _buildSubMenuItem("Warga - Tambah", "/warga/tambah", context, currentRoute),
-                  _buildSubMenuItem("Keluarga", "/keluarga", context, currentRoute),
-                  _buildSubMenuItem("Rumah - Daftar", "/rumah/daftar", context, currentRoute),
-                  _buildSubMenuItem("Rumah - Tambah", "/rumah/tambah", context, currentRoute),
+                  _buildSubMenuItem(
+                      "Warga - Daftar", "/warga/daftar", context, currentRoute),
+                  _buildSubMenuItem(
+                      "Warga - Tambah", "/warga/tambah", context, currentRoute),
+                  _buildSubMenuItem(
+                      "Keluarga", "/keluarga", context, currentRoute),
+                  _buildSubMenuItem(
+                      "Rumah - Daftar", "/rumah/daftar", context, currentRoute),
+                  _buildSubMenuItem(
+                      "Rumah - Tambah", "/rumah/tambah", context, currentRoute),
                 ],
               ),
             ),
 
             // === Pemasukan ===
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                leading: const Icon(Icons.receipt_long, color: AppTheme.primaryBlue),
+                leading:
+                    const Icon(Icons.receipt_long, color: AppTheme.primaryBlue),
                 title: const Text(
                   "Pemasukan",
                   style: TextStyle(
@@ -100,20 +113,27 @@ class AppSidebar extends StatelessWidget {
                   ),
                 ),
                 children: [
-                  _buildSubMenuItem("Kategori Iuran", "/pemasukan/pages/kategori", context, currentRoute),
-                  _buildSubMenuItem("Tagih Iuran", "/pemasukan/tagihIuran", context, currentRoute),
-                  _buildSubMenuItem("Tagihan", "/pemasukan/tagihan", context, currentRoute),
-                  _buildSubMenuItem("Pemasukan Lain - Daftar", "/pemasukan/pemasukanLain-daftar", context, currentRoute),
-                  _buildSubMenuItem("Pemasukan Lain - Tambah", "/pemasukan/pemasukanLain-tambah", context, currentRoute),
+                  _buildSubMenuItem("Kategori Iuran",
+                      "/pemasukan/pages/kategori", context, currentRoute),
+                  _buildSubMenuItem("Tagih Iuran", "/pemasukan/tagihIuran",
+                      context, currentRoute),
+                  _buildSubMenuItem(
+                      "Tagihan", "/pemasukan/tagihan", context, currentRoute),
+                  _buildSubMenuItem("Pemasukan Lain - Daftar",
+                      "/pemasukan/pemasukanLain-daftar", context, currentRoute),
+                  _buildSubMenuItem("Pemasukan Lain - Tambah",
+                      "/pemasukan/pemasukanLain-tambah", context, currentRoute),
                 ],
               ),
             ),
 
             // === Laporan Keuangan ===
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                leading: const Icon(Icons.bar_chart, color: AppTheme.primaryBlue),
+                leading:
+                    const Icon(Icons.bar_chart, color: AppTheme.primaryBlue),
                 title: const Text(
                   "Laporan Keuangan",
                   style: TextStyle(
@@ -122,21 +142,88 @@ class AppSidebar extends StatelessWidget {
                   ),
                 ),
                 children: [
-                  _buildSubMenuItem("Semua Pemasukan", "/laporan/semua-pemasukan", context, currentRoute),
-                  _buildSubMenuItem("Semua Pengeluaran", "/laporan/semua-pengeluaran", context, currentRoute),
-                  _buildSubMenuItem("Cetak Laporan", "/laporan/cetak", context, currentRoute),
+                  _buildSubMenuItem("Semua Pemasukan",
+                      "/laporan/semua-pemasukan", context, currentRoute),
+                  _buildSubMenuItem("Semua Pengeluaran",
+                      "/laporan/semua-pengeluaran", context, currentRoute),
+                  _buildSubMenuItem(
+                      "Cetak Laporan", "/laporan/cetak", context, currentRoute),
                 ],
               ),
             ),
 
             // === Menu utama lain ===
-            _buildMenuItem(Icons.people_alt, "Manajemen Pengguna", "/manajemen", context, currentRoute),
-            _buildMenuItem(Icons.swap_horiz, "Channel Transfer", "/channel", context, currentRoute),
-            _buildMenuItem(Icons.history, "Log Aktifitas", "/log", context, currentRoute),
-            _buildMenuItem(Icons.message, "Pesan Warga", "/pesan", context, currentRoute),
-            _buildMenuItem(Icons.event, "Kegiatan & Broadcast", "/kegiatan", context, currentRoute),
-            _buildMenuItem(Icons.wallet, "Pengeluaran", "/pengeluaran", context, currentRoute),
-            _buildMenuItem(Icons.family_restroom, "Mutasi Keluarga", "/mutasi", context, currentRoute),
+            _buildMenuItem(
+              Icons.insert_chart,
+              "Laporan Keuangan",
+              "/laporan",
+              context,
+              currentRoute,
+            ),
+            _buildMenuItem(
+              Icons.people_alt,
+              "Manajemen Pengguna",
+              "/manajemen",
+              context,
+              currentRoute,
+            ),
+            _buildMenuItem(
+              Icons.swap_horiz,
+              "Channel Transfer",
+              "/channel",
+              context,
+              currentRoute,
+            ),
+            _buildMenuItem(
+              Icons.history,
+              "Log Aktifitas",
+              "/log",
+              context,
+              currentRoute,
+            ),
+            _buildMenuItem(
+              Icons.message,
+              "Pesan Warga",
+              "/pesan",
+              context,
+              currentRoute,
+            ),
+            _buildMenuItem(
+              Icons.event,
+              "Kegiatan & Broadcast",
+              "/kegiatan",
+              context,
+              currentRoute,
+            ),
+            _buildMenuItem(
+              Icons.wallet,
+              "Pengeluaran",
+              "/pengeluaran",
+              context,
+              currentRoute,
+            ),
+            // Mutasi Keluarga with submenu
+            Theme(
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading: const Icon(Icons.family_restroom,
+                    color: AppTheme.primaryBlue),
+                title: const Text(
+                  "Mutasi Keluarga",
+                  style: TextStyle(
+                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                children: [
+                  _buildSubMenuItem(
+                      "Daftar", "/mutasi/daftar", context, currentRoute),
+                  _buildSubMenuItem(
+                      "Tambah", "/mutasi/tambah", context, currentRoute),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -160,7 +247,8 @@ class AppSidebar extends StatelessWidget {
       ),
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
-        leading: Icon(icon, color: isActive ? Colors.white : AppTheme.primaryBlue),
+        leading:
+            Icon(icon, color: isActive ? Colors.white : AppTheme.primaryBlue),
         title: Text(
           title,
           style: TextStyle(
@@ -189,7 +277,9 @@ class AppSidebar extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isActive ? AppTheme.primaryBlue.withOpacity(0.1) : Colors.transparent,
+        color: isActive
+            ? AppTheme.primaryBlue.withOpacity(0.1)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
