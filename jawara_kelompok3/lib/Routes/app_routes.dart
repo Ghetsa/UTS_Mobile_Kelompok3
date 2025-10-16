@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 
+// === Login ===
+import '../login/login.dart';
+
+// === Register ===
+import '../register/register.dart';
+
 // === Dashboard ===
 import '../Dashboard/kegiatan.dart';
 import '../Dashboard/keuangan.dart';
@@ -29,7 +35,13 @@ import '../Pemasukan/pemasukanLain/tambah_page.dart';
 class AppRoutes {
   static final Map<String, WidgetBuilder> routes = {
     // === Default Route ===
-    '/': (context) => const DashboardKegiatanPage(),
+    '/': (context) => const LoginScreen(),
+
+    // === Login ===
+    '/login': (context) => const LoginScreen(),
+
+    // === Register ===
+    '/register': (context) => const RegisterScreen(),
 
     // === Dashboard ===
     '/dashboard/kegiatan': (context) => const DashboardKegiatanPage(),
@@ -41,8 +53,10 @@ class AppRoutes {
     '/pemasukan/pages/tambah_kategori': (context) => const TambahKategoriPage(),
     '/pemasukan/tagihIuran': (context) => const TagihIuranPage(),
     '/pemasukan/tagihan': (context) => const TagihanPage(),
-    '/pemasukan/pemasukanLain-daftar': (context) => const PemasukanLainDaftarPage(),
-    '/pemasukan/pemasukanLain-tambah': (context) => const PemasukanLainTambahPage(),
+    '/pemasukan/pemasukanLain-daftar': (context) =>
+        const PemasukanLainDaftarPage(),
+    '/pemasukan/pemasukanLain-tambah': (context) =>
+        const PemasukanLainTambahPage(),
 
     // === Pengeluaran ===
     '/pengeluaran': (context) => const PengeluaranPage(),
