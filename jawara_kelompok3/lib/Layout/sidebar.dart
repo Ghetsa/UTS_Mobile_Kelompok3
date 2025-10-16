@@ -167,18 +167,45 @@ class AppSidebar extends StatelessWidget {
               ),
             ),
 
+            // === Manajemen Pengguna ===
+            Theme(
+              data: Theme.of(
+                context,
+              ).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading: const Icon(
+                  Icons.receipt_long,
+                  color: AppTheme.primaryBlue,
+                ),
+                title: const Text(
+                  "Manajemen Pengguna",
+                  style: TextStyle(
+                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                children: [
+                  _buildSubMenuItem(
+                    "Daftar Pengguna",
+                    "/pengguna/penggunaDaftar",
+                    context,
+                    currentRoute,
+                  ),
+                  _buildSubMenuItem(
+                    "Tambah Pengguna",
+                    "/pengguna/penggunaTambah",
+                    context,
+                    currentRoute,
+                  ),
+                ],
+              ),
+            ),
+
             // === Menu utama lain ===
             _buildMenuItem(
               Icons.insert_chart,
               "Laporan Keuangan",
               "/laporan",
-              context,
-              currentRoute,
-            ),
-            _buildMenuItem(
-              Icons.people_alt,
-              "Manajemen Pengguna",
-              "/manajemen",
               context,
               currentRoute,
             ),

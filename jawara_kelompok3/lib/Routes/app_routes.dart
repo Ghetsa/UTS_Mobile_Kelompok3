@@ -32,6 +32,10 @@ import '../Pemasukan/tagihan/tagihan_page.dart';
 import '../Pemasukan/pemasukanLain/daftar_page.dart';
 import '../Pemasukan/pemasukanLain/tambah_page.dart';
 
+// === Manajemen Pengguna ===
+import '../ManajemenPengguna/Daftar/daftar_pengguna.dart';
+import '../ManajemenPengguna/Tambah/tambah_pengguna.dart';
+
 class AppRoutes {
   static final Map<String, WidgetBuilder> routes = {
     // === Default Route ===
@@ -67,7 +71,11 @@ class AppRoutes {
     // === Data Warga dan Rumah ===
     '/data': (context) => const DataWargaPage(),
     // '/laporan': (context) => const LaporanKeuanganPage(),
+
+    // === Manajemen Pengguna ===
     '/manajemen': (context) => const ManajemenPenggunaPage(),
+    '/pengguna/penggunaDaftar': (context) => const DaftarPenggunaPage(),
+    '/pengguna/penggunaTambah': (context) => const TambahPenggunaPage(),
 
     // === Channel Transfer ===
     '/channel': (context) => const ChannelTransferPage(),

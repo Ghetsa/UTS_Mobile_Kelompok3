@@ -165,7 +165,7 @@ class LoginScreen extends StatelessWidget {
                           height: 50,
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.pushNamed(context, '/');
+                              Navigator.pushNamed(context, '/dashboard/kegiatan');
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.primaryBlue,
