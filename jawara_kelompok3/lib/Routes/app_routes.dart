@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 // Import semua halaman
 import '../Dashboard/dashboard_page.dart';
 import '../DataWargaDanRumah/data_warga_page.dart';
-import '../LaporanKeuangan/laporan_keuangan.dart';
+import '../LaporanKeuangan/pages/semua_pemasukan_page.dart';
+import '../LaporanKeuangan/pages/semua_pengeluaran_page.dart';
+import '../LaporanKeuangan/pages/cetak_laporan_page.dart';
 import '../ManajemenPengguna/manajemen_pengguna.dart';
 import '../ChannelTransfer/channel_transfer.dart';
 import '../LogAktifitas/log_aktifitas.dart';
@@ -13,7 +15,6 @@ import '../Pengeluaran/pengeluaran.dart';
 import '../MutasiKeluarga/mutasi_keluarga.dart';
 import '../Pemasukan/kategoriIuran/pages/iuran_page.dart';
 import '../Pemasukan/kategoriIuran/pages/tambah_iuran_page.dart';
-import '../Pemasukan/kategoriIuran/pages/detail_page.dart';
 import '../Pemasukan/tagihIuran/tagih_iuran_page.dart';
 import '../Pemasukan/tagihan/tagihan_page.dart';
 import '../Pemasukan/pemasukanLain/daftar_page.dart';
@@ -26,15 +27,18 @@ class AppRoutes {
     // === Pemasukan ===
     '/pemasukan/pages/kategori': (context) => const KategoriIuranPage(),
     '/pemasukan/pages/tambah_kategori': (context) => const TambahKategoriPage(),
-    '/pemasukan/pages/detail_kategori': (context) => const DetailKategoriPage(),
     '/pemasukan/tagihIuran': (context) => const TagihIuranPage(),
     '/pemasukan/tagihan': (context) => const TagihanPage(),
     '/pemasukan/pemasukanLain-daftar': (context) => const PemasukanLainDaftarPage(),
     '/pemasukan/pemasukanLain-tambah': (context) => const PemasukanLainTambahPage(),
 
+    // === Laporan Keuangan ===
+    '/laporan/semua-pemasukan': (context) => const SemuaPemasukanPage(),
+    '/laporan/semua-pengeluaran': (context) => const SemuaPengeluaranPage(),
+    '/laporan/cetak': (context) => const CetakLaporanPage(),
+
     // === Menu utama lain ===
     '/data': (context) => const DataWargaPage(),
-    '/laporan': (context) => const LaporanKeuanganPage(),
     '/manajemen': (context) => const ManajemenPenggunaPage(),
     '/channel': (context) => const ChannelTransferPage(),
     '/log': (context) => const LogAktifitasPage(),

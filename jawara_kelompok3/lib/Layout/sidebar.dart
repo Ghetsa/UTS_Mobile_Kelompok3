@@ -68,8 +68,27 @@ class AppSidebar extends StatelessWidget {
               ),
             ),
 
+            // === Laporan Keuangan ===
+            Theme(
+              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading: const Icon(Icons.bar_chart, color: AppTheme.primaryBlue),
+                title: const Text(
+                  "Laporan Keuangan",
+                  style: TextStyle(
+                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                children: [
+                  _buildSubMenuItem("Semua Pemasukan", "/laporan/semua-pemasukan", context, currentRoute),
+                  _buildSubMenuItem("Semua Pengeluaran", "/laporan/semua-pengeluaran", context, currentRoute),
+                  _buildSubMenuItem("Cetak Laporan", "/laporan/cetak", context, currentRoute),
+                ],
+              ),
+            ),
+
             // === Menu utama lain ===
-            _buildMenuItem(Icons.insert_chart, "Laporan Keuangan", "/laporan", context, currentRoute),
             _buildMenuItem(Icons.people_alt, "Manajemen Pengguna", "/manajemen", context, currentRoute),
             _buildMenuItem(Icons.swap_horiz, "Channel Transfer", "/channel", context, currentRoute),
             _buildMenuItem(Icons.history, "Log Aktifitas", "/log", context, currentRoute),
