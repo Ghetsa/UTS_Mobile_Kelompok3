@@ -1,52 +1,54 @@
 import 'package:flutter/material.dart';
-import '../../../theme/app_theme.dart';
-import '../../../layout/sidebar.dart';
-import '../widgets/info_box.dart';
-import '../widgets/filter_kategori_iuran.dart';
+import '../../theme/app_theme.dart';
+import '../../layout/sidebar.dart';
 
-class KategoriIuranPage extends StatelessWidget {
-  const KategoriIuranPage({super.key});
+class DaftarWargaPage extends StatelessWidget {
+  const DaftarWargaPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> dataIuran = [
+    final List<Map<String, String>> dataWarga = [
       {
         "no": "1",
-        "nama": "Mingguan",
-        "jenis": "Iuran Khusus",
-        "nominal": "Rp 10,000",
+        "nama": "Budi Santoso",
+        "alamat": "Jl. Melati No. 12",
+        "telepon": "0812-1111-2222",
       },
       {
         "no": "2",
-        "nama": "Agustusan",
-        "jenis": "Iuran Khusus",
-        "nominal": "Rp 15,000",
+        "nama": "Siti Aminah",
+        "alamat": "Jl. Mawar No. 5",
+        "telepon": "0813-2222-3333",
+      },
+      {
+        "no": "3",
+        "nama": "Andi Wijaya",
+        "alamat": "Jl. Kenanga No. 9",
+        "telepon": "0814-3333-4444",
       },
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Kategori Iuran"),
+        title: const Text("Daftar Warga"),
+        backgroundColor: AppTheme.primaryBlue,
       ),
       drawer: const AppSidebar(),
+      backgroundColor: AppTheme.backgroundBlueWhite,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const InfoBox(),
-            const SizedBox(height: 16),
-
-            /// Tombol navigasi responsif
+            /// Tombol Navigasi Responsif
             LayoutBuilder(
               builder: (context, constraints) {
                 final addButton = ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.pushNamed(
-                        context, '/pemasukan/pages/tambah_kategori');
+                    Navigator.pushNamed(context, '/warga/tambah');
                   },
                   icon: const Icon(Icons.add_circle_outline, color: Colors.white),
-                  label: const Text("Tambah"),
+                  label: const Text("Tambah Warga"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryBlue,
                     foregroundColor: Colors.white,
@@ -58,20 +60,12 @@ class KategoriIuranPage extends StatelessWidget {
                   ),
                 );
 
-                final filterButton = ElevatedButton.icon(
-                  onPressed: () async {
-                    final result = await showDialog(
-                      context: context,
-                      builder: (_) => const FilterKategoriIuranDialog(),
-                    );
-
-                    if (result != null) {
-                      debugPrint("Filter dipilih: $result");
-                      // TODO: terapkan filter ke tabel sesuai jenis iuran
-                    }
+                final refreshButton = ElevatedButton.icon(
+                  onPressed: () {
+                    // TODO: logika refresh data warga
                   },
-                  icon: const Icon(Icons.filter_list, color: Colors.white),
-                  label: const Text("Filter"),
+                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  label: const Text("Refresh"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryBlue,
                     foregroundColor: Colors.white,
@@ -90,17 +84,17 @@ class KategoriIuranPage extends StatelessWidget {
                     children: [
                       addButton,
                       const SizedBox(width: 12),
-                      filterButton,
+                      refreshButton,
                     ],
                   );
                 } else {
-                  // layar kecil → tombol ke tengah atas (stacked)
+                  // layar kecil → tombol ditumpuk
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       addButton,
                       const SizedBox(height: 8),
-                      filterButton,
+                      refreshButton,
                     ],
                   );
                 }
@@ -118,49 +112,70 @@ class KategoriIuranPage extends StatelessWidget {
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: ConstrainedBox(
-                        constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                        constraints:
+                            BoxConstraints(minWidth: constraints.maxWidth),
                         child: DataTable(
-                          headingRowColor: WidgetStateProperty.all(AppTheme.lightBlue),
-                          dataRowColor: WidgetStateProperty.all(Colors.white),
+                          headingRowColor: WidgetStateProperty.all(
+                              AppTheme.lightBlue.withOpacity(0.3)),
+                          dataRowColor:
+                              WidgetStateProperty.all(Colors.white),
                           columns: const [
                             DataColumn(
-                              label: Text("No",
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
+                              label: Text(
+                                "No",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.primaryBlue),
+                              ),
                             ),
                             DataColumn(
-                              label: Text("Nama Iuran",
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
+                              label: Text(
+                                "Nama Warga",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.primaryBlue),
+                              ),
                             ),
                             DataColumn(
-                              label: Text("Jenis Iuran",
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
+                              label: Text(
+                                "Alamat",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.primaryBlue),
+                              ),
                             ),
                             DataColumn(
-                              label: Text("Nominal",
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
+                              label: Text(
+                                "No Telepon",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.primaryBlue),
+                              ),
                             ),
                             DataColumn(
-                              label: Text("Aksi",
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
+                              label: Text(
+                                "Aksi",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.primaryBlue),
+                              ),
                             ),
                           ],
-                          rows: dataIuran.map((row) {
+                          rows: dataWarga.map((row) {
                             return DataRow(
                               cells: [
                                 DataCell(Text(row["no"]!)),
                                 DataCell(Text(row["nama"]!)),
-                                DataCell(Text(row["jenis"]!)),
-                                DataCell(Text(row["nominal"]!)),
+                                DataCell(Text(row["alamat"]!)),
+                                DataCell(Text(row["telepon"]!)),
                                 DataCell(
                                   IconButton(
                                     icon: const Icon(Icons.more_vert,
                                         color: AppTheme.primaryBlue),
                                     onPressed: () {
-                                      Navigator.pushNamed(
-                                        context,
-                                        '/pemasukan/pages/detail_kategori',
-                                        arguments: row,
-                                      );
+                                      // TODO: tampilkan opsi detail/edit/hapus
+                                      debugPrint(
+                                          "Klik aksi untuk ${row["nama"]}");
                                     },
                                   ),
                                 ),

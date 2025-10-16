@@ -10,14 +10,13 @@ class AppSidebar extends StatelessWidget {
 
     return Drawer(
       child: Container(
-        color:
-            AppTheme.lightBlue, // 💙 biru muda lembut untuk background sidebar
+        color: AppTheme.lightBlue, // 💙 Background sidebar biru muda lembut
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue, // 🔵 biru gelap untuk header
+                color: AppTheme.primaryBlue, // 🔵 Header biru tua
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,7 +37,7 @@ class AppSidebar extends StatelessWidget {
                   Text(
                     "admin1@gmail.com",
                     style: TextStyle(
-                      color: Color(0xFFE0E7FF), // teks biru muda lembut
+                      color: Color(0xFFE0E7FF),
                       fontSize: 12,
                     ),
                   ),
@@ -46,18 +45,11 @@ class AppSidebar extends StatelessWidget {
               ),
             ),
 
-            // === Menu utama ===
-            // _buildMenuItem(Icons.dashboard, "Dashboard", "/", context, currentRoute),
-            // === Pemasukan ===
+            // === Dashboard ===
             Theme(
-              data: Theme.of(
-                context,
-              ).copyWith(dividerColor: Colors.transparent),
+              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                leading: const Icon(
-                  Icons.receipt_long,
-                  color: AppTheme.primaryBlue,
-                ),
+                leading: const Icon(Icons.receipt_long, color: AppTheme.primaryBlue),
                 title: const Text(
                   "Dashboard",
                   style: TextStyle(
@@ -66,45 +58,40 @@ class AppSidebar extends StatelessWidget {
                   ),
                 ),
                 children: [
-                  _buildSubMenuItem(
-                    "Kegiatan",
-                    "/dashboard/kegiatan",
-                    context,
-                    currentRoute,
-                  ),
-                  _buildSubMenuItem(
-                    "Kependudukan",
-                    "/dashboard/kependudukan",
-                    context,
-                    currentRoute,
-                  ),
-                  _buildSubMenuItem(
-                    "Keuangan",
-                    "/dashboard/keuangan",
-                    context,
-                    currentRoute,
-                  ),
+                  _buildSubMenuItem("Kegiatan", "/dashboard/kegiatan", context, currentRoute),
+                  _buildSubMenuItem("Kependudukan", "/dashboard/kependudukan", context, currentRoute),
+                  _buildSubMenuItem("Keuangan", "/dashboard/keuangan", context, currentRoute),
                 ],
               ),
             ),
-            _buildMenuItem(
-              Icons.people,
-              "Data Warga & Rumah",
-              "/data",
-              context,
-              currentRoute,
+
+            // === Data Warga & Rumah ===
+            Theme(
+              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading: const Icon(Icons.people, color: AppTheme.primaryBlue),
+                title: const Text(
+                  "Data Warga & Rumah",
+                  style: TextStyle(
+                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                children: [
+                  _buildSubMenuItem("Warga - Daftar", "/warga/daftar", context, currentRoute),
+                  _buildSubMenuItem("Warga - Tambah", "/warga/tambah", context, currentRoute),
+                  _buildSubMenuItem("Keluarga", "/keluarga", context, currentRoute),
+                  _buildSubMenuItem("Rumah - Daftar", "/rumah/daftar", context, currentRoute),
+                  _buildSubMenuItem("Rumah - Tambah", "/rumah/tambah", context, currentRoute),
+                ],
+              ),
             ),
 
             // === Pemasukan ===
             Theme(
-              data: Theme.of(
-                context,
-              ).copyWith(dividerColor: Colors.transparent),
+              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                leading: const Icon(
-                  Icons.receipt_long,
-                  color: AppTheme.primaryBlue,
-                ),
+                leading: const Icon(Icons.receipt_long, color: AppTheme.primaryBlue),
                 title: const Text(
                   "Pemasukan",
                   style: TextStyle(
@@ -113,36 +100,31 @@ class AppSidebar extends StatelessWidget {
                   ),
                 ),
                 children: [
-                  _buildSubMenuItem(
-                    "Kategori Iuran",
-                    "/pemasukan/pages/kategori",
-                    context,
-                    currentRoute,
+                  _buildSubMenuItem("Kategori Iuran", "/pemasukan/pages/kategori", context, currentRoute),
+                  _buildSubMenuItem("Tagih Iuran", "/pemasukan/tagihIuran", context, currentRoute),
+                  _buildSubMenuItem("Tagihan", "/pemasukan/tagihan", context, currentRoute),
+                  _buildSubMenuItem("Pemasukan Lain - Daftar", "/pemasukan/pemasukanLain-daftar", context, currentRoute),
+                  _buildSubMenuItem("Pemasukan Lain - Tambah", "/pemasukan/pemasukanLain-tambah", context, currentRoute),
+                ],
+              ),
+            ),
+
+            // === Laporan Keuangan ===
+            Theme(
+              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading: const Icon(Icons.bar_chart, color: AppTheme.primaryBlue),
+                title: const Text(
+                  "Laporan Keuangan",
+                  style: TextStyle(
+                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w600,
                   ),
-                  _buildSubMenuItem(
-                    "Tagih Iuran",
-                    "/pemasukan/tagihIuran",
-                    context,
-                    currentRoute,
-                  ),
-                  _buildSubMenuItem(
-                    "Tagihan",
-                    "/pemasukan/tagihan",
-                    context,
-                    currentRoute,
-                  ),
-                  _buildSubMenuItem(
-                    "Pemasukan Lain - Daftar",
-                    "/pemasukan/pemasukanLain-daftar",
-                    context,
-                    currentRoute,
-                  ),
-                  _buildSubMenuItem(
-                    "Pemasukan Lain - Tambah",
-                    "/pemasukan/pemasukanLain-tambah",
-                    context,
-                    currentRoute,
-                  ),
+                ),
+                children: [
+                  _buildSubMenuItem("Semua Pemasukan", "/laporan/semua-pemasukan", context, currentRoute),
+                  _buildSubMenuItem("Semua Pengeluaran", "/laporan/semua-pengeluaran", context, currentRoute),
+                  _buildSubMenuItem("Cetak Laporan", "/laporan/cetak", context, currentRoute),
                 ],
               ),
             ),
@@ -197,36 +179,12 @@ class AppSidebar extends StatelessWidget {
               context,
               currentRoute,
             ),
-            Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                leading: const Icon(
-                  Icons.family_restroom,
-                  color: AppTheme.primaryBlue,
-                ),
-                title: const Text(
-                  "Mutasi Keluarga",
-                  style: TextStyle(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                children: [
-                  _buildSubMenuItem(
-                    "Daftar",
-                    "/mutasi/daftar",
-                    context,
-                    currentRoute,
-                  ),
-                  _buildSubMenuItem(
-                    "Tambah",
-                    "/mutasi/tambah",
-                    context,
-                    currentRoute,
-                  ),
-                ],
-              ),
+            _buildMenuItem(
+              Icons.family_restroom,
+              "Mutasi Keluarga",
+              "/mutasi",
+              context,
+              currentRoute,
             ),
           ],
         ),
@@ -251,10 +209,7 @@ class AppSidebar extends StatelessWidget {
       ),
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
-        leading: Icon(
-          icon,
-          color: isActive ? Colors.white : AppTheme.primaryBlue,
-        ),
+        leading: Icon(icon, color: isActive ? Colors.white : AppTheme.primaryBlue),
         title: Text(
           title,
           style: TextStyle(
@@ -283,15 +238,13 @@ class AppSidebar extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isActive
-            ? AppTheme.primaryBlue.withOpacity(0.1)
-            : Colors.transparent,
+        color: isActive ? AppTheme.primaryBlue.withOpacity(0.1) : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       child: ListTile(
         dense: true,
-        contentPadding: const EdgeInsets.only(left: 60.0), // indent
+        contentPadding: const EdgeInsets.only(left: 60.0), // indent submenu
         title: Text(
           title,
           style: TextStyle(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../main.dart';
 import '../../Layout/sidebar.dart';
+import 'widgets/filter_tagihan.dart';
 
 class TagihanPage extends StatelessWidget {
   const TagihanPage({super.key});
@@ -58,7 +59,17 @@ class TagihanPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: () async {
+                          final result = await showDialog(
+                            context: context,
+                            builder: (_) => const FilterTagihanDialog(),
+                          );
+
+                          if (result != null) {
+                            debugPrint("Filter dipilih: $result");
+                            // TODO: terapkan filter ke tabel
+                          }
+                        },
                         icon: const Icon(Icons.filter_alt),
                         label: const Text("Filter"),
                         style: ElevatedButton.styleFrom(
@@ -79,7 +90,17 @@ class TagihanPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: () async {
+                          final result = await showDialog(
+                            context: context,
+                            builder: (_) => const FilterTagihanDialog(),
+                          );
+
+                          if (result != null) {
+                            debugPrint("Filter dipilih: $result");
+                            // TODO: terapkan filter ke tabel
+                          }
+                        },
                         icon: const Icon(Icons.filter_alt),
                         label: const Text("Filter"),
                         style: ElevatedButton.styleFrom(
