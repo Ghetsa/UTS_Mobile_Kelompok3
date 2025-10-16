@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
-import '../../layout/sidebar.dart';
+import '../../Theme/app_theme.dart';
+import '../../Layout/sidebar.dart';
 
 class DaftarWargaPage extends StatelessWidget {
   const DaftarWargaPage({super.key});
@@ -57,8 +57,7 @@ class DaftarWargaPage extends StatelessWidget {
                       context: context,
                       builder: (_) => AlertDialog(
                         title: const Text("Filter Data Warga"),
-                        content: const Text(
-                            "Fitur filter akan ditambahkan di sini."),
+                        content: const Text("Fitur filter akan ditambahkan di sini."),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
@@ -71,28 +70,9 @@ class DaftarWargaPage extends StatelessWidget {
                   icon: const Icon(Icons.filter_list, color: Colors.white),
                   label: const Text("Filter"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple[600],
+                    backgroundColor: AppTheme.purpleDeep,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                ),
-
-                /// Tombol Tambah Warga
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/warga/tambah');
-                  },
-                  icon:
-                      const Icon(Icons.add_circle_outline, color: Colors.white),
-                  label: const Text("Tambah Warga"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 210, 115, 8),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

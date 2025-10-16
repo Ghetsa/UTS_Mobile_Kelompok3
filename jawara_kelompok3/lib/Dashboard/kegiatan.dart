@@ -34,70 +34,138 @@ class DashboardKegiatanPage extends StatelessWidget {
               // ====== BAGIAN ATAS ======
               LayoutBuilder(
                 builder: (context, constraints) {
-                  final itemWidth = (constraints.maxWidth - 32) / (width > 1100
-                      ? 3
-                      : width > 700
-                          ? 2
-                          : 1);
-                  return Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    children: [
-                      SizedBox(
-                        width: itemWidth,
-                        child: StatCard(
-                          title: "🎉 Total Kegiatan",
-                          value: "1",
-                          subtitle: "Jumlah seluruh event yang sudah ada",
-                          background: Colors.blue.shade50,
-                          accent: Colors.blue.shade700,
+                  // Lebar layar saat ini
+                  final width = constraints.maxWidth;
+
+                  if (width > 1100) {
+                    // 🖥️ Desktop: 3 kolom
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Expanded(
+                          child: StatCard(
+                            title: "🎉 Total Kegiatan",
+                            value: "1",
+                            subtitle: "Jumlah seluruh event yang sudah ada",
+                            background: Color(0xFFE0F2FE), // Colors.blue.shade50
+                            accent: Color(0xFF1D4ED8),     // Colors.blue.shade700
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        width: itemWidth,
-                        child: PieCard(
-                          title: "📂 Kegiatan per Kategori",
-                          background: Colors.green.shade50,
-                          accent: Colors.green.shade800,
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: PieCard(
+                            title: "📂 Kegiatan per Kategori",
+                            background: Color(0xFFF0FDF4), // Colors.green.shade50
+                            accent: Color(0xFF166534),     // Colors.green.shade800
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        width: itemWidth,
-                        child: StatCard(
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: StatCard(
+                            title: "⏰ Kegiatan berdasarkan Waktu",
+                            value: "3",
+                            subtitle: "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
+                            background: Color(0xFFFEF9C3), // Colors.yellow.shade50
+                            accent: Color(0xFFEA580C),     // Colors.orange.shade700
+                          ),
+                        ),
+                      ],
+                    );
+                  } else if (width > 700) {
+                    // 💻 Tablet: 2 kolom
+                    return Column(
+                      children: [
+                        Row(
+                          children: const [
+                            Expanded(
+                              child: StatCard(
+                                title: "🎉 Total Kegiatan",
+                                value: "1",
+                                subtitle: "Jumlah seluruh event yang sudah ada",
+                                background: Color(0xFFE0F2FE),
+                                accent: Color(0xFF1D4ED8),
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: PieCard(
+                                title: "📂 Kegiatan per Kategori",
+                                background: Color(0xFFF0FDF4),
+                                accent: Color(0xFF166534),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        const StatCard(
                           title: "⏰ Kegiatan berdasarkan Waktu",
                           value: "3",
                           subtitle: "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
-                          background: Colors.yellow.shade50,
-                          accent: Colors.orange.shade700,
+                          background: Color(0xFFFEF9C3),
+                          accent: Color(0xFFEA580C),
                         ),
-                      ),
-                    ],
-                  );
+                      ],
+                    );
+                  } else {
+                    // 📱 Mobile: 1 kolom (full width semua)
+                    return Column(
+                      children: const [
+                        StatCard(
+                          title: "🎉 Total Kegiatan",
+                          value: "1",
+                          subtitle: "Jumlah seluruh event yang sudah ada",
+                          background: Color(0xFFE0F2FE),
+                          accent: Color(0xFF1D4ED8),
+                        ),
+                        SizedBox(height: 16),
+                        PieCard(
+                          title: "📂 Kegiatan per Kategori",
+                          background: Color(0xFFF0FDF4),
+                          accent: Color(0xFF166534),
+                        ),
+                        SizedBox(height: 16),
+                        StatCard(
+                          title: "⏰ Kegiatan berdasarkan Waktu",
+                          value: "3",
+                          subtitle: "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
+                          background: Color(0xFFFEF9C3),
+                          accent: Color(0xFFEA580C),
+                        ),
+                      ],
+                    );
+                  }
                 },
               ),
+
 
               const SizedBox(height: 16),
 
               // ====== BAGIAN BAWAH ======
               LayoutBuilder(
                 builder: (context, constraints) {
-                  final itemWidth = (constraints.maxWidth - 16) / (width > 700 ? 2 : 1);
-                  return Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    children: [
-                      SizedBox(
-                        width: itemWidth,
-                        child: const ExpandedListCard(),
-                      ),
-                      SizedBox(
-                        width: itemWidth,
-                        child: const BarChartCard(),
-                      ),
-                    ],
-                  );
+                  if (width > 700) {
+                    // Tampilan desktop/tablet — dua kolom
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Expanded(child: ExpandedListCard()),
+                        SizedBox(width: 16),
+                        Expanded(child: BarChartCard()),
+                      ],
+                    );
+                  } else {
+                    // Tampilan mobile — full width satu-satu
+                    return Column(
+                      children: const [
+                        ExpandedListCard(),
+                        SizedBox(height: 16),
+                        BarChartCard(),
+                      ],
+                    );
+                  }
                 },
               ),
+
             ],
           ),
         ),
@@ -194,14 +262,13 @@ class PieCard extends StatelessWidget {
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start, // ubah ke start agar rata kiri
               children: [
-                Icon(Icons.folder_open, color: accent, size: 22),
-                const SizedBox(width: 6),
+                const SizedBox(width: 7),
                 Flexible(
                   child: Text(
                     title,
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.left, // teks juga rata kiri
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: accent,
                       fontWeight: FontWeight.w700,
