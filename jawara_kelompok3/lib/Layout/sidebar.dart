@@ -195,13 +195,28 @@ class AppSidebar extends StatelessWidget {
               context,
               currentRoute,
             ),
-            _buildMenuItem(
-              Icons.wallet,
-              "Pengeluaran",
-              "/pengeluaran",
-              context,
-              currentRoute,
+
+            // Pengeluaran
+            Theme(
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading:
+                    const Icon(Icons.bar_chart, color: AppTheme.primaryBlue),
+                title: const Text(
+                  "Pengeluaran",
+                  style: TextStyle(
+                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                children: [
+                  _buildSubMenuItem("Dafar", "/pengeluaran/daftar",context, currentRoute),
+                  _buildSubMenuItem("Tambah", "/pengeluaran/tambah",context, currentRoute),
+                ],
+              ),
             ),
+
             // Mutasi Keluarga with submenu
             Theme(
               data:
