@@ -26,8 +26,6 @@ import '../ChannelTransfer/channel_transfer.dart';
 import '../LogAktifitas/log_aktifitas.dart';
 import '../PesanWarga/pesan_warga.dart';
 import '../KegiatanDanBroadcast/kegiatan.dart';
-import '../Pengeluaran/pengeluaran.dart';
-import '../MutasiKeluarga/mutasi_keluarga.dart';
 
 // === Pemasukan ===
 import '../Pemasukan/kategoriIuran/pages/iuran_page.dart';
@@ -36,6 +34,14 @@ import '../Pemasukan/tagihIuran/tagih_iuran_page.dart';
 import '../Pemasukan/tagihan/tagihan_page.dart';
 import '../Pemasukan/pemasukanLain/daftar_page.dart';
 import '../Pemasukan/pemasukanLain/tambah_page.dart';
+
+// === Pengeluaran ===
+import '../Pengeluaran/Daftar/daftarPengeluaran.dart';
+import '../Pengeluaran/Tambah/tambahPengeluaran.dart';
+
+// === Mutasi Keluarga ===
+import '../MutasiKeluarga/Daftar/daftarMutasi.dart';
+import '../MutasiKeluarga/Tambah/tambahMutasi.dart' as mutasi_tambah;
 
 class AppRoutes {
   static final Map<String, WidgetBuilder> routes = {
@@ -66,10 +72,8 @@ class AppRoutes {
     '/pemasukan/pages/tambah_kategori': (context) => const TambahKategoriPage(),
     '/pemasukan/tagihIuran': (context) => const TagihIuranPage(),
     '/pemasukan/tagihan': (context) => const TagihanPage(),
-    '/pemasukan/pemasukanLain-daftar': (context) =>
-        const PemasukanLainDaftarPage(),
-    '/pemasukan/pemasukanLain-tambah': (context) =>
-        const PemasukanLainTambahPage(),
+    '/pemasukan/pemasukanLain-daftar': (context) => const PemasukanLainDaftarPage(),
+    '/pemasukan/pemasukanLain-tambah': (context) => const PemasukanLainTambahPage(),
 
     // === Laporan Keuangan ===
     '/laporan/semua-pemasukan': (context) => const SemuaPemasukanPage(),
@@ -77,13 +81,15 @@ class AppRoutes {
     '/laporan/cetak': (context) => const CetakLaporanPage(),
 
     // === Pengeluaran ===
-    '/pengeluaran': (context) => const PengeluaranPage(),
+    '/pengeluaran/daftar': (context) => const PengeluaranDaftarPage(), // ✅ Tambahan
+    '/pengeluaran/tambah': (context) => const PengeluaranTambahPage(), // ✅ Tambahan
 
     // === Kegiatan & Broadcast ===
     '/kegiatan': (context) => const KegiatanBroadcastPage(),
 
     // === Mutasi Keluarga ===
-    '/mutasi': (context) => const MutasiKeluargaPage(),
+    '/mutasi/daftar': (context) => const DaftarMutasiPage(),
+    '/mutasi/tambah': (context) => const mutasi_tambah.TambahMutasiPage(),
 
     // === Manajemen Pengguna ===
     '/manajemen': (context) => const ManajemenPenggunaPage(),
