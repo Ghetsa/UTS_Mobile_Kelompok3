@@ -42,21 +42,24 @@ class DashboardKegiatanPage extends StatelessWidget {
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
+                        SizedBox(width: 16),
                         Expanded(
                           child: StatCard(
                             title: "🎉 Total Kegiatan",
                             value: "1",
                             subtitle: "Jumlah seluruh event yang sudah ada",
-                            background: Color(0xFFE0F2FE), // Colors.blue.shade50
-                            accent: Color(0xFF1D4ED8),     // Colors.blue.shade700
+                            background:
+                                Color(0xFFE0F2FE), // Colors.blue.shade50
+                            accent: Color(0xFF1D4ED8), // Colors.blue.shade700
                           ),
                         ),
                         SizedBox(width: 16),
                         Expanded(
                           child: PieCard(
                             title: "📂 Kegiatan per Kategori",
-                            background: Color(0xFFF0FDF4), // Colors.green.shade50
-                            accent: Color(0xFF166534),     // Colors.green.shade800
+                            background:
+                                Color(0xFFF0FDF4), // Colors.green.shade50
+                            accent: Color(0xFF166534), // Colors.green.shade800
                           ),
                         ),
                         SizedBox(width: 16),
@@ -64,9 +67,11 @@ class DashboardKegiatanPage extends StatelessWidget {
                           child: StatCard(
                             title: "⏰ Kegiatan berdasarkan Waktu",
                             value: "3",
-                            subtitle: "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
-                            background: Color(0xFFFEF9C3), // Colors.yellow.shade50
-                            accent: Color(0xFFEA580C),     // Colors.orange.shade700
+                            subtitle:
+                                "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
+                            background:
+                                Color(0xFFFEF9C3), // Colors.yellow.shade50
+                            accent: Color(0xFFEA580C), // Colors.orange.shade700
                           ),
                         ),
                       ],
@@ -100,7 +105,8 @@ class DashboardKegiatanPage extends StatelessWidget {
                         const StatCard(
                           title: "⏰ Kegiatan berdasarkan Waktu",
                           value: "3",
-                          subtitle: "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
+                          subtitle:
+                              "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
                           background: Color(0xFFFEF9C3),
                           accent: Color(0xFFEA580C),
                         ),
@@ -109,34 +115,43 @@ class DashboardKegiatanPage extends StatelessWidget {
                   } else {
                     // 📱 Mobile: 1 kolom (full width semua)
                     return Column(
-                      children: const [
-                        StatCard(
-                          title: "🎉 Total Kegiatan",
-                          value: "1",
-                          subtitle: "Jumlah seluruh event yang sudah ada",
-                          background: Color(0xFFE0F2FE),
-                          accent: Color(0xFF1D4ED8),
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: const StatCard(
+                            title: "🎉 Total Kegiatan",
+                            value: "1",
+                            subtitle: "Jumlah seluruh event yang sudah ada",
+                            background: Color(0xFFE0F2FE),
+                            accent: Color(0xFF1D4ED8),
+                          ),
                         ),
-                        SizedBox(height: 16),
-                        PieCard(
-                          title: "📂 Kegiatan per Kategori",
-                          background: Color(0xFFF0FDF4),
-                          accent: Color(0xFF166534),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: const PieCard(
+                            title: "📂 Kegiatan per Kategori",
+                            background: Color(0xFFF0FDF4),
+                            accent: Color(0xFF166534),
+                          ),
                         ),
-                        SizedBox(height: 16),
-                        StatCard(
-                          title: "⏰ Kegiatan berdasarkan Waktu",
-                          value: "3",
-                          subtitle: "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
-                          background: Color(0xFFFEF9C3),
-                          accent: Color(0xFFEA580C),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: const StatCard(
+                            title: "⏰ Kegiatan berdasarkan Waktu",
+                            value: "3",
+                            subtitle:
+                                "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
+                            background: Color(0xFFFEF9C3),
+                            accent: Color(0xFFEA580C),
+                          ),
                         ),
                       ],
                     );
                   }
                 },
               ),
-
 
               const SizedBox(height: 16),
 
@@ -165,7 +180,6 @@ class DashboardKegiatanPage extends StatelessWidget {
                   }
                 },
               ),
-
             ],
           ),
         ),
@@ -262,7 +276,8 @@ class PieCard extends StatelessWidget {
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.start, // ubah ke start agar rata kiri
+              mainAxisAlignment:
+                  MainAxisAlignment.start, // ubah ke start agar rata kiri
               children: [
                 const SizedBox(width: 7),
                 Flexible(
@@ -283,13 +298,13 @@ class PieCard extends StatelessWidget {
               width: chartSize, // pastikan width sama dengan height
               child: PieChart(
                 PieChartData(
-                  centerSpaceRadius: 0, 
+                  centerSpaceRadius: 0,
                   sectionsSpace: 2,
                   sections: [
                     PieChartSectionData(
                       value: 100,
                       color: accent,
-                      radius: chartSize / 2, 
+                      radius: chartSize / 2,
                       title: '100%',
                       titleStyle: TextStyle(
                         color: Colors.white,
@@ -405,8 +420,18 @@ class BarChartCard extends StatelessWidget {
 
     // Data contoh
     final List<String> bulan = [
-      "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
-      "Jul", "Agu", "Sep", "Okt", "Nov", "Des"
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Agu",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des"
     ];
     final List<double> values = [5, 3, 4, 2, 6, 1, 0, 3, 2, 4, 5, 1];
 
@@ -442,7 +467,8 @@ class BarChartCard extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         getTitlesWidget: (value, meta) {
-                          if (value.toInt() >= 0 && value.toInt() < bulan.length) {
+                          if (value.toInt() >= 0 &&
+                              value.toInt() < bulan.length) {
                             return Text(
                               bulan[value.toInt()],
                               style: TextStyle(fontSize: width > 700 ? 12 : 10),
@@ -464,8 +490,10 @@ class BarChartCard extends StatelessWidget {
                         },
                       ),
                     ),
-                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   ),
                   borderData: FlBorderData(show: false),
                   gridData: FlGridData(show: true),
@@ -475,7 +503,7 @@ class BarChartCard extends StatelessWidget {
                       barsSpace: 4,
                       barRods: [
                         BarChartRodData(
-                          toY: values[index], 
+                          toY: values[index],
                           width: width > 700 ? 18 : 12,
                           color: Colors.pink.shade400,
                           borderRadius: BorderRadius.circular(6),
