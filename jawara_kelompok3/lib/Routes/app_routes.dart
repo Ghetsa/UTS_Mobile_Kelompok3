@@ -11,8 +11,13 @@ import '../Dashboard/kegiatan.dart';
 import '../Dashboard/keuangan.dart';
 import '../Dashboard/kependudukan.dart';
 
+// === Warga dan Rumah ===
+import '../DataWargaDanRumah/Rumah/DaftarRumah.dart';
+import '../DataWargaDanRumah/Rumah/TambahRumah.dart';
+import '../DataWargaDanRumah/Warga/DaftarWarga.dart';
+import '../DataWargaDanRumah/Warga/TambahWarga.dart';
+
 // === Menu Utama ===
-import '../DataWargaDanRumah/data_warga_page.dart';
 import '../LaporanKeuangan/pages/semua_pemasukan_page.dart';
 import '../LaporanKeuangan/pages/semua_pengeluaran_page.dart';
 import '../LaporanKeuangan/pages/cetak_laporan_page.dart';
@@ -21,8 +26,6 @@ import '../ChannelTransfer/channel_transfer.dart';
 import '../LogAktifitas/log_aktifitas.dart';
 import '../PesanWarga/pesan_warga.dart';
 import '../KegiatanDanBroadcast/kegiatan.dart';
-import '../Pengeluaran/pengeluaran.dart';
-import '../MutasiKeluarga/mutasi_keluarga.dart';
 
 // === Pemasukan ===
 import '../Pemasukan/kategoriIuran/pages/iuran_page.dart';
@@ -31,17 +34,6 @@ import '../Pemasukan/tagihIuran/tagih_iuran_page.dart';
 import '../Pemasukan/tagihan/tagihan_page.dart';
 import '../Pemasukan/pemasukanLain/daftar_page.dart';
 import '../Pemasukan/pemasukanLain/tambah_page.dart';
-
-// === Manajemen Pengguna ===
-import '../ManajemenPengguna/Daftar/daftar_pengguna.dart';
-import '../ManajemenPengguna/Tambah/tambah_pengguna.dart';
-
-// === Channel Transfer ===
-import '../ChannelTransfer/tambah/tambah_channel.dart';
-import '../ChannelTransfer/daftar/daftar_channel.dart';
-
-// === Log Aktifitas ===
-import '../LogAktifitas/semua_aktifitas.dart';
 
 class AppRoutes {
   static final Map<String, WidgetBuilder> routes = {
@@ -59,18 +51,30 @@ class AppRoutes {
     '/dashboard/keuangan': (context) => const DashboardKeuanganPage(),
     '/dashboard/kependudukan': (context) => const DashboardKependudukanPage(),
 
+    // === Data Warga ===
+    '/warga/daftar': (context) => const DaftarWargaPage(),
+    '/warga/tambah': (context) => const TambahWargaPage(),
+
+    // === Data Rumah ===
+    '/rumah/daftar': (context) => const DaftarRumahPage(),
+    '/rumah/tambah': (context) => const TambahRumahPage(),
+
     // === Pemasukan ===
     '/pemasukan/pages/kategori': (context) => const KategoriIuranPage(),
     '/pemasukan/pages/tambah_kategori': (context) => const TambahKategoriPage(),
     '/pemasukan/tagihIuran': (context) => const TagihIuranPage(),
     '/pemasukan/tagihan': (context) => const TagihanPage(),
-    '/pemasukan/pemasukanLain-daftar': (context) =>
-        const PemasukanLainDaftarPage(),
-    '/pemasukan/pemasukanLain-tambah': (context) =>
-        const PemasukanLainTambahPage(),
+    '/pemasukan/pemasukanLain-daftar': (context) => const PemasukanLainDaftarPage(),
+    '/pemasukan/pemasukanLain-tambah': (context) => const PemasukanLainTambahPage(),
+
+    // === Laporan Keuangan ===
+    '/laporan/semua-pemasukan': (context) => const SemuaPemasukanPage(),
+    '/laporan/semua-pengeluaran': (context) => const SemuaPengeluaranPage(),
+    '/laporan/cetak': (context) => const CetakLaporanPage(),
 
     // === Pengeluaran ===
-    '/pengeluaran': (context) => const PengeluaranPage(),
+    '/pengeluaran/daftar': (context) => const PengeluaranDaftarPage(), // ✅ Tambahan
+    '/pengeluaran/tambah': (context) => const PengeluaranTambahPage(), // ✅ Tambahan
 
     // === Kegiatan & Broadcast ===
     '/kegiatan': (context) => const KegiatanBroadcastPage(),
@@ -78,8 +82,6 @@ class AppRoutes {
     // === Data Warga dan Rumah ===
     '/data': (context) => const DataWargaPage(),
     // '/laporan': (context) => const LaporanKeuanganPage(),
-
-    // === Manajemen Pengguna ===
     '/manajemen': (context) => const ManajemenPenggunaPage(),
     '/pengguna/penggunaDaftar': (context) => const DaftarPenggunaPage(),
     '/pengguna/penggunaTambah': (context) => const TambahPenggunaPage(),

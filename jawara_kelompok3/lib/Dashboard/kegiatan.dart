@@ -11,17 +11,6 @@ class DashboardKegiatanPage extends StatelessWidget {
     final theme = Theme.of(context);
     final width = MediaQuery.of(context).size.width;
 
-    // Jumlah kolom responsif
-    int topColumns = 1;
-    int bottomColumns = 1;
-    if (width > 1100) {
-      topColumns = 3;
-      bottomColumns = 2;
-    } else if (width > 700) {
-      topColumns = 2;
-      bottomColumns = 2;
-    }
-
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
       drawer: const AppSidebar(),
@@ -43,48 +32,153 @@ class DashboardKegiatanPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ====== BAGIAN ATAS ======
-              GridView.count(
-                crossAxisCount: topColumns,
-                shrinkWrap: true,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  StatCard(
-                    title: "🎉 Total Kegiatan",
-                    value: "1",
-                    subtitle: "Jumlah seluruh event yang sudah ada",
-                    background: Colors.blue.shade50,
-                    accent: Colors.blue.shade700,
-                  ),
-                  PieCard(
-                    title: "📂 Kegiatan per Kategori",
-                    background: Colors.green.shade50,
-                    accent: Colors.green.shade800,
-                  ),
-                  StatCard(
-                    title: "⏰ Kegiatan berdasarkan Waktu",
-                    value: "3",
-                    subtitle: "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
-                    background: Colors.yellow.shade50,
-                    accent: Colors.orange.shade700,
-                  ),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  // Lebar layar saat ini
+                  final width = constraints.maxWidth;
+
+                  if (width > 1100) {
+                    // 🖥️ Desktop: 3 kolom
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: StatCard(
+                            title: "🎉 Total Kegiatan",
+                            value: "1",
+                            subtitle: "Jumlah seluruh event yang sudah ada",
+                            background:
+                                Color(0xFFE0F2FE), // Colors.blue.shade50
+                            accent: Color(0xFF1D4ED8), // Colors.blue.shade700
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: PieCard(
+                            title: "📂 Kegiatan per Kategori",
+                            background:
+                                Color(0xFFF0FDF4), // Colors.green.shade50
+                            accent: Color(0xFF166534), // Colors.green.shade800
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: StatCard(
+                            title: "⏰ Kegiatan berdasarkan Waktu",
+                            value: "3",
+                            subtitle:
+                                "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
+                            background:
+                                Color(0xFFFEF9C3), // Colors.yellow.shade50
+                            accent: Color(0xFFEA580C), // Colors.orange.shade700
+                          ),
+                        ),
+                      ],
+                    );
+                  } else if (width > 700) {
+                    // 💻 Tablet: 2 kolom
+                    return Column(
+                      children: [
+                        Row(
+                          children: const [
+                            Expanded(
+                              child: StatCard(
+                                title: "🎉 Total Kegiatan",
+                                value: "1",
+                                subtitle: "Jumlah seluruh event yang sudah ada",
+                                background: Color(0xFFE0F2FE),
+                                accent: Color(0xFF1D4ED8),
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: PieCard(
+                                title: "📂 Kegiatan per Kategori",
+                                background: Color(0xFFF0FDF4),
+                                accent: Color(0xFF166534),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        const StatCard(
+                          title: "⏰ Kegiatan berdasarkan Waktu",
+                          value: "3",
+                          subtitle:
+                              "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
+                          background: Color(0xFFFEF9C3),
+                          accent: Color(0xFFEA580C),
+                        ),
+                      ],
+                    );
+                  } else {
+                    // 📱 Mobile: 1 kolom (full width semua)
+                    return Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: const StatCard(
+                            title: "🎉 Total Kegiatan",
+                            value: "1",
+                            subtitle: "Jumlah seluruh event yang sudah ada",
+                            background: Color(0xFFE0F2FE),
+                            accent: Color(0xFF1D4ED8),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: const PieCard(
+                            title: "📂 Kegiatan per Kategori",
+                            background: Color(0xFFF0FDF4),
+                            accent: Color(0xFF166534),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: const StatCard(
+                            title: "⏰ Kegiatan berdasarkan Waktu",
+                            value: "3",
+                            subtitle:
+                                "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
+                            background: Color(0xFFFEF9C3),
+                            accent: Color(0xFFEA580C),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                },
               ),
 
               const SizedBox(height: 16),
 
               // ====== BAGIAN BAWAH ======
-              GridView.count(
-                crossAxisCount: bottomColumns,
-                shrinkWrap: true,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                physics: const NeverScrollableScrollPhysics(),
-                children: const [
-                  ExpandedListCard(),
-                  BarChartCard(),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  if (width > 700) {
+                    // Tampilan desktop/tablet — dua kolom
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Expanded(child: ExpandedListCard()),
+                        SizedBox(width: 16),
+                        Expanded(child: BarChartCard()),
+                      ],
+                    );
+                  } else {
+                    // Tampilan mobile — full width satu-satu
+                    return Column(
+                      children: const [
+                        ExpandedListCard(),
+                        SizedBox(height: 16),
+                        BarChartCard(),
+                      ],
+                    );
+                  }
+                },
               ),
             ],
           ),
@@ -130,11 +224,11 @@ class StatCard extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const Spacer(),
+            const SizedBox(height: 16),
             Text(
               value,
               style: TextStyle(
-                fontSize: 48,
+                fontSize: 36,
                 fontWeight: FontWeight.bold,
                 color: accent,
               ),
@@ -170,6 +264,8 @@ class PieCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final width = MediaQuery.of(context).size.width;
+    final chartSize = width > 700 ? 160.0 : 120.0;
 
     return Card(
       color: background,
@@ -180,35 +276,39 @@ class PieCard extends StatelessWidget {
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment:
+                  MainAxisAlignment.start, // ubah ke start agar rata kiri
               children: [
-                Icon(Icons.folder_open, color: accent, size: 22),
-                const SizedBox(width: 6),
-                Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: accent,
-                    fontWeight: FontWeight.w700,
+                const SizedBox(width: 7),
+                Flexible(
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.left, // teks juga rata kiri
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: accent,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             SizedBox(
-              height: 160,
+              height: chartSize,
+              width: chartSize, // pastikan width sama dengan height
               child: PieChart(
                 PieChartData(
-                  centerSpaceRadius: 45,
+                  centerSpaceRadius: 0,
                   sectionsSpace: 2,
                   sections: [
                     PieChartSectionData(
                       value: 100,
                       color: accent,
-                      radius: 60,
+                      radius: chartSize / 2,
                       title: '100%',
-                      titleStyle: const TextStyle(
+                      titleStyle: TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
+                        fontSize: chartSize / 8,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -216,11 +316,11 @@ class PieCard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Wrap(
               alignment: WrapAlignment.center,
-              spacing: 16,
-              runSpacing: 10,
+              spacing: 8,
+              runSpacing: 6,
               children: const [
                 LegendDot(color: Colors.blue, text: 'Komunitas & Sosial'),
                 LegendDot(color: Colors.green, text: 'Keamanan'),
@@ -236,7 +336,7 @@ class PieCard extends StatelessWidget {
   }
 }
 
-/// ====== TITIK LEGEND WARNA ======
+/// ====== LEGEND ======
 class LegendDot extends StatelessWidget {
   final Color color;
   final String text;
@@ -248,15 +348,15 @@ class LegendDot extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 12,
-          height: 12,
+          width: 10,
+          height: 10,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 4),
         Text(
           text,
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 12,
             color: color.withOpacity(0.8),
             fontWeight: FontWeight.w500,
           ),
@@ -308,13 +408,35 @@ class ExpandedListCard extends StatelessWidget {
   }
 }
 
-/// ====== KARTU BAR CHART ======
+/// ====== BAR CHART ======
 class BarChartCard extends StatelessWidget {
   const BarChartCard({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final width = MediaQuery.of(context).size.width;
+    final chartHeight = width > 700 ? 300.0 : 250.0;
+
+    // Data contoh
+    final List<String> bulan = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Agu",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des"
+    ];
+    final List<double> values = [5, 3, 4, 2, 6, 1, 0, 3, 2, 4, 5, 1];
+
+    final maxValue = values.reduce((a, b) => a > b ? a : b) + 1;
+
     return Card(
       color: Colors.pink.shade50,
       elevation: 3,
@@ -332,41 +454,65 @@ class BarChartCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Expanded(
+            SizedBox(
+              height: chartHeight,
               child: BarChart(
                 BarChartData(
+                  maxY: maxValue, // skala horizontal
                   alignment: BarChartAlignment.spaceAround,
+                  groupsSpace: 12,
+                  barTouchData: BarTouchData(enabled: false),
                   titlesData: FlTitlesData(
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (v, meta) {
-                          const bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-                          return Text(bulan[v.toInt() % 12]);
-                        },
-                      ),
-                    ),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        reservedSize: 24,
+                        getTitlesWidget: (value, meta) {
+                          if (value.toInt() >= 0 &&
+                              value.toInt() < bulan.length) {
+                            return Text(
+                              bulan[value.toInt()],
+                              style: TextStyle(fontSize: width > 700 ? 12 : 10),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                        reservedSize: 70,
                       ),
                     ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            value.toInt().toString(),
+                            style: TextStyle(fontSize: width > 700 ? 12 : 10),
+                          );
+                        },
+                      ),
+                    ),
+                    topTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   ),
                   borderData: FlBorderData(show: false),
-                  barGroups: [
-                    BarChartGroupData(
-                      x: 9,
+                  gridData: FlGridData(show: true),
+                  barGroups: List.generate(bulan.length, (index) {
+                    return BarChartGroupData(
+                      x: index,
+                      barsSpace: 4,
                       barRods: [
                         BarChartRodData(
-                          toY: 1,
+                          toY: values[index],
+                          width: width > 700 ? 18 : 12,
                           color: Colors.pink.shade400,
-                          width: 18,
+                          borderRadius: BorderRadius.circular(6),
                         ),
                       ],
-                    ),
-                  ],
+                    );
+                  }),
                 ),
+                swapAnimationDuration: const Duration(milliseconds: 400),
               ),
             ),
           ],
