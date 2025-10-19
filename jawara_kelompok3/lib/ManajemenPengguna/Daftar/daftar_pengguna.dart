@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../Layout/sidebar.dart' as layout_sidebar;
 import 'detail_pengguna.dart';
+import 'edit_pengguna.dart';
 import '../../main.dart';
 
 const Color primaryDark = Color(0xFF5C4E43);
@@ -415,11 +416,10 @@ class DaftarPenggunaPage extends StatelessWidget {
                   ),
                 );
               } else if (result == 'edit') {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Aksi Edit untuk ${user.nama} telah dipilih.',
-                    ),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditPenggunaPage(user: user),
                   ),
                 );
               } else if (result == 'hapus') {
