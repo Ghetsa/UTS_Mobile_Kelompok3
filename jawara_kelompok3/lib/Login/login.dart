@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../Theme/app_theme.dart'; // gunakan tema dari AppTheme
+import '../Theme/app_theme.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -23,10 +23,11 @@ class LoginScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                // === Logo dan Judul ===
+                // Logo dan Judul Aplikasi
                 Column(
                   children: [
-                    Image.asset('assets/images/Logo_jawara.png', height: 80),
+                    Image.asset('assets/images/Logo_jawara.png',
+                        height: 80), // Logo aplikasi
                     const SizedBox(height: 8),
                     const Text(
                       'Jawara',
@@ -40,7 +41,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 40),
 
-                // === Teks Selamat Datang ===
+                // Teks Selamat Datang
                 const Text(
                   'Selamat Datang',
                   style: TextStyle(
@@ -56,7 +57,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 30),
 
-                // === Card Form Login ===
+                // Card Form Login
                 ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: cardMaxWidth),
                   child: Container(
@@ -89,7 +90,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
 
-                        // === Input Email ===
+                        // Input Email
                         const Text(
                           'Email',
                           style: TextStyle(
@@ -124,7 +125,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
 
-                        // === Input Password ===
+                        // Input Password
                         const Text(
                           'Password',
                           style: TextStyle(
@@ -159,13 +160,12 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 30),
 
-                        // === Tombol Login ===
+                        // Tombol Login
                         SizedBox(
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
                             onPressed: () {
-                              // Arahkan ke halaman dashboard kegiatan
                               Navigator.pushReplacementNamed(
                                   context, '/dashboard/kegiatan');
                             },
@@ -188,7 +188,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
 
-                        // === Tombol Register ===
+                        // Tombol Register / Daftar
                         Center(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -202,7 +202,7 @@ class LoginScreen extends StatelessWidget {
                                   Navigator.pushNamed(context, '/register');
                                 },
                                 child: const Text(
-                                  'Daftar',
+                                  'Daftar', // Teks link register
                                   style: TextStyle(
                                     color: AppTheme.primaryBlue,
                                     fontWeight: FontWeight.bold,
