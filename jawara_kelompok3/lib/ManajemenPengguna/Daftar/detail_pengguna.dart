@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
 import 'daftar_pengguna.dart';
 import '../../main.dart';
+import '../../Theme/app_theme.dart';
 
-const Color primaryDark = Color(0xFF5C4E43);
-const Color secondaryCream = Color(0xFFEDE8D2);
-const Color accentGold = Color(0xFFC7B68D);
-
-// Halaman untuk menampilkan detail lengkap satu pengguna
 class DetailPenggunaPage extends StatelessWidget {
   final User user;
 
   const DetailPenggunaPage({super.key, required this.user});
+
+  // Warna status berdasarkan nilai statusRegistrasi
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Diterima':
+        return AppTheme.greenMediumDark;
+      case 'Pending':
+        return AppTheme.yellowMediumDark;
+      case 'Ditolak':
+        return AppTheme.redMedium;
+      default:
+        return AppTheme.blueDark;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +28,22 @@ class DetailPenggunaPage extends StatelessWidget {
     final isDesktop = screenWidth > 800;
 
     return Scaffold(
+      backgroundColor: AppTheme.backgroundBlueWhite,
       appBar: AppBar(
-        title: const Text("Detail Pengguna"),
-        backgroundColor: Colors.white,
-        elevation: 1,
+        backgroundColor: AppTheme.primaryBlue,
+        elevation: 2,
+        centerTitle: true,
+        title: const Text(
+          "Detail Pengguna",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
+
+      // Konten body
       body: SingleChildScrollView(
         padding: EdgeInsets.all(isDesktop ? 32.0 : 16.0),
         child: Center(
@@ -33,52 +54,56 @@ class DetailPenggunaPage extends StatelessWidget {
               children: [
                 // Tombol Kembali
                 TextButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(Icons.arrow_back, color: primaryDark),
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.arrow_back, color: AppTheme.primaryBlue),
                   label: const Text(
                     "Kembali",
                     style: TextStyle(
-                      color: primaryDark,
+                      color: AppTheme.primaryBlue,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
 
-                // Card Detail Pengguna
+                // Card detail pengguna
                 Card(
-                  elevation: 4,
+                  elevation: 8,
+                  shadowColor: AppTheme.blueExtraLight,
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(30.0),
+                    padding: const EdgeInsets.all(24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Detail Pengguna",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                        // Judul Card
+                        Center(
+                          child: Text(
+                            "Detail Pengguna",
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.primaryBlue,
+                            ),
                           ),
                         ),
-                        const Divider(height: 30),
+                        const SizedBox(height: 24),
 
-                        // Bagian Profil (Foto dan Nama/Role)
+                        // Profil pengguna (Avatar + Nama + Role)
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Icon/Avatar Pengguna
+                            // Avatar pengguna
                             const CircleAvatar(
                               radius: 30,
-                              backgroundColor: primaryDark,
+                              backgroundColor: AppTheme.primaryBlue,
                               child: Icon(
                                 Icons.person,
                                 size: 35,
-                                color: secondaryCream,
+                                color: Colors.white,
                               ),
                             ),
                             const SizedBox(width: 20),
@@ -107,36 +132,39 @@ class DetailPenggunaPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 30),
 
-                        // Detail Informasi dalam format Key-Value
-                        _buildDetailItem(
-                          key: "NIK",
-                          value: user.nik,
-                          isApproved: user.nik != "Tidak Tersedia",
-                        ),
-                        _buildDetailItem(
-                          key: "Email",
-                          value: user.email,
-                          isApproved: true,
-                        ),
-                        _buildDetailItem(
-                          key: "Nomor HP",
-                          value: user.noHp,
-                          isApproved: user.noHp != "08XXXXXXXXXX",
-                        ),
-                        _buildDetailItem(
-                          key: "Jenis Kelamin",
-                          value: user.jenisKelamin,
-                          isApproved: user.jenisKelamin != "Tidak Tersedia",
-                        ),
-                        // Status Registrasi
-                        _buildDetailItem(
-                          key: "Status Registrasi",
-                          value: user.statusRegistrasi,
-                          isApproved: user.statusRegistrasi == "Diterima",
+                        // Detail informasi pengguna
+                        _buildDetailRow("NIK", user.nik),
+                        _buildDetailRow("Email", user.email),
+                        _buildDetailRow("Nomor HP", user.noHp),
+                        _buildDetailRow("Jenis Kelamin", user.jenisKelamin),
+                        _buildDetailRow(
+                          "Status Registrasi",
+                          user.statusRegistrasi,
+                          statusColor: _getStatusColor(user.statusRegistrasi),
                         ),
                       ],
                     ),
                   ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Catatan di bawah
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.info_outline,
+                        color: AppTheme.primaryBlue, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Informasi pengguna ditampilkan secara lengkap",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppTheme.blueDark,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -146,53 +174,42 @@ class DetailPenggunaPage extends StatelessWidget {
     );
   }
 
-  // Helper Widget untuk menampilkan baris detail
-  Widget _buildDetailItem({
-    required String key,
-    required String value,
-    required bool isApproved,
-  }) {
-    // Teks "Approved" atau penanda status
-    final statusWidget = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: value == "Diterima" ? Colors.green[100] : Colors.amber[100],
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        value,
-        style: TextStyle(
-          color: value == "Diterima" ? Colors.green[700] : Colors.amber[700],
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-
+  // Widget pembantu untuk menampilkan satu baris detail 
+  Widget _buildDetailRow(String label, String value, {Color? statusColor}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Label
           Text(
-            key,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
-              fontWeight: FontWeight.w500,
+            "$label:",
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.primaryBlue,
             ),
           ),
-          const SizedBox(height: 4),
-          key == "Status Registrasi"
-              ? statusWidget
-              : Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+          const SizedBox(height: 6),
+
+          // Kotak nilai
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppTheme.lightBlue,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.blueLight, width: 1),
+            ),
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: statusColor != null ? FontWeight.bold : FontWeight.normal,
+                color: statusColor ?? AppTheme.primaryBlue,
+              ),
+            ),
+          ),
         ],
       ),
     );
