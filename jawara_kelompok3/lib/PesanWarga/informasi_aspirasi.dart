@@ -12,7 +12,7 @@ class SemuaAspirasi extends StatefulWidget {
 }
 
 class _SemuaAspirasiState extends State<SemuaAspirasi> {
-  // Data dummy
+  // Data dummy 
   List<Map<String, String>> aspirationData = [
     {
       'no': '1',
@@ -52,99 +52,220 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
     },
   ];
 
-  // Variabel pencarian dan filter
+  // Variabel search dan filter
   String _searchQuery = '';
   String? _selectedStatusFilter;
 
-  final Color primaryColor = AppTheme.primaryBlue;
-  final Color backgroundColor = AppTheme.backgroundBlueWhite;
-  final Color inputBackground = AppTheme.lightBlue;
+  // Breakpoint untuk tampilan mobile / desktop
+  static const double mobileBreakpoint = 600.0;
 
-  final Color success = AppTheme.greenMedium;
-  final Color warning = AppTheme.yellowMediumDark;
-  final Color error = AppTheme.redMedium;
+  // Variabel pagination
+  int _currentPage = 0;
+  final int _rowsPerPage = 10;
 
-  // Getter untuk memfilter data berdasarkan pencarian dan status
-  List<Map<String, String>> get _filteredAspirationData {
-    return aspirationData.where((data) {
-      if (_selectedStatusFilter != null &&
-          _selectedStatusFilter!.isNotEmpty &&
-          _selectedStatusFilter != 'Semua' &&
-          data['status'] != _selectedStatusFilter) {
-        return false;
-      }
+  // Data hasil filter 
+  List<Map<String, String>> _filteredAspirationData = [];
 
-      if (_searchQuery.isEmpty) return true;
-      final query = _searchQuery.toLowerCase();
-      return data.values.any((value) => value.toLowerCase().contains(query));
-    }).toList();
+  @override
+  void initState() {
+    super.initState();
+    _filterData(); 
   }
 
-  // Mengatur warna status
+  // Fungsi memfilter data
+  void _filterData({
+    String? searchQuery,
+    String? statusFilter,
+  }) {
+    setState(() {
+      _searchQuery = searchQuery ?? _searchQuery;
+      _selectedStatusFilter = statusFilter ?? _selectedStatusFilter;
+
+      _filteredAspirationData = aspirationData.where((data) {
+        // Filter judul
+        bool matchesSearch = _searchQuery.isEmpty
+            ? true
+            : data['judul']!.toLowerCase().contains(_searchQuery.toLowerCase());
+
+        // Filter status
+        bool matchesStatus = _selectedStatusFilter == null ||
+                _selectedStatusFilter == 'Semua' ||
+                _selectedStatusFilter!.isEmpty
+            ? true
+            : data['status'] == _selectedStatusFilter;
+
+        return matchesSearch && matchesStatus;
+      }).toList();
+
+      _currentPage = 0; 
+    });
+  }
+
+  // Fungsi mereset filter 
+  void _resetFilter() {
+    setState(() {
+      _searchQuery = '';
+      _selectedStatusFilter = null;
+      _filteredAspirationData = aspirationData;
+      _currentPage = 0;
+    });
+  }
+
+  // Fungsi menampilkan modal filter 
+  void _showFilterModal(BuildContext context) {
+    final TextEditingController searchCtrl =
+        TextEditingController(text: _searchQuery);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return AlertDialog(
+              backgroundColor: AppTheme.backgroundBlueWhite,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              title: const Text('Filter Pesan Warga',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black87)),
+              content: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Input field search judul
+                    const Text("Judul",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 14)),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: searchCtrl,
+                      decoration: InputDecoration(
+                        hintText: "Cari judul...",
+                        filled: true,
+                        fillColor: AppTheme.lightBlue.withOpacity(0.2),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    // Dropdown filter status
+                    const Text("Status",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 14)),
+                    const SizedBox(height: 6),
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        value: _selectedStatusFilter,
+                        hint: const Text('-- Pilih Status --'),
+                        items: const [
+                          DropdownMenuItem(
+                              value: 'Semua', child: Text('Semua')),
+                          DropdownMenuItem(
+                              value: 'Diterima', child: Text('Diterima')),
+                          DropdownMenuItem(
+                              value: 'Pending', child: Text('Pending')),
+                          DropdownMenuItem(
+                              value: 'Ditolak', child: Text('Ditolak')),
+                        ],
+                        onChanged: (val) =>
+                            setModalState(() => _selectedStatusFilter = val),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                // Tombol reset filter
+                ElevatedButton(
+                  onPressed: () {
+                    _resetFilter();
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.redMediumDark,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Text('Reset Filter',
+                      style: TextStyle(color: Colors.white)),
+                ),
+                // Tombol terapkan filter
+                ElevatedButton(
+                  onPressed: () {
+                    _filterData(
+                      searchQuery: searchCtrl.text,
+                      statusFilter: _selectedStatusFilter,
+                    );
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryGreen,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Text('Terapkan',
+                      style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // Fungsi mendapatkan warna sesuai status aspirasi
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Diterima':
-        return success;
+        return AppTheme.greenMedium;
       case 'Pending':
-        return warning;
+        return AppTheme.yellowMediumDark;
       case 'Ditolak':
-        return error;
+        return AppTheme.redMedium;
       default:
         return Colors.grey;
     }
   }
 
-  // Fungsi menghapus data
-  void _deleteData(Map<String, String> data) {
-    setState(() {
-      aspirationData.remove(data);
-    });
-  }
-
-  // Fungsi menampilkan popup aksi
+  // Fungsi menampilkan bottom sheet menu aksi setiap aspirasi
   void _showPopupActionMenu(BuildContext context, Map<String, String> data) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext context) {
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
         return Wrap(
           children: [
-            // Tombol detail aspirasi
+            // Menu Lihat Detail
             ListTile(
               leading: const Icon(Icons.info, color: Colors.blue),
               title: const Text('Lihat Detail'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => DetailAspirasi(data: data),
-                  ),
-                );
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => DetailAspirasi(data: data)));
               },
             ),
-
-            // Tombol mengedit aspirasi
+            // Menu Edit Aspirasi
             ListTile(
               leading: const Icon(Icons.edit, color: Colors.orange),
               title: const Text('Edit'),
               onTap: () async {
                 Navigator.pop(context);
                 final updatedData = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => EditAspirasi(data: data),
-                  ),
-                );
-
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => EditAspirasi(data: data)));
                 if (updatedData != null && mounted) {
                   setState(() {
                     final index = aspirationData.indexOf(data);
                     aspirationData[index] = updatedData;
                   });
-
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text('Aspirasi berhasil diperbarui'),
@@ -155,8 +276,7 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
                 }
               },
             ),
-
-            // Tombol menghapus aspirasi
+            // Menu Hapus Aspirasi
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
               title: const Text('Hapus'),
@@ -164,27 +284,21 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
                 Navigator.pop(context);
                 showDialog(
                   context: context,
-                  builder: (BuildContext context) => AlertDialog(
+                  builder: (context) => AlertDialog(
                     title: const Text('Konfirmasi Hapus'),
                     content: Text(
-                      'Apakah kamu yakin ingin menghapus aspirasi "${data['judul']}"?',
-                    ),
+                        'Apakah kamu yakin ingin menghapus aspirasi "${data['judul']}"?'),
                     actions: [
-                      // Tombol batal
                       TextButton(
-                        child: const Text('Batal'),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-
-                      // Tombol hapus
+                          child: const Text('Batal'),
+                          onPressed: () => Navigator.pop(context)),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                        ),
+                            backgroundColor: Colors.red),
                         child: const Text('Hapus'),
                         onPressed: () {
                           Navigator.pop(context);
-                          _deleteData(data);
+                          setState(() => aspirationData.remove(data));
                         },
                       ),
                     ],
@@ -198,214 +312,257 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
     );
   }
 
-  // Fungsi menampilkan tampilan halaman
   @override
   Widget build(BuildContext context) {
+    // Cek apakah tampilan mobile atau desktop
+    final isMobile = MediaQuery.of(context).size.width < mobileBreakpoint;
+
+    // Pagination slicing
+    final int startIndex = _currentPage * _rowsPerPage;
+    final int endIndex =
+        (_currentPage + 1) * _rowsPerPage > _filteredAspirationData.length
+            ? _filteredAspirationData.length
+            : (_currentPage + 1) * _rowsPerPage;
+    final List<Map<String, String>> paginatedData =
+        _filteredAspirationData.sublist(startIndex, endIndex);
+    final int totalPages =
+        (_filteredAspirationData.length / _rowsPerPage).ceil();
+
     return Scaffold(
-      backgroundColor: backgroundColor,
       drawer: const AppSidebar(),
+      backgroundColor: AppTheme.backgroundBlueWhite,
       appBar: AppBar(
-        backgroundColor: primaryColor,
-        elevation: 0,
+        backgroundColor: AppTheme.primaryBlue,
+        elevation: 3,
         title: const Text(
           'Semua Aspirasi',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Search bar
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Cari pengirim atau judul...',
-                prefixIcon: const Icon(Icons.search, color: Colors.white),
-                filled: true,
-                fillColor: Colors.blue.shade600,
-                hintStyle: const TextStyle(color: Colors.white70),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              style: const TextStyle(color: Colors.white),
-              onChanged: (val) => setState(() => _searchQuery = val),
-            ),
-            const SizedBox(height: 12),
-
-            // Dropdown filter
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade600,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  dropdownColor: Colors.blue.shade700,
-                  value: _selectedStatusFilter,
-                  icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                  isExpanded: true,
-                  hint: const Text(
-                    'Filter berdasarkan status',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'Semua', child: Text('Semua')),
-                    DropdownMenuItem(
-                        value: 'Diterima', child: Text('Diterima')),
-                    DropdownMenuItem(value: 'Pending', child: Text('Pending')),
-                    DropdownMenuItem(value: 'Ditolak', child: Text('Ditolak')),
-                  ],
-                  onChanged: (val) {
-                    setState(() => _selectedStatusFilter = val);
-                  },
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Card daftar aspirasi
-            Expanded(
-              child: _filteredAspirationData.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Tidak ada data ditemukan',
-                        style: TextStyle(fontSize: 16),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1100),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Tombol filter di pojok kanan
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => _showFilterModal(context),
+                      icon: const Icon(Icons.filter_alt),
+                      label: const Text("Filter Aspirasi"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryGreen,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 18, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
                       ),
-                    )
-                  : ListView.builder(
-                      itemCount: _filteredAspirationData.length,
-                      itemBuilder: (context, index) {
-                        final data = _filteredAspirationData[index];
-                        return Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          color: Colors.white,
-                          elevation: 4,
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Nomor urut
-                                Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Colors.blueAccent.shade700,
-                                        Colors.lightBlueAccent.shade100
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '${index + 1}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-
-                                // Isi data
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // Judul dan status
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              data['judul']!,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 4,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: _getStatusColor(
-                                                data['status']!,
-                                              ).withOpacity(0.15),
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            child: Text(
-                                              data['status']!,
-                                              style: TextStyle(
-                                                color: _getStatusColor(
-                                                    data['status']!),
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 6),
-
-                                      // Nama pengirim dan tanggal dibuat
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('Pengirim: ${data['pengirim']}'),
-                                          Text(
-                                            data['tanggalDibuat']!,
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const Divider(height: 20),
-
-                                      // Tombol menu aksi
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.more_vert),
-                                            onPressed: () =>
-                                                _showPopupActionMenu(
-                                                    context, data),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
                     ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                // Jika tidak ada data hasil filter
+                _filteredAspirationData.isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.all(40.0),
+                        child: Center(
+                          child: Text(
+                            "Tidak ada aspirasi yang sesuai.",
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                          ),
+                        ),
+                      )
+                    : Column(
+                        children: [
+                          // Tampilkan versi mobile atau desktop sesuai breakpoint
+                          isMobile
+                              ? _buildMobileList(paginatedData)
+                              : _buildDesktopTable(paginatedData),
+                          const SizedBox(height: 20),
+                          // Kontrol pagination
+                          _buildPaginationControls(totalPages),
+                        ],
+                      ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  // Widget untuk menampilkan tombol pagination
+  Widget _buildPaginationControls(int totalPages) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Tombol previous
+        IconButton(
+          icon: const Icon(Icons.chevron_left),
+          onPressed:
+              _currentPage > 0 ? () => setState(() => _currentPage--) : null,
+        ),
+        // Tombol nomor halaman
+        ...List.generate(totalPages, (i) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _currentPage == i
+                    ? AppTheme.primaryBlue
+                    : Colors.grey.shade300,
+                minimumSize: const Size(36, 36),
+                padding: EdgeInsets.zero,
+              ),
+              onPressed: () => setState(() => _currentPage = i),
+              child: Text('${i + 1}',
+                  style: TextStyle(
+                      color: _currentPage == i ? Colors.white : Colors.black)),
+            ),
+          );
+        }),
+        // Tombol next
+        IconButton(
+          icon: const Icon(Icons.chevron_right),
+          onPressed: _currentPage < totalPages - 1
+              ? () => setState(() => _currentPage++)
+              : null,
+        ),
+      ],
+    );
+  }
+
+  // Widget untuk menampilkan tabel desktop
+  Widget _buildDesktopTable(List<Map<String, String>> paginatedData) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        headingRowColor:
+            MaterialStateProperty.all(AppTheme.lightBlue.withOpacity(0.3)),
+        dataRowColor: MaterialStateProperty.all(AppTheme.backgroundBlueWhite),
+        headingTextStyle: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),
+        columns: const [
+          DataColumn(label: Text('No')),
+          DataColumn(label: Text('Judul')),
+          DataColumn(label: Text('Pengirim')),
+          DataColumn(label: Text('Status')),
+          DataColumn(label: Text('Tanggal Dibuat')),
+          DataColumn(label: Text('Aksi')),
+        ],
+        rows: paginatedData.map((data) {
+          return DataRow(cells: [
+            DataCell(Text(data['no']!)),
+            DataCell(Text(data['judul']!)),
+            DataCell(Text(data['pengirim']!)),
+            DataCell(Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: _getStatusColor(data['status']!).withOpacity(0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                data['status']!,
+                style: TextStyle(
+                  color: _getStatusColor(data['status']!),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )),
+            DataCell(Text(data['tanggalDibuat']!)),
+            DataCell(Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.more_vert, size: 20),
+                  onPressed: () => _showPopupActionMenu(context, data),
+                ),
+              ],
+            )),
+          ]);
+        }).toList(),
+      ),
+    );
+  }
+
+  // Widget untuk menampilkan daftar aspirasi versi mobile
+  Widget _buildMobileList(List<Map<String, String>> paginatedData) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: paginatedData.length,
+      itemBuilder: (context, index) {
+        final data = paginatedData[index];
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade200,
+                blurRadius: 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            // Nomor urut dengan lingkaran biru
+            leading: CircleAvatar(
+              backgroundColor: AppTheme.primaryBlue.withOpacity(0.8),
+              child: Text(
+                data['no']!,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
+            title: Text(
+              data['judul']!,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
+                Text(
+                  'Pengirim: ${data['pengirim']}',
+                  style: const TextStyle(
+                      color: AppTheme.primaryGreen,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 12),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text(
+                      data['tanggalDibuat']!,
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            trailing: IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () => _showPopupActionMenu(context, data),
+            ),
+          ),
+        );
+      },
     );
   }
 }
