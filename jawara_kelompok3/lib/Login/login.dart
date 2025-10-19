@@ -7,7 +7,7 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final double cardMaxWidth = screenWidth > 470 ? 400.0 : screenWidth * 0.85;
+    final double cardMaxWidth = screenWidth > 470 ? 400.0 : screenWidth * 0.80;
 
     return Scaffold(
       backgroundColor: AppTheme.primaryBlue,
