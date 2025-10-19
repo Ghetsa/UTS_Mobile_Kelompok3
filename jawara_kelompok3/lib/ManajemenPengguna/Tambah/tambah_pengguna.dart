@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../Layout/sidebar.dart'; // gunakan sidebar sesuai struktur folder global
-import '../../Theme/app_theme.dart'; // gunakan theme global
+import '../../Layout/sidebar.dart';
+import '../../Theme/app_theme.dart';
 
 class TambahPenggunaPage extends StatefulWidget {
   const TambahPenggunaPage({super.key});
@@ -10,24 +10,22 @@ class TambahPenggunaPage extends StatefulWidget {
 }
 
 class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
-  final List<String> roles = const [
-    '-- Pilih Role --',
-    'Admin',
-    'Bendahara',
-    'Warga',
-  ];
-
+  final List<String> roles = const ['-- Pilih Role --', 'Admin', 'Bendahara', 'Warga'];
+  
+  // Variabel menyimpan 
   late String selectedRole;
+  
+  // Controller untuk setiap input text
   final TextEditingController namaLengkapController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController nomorHpController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController konfirmasiPasswordController =
-      TextEditingController();
+  final TextEditingController konfirmasiPasswordController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    // Set default role yang dipilih
     selectedRole = roles.first;
   }
 
@@ -41,139 +39,115 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
     super.dispose();
   }
 
+  // Fungsi untuk menampilkan snackbar ketika tombol Simpan ditekan
+  void _handleSimpan() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Menyimpan Pengguna Baru: ${namaLengkapController.text} dengan Role $selectedRole'),
+      ),
+    );
+  }
+
+  // Fungsi untuk mereset seluruh inputan form
+  void _handleReset() {
+    setState(() {
+      namaLengkapController.clear();
+      emailController.clear();
+      nomorHpController.clear();
+      passwordController.clear();
+      konfirmasiPasswordController.clear();
+      selectedRole = roles.first; 
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Formulir telah di-reset.')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth > 800;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundBlueWhite,
+      drawer: const AppSidebar(),
+
+      // AppBar 
       appBar: AppBar(
         title: const Text(
           "Tambah Akun Pengguna",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: AppTheme.primaryBlue,
-        foregroundColor: Colors.white,
-        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      drawer: const AppSidebar(), // sidebar konsisten dengan layout utama
+
+      // Body menggunakan SingleChildScrollView agar scrollable
       body: SingleChildScrollView(
         padding: EdgeInsets.all(isDesktop ? 32.0 : 16.0),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 900),
+            constraints: const BoxConstraints(maxWidth: 900), 
             child: Card(
-              color: Colors.white,
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              elevation: 6, 
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), 
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Formulir Tambah Pengguna",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryBlue,
+                    // Judul Form
+                    Center(
+                      child: Text(
+                        "Formulir Tambah Pengguna",
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.primaryBlue,
+                            ),
                       ),
                     ),
-                    const Divider(height: 30, thickness: 1),
+                    const SizedBox(height: 30),
 
-                    // Input: Nama Lengkap
-                    _buildTextField(
-                      controller: namaLengkapController,
-                      label: "Nama Lengkap",
-                      hint: "Masukkan nama lengkap",
-                    ),
+                    // Input Fields
+                    _buildTextField(controller: namaLengkapController, label: "Nama Lengkap", hint: "Masukkan nama lengkap"),
+                    _buildTextField(controller: emailController, label: "Email", hint: "Masukkan email aktif", keyboardType: TextInputType.emailAddress),
+                    _buildTextField(controller: nomorHpController, label: "Nomor HP", hint: "Masukkan nomor HP (cth. 08xxxxxxxxx)", keyboardType: TextInputType.phone),
+                    _buildTextField(controller: passwordController, label: "Password", hint: "Masukkan password", isPassword: true),
+                    _buildTextField(controller: konfirmasiPasswordController, label: "Konfirmasi Password", hint: "Masukkan ulang password", isPassword: true),
+
+                    // Dropdown Role
                     const SizedBox(height: 20),
-
-                    // Input: Email
-                    _buildTextField(
-                      controller: emailController,
-                      label: "Email",
-                      hint: "Masukkan email aktif",
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Input: Nomor HP
-                    _buildTextField(
-                      controller: nomorHpController,
-                      label: "Nomor HP",
-                      hint: "Masukkan nomor HP (cth. 08xxxxxxxxx)",
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Input: Password
-                    _buildTextField(
-                      controller: passwordController,
-                      label: "Password",
-                      hint: "Masukkan password",
-                      isPassword: true,
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Input: Konfirmasi Password
-                    _buildTextField(
-                      controller: konfirmasiPasswordController,
-                      label: "Konfirmasi Password",
-                      hint: "Masukkan ulang password",
-                      isPassword: true,
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Input: Role (Dropdown)
                     _buildRoleDropdown(),
                     const SizedBox(height: 30),
 
-                    // Tombol Aksi
+                    // Tombol aksi Simpan dan Reset
                     Row(
                       children: [
                         // Tombol Simpan
-                        ElevatedButton(
-                          onPressed: _handleSimpan,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryBlue,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _handleSimpan,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text(
-                            "Simpan",
-                            style: TextStyle(fontSize: 16, color: Colors.white),
+                            child: const Text("Simpan", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                           ),
                         ),
-                        const SizedBox(width: 15),
+                        const SizedBox(width: 12),
 
                         // Tombol Reset
-                        OutlinedButton(
-                          onPressed: _handleReset,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppTheme.primaryBlue,
-                            side: const BorderSide(
-                              color: AppTheme.primaryBlue,
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _handleReset,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text(
-                            "Reset",
-                            style: TextStyle(fontSize: 16),
+                            child: const Text("Reset", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                           ),
                         ),
                       ],
@@ -188,33 +162,7 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
     );
   }
 
-  // === Logika tombol Simpan ===
-  void _handleSimpan() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Menyimpan Pengguna Baru: ${namaLengkapController.text} dengan Role $selectedRole',
-        ),
-      ),
-    );
-  }
-
-  // === Logika tombol Reset ===
-  void _handleReset() {
-    setState(() {
-      namaLengkapController.clear();
-      emailController.clear();
-      nomorHpController.clear();
-      passwordController.clear();
-      konfirmasiPasswordController.clear();
-      selectedRole = roles.first;
-    });
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Formulir telah di-reset.')));
-  }
-
-  // === Widget TextField ===
+  // Widget TextField dengan style mirip Tambah Channel
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -222,91 +170,67 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
     TextInputType keyboardType = TextInputType.text,
     bool isPassword = false,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-            color: AppTheme.primaryBlue,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: controller,
-          obscureText: isPassword,
-          keyboardType: keyboardType,
-          decoration: InputDecoration(
-            hintText: hint,
-            isDense: true,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.grey),
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(
-                color: AppTheme.primaryBlue,
-                width: 2,
-              ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Label field
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const SizedBox(height: 8),
+
+          // TextField input
+          TextField(
+            controller: controller,
+            obscureText: isPassword,
+            keyboardType: keyboardType,
+            decoration: InputDecoration(
+              hintText: hint,
+              filled: true,
+              fillColor: Colors.grey.shade100, 
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  // === Widget Dropdown Role ===
+  // Widget Dropdown Role dengan style mirip Tambah Channel 
   Widget _buildRoleDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Role",
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-            color: AppTheme.primaryBlue,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              isExpanded: true,
-              value: selectedRole,
-              icon: const Icon(
-                Icons.keyboard_arrow_down,
-                color: AppTheme.primaryBlue,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Label Role
+          const Text("Role", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const SizedBox(height: 8),
+
+          // Dropdown container
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100, 
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade400),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                isExpanded: true,
+                value: selectedRole,
+                icon: const Icon(Icons.keyboard_arrow_down, color: AppTheme.primaryBlue),
+                items: roles.map((role) => DropdownMenuItem(value: role, child: Text(role))).toList(),
+                onChanged: (String? newValue) {
+                  if (newValue != null) setState(() => selectedRole = newValue);
+                },
               ),
-              style: const TextStyle(color: Colors.black87, fontSize: 16),
-              items: roles.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  setState(() {
-                    selectedRole = newValue;
-                  });
-                }
-              },
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
