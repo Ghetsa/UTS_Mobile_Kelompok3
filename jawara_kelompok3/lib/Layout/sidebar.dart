@@ -45,9 +45,7 @@ class AppSidebar extends StatelessWidget {
               ),
             ),
 
-            // === Menu utama ===
-            // _buildMenuItem(Icons.dashboard, "Dashboard", "/", context, currentRoute),
-            // === Pemasukan ===
+            // === Dashboard ===
             Theme(
               data:
                   Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -100,7 +98,7 @@ class AppSidebar extends StatelessWidget {
               ),
             ),
 
-            // === Pemasukan (ExpansionTile) ===
+            // === Pemasukan ===
             Theme(
               data:
                   Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -129,7 +127,7 @@ class AppSidebar extends StatelessWidget {
               ),
             ),
 
-            // === Laporan Keuangan (ExpansionTile) ===
+            // === Laporan Keuangan ===
             Theme(
               data:
                   Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -144,23 +142,51 @@ class AppSidebar extends StatelessWidget {
                   ),
                 ),
                 children: [
-                  _buildSubMenuItem("Semua Pemasukan", "/laporan/semua-pemasukan", context, currentRoute),
-                  _buildSubMenuItem("Semua Pengeluaran", "/laporan/semua-pengeluaran", context, currentRoute),
-                  _buildSubMenuItem("Cetak Laporan", "/laporan/cetak", context, currentRoute),
+                  _buildSubMenuItem("Semua Pemasukan",
+                      "/laporan/semua-pemasukan", context, currentRoute),
+                  _buildSubMenuItem("Semua Pengeluaran",
+                      "/laporan/semua-pengeluaran", context, currentRoute),
+                  _buildSubMenuItem(
+                      "Cetak Laporan", "/laporan/cetak", context, currentRoute),
                 ],
               ),
             ),
 
-            // Laporan Keuangan (Menu Utama Lain - Duplikasi)
-            _buildMenuItem(
-              Icons.insert_chart,
-              "Laporan Keuangan",
-              "/laporan",
-              context,
-              currentRoute,
+            // === Manajemen Pengguna (ExpansionTile) ===
+            Theme(
+              data: Theme.of(
+                context,
+              ).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading: const Icon(
+                  Icons.receipt_long,
+                  color: AppTheme.primaryBlue,
+                ),
+                title: const Text(
+                  "Manajemen Pengguna",
+                  style: TextStyle(
+                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                children: [
+                  _buildSubMenuItem(
+                    "Daftar Pengguna",
+                    "/pengguna/penggunaDaftar",
+                    context,
+                    currentRoute,
+                  ),
+                  _buildSubMenuItem(
+                    "Tambah Pengguna",
+                    "/pengguna/penggunaTambah",
+                    context,
+                    currentRoute,
+                  ),
+                ],
+              ),
             ),
 
-            // === Channel Transfer (DIUBAH MENJADI ExpansionTile) ===
+            // === Channel Transfer ===
             Theme(
               data:
                   Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -193,13 +219,13 @@ class AppSidebar extends StatelessWidget {
               ),
             ),
 
-            // === Log Aktifitas (DIUBAH MENJADI ExpansionTile DENGAN SUB MENU) ===
+            // === Log Aktifitas ===
             Theme(
               data:
                   Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
                 leading: const Icon(
-                  Icons.history, // Icon yang sudah ada
+                  Icons.history, 
                   color: AppTheme.primaryBlue,
                 ),
                 title: const Text(
@@ -210,19 +236,24 @@ class AppSidebar extends StatelessWidget {
                   ),
                 ),
                 children: [
-                  // Sub Menu: Semua Aktifitas
                   _buildSubMenuItem(
                     "Semua Aktifitas",
                     "/semuaAktifitas", 
                     context,
                     currentRoute,
                   ),
-                  // Anda bisa menambahkan sub menu lain di sini jika diperlukan
                 ],
               ),
             ),
 
-            // Menu yang tersisa (tidak diubah)
+            // === Menu utama lain ===
+            _buildMenuItem(
+              Icons.insert_chart,
+              "Laporan Keuangan",
+              "/laporan",
+              context,
+              currentRoute,
+            ),
             _buildMenuItem(
               Icons.message,
               "Pesan Warga",

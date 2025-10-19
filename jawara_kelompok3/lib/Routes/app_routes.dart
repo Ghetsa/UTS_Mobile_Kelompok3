@@ -35,6 +35,25 @@ import '../Pemasukan/tagihan/tagihan_page.dart';
 import '../Pemasukan/pemasukanLain/daftar_page.dart';
 import '../Pemasukan/pemasukanLain/tambah_page.dart';
 
+// === Pengeluaran ===
+import '../Pengeluaran/Daftar/daftarPengeluaran.dart';
+import '../Pengeluaran/Tambah/tambahPengeluaran.dart';
+
+// === Mutasi Keluarga ===
+import '../MutasiKeluarga/Daftar/daftarMutasi.dart';
+import '../MutasiKeluarga/Tambah/tambahMutasi.dart' as mutasi_tambah;
+
+// === Manajemen Pengguna ===
+import '../ManajemenPengguna/Daftar/daftar_pengguna.dart';
+import '../ManajemenPengguna/Tambah/tambah_pengguna.dart';
+
+// === Channel Transfer ===
+import '../ChannelTransfer/tambah/tambah_channel.dart';
+import '../ChannelTransfer/daftar/daftar_channel.dart';
+
+// === Log Aktifitas ===
+import '../LogAktifitas/semua_aktifitas.dart';
+
 class AppRoutes {
   static final Map<String, WidgetBuilder> routes = {
     // === Default Route ===
@@ -79,9 +98,11 @@ class AppRoutes {
     // === Kegiatan & Broadcast ===
     '/kegiatan': (context) => const KegiatanBroadcastPage(),
 
-    // === Data Warga dan Rumah ===
-    '/data': (context) => const DataWargaPage(),
-    // '/laporan': (context) => const LaporanKeuanganPage(),
+    // === Mutasi Keluarga ===
+    '/mutasi/daftar': (context) => const DaftarMutasiPage(),
+    '/mutasi/tambah': (context) => const mutasi_tambah.TambahMutasiPage(),
+
+    // === Manajemen Pengguna ===
     '/manajemen': (context) => const ManajemenPenggunaPage(),
     '/pengguna/penggunaDaftar': (context) => const DaftarPenggunaPage(),
     '/pengguna/penggunaTambah': (context) => const TambahPenggunaPage(),
