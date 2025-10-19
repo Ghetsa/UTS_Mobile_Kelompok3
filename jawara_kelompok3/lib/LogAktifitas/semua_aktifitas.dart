@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-// Menggunakan path sidebar Anda
-import '../../Layout/sidebar.dart'; 
-// Menggunakan path theme Anda
-import '../../Theme/app_theme.dart'; 
+import '../../Layout/sidebar.dart';
+import '../../Theme/app_theme.dart';
 
 class SemuaAktifitasPage extends StatefulWidget {
   const SemuaAktifitasPage({super.key});
@@ -12,171 +10,346 @@ class SemuaAktifitasPage extends StatefulWidget {
 }
 
 class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
-  // Data mentah
+  // Dummy data
   static const List<Map<String, String>> _allActivityData = [
     {
       'no': '1',
-      'deskripsi': 'Menugaskan tagihan: Mingguan periode Oktober 2025 sebesar Rp. 12.',
+      'deskripsi': 'Menambahkan pengeluaran : Kerja Bakti sebesar Rp. 50.000',
       'aktor': 'Admin Jawara',
-      'tanggal': '18 Oktober 2025'
+      'tanggal': '19 Oktober 2025'
     },
     {
       'no': '2',
-      'deskripsi': 'Menghapus transfer channel: Bank Mega',
+      'deskripsi': 'Menambahkan pengeluaran : Kerja Bakti sebesar Rp. 100.000',
       'aktor': 'Admin Jawara',
-      'tanggal': '18 Oktober 2025'
+      'tanggal': '19 Oktober 2025'
     },
     {
       'no': '3',
-      'deskripsi': 'Menambahkan rumah baru dengan alamat: Jl. Merbabu',
-      'aktor': 'User Rumah Baru',
-      'tanggal': '18 Oktober 2025'
+      'deskripsi': 'Menolak registrasi dari : asdfghjkjl',
+      'aktor': 'Admin Jawara',
+      'tanggal': '19 Oktober 2025'
     },
     {
       'no': '4',
-      'deskripsi': 'Mengubah iuran: Agustusan',
+      'deskripsi': 'Menambahkan akun : mimin sebagai community_head',
       'aktor': 'Admin Jawara',
-      'tanggal': '17 Oktober 2025'
+      'tanggal': '19 Oktober 2025'
     },
     {
       'no': '5',
-      'deskripsi': 'Membuat broadcast baru: DJ BAWKS',
-      'aktor': 'User Broadcast',
-      'tanggal': '17 Oktober 2025'
+      'deskripsi':
+          'Menugaskan tagihan : Agustusan periode Januari 2025 sebesar Rp. 15',
+      'aktor': 'Admin Jawara',
+      'tanggal': '19 Oktober 2025'
     },
     {
       'no': '6',
-      'deskripsi': 'Menambahkan pengeluaran: Arka sebesar Rp. 6',
-      'aktor': 'Admin Keuangan',
-      'tanggal': '17 Oktober 2025'
+      'deskripsi': 'Menyetujui registrasi dari : Keluarga Tes',
+      'aktor': 'Admin Jawara',
+      'tanggal': '19 Oktober 2025'
     },
     {
       'no': '7',
-      'deskripsi': 'Menambahkan akun: dewqedwdw sebagai neighborhood_head',
+      'deskripsi':
+          'Menugaskan tagihan : Mingguan periode Oktober 2025 sebesar Rp. 12',
       'aktor': 'Admin Jawara',
-      'tanggal': '17 Oktober 2025'
+      'tanggal': '19 Oktober 2025'
     },
     {
       'no': '8',
-      'deskripsi': 'Memperbarui data warga, varizkiy nahdiba rinma',
-      'aktor': 'User Warga',
-      'tanggal': '17 Oktober 2025'
+      'deskripsi': 'Mendownload laporan keuangan',
+      'aktor': 'Admin Jawara',
+      'tanggal': '19 Oktober 2025'
     },
     {
       'no': '9',
-      'deskripsi': 'Menyetujui registrasi dari: Keluarga Rendha Putra Rahmadya',
+      'deskripsi': 'Menambahkan iuran baru: Harian',
       'aktor': 'Admin Jawara',
-      'tanggal': '16 Oktober 2025'
+      'tanggal': '19 Oktober 2025'
     },
     {
       'no': '10',
-      'deskripsi': 'Menugaskan tagihan: Mingguan periode Oktober 2025 sebesar Rp. 12',
-      'aktor': 'Admin Keuangan',
-      'tanggal': '16 Oktober 2025'
+      'deskripsi': 'Menambahkan iuran baru: Kerja Bakti',
+      'aktor': 'Admin Jawara',
+      'tanggal': '19 Oktober 2025'
+    },
+    {
+      'no': '11',
+      'deskripsi': 'Menambahkan tagihan baru: Piket Mingguan',
+      'aktor': 'Admin Jawara',
+      'tanggal': '20 Oktober 2025'
+    },
+    {
+      'no': '12',
+      'deskripsi': 'Menghapus tagihan lama: Kas Warga',
+      'aktor': 'Admin Jawara',
+      'tanggal': '20 Oktober 2025'
     },
   ];
 
-  // State untuk Search dan Filter (dipertahankan agar kode tetap fungsional)
+  // Data hasil filter 
   List<Map<String, String>> _filteredActivityData = _allActivityData;
-  String _searchQuery = ''; 
-  String? _selectedAktorFilter; 
-  late final List<String> _aktorOptions;
 
-  // Breakpoint untuk menentukan tampilan mobile/desktop
-  static const double mobileBreakpoint = 600.0; 
+  // Variabel filter
+  String _searchDeskripsi = '';
+  String _searchAktor = '';
+  DateTime? _startDate;
+  DateTime? _endDate;
+
+  static const double mobileBreakpoint = 600.0;
+
+  // Variabel pagination
+  int _currentPage = 0;
+  final int _rowsPerPage = 10;
 
   @override
   void initState() {
     super.initState();
-    _aktorOptions = _allActivityData.map((data) => data['aktor']!).toSet().toList();
     _filterData();
   }
 
-  // Logika Filter & Search
-  void _filterData({String? search, String? aktor}) {
-    final currentSearch = search ?? _searchQuery;
-    final currentAktor = aktor ?? _selectedAktorFilter;
-
+  // Fungsi memfilter data 
+  void _filterData({
+    String? deskripsi,
+    String? aktor,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) {
     setState(() {
-      _searchQuery = currentSearch;
-      _selectedAktorFilter = currentAktor;
+      // Update nilai filter 
+      _searchDeskripsi = deskripsi ?? _searchDeskripsi;
+      _searchAktor = aktor ?? _searchAktor;
+      _startDate = startDate ?? _startDate;
+      _endDate = endDate ?? _endDate;
 
-      List<Map<String, String>> tempData = _allActivityData;
-      if (currentAktor != null && currentAktor.isNotEmpty) {
-        tempData = tempData.where((data) => data['aktor'] == currentAktor).toList();
-      }
-      if (currentSearch.isNotEmpty) {
-        final lowerCaseQuery = currentSearch.toLowerCase();
-        tempData = tempData.where((data) {
-          return data.values.any((value) => 
-            value.toLowerCase().contains(lowerCaseQuery)
-          );
-        }).toList();
-      }
-      _filteredActivityData = tempData;
+      // Filter data
+      _filteredActivityData = _allActivityData.where((data) {
+        final deskripsiMatch = data['deskripsi']!
+            .toLowerCase()
+            .contains(_searchDeskripsi.toLowerCase());
+        final aktorMatch =
+            data['aktor']!.toLowerCase().contains(_searchAktor.toLowerCase());
+
+        // Ubah tanggal 
+        final tanggalString = data['tanggal']!;
+        DateTime? dataTanggal;
+
+        try {
+          // Parsing tanggal
+          dataTanggal = _parseTanggalIndonesia(tanggalString);
+        } catch (e) {
+          dataTanggal = null;
+        }
+
+        // Cek apakah tanggal masuk dalam rentang filter
+        bool dateMatch = true;
+        if (_startDate != null && dataTanggal != null) {
+          dateMatch = dataTanggal
+              .isAfter(_startDate!.subtract(const Duration(days: 1)));
+        }
+        if (_endDate != null && dataTanggal != null) {
+          dateMatch = dateMatch &&
+              dataTanggal.isBefore(_endDate!.add(const Duration(days: 1)));
+        }
+
+        return deskripsiMatch && aktorMatch && dateMatch;
+      }).toList();
+
+      _currentPage = 0; 
     });
   }
 
-  // --- WIDGET MODAL FILTER ---
+  // Fungsi mengubah string tanggal menjadi objek DateTime
+  DateTime _parseTanggalIndonesia(String tanggal) {
+    final bulanMap = {
+      'Januari': 1,
+      'Februari': 2,
+      'Maret': 3,
+      'April': 4,
+      'Mei': 5,
+      'Juni': 6,
+      'Juli': 7,
+      'Agustus': 8,
+      'September': 9,
+      'Oktober': 10,
+      'November': 11,
+      'Desember': 12,
+    };
+
+    final parts = tanggal.split(' ');
+    final day = int.parse(parts[0]);
+    final month = bulanMap[parts[1]]!;
+    final year = int.parse(parts[2]);
+    return DateTime(year, month, day);
+  }
+
+  // Menghapus semua filter dan menampilkan seluruh data
+  void _resetFilter() {
+    setState(() {
+      _searchDeskripsi = '';
+      _searchAktor = '';
+      _startDate = null;
+      _endDate = null;
+      _filteredActivityData = _allActivityData;
+      _currentPage = 0;
+    });
+  }
+
+  // Menampilkan date picker untuk memilih tanggal mulai/akhir
+  Future<void> _pickDate(BuildContext context, bool isStart) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2025, 10, 19),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+    );
+    if (picked != null) {
+      setState(() {
+        if (isStart) {
+          _startDate = picked;
+        } else {
+          _endDate = picked;
+        }
+      });
+    }
+  }
+
+  // Menampilkan modal filter dengan input deskripsi, aktor, dan tanggal
   void _showFilterModal(BuildContext context) {
-    String? tempSelectedAktor = _selectedAktorFilter;
+    final TextEditingController deskripsiCtrl =
+      TextEditingController(text: _searchDeskripsi);
+    final TextEditingController aktorCtrl =
+      TextEditingController(text: _searchAktor);
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        DateTime? localStartDate = _startDate;
+        DateTime? localEndDate = _endDate;
+
         return StatefulBuilder(
-          builder: (context, setStateModal) {
+          builder: (context, setModalState) {
+            Future<void> pickDate(bool isStart) async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: DateTime(2025, 10, 19),
+                firstDate: DateTime(2020),
+                lastDate: DateTime(2030),
+              );
+              if (picked != null) {
+                setModalState(() {
+                  if (isStart) {
+                    localStartDate = picked;
+                  } else {
+                    localEndDate = picked;
+                  }
+                });
+              }
+            }
+
             return AlertDialog(
-              title: const Text('Filter Aktifitas'),
+              backgroundColor: AppTheme.backgroundBlueWhite,
+              shape:
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: const Text(
+                'Filter Aktivitas',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
               content: SingleChildScrollView(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Filter berdasarkan Aktor:'),
-                    const SizedBox(height: 10),
-                    DropdownButtonFormField<String>(
-                      value: tempSelectedAktor,
-                      hint: const Text('Semua Aktor'),
+                    const Text("Deskripsi",
+                        style:
+                            TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: deskripsiCtrl,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        hintText: "Cari deskripsi...",
+                        filled: true,
+                        fillColor: AppTheme.lightBlue.withOpacity(0.2),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none),
                       ),
-                      items: [
-                        const DropdownMenuItem(value: null, child: Text('Semua Aktor')),
-                        ..._aktorOptions.map((aktor) {
-                          return DropdownMenuItem(
-                            value: aktor,
-                            child: Text(aktor),
-                          );
-                        }).toList(),
-                      ],
-                      onChanged: (String? newValue) {
-                        setStateModal(() {
-                          tempSelectedAktor = newValue;
-                        });
-                      },
+                    ),
+                    const SizedBox(height: 14),
+                    const Text("Nama Pelaku",
+                        style:
+                            TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: aktorCtrl,
+                      decoration: InputDecoration(
+                        hintText: "Contoh: Fafa",
+                        filled: true,
+                        fillColor: AppTheme.lightBlue.withOpacity(0.2),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text("Dari Tanggal",
+                        style:
+                            TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    const SizedBox(height: 6),
+                    InkWell(
+                      onTap: () => pickDate(true),
+                      child: _buildDateField(localStartDate),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text("Sampai Tanggal",
+                        style:
+                            TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    const SizedBox(height: 6),
+                    InkWell(
+                      onTap: () => pickDate(false),
+                      child: _buildDateField(localEndDate),
                     ),
                   ],
                 ),
               ),
               actions: [
-                TextButton(
+                ElevatedButton(
                   onPressed: () {
+                    _resetFilter();
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Batal'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.redMediumDark,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Text(
+                    'Reset Filter',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _filterData(aktor: tempSelectedAktor);
+                    _filterData(
+                      deskripsi: deskripsiCtrl.text,
+                      aktor: aktorCtrl.text,
+                      startDate: localStartDate,
+                      endDate: localEndDate,
+                    );
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryGreen,
-                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: const Text('Terapkan Filter'),
+                  child: const Text(
+                    'Terapkan',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             );
@@ -186,273 +359,268 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final primaryColor = theme.colorScheme.primary; 
-
-    return Scaffold(
-      drawer: const AppSidebar(), 
-      appBar: AppBar(
-        title: const Text("Semua Aktifitas",
-            style: TextStyle(color: Colors.white)),
-        backgroundColor: primaryColor,
-        iconTheme: const IconThemeData(color: Colors.white),
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.account_circle),
-            onPressed: () {},
-          ),
+  // Widget kecil untuk menampilkan field tanggal pada modal filter
+  Widget _buildDateField(DateTime? date) {
+    final text = date == null
+        ? '-- / -- / ----'
+        : '${date.day.toString().padLeft(2, '0')} / ${date.month.toString().padLeft(2, '0')} / ${date.year}';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppTheme.lightBlue.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+          const SizedBox(width: 8),
+          Text(text, style: const TextStyle(color: Colors.black87)),
         ],
       ),
-      
-      // *** START: STRUKTUR UTAMA UNTUK CENTERING & RESPONSIVITAS ***
+    );
+  }
+
+  // Bangun tampilan utama halaman Semua Aktivitas
+  @override
+  Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < mobileBreakpoint;
+
+    // Pagination slicing
+    final int startIndex = _currentPage * _rowsPerPage;
+    final int endIndex =
+        (_currentPage + 1) * _rowsPerPage > _filteredActivityData.length
+            ? _filteredActivityData.length
+            : (_currentPage + 1) * _rowsPerPage;
+    final List<Map<String, String>> paginatedData =
+        _filteredActivityData.sublist(startIndex, endIndex);
+
+    final int totalPages = (_filteredActivityData.length / _rowsPerPage).ceil();
+
+    return Scaffold(
+      drawer: const AppSidebar(),
+      backgroundColor: AppTheme.backgroundBlueWhite,
+      appBar: AppBar(
+        backgroundColor: AppTheme.primaryBlue,
+        elevation: 3,
+        title: const Text(
+          'Semua Aktivitas',
+          style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.3),
+        ),
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: LayoutBuilder(
-          // LayoutBuilder: Mendeteksi lebar layar saat ini
-          builder: (context, constraints) {
-            final isMobile = constraints.maxWidth < mobileBreakpoint; 
-
-            return Center(
-              // Center: Membuat Card Aktifitas berada di tengah layar
-              child: ConstrainedBox(
-                // ConstrainedBox: Memastikan Card melebar secara responsif, 
-                // namun tidak melebihi 1200px pada layar ultra-wide
-                constraints: const BoxConstraints(
-                  maxWidth: 1200, 
-                ),
-                child: Card(
-                  elevation: 5,
-                  color: theme.colorScheme.surface,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // BAGIAN SEARCH BAR
-                        _buildSearchBar(context, isMobile),
-                        const SizedBox(height: 15),
-
-                        // BAGIAN FILTER DAN SORTING
-                        _buildFilterAndSortBar(context),
-                        const SizedBox(height: 20),
-
-                        // Widget Konten Utama: Ditentukan oleh isMobile
-                        _filteredActivityData.isEmpty
-                            ? const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(40.0),
-                                  child: Text(
-                                    "Tidak ditemukan aktifitas yang sesuai dengan kriteria filter/pencarian.",
-                                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                                  ),
-                                ),
-                              )
-                            : isMobile
-                                // Tampilan Mobile (List Card)
-                                ? _buildMobileActivityList(context) 
-                                // Tampilan Desktop (Data Table)
-                                : _buildActivityTable(context),     
-
-                        const SizedBox(height: 20),
-
-                        // Bagian Paginasi
-                        if (_searchQuery.isEmpty && _selectedAktorFilter == null && _filteredActivityData.length > 10)
-                           _buildPagination(context),
-                      ],
-                    ),
-                  ),
+        padding: const EdgeInsets.all(16),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1100),
+            child: Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildFilterAndSortBar(context),
+                    const SizedBox(height: 20),
+                    _filteredActivityData.isEmpty
+                        ? const Padding(
+                            padding: EdgeInsets.all(40.0),
+                            child: Center(
+                              child: Text(
+                                "Tidak ditemukan aktivitas yang sesuai.",
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 16),
+                              ),
+                            ),
+                          )
+                        : Column(
+                            children: [
+                              isMobile
+                                  ? _buildMobileActivityList(
+                                      context, paginatedData)
+                                  : _buildActivityTable(context, paginatedData),
+                              const SizedBox(height: 20),
+                              _buildPaginationControls(totalPages),
+                            ],
+                          ),
+                  ],
                 ),
               ),
-            );
-          },
+            ),
+          ),
         ),
       ),
-      // *** END: STRUKTUR UTAMA UNTUK CENTERING & RESPONSIVITAS ***
     );
   }
 
-  // Widget: Search Bar
-  Widget _buildSearchBar(BuildContext context, bool isMobile) {
-    return TextFormField(
-      initialValue: _searchQuery,
-      onChanged: (query) => _filterData(search: query),
-      decoration: InputDecoration(
-        labelText: 'Cari Aktifitas',
-        hintText: 'Misal: Admin Jawara, Bank Mega...',
-        prefixIcon: const Icon(Icons.search),
-        suffixIcon: _searchQuery.isNotEmpty
-            ? IconButton(
-                icon: const Icon(Icons.clear),
-                onPressed: () {
-                  _filterData(search: ''); 
-                  FocusScope.of(context).unfocus(); 
-                },
-              )
-            : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+  // Widget kontrol pagination
+  Widget _buildPaginationControls(int totalPages) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.chevron_left),
+          onPressed: _currentPage > 0
+              ? () {
+                  setState(() {
+                    _currentPage--;
+                  });
+                }
+              : null,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppTheme.lightBlue),
+        ...List.generate(totalPages, (i) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _currentPage == i
+                    ? AppTheme.primaryBlue
+                    : Colors.grey.shade300,
+                minimumSize: const Size(36, 36),
+                padding: EdgeInsets.zero,
+              ),
+              onPressed: () {
+                setState(() {
+                  _currentPage = i;
+                });
+              },
+              child: Text(
+                '${i + 1}',
+                style: TextStyle(
+                  color: _currentPage == i ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+          );
+        }),
+        IconButton(
+          icon: const Icon(Icons.chevron_right),
+          onPressed: _currentPage < totalPages - 1
+              ? () {
+                  setState(() {
+                    _currentPage++;
+                  });
+                }
+              : null,
         ),
-        focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: AppTheme.primaryGreen, width: 2),
-        ),
-        contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: isMobile ? 12 : 16),
-      ),
-      keyboardType: TextInputType.text,
+      ],
     );
   }
-  
-  // Widget Header Tabel (Filter Button)
+
+  // Bar atas yang berisi tombol Filter
   Widget _buildFilterAndSortBar(BuildContext context) {
-    final isFilterActive = _selectedAktorFilter != null;
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        if (isFilterActive)
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: Chip(
-              label: Text(_selectedAktorFilter!),
-              onDeleted: () {
-                _filterData(aktor: null); 
-              },
-              deleteIcon: const Icon(Icons.close, size: 18, color: AppTheme.primaryGreen),
-              labelStyle: const TextStyle(color: AppTheme.primaryGreen, fontWeight: FontWeight.w500),
-            ),
-          ),
-        // Tombol Filter/Sorting
         ElevatedButton.icon(
           onPressed: () => _showFilterModal(context),
           icon: const Icon(Icons.filter_alt),
-          label: const Text("Filter"),
+          label: const Text("Filter Aktivitas"),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.primaryGreen,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8)),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         ),
       ],
     );
   }
 
-
-  // Widget untuk membangun Data Table (Tampilan Layar Lebar)
-  Widget _buildActivityTable(BuildContext context) {
+  // Tabel aktivitas untuk tampilan desktop
+  Widget _buildActivityTable(
+      BuildContext context, List<Map<String, String>> paginatedData) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: DataTable(
-        columnSpacing: 40, 
-        headingRowColor: MaterialStateProperty.resolveWith((states) => AppTheme.lightBlue.withOpacity(0.5)),
-        dataRowHeight: 60, 
+        columnSpacing: 40,
+        headingRowColor:
+            MaterialStateProperty.all(AppTheme.lightBlue.withOpacity(0.3)),
+        dataRowColor: MaterialStateProperty.all(AppTheme.backgroundBlueWhite),
+        border: TableBorder.all(color: Colors.grey.shade200),
         columns: const [
-          DataColumn(
-              label: Text('NO',
-                  style: TextStyle(fontWeight: FontWeight.bold))),
-          DataColumn(
-              label: Text('DESKRIPSI',
-                  style: TextStyle(fontWeight: FontWeight.bold))),
-          DataColumn(
-              label: Text('AKTOR',
-                  style: TextStyle(fontWeight: FontWeight.bold))),
-          DataColumn(
-              label: Text('TANGGAL',
-                  style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('No')),
+          DataColumn(label: Text('Deskripsi')),
+          DataColumn(label: Text('Aktor')),
+          DataColumn(label: Text('Tanggal')),
         ],
-        rows: _filteredActivityData.map((data) {
-          return DataRow(
-            cells: [
-              DataCell(Text(data['no'] ?? '')),
-              DataCell(
-                ConstrainedBox(
-                  constraints: const BoxConstraints(minWidth: 250, maxWidth: 450), 
-                  child: Text(data['deskripsi'] ?? '', maxLines: 3, overflow: TextOverflow.ellipsis),
-                ),
-              ),
-              DataCell(Text(data['aktor'] ?? '')),
-              DataCell(Text(data['tanggal'] ?? '')),
-            ],
-          );
+        rows: paginatedData.map((data) {
+          return DataRow(cells: [
+            DataCell(Text(data['no']!)),
+            DataCell(SizedBox(
+                width: 400,
+                child: Text(data['deskripsi']!,
+                    maxLines: 2, overflow: TextOverflow.ellipsis))),
+            DataCell(Text(data['aktor']!)),
+            DataCell(Text(data['tanggal']!)),
+          ]);
         }).toList(),
       ),
     );
   }
 
-  // Widget untuk membangun Daftar Card (Tampilan Layar Sempit/Mobile)
-  Widget _buildMobileActivityList(BuildContext context) {
+  // List aktivitas versi mobile
+  Widget _buildMobileActivityList(
+      BuildContext context, List<Map<String, String>> paginatedData) {
     return ListView.builder(
-      physics: const NeverScrollableScrollPhysics(), 
-      shrinkWrap: true,
-      itemCount: _filteredActivityData.length,
+      physics:
+          const NeverScrollableScrollPhysics(), 
+      shrinkWrap: true, 
+      itemCount: paginatedData.length, 
       itemBuilder: (context, index) {
-        final data = _filteredActivityData[index];
-        return Card(
-          elevation: 1,
-          margin: const EdgeInsets.only(bottom: 10),
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
+        final data = paginatedData[index]; 
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12), 
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12), 
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.grey.shade200,
+                  blurRadius: 6,
+                  offset: const Offset(0, 3)), 
+            ],
+          ),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: AppTheme.primaryBlue.withOpacity(0.8),
+              child: Text(
+                data['no']!,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
+            title: Text(
+              data['deskripsi']!, 
+              maxLines: 2, 
+              overflow: TextOverflow.ellipsis, 
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+            ),
+            subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '#${data['no']}',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        data['aktor'] ?? 'N/A',
-                        style: const TextStyle(
-                          color: AppTheme.primaryGreen,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const Divider(height: 15),
-
+                const SizedBox(height: 4),
                 Text(
-                  data['deskripsi'] ?? '',
-                  style: const TextStyle(fontSize: 14),
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
+                  data['aktor']!, 
+                  style: const TextStyle(
+                      color: AppTheme.primaryGreen,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 12),
                 ),
-                const SizedBox(height: 10),
-                
+                const SizedBox(height: 4),
                 Row(
                   children: [
                     const Icon(Icons.access_time, size: 14, color: Colors.grey),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 4),
                     Text(
-                      data['tanggal'] ?? 'N/A',
+                      data['tanggal']!, 
                       style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                   ],
@@ -462,65 +630,6 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
           ),
         );
       },
-    );
-  }
-
-  // Widget untuk membangun Paginasi
-  Widget _buildPagination(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.arrow_back_ios, size: 16, color: Colors.grey),
-        ),
-        const SizedBox(width: 8),
-
-        _buildPageNumber(context, '1', isActive: true),
-        const SizedBox(width: 8),
-
-        _buildPageNumber(context, '2'),
-        const SizedBox(width: 8),
-        
-        const Text('...', style: TextStyle(color: Colors.grey)),
-        const SizedBox(width: 8),
-        
-        _buildPageNumber(context, '13'),
-        const SizedBox(width: 8),
-
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-        ),
-      ],
-    );
-  }
-
-  // Helper Widget untuk nomor halaman
-  Widget _buildPageNumber(BuildContext context, String number,
-      {bool isActive = false}) {
-    return Container(
-      width: 35,
-      height: 35,
-      decoration: BoxDecoration(
-        color: isActive ? AppTheme.primaryBlue : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isActive ? AppTheme.primaryBlue : Colors.grey.shade300,
-        ),
-      ),
-      child: TextButton(
-        onPressed: () {
-          // Simulasi pindah halaman
-        },
-        child: Text(
-          number,
-          style: TextStyle(
-            color: isActive ? Colors.white : Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
     );
   }
 }
