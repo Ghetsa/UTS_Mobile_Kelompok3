@@ -3,10 +3,7 @@ import '../../Layout/sidebar.dart' as layout_sidebar;
 import 'detail_pengguna.dart';
 import 'edit_pengguna.dart';
 import '../../main.dart';
-
-const Color primaryDark = Color(0xFF5C4E43);
-const Color secondaryCream = Color(0xFFEDE8D2);
-const Color accentGold = Color(0xFFC7B68D);
+import '../../Theme/app_theme.dart';
 
 // Model pengguna
 class User {
@@ -14,7 +11,6 @@ class User {
   final String nama;
   final String email;
   final String statusRegistrasi;
-
   final String role;
   final String nik;
   final String noHp;
@@ -32,20 +28,21 @@ class User {
   });
 }
 
-class DaftarPenggunaPage extends StatelessWidget {
+class DaftarPenggunaPage extends StatefulWidget {
   const DaftarPenggunaPage({super.key});
 
-  static final List<User> _userData = [
-    User(
-      1,
-      "Bila",
-      "bila@gmail.com",
-      "Diterima",
-      role: "Bendahara",
-      noHp: "089723212412",
-      nik: "3273xxxxxxxxxxxx",
-      jenisKelamin: "Perempuan",
-    ),
+  @override
+  State<DaftarPenggunaPage> createState() => _DaftarPenggunaPageState();
+}
+
+class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
+  // Data dummy pengguna
+  List<User> _userData = [
+    User(1, "Bila", "bila@gmail.com", "Diterima",
+        role: "Bendahara",
+        noHp: "089723212412",
+        nik: "3273xxxxxxxxxxxx",
+        jenisKelamin: "Perempuan"),
     User(2, "Ijat 4", "ijat4@gmail.com", "Diterima"),
     User(3, "Ijat 3", "ijat3@gmail.com", "Diterima"),
     User(4, "Ijat 2", "ijat2@gmail.com", "Diterima"),
@@ -59,55 +56,281 @@ class DaftarPenggunaPage extends StatelessWidget {
     User(12, "Admin Jawara", "admin1@mailinator.com", "Diterima"),
   ];
 
+  // Filter & search
+  String _searchQuery = '';
+  String? _selectedStatusFilter;
+
+  // Pagination
+  int _currentPage = 0;
+  final int _rowsPerPage = 10;
+
+  // Mobile breakpoint
+  static const double mobileBreakpoint = 600.0;
+
+  List<User> _filteredUserData = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _filterData();
+  }
+
+  // Fungsi filter data
+  void _filterData({String? searchQuery, String? statusFilter}) {
+    setState(() {
+      _searchQuery = searchQuery ?? _searchQuery;
+      _selectedStatusFilter = statusFilter ?? _selectedStatusFilter;
+
+      _filteredUserData = _userData.where((user) {
+        final matchesSearch = _searchQuery.isEmpty
+            ? true
+            : user.nama.toLowerCase().contains(_searchQuery.toLowerCase());
+
+        final matchesStatus = _selectedStatusFilter == null ||
+                _selectedStatusFilter == 'Semua' ||
+                _selectedStatusFilter!.isEmpty
+            ? true
+            : user.statusRegistrasi == _selectedStatusFilter;
+
+        return matchesSearch && matchesStatus;
+      }).toList();
+
+      _currentPage = 0;
+    });
+  }
+
+  // Reset filter
+  void _resetFilter() {
+    setState(() {
+      _searchQuery = '';
+      _selectedStatusFilter = null;
+      _filteredUserData = _userData;
+      _currentPage = 0;
+    });
+  }
+
+  // Show modal filter
+  void _showFilterModal(BuildContext context) {
+    final TextEditingController searchCtrl =
+        TextEditingController(text: _searchQuery);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return AlertDialog(
+              backgroundColor: AppTheme.backgroundBlueWhite,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              title: const Text('Filter Pengguna',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              content: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Nama",
+                        style: TextStyle(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: searchCtrl,
+                      decoration: InputDecoration(
+                        hintText: "Cari nama...",
+                        filled: true,
+                        fillColor: AppTheme.lightBlue.withOpacity(0.2),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text("Status",
+                        style: TextStyle(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 6),
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        value: _selectedStatusFilter,
+                        hint: const Text('-- Pilih Status --'),
+                        items: const [
+                          DropdownMenuItem(
+                              value: 'Semua', child: Text('Semua')),
+                          DropdownMenuItem(
+                              value: 'Diterima', child: Text('Diterima')),
+                          DropdownMenuItem(
+                              value: 'Pending', child: Text('Pending')),
+                          DropdownMenuItem(
+                              value: 'Ditolak', child: Text('Ditolak')),
+                        ],
+                        onChanged: (val) =>
+                            setModalState(() => _selectedStatusFilter = val),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    _resetFilter();
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.redMedium,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Text('Reset Filter',
+                      style: TextStyle(color: Colors.white)),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _filterData(
+                        searchQuery: searchCtrl.text,
+                        statusFilter: _selectedStatusFilter);
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryGreen,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Text('Terapkan',
+                      style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // Warna status pengguna
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Diterima':
+        return AppTheme.greenMedium;
+      case 'Menunggu Persetujuan':
+        return AppTheme.yellowMediumDark;
+      case 'Ditolak':
+        return AppTheme.redMedium;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  // Bottom sheet menu aksi
+  void _showActionMenu(BuildContext context, User user) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        return Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.info, color: Colors.blue),
+              title: const Text('Lihat Detail'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => DetailPenggunaPage(user: user)));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.edit, color: Colors.orange),
+              title: const Text('Edit'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => EditPenggunaPage(user: user)));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Hapus'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => _userData.remove(user));
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth > 800;
+    final isMobile = MediaQuery.of(context).size.width < mobileBreakpoint;
+
+    // Pagination slicing
+    final startIndex = _currentPage * _rowsPerPage;
+    final endIndex =
+        (_currentPage + 1) * _rowsPerPage > _filteredUserData.length
+            ? _filteredUserData.length
+            : (_currentPage + 1) * _rowsPerPage;
+    final paginatedData = _filteredUserData.sublist(startIndex, endIndex);
+    final totalPages = (_filteredUserData.length / _rowsPerPage).ceil();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Daftar Pengguna",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 1,
-      ),
       drawer: const layout_sidebar.AppSidebar(),
+      backgroundColor: AppTheme.backgroundBlueWhite,
+      appBar: AppBar(
+        title: const Text('Daftar Pengguna',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: AppTheme.primaryBlue,
+        elevation: 3,
+      ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(isDesktop ? 32.0 : 16.0),
+        padding: const EdgeInsets.all(16),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
+            constraints: const BoxConstraints(maxWidth: 1100),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildHeader(context),
-                const SizedBox(height: 20),
-
-                // Card yang membungkus tabel data
-                Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Responsive Data Table
-                        SizedBox(
-                          width: double.infinity,
-                          child: _buildDataTable(context, isDesktop),
-                        ),
-                        const Divider(height: 30, thickness: 1),
-                        _buildPagination(),
-                      ],
+                // Tombol filter
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => _showFilterModal(context),
+                      icon: const Icon(Icons.filter_alt),
+                      label: const Text("Filter Pengguna"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryGreen,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 18, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
+                const SizedBox(height: 20),
+                _filteredUserData.isEmpty
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(40),
+                          child: Text('Tidak ada pengguna yang sesuai.',
+                              style: TextStyle(color: Colors.grey)),
+                        ),
+                      )
+                    : Column(
+                        children: [
+                          isMobile
+                              ? _buildMobileList(paginatedData)
+                              : _buildDesktopTable(paginatedData),
+                          const SizedBox(height: 20),
+                          _buildPaginationControls(totalPages),
+                        ],
+                      ),
               ],
             ),
           ),
@@ -116,163 +339,107 @@ class DaftarPenggunaPage extends StatelessWidget {
     );
   }
 
-  // FUNGSI DIALOG FILTER
-  void _showFilterDialog(BuildContext context) {
-    final List<String> statusOptions = [
-      'Semua',
-      'Diterima',
-      'Menunggu Persetujuan',
-      'Ditolak',
-    ];
-    String? selectedStatus;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Container(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Judul dan tombol close
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Filter Manajemen Pengguna",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close, size: 20),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const Divider(),
-                  const SizedBox(height: 10),
-
-                  // Input Nama
-                  const Text(
-                    "Nama",
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      hintText: "Cari nama...",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Colors.grey),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: primaryDark,
-                          width: 2,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Dropdown Status
-                  const Text(
-                    "Status",
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    value: selectedStatus,
-                    hint: const Text("-- Pilih Status --"),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Colors.grey),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
-                    ),
-                    items: statusOptions.map((String status) {
-                      return DropdownMenuItem<String>(
-                        value: status,
-                        child: Text(status),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      selectedStatus = newValue;
-                    },
-                  ),
-                  const SizedBox(height: 30),
-
-                  // Tombol Aksi (Reset dan Terapkan)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Tombol Reset Filter
-                      OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Filter di-reset!')),
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: primaryDark,
-                          side: BorderSide(color: primaryDark.withOpacity(0.5)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                        ),
-                        child: const Text("Reset Filter"),
-                      ),
-
-                      // Tombol Terapkan
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Filter berhasil diterapkan!'),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryDark,
-                          foregroundColor: secondaryCream,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                        ),
-                        child: const Text("Terapkan"),
-                      ),
-                    ],
-                  ),
-                ],
+  Widget _buildDesktopTable(List<User> paginatedData) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        headingRowColor:
+            MaterialStateProperty.all(AppTheme.lightBlue.withOpacity(0.3)),
+        dataRowColor: MaterialStateProperty.all(AppTheme.backgroundBlueWhite),
+        columns: const [
+          DataColumn(label: Text('No')),
+          DataColumn(label: Text('Nama')),
+          DataColumn(label: Text('Email')),
+          DataColumn(label: Text('Status Registrasi')),
+          DataColumn(label: Text('Aksi')),
+        ],
+        rows: paginatedData.map((user) {
+          return DataRow(cells: [
+            DataCell(Text(user.no.toString())),
+            DataCell(Text(user.nama)),
+            DataCell(Text(user.email)),
+            DataCell(Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: _getStatusColor(user.statusRegistrasi).withOpacity(0.15),
+                borderRadius: BorderRadius.circular(8),
               ),
+              child: Text(
+                user.statusRegistrasi,
+                style: TextStyle(
+                    color: _getStatusColor(user.statusRegistrasi),
+                    fontWeight: FontWeight.bold),
+              ),
+            )),
+            DataCell(IconButton(
+              icon: const Icon(Icons.more_vert, size: 20),
+              onPressed: () => _showActionMenu(context, user),
+            )),
+          ]);
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildMobileList(List<User> paginatedData) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: paginatedData.length,
+      itemBuilder: (context, index) {
+        final user = paginatedData[index];
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.grey.shade200,
+                  blurRadius: 6,
+                  offset: const Offset(0, 3))
+            ],
+          ),
+          child: ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            leading: CircleAvatar(
+              backgroundColor: AppTheme.primaryBlue.withOpacity(0.8),
+              child: Text(user.no.toString(),
+                  style: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+            title: Text(user.nama,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
+                Text(user.email,
+                    style: const TextStyle(
+                        color: AppTheme.primaryGreen, fontSize: 12)),
+                const SizedBox(height: 4),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(user.statusRegistrasi)
+                        .withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(user.statusRegistrasi,
+                      style: TextStyle(
+                          color: _getStatusColor(user.statusRegistrasi),
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+            trailing: IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () => _showActionMenu(context, user),
             ),
           ),
         );
@@ -280,233 +447,40 @@ class DaftarPenggunaPage extends StatelessWidget {
     );
   }
 
-  // Widget untuk Header (Tombol Tambah Pengguna dan Filter)
-  Widget _buildHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        IconButton(
-          onPressed: () {
-            _showFilterDialog(context);
-          },
-          icon: const Icon(Icons.filter_list),
-          color: secondaryCream,
-          style: IconButton.styleFrom(
-            backgroundColor: primaryDark,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          tooltip: 'Filter Data',
-        ),
-      ],
-    );
-  }
-
-  // Widget untuk Tabel Data Pengguna
-  Widget _buildDataTable(BuildContext context, bool isDesktop) {
-    if (isDesktop) {
-      return DataTable(
-        columnSpacing: 30,
-        dataRowMaxHeight: 50,
-        headingRowColor: MaterialStateProperty.all(Colors.grey[50]),
-        columns: const [
-          DataColumn(
-            label: Text('NO', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          DataColumn(
-            label: Text('NAMA', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          DataColumn(
-            label: Text('EMAIL', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          DataColumn(
-            label: Text(
-              'STATUS REGISTRASI',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          DataColumn(
-            label: Text('AKSI', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ],
-        // Di sini 'context' sekarang tersedia
-        rows: _userData.map((user) => _buildDataRow(context, user)).toList(),
-      );
-    } else {
-      // Tampilan sederhana untuk
-      return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columnSpacing: 30,
-          dataRowMaxHeight: 50,
-          headingRowColor: MaterialStateProperty.all(Colors.grey[50]),
-          columns: const [
-            DataColumn(
-              label: Text('NO', style: TextStyle(fontWeight: FontWeight.bold)),
-            ),
-            DataColumn(
-              label: Text(
-                'NAMA',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            DataColumn(
-              label: Text(
-                'EMAIL',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            DataColumn(
-              label: Text(
-                'STATUS REGISTRASI',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            DataColumn(
-              label: Text(
-                'AKSI',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-          // Di sini 'context' sekarang tersedia
-          rows: _userData.map((user) => _buildDataRow(context, user)).toList(),
-        ),
-      );
-    }
-  }
-
-  // Baris Data untuk Tabel
-  DataRow _buildDataRow(BuildContext context, User user) {
-    return DataRow(
-      cells: [
-        DataCell(Text(user.no.toString())),
-        DataCell(Text(user.nama)),
-        DataCell(Text(user.email)),
-        DataCell(
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.green[100],
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              user.statusRegistrasi,
-              style: TextStyle(
-                color: Colors.green[700],
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-        DataCell(
-          // Tombol Aksi (Tiga Titik Vertikal)
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.grey),
-            onSelected: (String result) {
-              // Handler Aksi
-              if (result == 'detail') {
-                // Navigasi ke Halaman Detail Pengguna
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DetailPenggunaPage(user: user),
-                  ),
-                );
-              } else if (result == 'edit') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditPenggunaPage(user: user),
-                  ),
-                );
-              } else if (result == 'hapus') {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Aksi Hapus untuk ${user.nama} telah dipilih.',
-                    ),
-                  ),
-                );
-              }
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'detail',
-                child: Text('Detail'),
-              ),
-              const PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
-              const PopupMenuItem<String>(value: 'hapus', child: Text('Hapus')),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Widget untuk Paginasi
-  Widget _buildPagination() {
+  Widget _buildPaginationControls(int totalPages) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildPaginationButton(
-          icon: Icons.keyboard_arrow_left,
-          onPressed: () {},
-          isActive: false,
+        IconButton(
+          icon: const Icon(Icons.chevron_left),
+          onPressed:
+              _currentPage > 0 ? () => setState(() => _currentPage--) : null,
         ),
-        const SizedBox(width: 8),
-        _buildPaginationButton(label: '1', onPressed: () {}, isActive: true),
-        const SizedBox(width: 8),
-        _buildPaginationButton(label: '2', onPressed: () {}, isActive: false),
-        const SizedBox(width: 8),
-        _buildPaginationButton(
-          icon: Icons.keyboard_arrow_right,
-          onPressed: () {},
-          isActive: true,
+        ...List.generate(totalPages, (i) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _currentPage == i
+                    ? AppTheme.primaryBlue
+                    : Colors.grey.shade300,
+                minimumSize: const Size(36, 36),
+                padding: EdgeInsets.zero,
+              ),
+              onPressed: () => setState(() => _currentPage = i),
+              child: Text('${i + 1}',
+                  style: TextStyle(
+                      color: _currentPage == i ? Colors.white : Colors.black)),
+            ),
+          );
+        }),
+        IconButton(
+          icon: const Icon(Icons.chevron_right),
+          onPressed: _currentPage < totalPages - 1
+              ? () => setState(() => _currentPage++)
+              : null,
         ),
       ],
-    );
-  }
-
-  // Helper untuk Tombol Paginasi
-  Widget _buildPaginationButton({
-    String? label,
-    IconData? icon,
-    required VoidCallback onPressed,
-    required bool isActive,
-  }) {
-    final color = isActive ? primaryDark : Colors.grey;
-    final textColor = isActive ? primaryDark : Colors.black87;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: isActive ? primaryDark.withOpacity(0.1) : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isActive ? primaryDark : Colors.grey[300]!),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: isActive ? onPressed : null,
-          borderRadius: BorderRadius.circular(8),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: label != null
-                ? Text(
-                    label,
-                    style: TextStyle(
-                      color: textColor,
-                      fontWeight: isActive
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
-                  )
-                : Icon(icon, size: 20, color: color),
-          ),
-        ),
-      ),
     );
   }
 }
