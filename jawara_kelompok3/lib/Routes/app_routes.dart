@@ -54,6 +54,9 @@ import '../ChannelTransfer/daftar/daftar_channel.dart';
 // === Log Aktifitas ===
 import '../LogAktifitas/semua_aktifitas.dart';
 
+// === Pesan Warga ===
+import '../PesanWarga/informasi_aspirasi.dart';
+
 class AppRoutes {
   static final Map<String, WidgetBuilder> routes = {
     // === Default Route ===
@@ -83,8 +86,10 @@ class AppRoutes {
     '/pemasukan/pages/tambah_kategori': (context) => const TambahKategoriPage(),
     '/pemasukan/tagihIuran': (context) => const TagihIuranPage(),
     '/pemasukan/tagihan': (context) => const TagihanPage(),
-    '/pemasukan/pemasukanLain-daftar': (context) => const PemasukanLainDaftarPage(),
-    '/pemasukan/pemasukanLain-tambah': (context) => const PemasukanLainTambahPage(),
+    '/pemasukan/pemasukanLain-daftar': (context) =>
+        const PemasukanLainDaftarPage(),
+    '/pemasukan/pemasukanLain-tambah': (context) =>
+        const PemasukanLainTambahPage(),
 
     // === Laporan Keuangan ===
     '/laporan/semua-pemasukan': (context) => const SemuaPemasukanPage(),
@@ -92,8 +97,10 @@ class AppRoutes {
     '/laporan/cetak': (context) => const CetakLaporanPage(),
 
     // === Pengeluaran ===
-    '/pengeluaran/daftar': (context) => const PengeluaranDaftarPage(), // ✅ Tambahan
-    '/pengeluaran/tambah': (context) => const PengeluaranTambahPage(), // ✅ Tambahan
+    '/pengeluaran/daftar': (context) =>
+        const PengeluaranDaftarPage(), // ✅ Tambahan
+    '/pengeluaran/tambah': (context) =>
+        const PengeluaranTambahPage(), // ✅ Tambahan
 
     // === Kegiatan & Broadcast ===
     '/kegiatan': (context) => const KegiatanBroadcastPage(),
@@ -118,5 +125,6 @@ class AppRoutes {
 
     // === Pesan Warga ===
     '/pesan': (context) => const PesanWargaPage(),
+    '/informasiAspirasi': (context) => const SemuaAspirasi(),
   };
 }
