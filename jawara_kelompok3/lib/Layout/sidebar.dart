@@ -245,19 +245,39 @@ class AppSidebar extends StatelessWidget {
                 ],
               ),
             ),
+            
+            // === Pesan Warga ===
+            Theme(
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading: const Icon(
+                  Icons.history, 
+                  color: AppTheme.primaryBlue,
+                ),
+                title: const Text(
+                  "Pesan Warga",
+                  style: TextStyle(
+                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                children: [
+                  _buildSubMenuItem(
+                    "Informasi Aspirasi",
+                    "/informasiAspirasi", 
+                    context,
+                    currentRoute,
+                  ),
+                ],
+              ),
+            ),
 
             // === Menu utama lain ===
             _buildMenuItem(
               Icons.insert_chart,
               "Laporan Keuangan",
               "/laporan",
-              context,
-              currentRoute,
-            ),
-            _buildMenuItem(
-              Icons.message,
-              "Pesan Warga",
-              "/pesan",
               context,
               currentRoute,
             ),
