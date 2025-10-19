@@ -15,12 +15,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   static const Color textColor = AppTheme.primaryBlue;
   static const Color secondaryText = Color(0xFF666666);
 
+  // Variabel state input user
   String? _selectedFileName;
   String? _selectedAddressOption;
   String? _selectedOwnershipStatus;
   String? _selectedGender;
 
-  static const String manualAddressOption = 'Alamat Rumah (Jika Tidak Ada di List)';
+  // Konstanta opsi alamat manual
+  static const String manualAddressOption =
+      'Alamat Rumah (Jika Tidak Ada di List)';
 
   @override
   void initState() {
@@ -28,6 +31,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _selectedAddressOption = null;
   }
 
+  // Fungsi memilih file menggunakan FilePicker
   void _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -40,6 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  // Fungsi input field standar (text/password)
   Widget _buildInputField({
     required String label,
     required String hint,
@@ -71,7 +76,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(color: primaryDark, width: 2),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
         ),
         const SizedBox(height: 20),
@@ -79,6 +85,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  // Fungsi membuat dropdown field
   Widget _buildDropdownField({
     required String label,
     required List<String> items,
@@ -107,11 +114,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
             value: selectedValue,
             decoration: const InputDecoration(border: InputBorder.none),
             isExpanded: true,
-            hint: Text(hint, style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
+            hint: Text(hint,
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
             items: items
                 .map((value) => DropdownMenuItem(
                       value: value,
-                      child: Text(value, style: TextStyle(color: textColor, fontSize: 14)),
+                      child: Text(value,
+                          style: TextStyle(color: textColor, fontSize: 14)),
                     ))
                 .toList(),
             onChanged: onChanged,
@@ -122,12 +131,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  // Fungsi membuat field upload file
   Widget _buildFileUploadField({required String label}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: textColor)),
+            style: TextStyle(
+                fontWeight: FontWeight.w600, fontSize: 14, color: textColor)),
         const SizedBox(height: 6),
         InkWell(
           onTap: _pickFile,
@@ -151,7 +162,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  _selectedFileName != null ? Icons.check_circle : Icons.upload_file,
+                  _selectedFileName != null
+                      ? Icons.check_circle
+                      : Icons.upload_file,
                   color: _selectedFileName != null ? primaryDark : accentGold,
                   size: 22,
                 ),
@@ -179,6 +192,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  // Fungsi membangun field alamat dengan opsi manual
   Widget _buildAddressSelectionField() {
     List<String> addressOptions = [
       'Rumah Blok A (Jl. Mawar No. 1)',
@@ -187,7 +201,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       manualAddressOption,
     ];
     bool showManualInput = _selectedAddressOption == manualAddressOption;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -208,10 +221,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               Text(
                 'Kalau tidak ada di daftar, silakan isi alamat rumah di bawah ini',
-                style: TextStyle(color: secondaryText, fontSize: 12, fontStyle: FontStyle.italic),
+                style: TextStyle(
+                    color: secondaryText,
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic),
               ),
               const SizedBox(height: 8),
-              _buildInputField(label: 'Alamat Rumah (Jika Tidak Ada di List)', hint: 'Blok 5A / No. 10'),
+              _buildInputField(
+                  label: 'Alamat Rumah (Jika Tidak Ada di List)',
+                  hint: 'Blok 5A / No. 10'),
             ],
           ),
       ],
@@ -220,6 +238,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Lebar layar layout responsif
     final screenWidth = MediaQuery.of(context).size.width;
     final double cardMaxWidth = screenWidth > 470 ? 400.0 : screenWidth * 0.80;
 
@@ -233,10 +252,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // Logo dan judul aplikasi
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset('assets/images/Logo_jawara.png', width: 80, height: 80),
+                    Image.asset('assets/images/Logo_jawara.png',
+                        width: 80, height: 80),
                     const SizedBox(width: 8),
                     const Text(
                       'Jawara',
@@ -250,6 +271,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 30),
 
+                // Card utama form register
                 ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: cardMaxWidth),
                   child: Container(
@@ -268,6 +290,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // Judul card
                         const Text(
                           'Daftar Akun',
                           textAlign: TextAlign.center,
@@ -293,8 +316,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               Expanded(
                                 child: Column(
                                   children: [
-                                    _buildInputField(label: 'Nama Lengkap', hint: 'Masukkan nama lengkap'),
-                                    _buildInputField(label: 'Email', hint: 'Masukkan email aktif'),
+                                    _buildInputField(
+                                        label: 'Nama Lengkap',
+                                        hint: 'Masukkan nama lengkap'),
+                                    _buildInputField(
+                                        label: 'Email',
+                                        hint: 'Masukkan email aktif'),
                                     _buildInputField(
                                         label: 'Password',
                                         hint: 'Masukkan password',
@@ -306,8 +333,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               Expanded(
                                 child: Column(
                                   children: [
-                                    _buildInputField(label: 'NIK', hint: 'Masukkan NIK'),
-                                    _buildInputField(label: 'No Telepon', hint: 'Masukkan nomor telepon'),
+                                    _buildInputField(
+                                        label: 'NIK', hint: 'Masukkan NIK'),
+                                    _buildInputField(
+                                        label: 'No Telepon',
+                                        hint: 'Masukkan nomor telepon'),
                                     _buildInputField(
                                         label: 'Konfirmasi Password',
                                         hint: 'Masukkan ulang password',
@@ -319,13 +349,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           );
                         }),
 
-                        // kemudian di build:
+                        // Dropdown dan field lainnya
                         _buildDropdownField(
                           label: 'Jenis Kelamin',
                           items: const ['Laki-laki', 'Perempuan'],
                           hint: '--- Pilih Jenis Kelamin ---',
                           selectedValue: _selectedGender,
-                          onChanged: (val) => setState(() => _selectedGender = val),
+                          onChanged: (val) =>
+                              setState(() => _selectedGender = val),
                         ),
                         _buildAddressSelectionField(),
                         _buildDropdownField(
@@ -333,15 +364,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           items: const ['Pemilik', 'Penyewa'],
                           hint: '--- Pilih Status ---',
                           selectedValue: _selectedOwnershipStatus,
-                          onChanged: (val) => setState(() => _selectedOwnershipStatus = val),
+                          onChanged: (val) =>
+                              setState(() => _selectedOwnershipStatus = val),
                         ),
                         _buildFileUploadField(label: 'Foto Identitas'),
 
+                        // Tombol Buat Akun
                         SizedBox(
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+                            onPressed: () => Navigator.pushReplacementNamed(
+                                context,
+                                '/login'), // Kembali ke login setelah submit
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.primaryBlue,
                               shape: RoundedRectangleBorder(
@@ -361,13 +396,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 20),
 
+                        // Link ke login jika sudah punya akun
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text('Sudah punya akun? ',
                                 style: TextStyle(color: secondaryText)),
                             GestureDetector(
-                              onTap: () => Navigator.pushReplacementNamed(context, '/login'),
+                              onTap: () => Navigator.pushReplacementNamed(
+                                  context, '/login'),
                               child: const Text(
                                 'Masuk',
                                 style: TextStyle(
