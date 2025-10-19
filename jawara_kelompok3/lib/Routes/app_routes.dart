@@ -36,6 +36,13 @@ import '../Pemasukan/pemasukanLain/tambah_page.dart';
 import '../ManajemenPengguna/Daftar/daftar_pengguna.dart';
 import '../ManajemenPengguna/Tambah/tambah_pengguna.dart';
 
+// === Channel Transfer ===
+import '../ChannelTransfer/tambah/tambah_channel.dart';
+import '../ChannelTransfer/daftar/daftar_channel.dart';
+
+// === Log Aktifitas ===
+import '../LogAktifitas/semua_aktifitas.dart';
+
 class AppRoutes {
   static final Map<String, WidgetBuilder> routes = {
     // === Default Route ===
@@ -79,9 +86,12 @@ class AppRoutes {
 
     // === Channel Transfer ===
     '/channel': (context) => const ChannelTransferPage(),
+    '/channel/channelDaftar': (context) => const DaftarChannelPage(),
+    '/channel/channelTambah': (context) => const TambahChannelPage(),
 
     // === Log Aktivitas ===
     '/log': (context) => const LogAktifitasPage(),
+    '/semuaAktifitas': (context) => const SemuaAktifitasPage(),
 
     // === Pesan Warga ===
     '/pesan': (context) => const PesanWargaPage(),
