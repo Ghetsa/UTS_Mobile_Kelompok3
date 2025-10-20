@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../Layout/sidebar.dart';
 import '../../Theme/app_theme.dart';
+import 'detail_channel.dart';
+import 'edit_channel.dart';
 
 class DaftarChannelPage extends StatefulWidget {
   const DaftarChannelPage({super.key});
@@ -42,21 +44,21 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
     },
   ];
 
-  // VARIABEL FILTER 
+  // VARIABEL FILTER
   String? _selectedTipe;
 
-  // PAGINATION 
+  // PAGINATION
   int _currentPage = 0;
   final int _rowsPerPage = 10;
 
   // OBILE BREAKPOINT
   static const double mobileBreakpoint = 600.0;
 
-  // FUNGSI FILTER DATA CHANNEL 
+  // FUNGSI FILTER DATA CHANNEL
   void _filterData(String? tipe) {
     setState(() {
       _selectedTipe = tipe;
-      _currentPage = 0; 
+      _currentPage = 0;
     });
   }
 
@@ -74,6 +76,12 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
               title: const Text('Lihat Detail'),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => DetailChannelPage(channel: channel),
+                      )
+                  );
               },
             ),
             ListTile(
@@ -81,6 +89,13 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
               title: const Text('Edit'),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => EditChannelPage(channel: channel),
+                    )
+                );
+                
               },
             ),
             ListTile(
@@ -97,7 +112,7 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
     );
   }
 
-  // FUNGSI MEMUNCULKAN MODAL FILTER 
+  // FUNGSI MEMUNCULKAN MODAL FILTER
   void _showFilterModal(BuildContext context) {
     String? modalSelectedTipe = _selectedTipe ?? 'Semua';
 
@@ -226,7 +241,7 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
                   ),
                 ),
 
-                // JIKA DATA KOSONG 
+                // JIKA DATA KOSONG
                 paginatedData.isEmpty
                     ? const Center(
                         child: Padding(
@@ -335,7 +350,7 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
     );
   }
 
-  // WIDGET LIST MOBILE 
+  // WIDGET LIST MOBILE
   Widget _buildMobileList(List<Map<String, String>> paginatedData) {
     return ListView.builder(
       shrinkWrap: true,

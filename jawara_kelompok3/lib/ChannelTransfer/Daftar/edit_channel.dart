@@ -1,28 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../Theme/app_theme.dart';
-
-class Channel {
-  String namaChannel;
-  String tipeChannel;
-  String nomorRekening;
-  String namaPemilik;
-  String catatan;
-  String thumbnail; 
-  String qrCode;   
-
-  Channel({
-    required this.namaChannel,
-    required this.tipeChannel,
-    required this.nomorRekening,
-    required this.namaPemilik,
-    required this.catatan,
-    required this.thumbnail,
-    required this.qrCode,
-  });
-}
+import 'daftar_channel.dart';
+import '../../main.dart';
 
 class EditChannelPage extends StatefulWidget {
-  final Channel channel;
+  final Map<String, String> channel;
   const EditChannelPage({super.key, required this.channel});
 
   @override
@@ -44,11 +26,12 @@ class _EditChannelPageState extends State<EditChannelPage> {
   @override
   void initState() {
     super.initState();
-    namaController = TextEditingController(text: widget.channel.namaChannel);
-    tipeController = TextEditingController(text: widget.channel.tipeChannel);
-    nomorController = TextEditingController(text: widget.channel.nomorRekening);
-    pemilikController = TextEditingController(text: widget.channel.namaPemilik);
-    catatanController = TextEditingController(text: widget.channel.catatan);
+    namaController = TextEditingController(text: widget.channel['nama'] ?? '');
+    tipeController = TextEditingController(text: widget.channel['tipe'] ?? '');
+    nomorController = TextEditingController(text: widget.channel['no'] ?? '');
+    pemilikController = TextEditingController(text: widget.channel['a/n'] ?? '');
+    catatanController =
+        TextEditingController(text: widget.channel['catatan'] ?? '');
   }
 
   @override
@@ -75,11 +58,11 @@ class _EditChannelPageState extends State<EditChannelPage> {
 
   void _resetFields() {
     setState(() {
-      namaController.text = widget.channel.namaChannel;
-      tipeController.text = widget.channel.tipeChannel;
-      nomorController.text = widget.channel.nomorRekening;
-      pemilikController.text = widget.channel.namaPemilik;
-      catatanController.text = widget.channel.catatan;
+      namaController.text = widget.channel['nama'] ?? '';
+      tipeController.text = widget.channel['tipe'] ?? '';
+      nomorController.text = widget.channel['no'] ?? '';
+      pemilikController.text = widget.channel['a/n'] ?? '';
+      catatanController.text = widget.channel['catatan'] ?? '';
       newThumbnail = null;
       newQR = null;
     });
@@ -113,7 +96,6 @@ class _EditChannelPageState extends State<EditChannelPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Judul
                     Center(
                       child: Text(
                         "Edit Informasi Transfer Channel",
@@ -131,7 +113,7 @@ class _EditChannelPageState extends State<EditChannelPage> {
                     const SizedBox(height: 16),
 
                     // Tipe
-                    _buildLabel("Tipe"),
+                    _buildLabel("Tipe Channel"),
                     _buildTextField(tipeController, "Masukkan tipe channel"),
                     const SizedBox(height: 16),
 
@@ -142,7 +124,7 @@ class _EditChannelPageState extends State<EditChannelPage> {
                     const SizedBox(height: 16),
 
                     // Nama Pemilik
-                    _buildLabel("Nama Pemilik"),
+                    _buildLabel("Atas Nama"),
                     _buildTextField(pemilikController, "Masukkan nama pemilik"),
                     const SizedBox(height: 16),
 
@@ -151,23 +133,26 @@ class _EditChannelPageState extends State<EditChannelPage> {
                     const SizedBox(height: 6),
                     _buildImagePicker(
                       label: "Logo saat ini:",
-                      imagePath: newThumbnail ?? widget.channel.thumbnail,
+                      imagePath: newThumbnail ??
+                          widget.channel['thumbnail'] ??
+                          'assets/images/default.jpg',
                       onTap: () {
-                        // Simulasi pilih file baru
-                        setState(() => newThumbnail = widget.channel.thumbnail);
+                        setState(() =>
+                            newThumbnail = widget.channel['thumbnail']);
                       },
                     ),
                     const SizedBox(height: 16),
 
                     // QR
-                    _buildLabel("QR"),
+                    _buildLabel("QR Code"),
                     const SizedBox(height: 6),
                     _buildImagePicker(
                       label: "QR saat ini:",
-                      imagePath: newQR ?? widget.channel.qrCode,
+                      imagePath: newQR ??
+                          widget.channel['qr'] ??
+                          'assets/images/default_qr.png',
                       onTap: () {
-                        // Simulasi pilih file baru
-                        setState(() => newQR = widget.channel.qrCode);
+                        setState(() => newQR = widget.channel['qr']);
                       },
                     ),
                     const SizedBox(height: 16),
@@ -235,7 +220,9 @@ class _EditChannelPageState extends State<EditChannelPage> {
       child: Text(
         text,
         style: TextStyle(
-            fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.primaryBlue),
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.primaryBlue),
       ),
     );
   }
@@ -261,13 +248,19 @@ class _EditChannelPageState extends State<EditChannelPage> {
     );
   }
 
-  Widget _buildImagePicker({required String label, required String imagePath, required VoidCallback onTap}) {
+  Widget _buildImagePicker({
+    required String label,
+    required String imagePath,
+    required VoidCallback onTap,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
             style: const TextStyle(
-                fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.blueDark)),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.blueDark)),
         const SizedBox(height: 6),
         GestureDetector(
           onTap: onTap,
