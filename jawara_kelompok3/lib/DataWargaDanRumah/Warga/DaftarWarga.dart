@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
-import '../../layout/sidebar.dart';
+import '../../Theme/app_theme.dart';
+import '../../Layout/sidebar.dart';
 
 class DaftarWargaPage extends StatelessWidget {
   const DaftarWargaPage({super.key});
@@ -13,18 +13,24 @@ class DaftarWargaPage extends StatelessWidget {
         "nama": "Budi Santoso",
         "alamat": "Jl. Melati No. 12",
         "telepon": "0812-1111-2222",
+        "statusDomisili": "Aktif",
+        "statusHidup": "Hidup",
       },
       {
         "no": "2",
         "nama": "Siti Aminah",
         "alamat": "Jl. Mawar No. 5",
         "telepon": "0813-2222-3333",
+        "statusDomisili": "Aktif",
+        "statusHidup": "Hidup",
       },
       {
         "no": "3",
         "nama": "Andi Wijaya",
         "alamat": "Jl. Kenanga No. 9",
         "telepon": "0814-3333-4444",
+        "statusDomisili": "Aktif",
+        "statusHidup": "Hidup",
       },
     ];
 
@@ -40,70 +46,44 @@ class DaftarWargaPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Tombol Navigasi Responsif
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final addButton = ElevatedButton.icon(
+            /// ✅ Baris tombol atas (Filter & Tambah Warga di kanan)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                /// Tombol Filter
+                ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/warga/tambah');
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text("Filter Data Warga"),
+                        content: const Text("Fitur filter akan ditambahkan di sini."),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("Tutup"),
+                          )
+                        ],
+                      ),
+                    );
                   },
-                  icon: const Icon(Icons.add_circle_outline, color: Colors.white),
-                  label: const Text("Tambah Warga"),
+                  icon: const Icon(Icons.filter_list, color: Colors.white),
+                  label: const Text("Filter"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
+                    backgroundColor: AppTheme.purpleDeep,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                );
-
-                final refreshButton = ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: logika refresh data warga
-                  },
-                  icon: const Icon(Icons.refresh, color: Colors.white),
-                  label: const Text("Refresh"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                );
-
-                if (constraints.maxWidth > 600) {
-                  // layar besar → tombol sejajar kanan atas
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      addButton,
-                      const SizedBox(width: 12),
-                      refreshButton,
-                    ],
-                  );
-                } else {
-                  // layar kecil → tombol ditumpuk
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      addButton,
-                      const SizedBox(height: 8),
-                      refreshButton,
-                    ],
-                  );
-                }
-              },
+                ),
+              ],
             ),
 
             const SizedBox(height: 16),
 
-            /// Tabel Data Responsif
+            /// ✅ Tabel Data Warga
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
@@ -117,48 +97,49 @@ class DaftarWargaPage extends StatelessWidget {
                         child: DataTable(
                           headingRowColor: WidgetStateProperty.all(
                               AppTheme.lightBlue.withOpacity(0.3)),
-                          dataRowColor:
-                              WidgetStateProperty.all(Colors.white),
+                          dataRowColor: WidgetStateProperty.all(Colors.white),
                           columns: const [
                             DataColumn(
-                              label: Text(
-                                "No",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.primaryBlue),
-                              ),
+                              label: Text("No",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.primaryBlue)),
                             ),
                             DataColumn(
-                              label: Text(
-                                "Nama Warga",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.primaryBlue),
-                              ),
+                              label: Text("Nama Warga",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.primaryBlue)),
                             ),
                             DataColumn(
-                              label: Text(
-                                "Alamat",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.primaryBlue),
-                              ),
+                              label: Text("Alamat",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.primaryBlue)),
                             ),
                             DataColumn(
-                              label: Text(
-                                "No Telepon",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.primaryBlue),
-                              ),
+                              label: Text("No Telepon",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.primaryBlue)),
                             ),
                             DataColumn(
-                              label: Text(
-                                "Aksi",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.primaryBlue),
-                              ),
+                              label: Text("Status Domisili",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.primaryBlue)),
+                            ),
+                            DataColumn(
+                              label: Text("Status Hidup",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.primaryBlue)),
+                            ),
+                            DataColumn(
+                              label: Text("Aksi",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.primaryBlue)),
                             ),
                           ],
                           rows: dataWarga.map((row) {
@@ -169,14 +150,29 @@ class DaftarWargaPage extends StatelessWidget {
                                 DataCell(Text(row["alamat"]!)),
                                 DataCell(Text(row["telepon"]!)),
                                 DataCell(
-                                  IconButton(
+                                    _buildStatusChip(row["statusDomisili"]!)),
+                                DataCell(_buildStatusChip(row["statusHidup"]!)),
+                                DataCell(
+                                  PopupMenuButton<String>(
                                     icon: const Icon(Icons.more_vert,
                                         color: AppTheme.primaryBlue),
-                                    onPressed: () {
-                                      // TODO: tampilkan opsi detail/edit/hapus
-                                      debugPrint(
-                                          "Klik aksi untuk ${row["nama"]}");
+                                    onSelected: (value) {
+                                      if (value == 'detail') {
+                                        debugPrint("Detail: ${row["nama"]}");
+                                      } else if (value == 'edit') {
+                                        debugPrint("Edit: ${row["nama"]}");
+                                      }
                                     },
+                                    itemBuilder: (context) => [
+                                      const PopupMenuItem(
+                                        value: 'detail',
+                                        child: Text('Detail'),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'edit',
+                                        child: Text('Edit'),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
@@ -190,6 +186,27 @@ class DaftarWargaPage extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// ✅ Badge status (Aktif / Hidup)
+  Widget _buildStatusChip(String status) {
+    final bool isActive =
+        status.toLowerCase() == "aktif" || status.toLowerCase() == "hidup";
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: isActive ? Colors.green[100] : Colors.red[100],
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+          color: isActive ? Colors.green[800] : Colors.red[800],
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
