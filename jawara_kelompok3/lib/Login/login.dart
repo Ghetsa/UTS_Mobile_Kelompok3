@@ -27,7 +27,7 @@ class LoginScreen extends StatelessWidget {
                 Column(
                   children: [
                     Image.asset('assets/images/Logo_jawara.png',
-                        height: 80), // Logo aplikasi
+                        height: 60), // Logo aplikasi
                     const SizedBox(height: 8),
                     const Text(
                       'Jawara',
