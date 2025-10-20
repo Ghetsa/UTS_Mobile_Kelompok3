@@ -12,7 +12,6 @@ class DashboardKependudukanPage extends StatelessWidget {
 
     return Scaffold(
       drawer: const AppSidebar(),
-      backgroundColor: AppTheme.backgroundBlueWhite,
       appBar: AppBar(
         title: const Text('Dashboard Kependudukan'),
         centerTitle: true,
@@ -29,7 +28,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                   child: _StatCard(
                     title: "Total Keluarga",
                     value: "6",
-                    background: AppTheme.blueExtraLight,
+                    background: AppTheme.blueSuperLight,
                     textColor: AppTheme.blueDark,
                   ),
                 ),
@@ -38,7 +37,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                   child: _StatCard(
                     title: "Total Penduduk",
                     value: "8",
-                    background: AppTheme.blueExtraLight,
+                    background: AppTheme.blueSuperLight,
                     textColor: AppTheme.blueDark,
                   ),
                 ),
@@ -59,38 +58,38 @@ class DashboardKependudukanPage extends StatelessWidget {
     return const [
       _PieCard(
         title: 'Status Penduduk',
-        color: AppTheme.blueLight,
+        color: AppTheme.backgroundBlueWhite,
         textColor: AppTheme.blueDark,
         data: {'Aktif': 100},
       ),
       _PieCard(
         title: 'Jenis Kelamin',
-        color: AppTheme.blueMediumLight,
+        color: AppTheme.backgroundBlueWhite,
         textColor: AppTheme.blueDark,
         data: {'Laki-laki': 88, 'Perempuan': 12},
       ),
       _PieCard(
         title: 'Pekerjaan Penduduk',
-        color: AppTheme.blueMedium,
+        color: AppTheme.backgroundBlueWhite,
         textColor: AppTheme.blueDark,
         data: {'Lainnya': 100},
       ),
       _PieCard(
         title: 'Peran dalam Keluarga',
-        color: AppTheme.blueMediumDark,
-        textColor: AppTheme.blueExtraLight,
+        color: AppTheme.backgroundBlueWhite,
+        textColor: AppTheme.blueDark,
         data: {'Kepala Keluarga': 75, 'Anak': 13, 'Anggota Lain': 12},
       ),
       _PieCard(
         title: 'Agama',
-        color: AppTheme.blueDark,
-        textColor: AppTheme.blueExtraLight,
+        color: AppTheme.backgroundBlueWhite,
+        textColor: AppTheme.blueDark,
         data: {'Islam': 50, 'Katolik': 50},
       ),
       _PieCard(
         title: 'Pendidikan',
-        color: AppTheme.blueSuperDark,
-        textColor: AppTheme.blueExtraLight,
+        color: AppTheme.backgroundBlueWhite,
+        textColor: AppTheme.blueDark,
         data: {'Sarjana/Diploma': 100},
       ),
     ];
@@ -116,14 +115,18 @@ class _StatCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: background,
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: AppTheme.blueDark.withOpacity(0.05),
+        //     blurRadius: 8,
+        //     offset: const Offset(2, 4),
+        //   ),
+        // ],
+        border: Border.all(
+          color: AppTheme.blueExtraLight,
+          width: 1.5,
+        ),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(2, 4),
-          ),
-        ],
       ),
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -169,65 +172,108 @@ class _PieCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final isMobile = width < 600;
+    final chartSize = isMobile ? 180.0 : 200.0;
 
-    // 🎨 Warna kuning-oranye diambil dari AppTheme
+    // Warna kategori (dari AppTheme)
     final colorList = [
-      AppTheme.yellowSoft,
-      AppTheme.orangeAccent,
-      AppTheme.orangeAccent.withOpacity(0.8),
-      AppTheme.orangeAccent.withOpacity(0.6),
-      AppTheme.yellowSoft.withOpacity(0.7),
+      AppTheme.yellowLight,
+      AppTheme.yellowMedium,
+      AppTheme.yellowMediumDark,
+      AppTheme.yellowMediumLight,
+      AppTheme.redMedium,
     ];
 
-    final isMobile = width < 600;
+    // Hitung total semua kegiatan
+    final total = data.values.fold<double>(0, (sum, item) => sum + item);
 
     return Container(
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(2, 4),
-          ),
-        ],
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.black.withOpacity(0.05),
+        //     blurRadius: 8,
+        //     offset: const Offset(2, 4),
+        //   ),
+        // ],
+        border: Border.all(
+          color: AppTheme.grayExtraLight,
+          width: 1.5,
+        ),
       ),
       padding: const EdgeInsets.all(20),
       margin: const EdgeInsets.only(bottom: 16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start, // Rata kiri judul
         children: [
           Text(
             title,
+            textAlign: TextAlign.left,
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 18,
+              fontSize: 18, // 🔹 Sama dengan Pie Kegiatan Per Kategori
               color: textColor,
             ),
           ),
           const SizedBox(height: 16),
 
-          // Layout responsif
+          // Layout chart dan legend
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
-                height: isMobile ? 180 : 200,
-                width: isMobile ? 180 : 200,
-                child: PieChart(
-                  PieChartData(
-                    centerSpaceRadius: 0,
-                    sectionsSpace: 2,
-                    sections: data.entries.map((e) {
-                      final index = data.keys.toList().indexOf(e.key);
-                      return PieChartSectionData(
-                        value: e.value,
-                        color: colorList[index % colorList.length],
-                        radius: 90,
-                      );
-                    }).toList(),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    height: chartSize,
+                    width: chartSize,
+                    child: PieChart(
+                      PieChartData(
+                        sectionsSpace: 2,
+                        centerSpaceRadius:
+                            chartSize / 3, // 🔹 Sama ukuran bolong tengah
+                        sections: data.entries.map((e) {
+                          final index = data.keys.toList().indexOf(e.key);
+                          return PieChartSectionData(
+                            value: e.value,
+                            color: colorList[index % colorList.length],
+                            radius:
+                                chartSize / 6, // 🔹 Sama ukuran radius slice
+                            showTitle: false,
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ),
-                ),
+
+                  // 🔹 Teks di tengah pie
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        total.toStringAsFixed(0),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize:
+                              22, // 🔹 Sama seperti Pie Kegiatan Per Kategori
+                          color: textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Jumlah\nKegiatan',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12, // 🔹 Sama ukuran keterangan tengah
+                          color: textColor.withOpacity(0.8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               const SizedBox(width: 20),
               Expanded(
@@ -240,6 +286,7 @@ class _PieCard extends StatelessWidget {
     );
   }
 
+  // ====== LEGEND ======
   Widget _buildLegend(
       Map<String, double> data, List<Color> colorList, Color textColor) {
     return Column(
@@ -264,7 +311,8 @@ class _PieCard extends StatelessWidget {
                   "${e.key} (${e.value.toStringAsFixed(0)}%)",
                   style: TextStyle(
                     color: textColor,
-                    fontSize: 15,
+                    fontSize:
+                        13, // 🔹 Sama seperti legend Pie Kegiatan Per Kategori
                     fontWeight: FontWeight.w500,
                   ),
                 ),

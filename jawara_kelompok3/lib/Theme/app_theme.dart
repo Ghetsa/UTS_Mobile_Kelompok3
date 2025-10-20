@@ -5,8 +5,19 @@ class AppTheme {
   static const Color primaryBlue = Color(0xFF1E3A8A); // Biru navy (utama)
   static const Color lightBlue = Color(0xFFDBEAFE); // Biru muda lembut
   static const Color backgroundBlueWhite = Color(0xFFF8FAFC); // Putih kebiruan
+  
+  // === Gradasi abu tambahan ===
+  static const Color graySuperLight = Color.fromARGB(255, 246, 246, 246); // Abu sangat lembut (hampir putih)
+  static const Color grayExtraLight = Color.fromARGB(255, 235, 235, 235); // Abu sangat muda
+  static const Color grayLight = Color.fromARGB(255, 226, 226, 226); // Abu terang
+  static const Color grayMediumLight = Color.fromARGB(255, 180, 180, 180); // Abu agak terang
+  static const Color grayMedium = Color.fromARGB(255, 140, 140, 140); // Abu sedang
+  static const Color grayMediumDark = Color.fromARGB(255, 100, 100, 100); // Abu agak gelap
+  static const Color grayDark = Color.fromARGB(255, 70, 70, 70); // Abu gelap
+  static const Color graySuperDark = Color.fromARGB(255, 35, 35, 35); // Abu sangat gelap (mendekati hitam)
 
   // === Gradasi biru tambahan ===
+  static const Color blueSuperLight = Color.fromARGB(255, 229, 245, 255); // Biru sangat lembut (hampir putih)
   static const Color blueExtraLight = Color.fromARGB(255, 205, 233, 252); // Biru sangat lembut (hampir putih)
   static const Color blueLight = Color.fromARGB(255, 166, 207, 255); // Biru terang
   static const Color blueMediumLight = Color.fromARGB(255, 120, 170, 251); // Biru sedang
@@ -68,7 +79,7 @@ class AppTheme {
   // === Tema umum aplikasi ===
   static ThemeData get lightTheme {
     return ThemeData(
-      scaffoldBackgroundColor: backgroundBlueWhite,
+      scaffoldBackgroundColor: graySuperLight,
 
       appBarTheme: const AppBarTheme(
         backgroundColor: primaryBlue,
