@@ -98,9 +98,9 @@ class AppRoutes {
 
     // === Pengeluaran ===
     '/pengeluaran/daftar': (context) =>
-        const PengeluaranDaftarPage(), // ✅ Tambahan
+        const PengeluaranDaftarPage(), 
     '/pengeluaran/tambah': (context) =>
-        const PengeluaranTambahPage(), // ✅ Tambahan
+        const PengeluaranTambahPage(), 
 
     // === Kegiatan & Broadcast ===
     '/kegiatan': (context) => const KegiatanBroadcastPage(),
