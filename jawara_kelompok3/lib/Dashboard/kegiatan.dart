@@ -12,7 +12,6 @@ class DashboardKegiatanPage extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundBlueWhite,
       drawer: const AppSidebar(),
       appBar: AppBar(
         title: const Text('Dashboard Kegiatan'),
@@ -204,44 +203,51 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Card(
       color: background,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
         side: BorderSide(
           color: AppTheme.blueExtraLight,
-          width: 1.5, // ketebalan border
+          width: 1.5,
         ),
       ),
-      elevation: 0, // kalau nggak mau ada bayangan
+      elevation: 0,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Judul
             Text(
               title,
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: TextStyle(
                 color: accent,
                 fontWeight: FontWeight.w700,
+                fontSize: 18, // 🔹 Ukuran font judul
               ),
             ),
             const SizedBox(height: 16),
+
+            // Nilai utama
             Text(
               value,
               style: TextStyle(
-                fontSize: 36,
+                fontSize: 36, // 🔹 Ukuran angka utama
                 fontWeight: FontWeight.bold,
                 color: accent,
               ),
             ),
             const SizedBox(height: 6),
+
+            // Keterangan tambahan
             if (subtitle.isNotEmpty)
               Text(
                 subtitle,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: accent.withOpacity(0.8),
+                style: TextStyle(
+                  fontSize: 13, // 🔹 Ukuran keterangan
+                  color: accent,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
           ],
@@ -296,20 +302,12 @@ class PieCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(2, 4),
-          ),
-        ],
         border: Border.all(
           color: AppTheme.blueExtraLight,
           width: 1.5,
         ),
       ),
       padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.only(bottom: 16),
       child: Column(
         children: [
           Align(
@@ -413,7 +411,7 @@ class PieCard extends StatelessWidget {
                   "${e.key} (${e.value.toStringAsFixed(0)}%)",
                   style: TextStyle(
                     color: textColor,
-                    fontSize: 15,
+                    fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -446,8 +444,8 @@ class LegendDot extends StatelessWidget {
         Text(
           text,
           style: TextStyle(
-            fontSize: 12,
-            color: color.withOpacity(0.8),
+            fontSize: 13,
+            color: AppTheme.blueDark,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -472,7 +470,6 @@ class ExpandedListCard extends StatelessWidget {
           width: 1.5,
         ),
       ),
-      elevation: 0, // flat style tanpa shadow
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
