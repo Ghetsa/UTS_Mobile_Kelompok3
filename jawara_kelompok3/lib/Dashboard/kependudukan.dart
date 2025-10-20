@@ -116,14 +116,11 @@ class _StatCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: background,
+        border: Border.all(
+          color: AppTheme.blueMedium, // warna border
+          width: 2, // ketebalan border
+        ),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(2, 4),
-          ),
-        ],
       ),
       padding: const EdgeInsets.all(20),
       child: Column(
