@@ -15,17 +15,19 @@ class User {
   final String nik;
   final String noHp;
   final String jenisKelamin;
+  final String? fotoIdentitas;
 
   User(
     this.no,
     this.nama,
     this.email,
-    this.statusRegistrasi, {
-    this.role = "Warga",
-    this.nik = "Tidak Tersedia",
-    this.noHp = "08XXXXXXXXXX",
-    this.jenisKelamin = "Tidak Tersedia",
-  });
+    this.statusRegistrasi,
+    this.role,
+    this.nik,
+    this.noHp,
+    this.jenisKelamin,
+    this.fotoIdentitas,
+  );
 }
 
 class DaftarPenggunaPage extends StatefulWidget {
@@ -38,22 +40,116 @@ class DaftarPenggunaPage extends StatefulWidget {
 class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
   // Data dummy pengguna
   List<User> _userData = [
-    User(1, "Bila", "bila@gmail.com", "Diterima",
-        role: "Bendahara",
-        noHp: "089723212412",
-        nik: "3273xxxxxxxxxxxx",
-        jenisKelamin: "Perempuan"),
-    User(2, "Ijat 4", "ijat4@gmail.com", "Diterima"),
-    User(3, "Ijat 3", "ijat3@gmail.com", "Diterima"),
-    User(4, "Ijat 2", "ijat2@gmail.com", "Diterima"),
-    User(5, "Ijat 1", "ijat1@gmail.com", "Diterima"),
-    User(6, "Afifah Khorunnisa", "afifah@gmail.com", "Diterima"),
-    User(7, "Raudhif Firdaus Naufal", "raudhif@gmail.com", "Diterima"),
-    User(8, "ASDOPAR", "asdopar@gmail.com", "Diterima"),
-    User(9, "FAJRUL", "fajrul@gmail.com", "Diterima"),
-    User(10, "Mara Nunez", "mara@mailinator.com", "Diterima"),
-    User(11, "Habibie Ed Dien", "habibie.tk@gmail.com", "Diterima"),
-    User(12, "Admin Jawara", "admin1@mailinator.com", "Diterima"),
+    User(
+      1,
+      "Bila",
+      "bila@gmail.com",
+      "Diterima",
+      "Bendahara",
+      "3273012345678901",
+      "089723212412",
+      "Perempuan",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      2,
+      "Ijat 4",
+      "ijat4@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678902",
+      "081234567890",
+      "Laki-laki",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      3,
+      "Ijat 3",
+      "ijat3@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678903",
+      "081234567891",
+      "Laki-laki",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      4,
+      "Ijat 2",
+      "ijat2@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678904",
+      "081234567892",
+      "Laki-laki",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      5,
+      "Ijat 1",
+      "ijat1@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678905",
+      "081234567893",
+      "Laki-laki",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      6,
+      "Afifah Khorunnisa",
+      "afifah@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678906",
+      "081234567894",
+      "Perempuan",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      7,
+      "Raudhif Firdaus Naufal",
+      "raudhif@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678907",
+      "081234567895",
+      "Laki-laki",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      8,
+      "ASDOPAR",
+      "asdopar@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678908",
+      "081234567896",
+      "Laki-laki",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      9,
+      "FAJRUL",
+      "fajrul@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678909",
+      "081234567897",
+      "Laki-laki",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      10,
+      "Mara Nunez",
+      "mara@mailinator.com",
+      "Diterima",
+      "Warga",
+      "3273012345678910",
+      "081234567898",
+      "Perempuan",
+      "assets/images/gambar1.jpg",
+    ),
   ];
 
   // Filter & search
@@ -294,7 +390,40 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
               title: const Text('Hapus'),
               onTap: () {
                 Navigator.pop(context);
-                setState(() => _userData.remove(user));
+                // Konfirmasi sebelum menghapus
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Konfirmasi'),
+                      content: Text(
+                          'Apakah Anda yakin ingin menghapus pengguna "${user.nama}"?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text(
+                            'Batal',
+                            style: TextStyle(color: AppTheme.hitam),
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.redMedium,
+                          ),
+                          onPressed: () {
+                            setState(() => _userData.remove(user));
+                            _filterData();
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            'Hapus',
+                            style: TextStyle(color: AppTheme.putihFull),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
             ),
           ],

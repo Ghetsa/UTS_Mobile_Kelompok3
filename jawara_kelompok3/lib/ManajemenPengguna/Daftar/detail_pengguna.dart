@@ -128,6 +128,28 @@ class DetailPenggunaPage extends StatelessWidget {
                           user.statusRegistrasi,
                           statusColor: _getStatusColor(user.statusRegistrasi),
                         ),
+
+                        const SizedBox(height: 24),
+
+                        // Foto identitas
+                        const Text(
+                          "Foto Identitas:",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87),
+                        ),
+                        const SizedBox(height: 8),
+                        Center(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.asset(
+                              user.fotoIdentitas ?? 'assets/images/gambar1.jpg',
+                              width: double.infinity,
+                              height: 250,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
