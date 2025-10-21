@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../main.dart';
 import '../../Layout/sidebar.dart';
+import '../../theme/app_theme.dart';
 import 'widgets/filter_tagihan.dart';
+import 'detail_tagihan_page.dart';
+import 'edit_tagihan_page.dart';
 
 class TagihanPage extends StatelessWidget {
   const TagihanPage({super.key});
@@ -46,136 +48,194 @@ class TagihanPage extends StatelessWidget {
       drawer: const AppSidebar(),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            bool isWide = constraints.maxWidth > 600; // cek layar lebar/kecil
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Tombol responsive
-                if (isWide)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          final result = await showDialog(
-                            context: context,
-                            builder: (_) => const FilterTagihanDialog(),
-                          );
-
-                          if (result != null) {
-                            debugPrint("Filter dipilih: $result");
-                            // TODO: terapkan filter ke tabel
-                          }
-                        },
-                        icon: const Icon(Icons.filter_alt),
-                        label: const Text("Filter"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      OutlinedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.picture_as_pdf),
-                        label: const Text("Cetak PDF"),
-                      ),
-                    ],
-                  )
-                else
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          final result = await showDialog(
-                            context: context,
-                            builder: (_) => const FilterTagihanDialog(),
-                          );
-
-                          if (result != null) {
-                            debugPrint("Filter dipilih: $result");
-                            // TODO: terapkan filter ke tabel
-                          }
-                        },
-                        icon: const Icon(Icons.filter_alt),
-                        label: const Text("Filter"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      OutlinedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.picture_as_pdf),
-                        label: const Text("Cetak PDF"),
-                      ),
-                    ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Tombol atas (Filter & Cetak)
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final filterButton = ElevatedButton.icon(
+                  onPressed: () async {
+                    final result = await showDialog(
+                      context: context,
+                      builder: (_) => const FilterTagihanDialog(),
+                    );
+                    if (result != null) {
+                      debugPrint("Filter dipilih: $result");
+                    }
+                  },
+                  icon: const Icon(Icons.filter_alt, color: AppTheme.yellowDark),
+                  label: const Text("Filter"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.yellowExtraLight,
+                    foregroundColor: AppTheme.yellowDark,
                   ),
+                );
 
-                const SizedBox(height: 20),
+                final cetakButton = ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.picture_as_pdf,
+                      color: AppTheme.redDark),
+                  label: const Text("Cetak",style: TextStyle(color: AppTheme.redDark),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: AppTheme.redExtraLight,
+    
+                  ),
+                );
 
-                // Tabel dengan scroll horizontal
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      headingRowColor: MaterialStateProperty.all(Colors.grey[200]),
-                      columns: const [
-                        DataColumn(label: Text("No")),
-                        DataColumn(label: Text("Nama Keluarga")),
-                        DataColumn(label: Text("Status Keluarga")),
-                        DataColumn(label: Text("Iuran")),
-                        DataColumn(label: Text("Kode Tagihan")),
-                        DataColumn(label: Text("Nominal")),
-                        DataColumn(label: Text("Periode")),
-                        DataColumn(label: Text("Status")),
-                        DataColumn(label: Text("Aksi")),
-                      ],
-                      rows: data.map((row) {
-                        return DataRow(
-                          cells: [
-                            DataCell(Text(row["no"].toString())),
-                            DataCell(Text(row["keluarga"])),
-                            DataCell(
-                              Chip(
-                                label: Text(row["status"]),
-                                backgroundColor: Colors.green[50],
-                                labelStyle: const TextStyle(color: Colors.green),
-                              ),
-                            ),
-                            DataCell(Text(row["iuran"])),
-                            DataCell(Text(row["kode"])),
-                            DataCell(Text(row["nominal"])),
-                            DataCell(Text(row["periode"])),
-                            DataCell(
-                              Chip(
-                                label: Text(row["tagihan"]),
-                                backgroundColor: Colors.yellow[100],
-                                labelStyle: const TextStyle(color: Colors.orange),
-                              ),
-                            ),
-                            DataCell(
-                              IconButton(
-                                icon: const Icon(Icons.more_vert),
-                                onPressed: () {},
-                              ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
+                return constraints.maxWidth > 600
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          filterButton,
+                          const SizedBox(width: 12),
+                          cetakButton,
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          filterButton,
+                          const SizedBox(height: 8),
+                          cetakButton,
+                        ],
+                      );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            // === Card List View Data Tagihan ===
+            Expanded(
+              child: ListView.builder(
+                itemCount: data.length,
+                itemBuilder: (context, index) {
+                  final row = data[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    elevation: 0, // 🔹 Hilangkan bayangan
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: Colors.grey.shade300, // 🔹 Border abu muda
+                        width: 1.2,
+                      ),
                     ),
-                  ),
-                ),
-              ],
-            );
-          },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header: Nama Keluarga + menu aksi
+                          Row(
+                            children: [
+                              const Icon(Icons.family_restroom,
+                                  color: Colors.blue),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  row["keluarga"],
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                              PopupMenuButton<String>(
+                                icon: const Icon(Icons.more_vert,
+                                    color: AppTheme.primaryBlue),
+                                onSelected: (value) async {
+                                  if (value == 'detail') {
+                                    await showDialog(
+                                      context: context,
+                                      barrierDismissible: true,
+                                      builder: (context) =>
+                                          DetailTagihanDialog(tagihan: row),
+                                    );
+                                  } else if (value == 'edit') {
+                                    final result =
+                                        await showDialog<Map<String, dynamic>>(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) =>
+                                          EditTagihanDialog(tagihan: row),
+                                    );
+                                    if (result != null) {
+                                      debugPrint("Tagihan diperbarui: $result");
+                                    }
+                                  }
+                                },
+                                itemBuilder: (context) => const [
+                                  PopupMenuItem(
+                                    value: 'detail',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.visibility,
+                                            color: Colors.blue),
+                                        SizedBox(width: 8),
+                                        Text("Detail"),
+                                      ],
+                                    ),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'edit',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.edit, color: Colors.orange),
+                                        SizedBox(width: 8),
+                                        Text("Edit"),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Info baris
+                          _buildInfoRow("Iuran", row["iuran"]),
+                          _buildInfoRow("Kode", row["kode"]),
+                          _buildInfoRow("Nominal", row["nominal"]),
+                          _buildInfoRow("Periode", row["periode"]),
+                          _buildInfoRow("Status Keluarga", row["status"]),
+                          _buildInfoRow("Tagihan", row["tagihan"]),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+// === Helper Widget ===
+Widget _buildInfoRow(String label, String value) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 4),
+    child: Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: "$label: ",
+            style: const TextStyle(
+              fontWeight: FontWeight.w600, // label bold
+            ),
+          ),
+          TextSpan(
+            text: value,
+            style: const TextStyle(
+              fontWeight: FontWeight.normal, // value normal
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
