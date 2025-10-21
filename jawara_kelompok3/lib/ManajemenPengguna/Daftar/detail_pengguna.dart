@@ -52,21 +52,6 @@ class DetailPenggunaPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Tombol Kembali
-                TextButton.icon(
-                  onPressed: () => Navigator.pop(context),
-                  icon:
-                      const Icon(Icons.arrow_back, color: AppTheme.primaryBlue),
-                  label: const Text(
-                    "Kembali",
-                    style: TextStyle(
-                      color: AppTheme.primaryBlue,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
                 // Card detail pengguna
                 Card(
                   elevation: 8,
