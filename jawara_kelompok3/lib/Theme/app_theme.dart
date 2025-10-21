@@ -7,7 +7,7 @@ class AppTheme {
   static const Color backgroundBlueWhite = Color(0xFFF8FAFC); // Putih kebiruan
   
   // === Gradasi abu tambahan ===
-  static const Color graySuperLight = Color.fromARGB(255, 246, 246, 246); // Abu sangat lembut (hampir putih)
+  static const Color graySuperLight = Color.fromARGB(255, 252, 252, 252); // Abu sangat lembut (hampir putih)
   static const Color grayExtraLight = Color.fromARGB(255, 235, 235, 235); // Abu sangat muda
   static const Color grayLight = Color.fromARGB(255, 226, 226, 226); // Abu terang
   static const Color grayMediumLight = Color.fromARGB(255, 180, 180, 180); // Abu agak terang
@@ -17,7 +17,8 @@ class AppTheme {
   static const Color graySuperDark = Color.fromARGB(255, 35, 35, 35); // Abu sangat gelap (mendekati hitam)
 
   // === Gradasi biru tambahan ===
-  static const Color blueSuperLight = Color.fromARGB(255, 229, 245, 255); // Biru sangat lembut (hampir putih)
+  static const Color blueExtraSuperLight = Color.fromARGB(255, 242, 246, 248); // Biru sangat lembut (hampir putih)
+  static const Color blueSuperLight = Color.fromARGB(255, 242, 251, 255); // Biru sangat lembut (hampir putih)
   static const Color blueExtraLight = Color.fromARGB(255, 205, 233, 252); // Biru sangat lembut (hampir putih)
   static const Color blueLight = Color.fromARGB(255, 166, 207, 255); // Biru terang
   static const Color blueMediumLight = Color.fromARGB(255, 120, 170, 251); // Biru sedang
@@ -27,6 +28,7 @@ class AppTheme {
   static const Color blueSuperDark = Color.fromARGB(255, 18, 41, 116); // Biru gelap (lebih pekat)
 
   // === Gradasi kuning-oranye tambahan ===
+  static const Color yellowSuperLight = Color.fromARGB(255, 255, 249, 240); // Kuning sangat lembut (hampir putih)
   static const Color yellowExtraLight = Color.fromARGB(255, 255, 242, 219); // Kuning sangat lembut (hampir putih)
   static const Color yellowLight = Color.fromARGB(255, 255, 230, 153); // Kuning pastel lembut
   static const Color yellowMediumLight = Color.fromARGB(255, 255, 213, 128); // Kuning-oranye terang
