@@ -123,7 +123,9 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
               title: const Text('Filter Pengguna',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primaryBlue)),
               content: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,36 +135,73 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                     const SizedBox(height: 6),
                     TextField(
                       controller: searchCtrl,
+                      style: TextStyle(
+                        color: AppTheme.hitam,
+                      ),
                       decoration: InputDecoration(
-                        hintText: "Cari nama...",
+                        hintText: "Cari nama",
+                        hintStyle: TextStyle(
+                          color: AppTheme.abu,
+                        ),
                         filled: true,
-                        fillColor: AppTheme.lightBlue.withOpacity(0.2),
+                        fillColor: AppTheme.abu.withOpacity(0.2),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none),
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: AppTheme.abu,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: AppTheme.abu,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: AppTheme.primaryBlue,
+                            width: 1.5,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 14),
                       ),
                     ),
                     const SizedBox(height: 14),
                     const Text("Status",
                         style: TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 6),
-                    DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        value: _selectedStatusFilter,
-                        hint: const Text('-- Pilih Status --'),
-                        items: const [
-                          DropdownMenuItem(
-                              value: 'Semua', child: Text('Semua')),
-                          DropdownMenuItem(
-                              value: 'Diterima', child: Text('Diterima')),
-                          DropdownMenuItem(
-                              value: 'Pending', child: Text('Pending')),
-                          DropdownMenuItem(
-                              value: 'Ditolak', child: Text('Ditolak')),
-                        ],
-                        onChanged: (val) =>
-                            setModalState(() => _selectedStatusFilter = val),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.abu.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppTheme.abu),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          isExpanded: true,
+                          value: _selectedStatusFilter,
+                          hint: const Text(
+                            '-- Pilih Status --',
+                            style: TextStyle(color: AppTheme.abu),
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                                value: 'Semua', child: Text('Semua')),
+                            DropdownMenuItem(
+                                value: 'Diterima', child: Text('Diterima')),
+                            DropdownMenuItem(
+                                value: 'Pending', child: Text('Pending')),
+                            DropdownMenuItem(
+                                value: 'Ditolak', child: Text('Ditolak')),
+                          ],
+                          onChanged: (val) =>
+                              setModalState(() => _selectedStatusFilter = val),
+                          dropdownColor: AppTheme.putihFull,
+                          style: const TextStyle(color: AppTheme.hitam),
+                        ),
                       ),
                     ),
                   ],
@@ -175,12 +214,12 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.redMedium,
+                    backgroundColor: AppTheme.redMediumDark,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(50)),
                   ),
                   child: const Text('Reset Filter',
-                      style: TextStyle(color: Colors.white)),
+                      style: TextStyle(color: AppTheme.putihFull)),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -190,12 +229,12 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryGreen,
+                    backgroundColor: AppTheme.greenDark,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(50)),
                   ),
                   child: const Text('Terapkan',
-                      style: TextStyle(color: Colors.white)),
+                      style: TextStyle(color: AppTheme.putihFull)),
                 ),
               ],
             );
@@ -209,13 +248,13 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Diterima':
-        return AppTheme.greenMedium;
+        return AppTheme.greenMediumDark;
       case 'Menunggu Persetujuan':
         return AppTheme.yellowMediumDark;
       case 'Ditolak':
         return AppTheme.redMedium;
       default:
-        return Colors.grey;
+        return AppTheme.abu;
     }
   }
 
@@ -229,7 +268,7 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
         return Wrap(
           children: [
             ListTile(
-              leading: const Icon(Icons.info, color: Colors.blue),
+              leading: const Icon(Icons.info, color: AppTheme.blueMedium),
               title: const Text('Lihat Detail'),
               onTap: () {
                 Navigator.pop(context);
@@ -240,7 +279,7 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.edit, color: Colors.orange),
+              leading: const Icon(Icons.edit, color: AppTheme.yellowMedium),
               title: const Text('Edit'),
               onTap: () {
                 Navigator.pop(context);
@@ -251,7 +290,7 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
+              leading: const Icon(Icons.delete, color: AppTheme.redMedium),
               title: const Text('Hapus'),
               onTap: () {
                 Navigator.pop(context);
@@ -282,7 +321,8 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
       backgroundColor: AppTheme.backgroundBlueWhite,
       appBar: AppBar(
         title: const Text('Daftar Pengguna',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            style: TextStyle(
+                color: AppTheme.putihFull, fontWeight: FontWeight.bold)),
         backgroundColor: AppTheme.primaryBlue,
         elevation: 3,
       ),
@@ -303,12 +343,12 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                       icon: const Icon(Icons.filter_alt),
                       label: const Text("Filter Pengguna"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryGreen,
+                        backgroundColor: AppTheme.yellowDark,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 10),
+                            horizontal: 20, vertical: 25),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
+                            borderRadius: BorderRadius.circular(100)),
                       ),
                     ),
                   ],
@@ -319,7 +359,7 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                         child: Padding(
                           padding: EdgeInsets.all(40),
                           child: Text('Tidak ada pengguna yang sesuai.',
-                              style: TextStyle(color: Colors.grey)),
+                              style: TextStyle(color: AppTheme.abu)),
                         ),
                       )
                     : Column(
@@ -391,11 +431,11 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.putihFull,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                  color: Colors.grey.shade200,
+                  color: AppTheme.abu,
                   blurRadius: 6,
                   offset: const Offset(0, 3))
             ],
@@ -404,10 +444,10 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             leading: CircleAvatar(
-              backgroundColor: AppTheme.primaryBlue.withOpacity(0.8),
+              backgroundColor: AppTheme.primaryBlue,
               child: Text(user.no.toString(),
                   style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
+                      color: AppTheme.putihFull, fontWeight: FontWeight.bold)),
             ),
             title: Text(user.nama,
                 maxLines: 2,
@@ -419,7 +459,7 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                 const SizedBox(height: 4),
                 Text(user.email,
                     style: const TextStyle(
-                        color: AppTheme.primaryGreen, fontSize: 12)),
+                        color: AppTheme.blueMediumLight, fontSize: 12)),
                 const SizedBox(height: 4),
                 Container(
                   padding:
@@ -463,14 +503,16 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: _currentPage == i
                     ? AppTheme.primaryBlue
-                    : Colors.grey.shade300,
+                    : AppTheme.putihFull,
                 minimumSize: const Size(36, 36),
                 padding: EdgeInsets.zero,
               ),
               onPressed: () => setState(() => _currentPage = i),
               child: Text('${i + 1}',
                   style: TextStyle(
-                      color: _currentPage == i ? Colors.white : Colors.black)),
+                      color: _currentPage == i
+                          ? AppTheme.putihFull
+                          : AppTheme.hitam)),
             ),
           );
         }),
