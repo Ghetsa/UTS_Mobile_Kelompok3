@@ -433,12 +433,31 @@ class _AppSidebarState extends State<AppSidebar> {
               context,
               currentRoute,
             ),
-            _buildMenuItem(
-              Icons.event,
-              "Kegiatan & Broadcast",
-              "/kegiatan",
-              context,
-              currentRoute,
+            Theme(
+              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                key: ValueKey('KegiatanBroadcast_${_expanded['KegiatanBroadcast'] ?? false}'),
+                leading: const Icon(Icons.event, color: AppTheme.primaryBlue),
+                title: const Text(
+                  "KegiatanBroadcsat",
+                  style: TextStyle(
+                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                initiallyExpanded: _expanded['KegiatanBroadcast'] ?? false,
+                onExpansionChanged: (expanded) => _expandOnlyAnimated('KegiatanBroadcast', expanded),
+                children: [
+                  _buildSubMenuItem("Kegiatan - Daftar", "/kegiatan/daftar", context, currentRoute,
+                      onSelected: () => _expandOnlyAnimated('KegiatanBroadcast', true)),
+                  _buildSubMenuItem("Kegiatan - Tambah", "/kegiatan/tambah", context, currentRoute,
+                      onSelected: () => _expandOnlyAnimated('KegiatanBroadcast', true)),
+                      _buildSubMenuItem("Broadcast - Daftar", "/broadcast/daftar", context, currentRoute,
+                      onSelected: () => _expandOnlyAnimated('KegiatanBroadcast', true)),
+                  _buildSubMenuItem("Broadcast - Tambah", "/broadcast/tambah", context, currentRoute,
+                      onSelected: () => _expandOnlyAnimated('KegiatanBroadcast', true)),
+                ],
+              ),
             ),
 
             // Pengeluaran
@@ -457,7 +476,7 @@ class _AppSidebarState extends State<AppSidebar> {
                 initiallyExpanded: _expanded['pengeluaran'] ?? false,
                 onExpansionChanged: (expanded) => _expandOnlyAnimated('pengeluaran', expanded),
                 children: [
-                  _buildSubMenuItem("Dafar", "/pengeluaran/daftar", context, currentRoute,
+                  _buildSubMenuItem("Daftar", "/pengeluaran/daftar", context, currentRoute,
                       onSelected: () => _expandOnlyAnimated('pengeluaran', true)),
                   _buildSubMenuItem("Tambah", "/pengeluaran/tambah", context, currentRoute,
                       onSelected: () => _expandOnlyAnimated('pengeluaran', true)),
