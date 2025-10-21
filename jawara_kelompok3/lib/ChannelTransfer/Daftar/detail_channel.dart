@@ -19,7 +19,7 @@ class DetailChannelPage extends StatelessWidget {
         elevation: 2,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.putihFull),
           onPressed: () {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (_) => const DaftarChannelPage()));
@@ -27,7 +27,8 @@ class DetailChannelPage extends StatelessWidget {
         ),
         title: const Text(
           'Detail Transfer Channel',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style:
+              TextStyle(color: AppTheme.putihFull, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -83,7 +84,7 @@ class DetailChannelPage extends StatelessWidget {
                           "Thumbnail QRIS:",
                           style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              color: Colors.black87),
+                              color: AppTheme.hitam),
                         ),
                         const SizedBox(height: 8),
                         Center(
@@ -106,15 +107,14 @@ class DetailChannelPage extends StatelessWidget {
                           "Bukti Identitas QR:",
                           style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              color: Colors.black87),
+                              color: AppTheme.hitam),
                         ),
                         const SizedBox(height: 8),
                         Center(
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: Image.asset(
-                              channel['buktiIdentitas'] ??
-                                  'assets/images/default.jpg',
+                              channel['qr'] ?? 'assets/images/default.jpg',
                               width: double.infinity,
                               height: 250,
                               fit: BoxFit.cover,

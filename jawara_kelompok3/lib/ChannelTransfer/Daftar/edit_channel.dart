@@ -1,10 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import '../../Theme/app_theme.dart';
 import 'daftar_channel.dart';
 import '../../main.dart';
 
 class EditChannelPage extends StatefulWidget {
   final Map<String, String> channel;
+
   const EditChannelPage({super.key, required this.channel});
 
   @override
@@ -12,30 +15,38 @@ class EditChannelPage extends StatefulWidget {
 }
 
 class _EditChannelPageState extends State<EditChannelPage> {
-  // Controller untuk setiap input field
   late TextEditingController namaController;
   late TextEditingController tipeController;
   late TextEditingController nomorController;
   late TextEditingController pemilikController;
   late TextEditingController catatanController;
 
-  // Path sementara untuk preview ganti thumbnail / QR
-  String? newThumbnail;
-  String? newQR;
+  // File sementara thumbnail / QR
+  File? newThumbnailFile;
+  File? newQRFile;
+
+  final Map<String, String> tipeMap = {
+    'bank': 'Bank',
+    'ewallet': 'E-Wallet',
+    'crypto': 'Crypto',
+  };
 
   @override
   void initState() {
     super.initState();
+    // Inisialisasi controller dengan data awal dari widget.channel
     namaController = TextEditingController(text: widget.channel['nama'] ?? '');
     tipeController = TextEditingController(text: widget.channel['tipe'] ?? '');
     nomorController = TextEditingController(text: widget.channel['no'] ?? '');
-    pemilikController = TextEditingController(text: widget.channel['a/n'] ?? '');
+    pemilikController =
+        TextEditingController(text: widget.channel['a/n'] ?? '');
     catatanController =
         TextEditingController(text: widget.channel['catatan'] ?? '');
   }
 
   @override
   void dispose() {
+    // Dispose semua controller
     namaController.dispose();
     tipeController.dispose();
     nomorController.dispose();
@@ -53,9 +64,11 @@ class _EditChannelPageState extends State<EditChannelPage> {
         behavior: SnackBarBehavior.floating,
       ),
     );
+
     Navigator.pop(context);
   }
 
+  // Fungsi untuk mereset semua field ke nilai awal
   void _resetFields() {
     setState(() {
       namaController.text = widget.channel['nama'] ?? '';
@@ -63,19 +76,41 @@ class _EditChannelPageState extends State<EditChannelPage> {
       nomorController.text = widget.channel['no'] ?? '';
       pemilikController.text = widget.channel['a/n'] ?? '';
       catatanController.text = widget.channel['catatan'] ?? '';
-      newThumbnail = null;
-      newQR = null;
+      newThumbnailFile = null;
+      newQRFile = null;
     });
+  }
+
+  // Fungsi untuk memilih file gambar
+  Future<void> _pickFile(bool isThumbnail) async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+    if (result != null && result.files.single.path != null) {
+      print('Picked file path: ${result.files.single.path}');
+      setState(() {
+        if (isThumbnail) {
+          newThumbnailFile = File(result.files.single.path!);
+        } else {
+          newQRFile = File(result.files.single.path!);
+        }
+      });
+    } else {
+      print('No file picked or path is null');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Ambil value tipe sesuai map untuk menghindari error dropdown
+    String? currentTipe = tipeMap[tipeController.text.toLowerCase()];
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
       appBar: AppBar(
         title: const Text(
           "Edit Transfer Channel",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style:
+              TextStyle(fontWeight: FontWeight.bold, color: AppTheme.putihFull),
         ),
         centerTitle: true,
         backgroundColor: AppTheme.primaryBlue,
@@ -100,9 +135,10 @@ class _EditChannelPageState extends State<EditChannelPage> {
                       child: Text(
                         "Edit Informasi Transfer Channel",
                         style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.primaryBlue),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryBlue,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 28),
@@ -112,15 +148,41 @@ class _EditChannelPageState extends State<EditChannelPage> {
                     _buildTextField(namaController, "Masukkan nama channel"),
                     const SizedBox(height: 16),
 
-                    // Tipe
+                    // Tipe Channel (Dropdown)
                     _buildLabel("Tipe Channel"),
-                    _buildTextField(tipeController, "Masukkan tipe channel"),
+                    DropdownButtonFormField<String>(
+                      value: currentTipe,
+                      items: const [
+                        DropdownMenuItem(value: 'Bank', child: Text('Bank')),
+                        DropdownMenuItem(
+                            value: 'E-Wallet', child: Text('E-Wallet')),
+                        DropdownMenuItem(
+                            value: 'Crypto', child: Text('Crypto')),
+                      ],
+                      onChanged: (val) {
+                        setState(() {
+                          tipeController.text = val ?? '';
+                        });
+                      },
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: AppTheme.lightBlue,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide:
+                              BorderSide(color: AppTheme.blueLight, width: 1),
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 16),
 
                     // Nomor Rekening / Akun
                     _buildLabel("Nomor Rekening / Akun"),
-                    _buildTextField(nomorController, "Masukkan nomor rekening",
-                        keyboardType: TextInputType.number),
+                    _buildTextField(
+                      nomorController,
+                      "Masukkan nomor rekening",
+                      keyboardType: TextInputType.number,
+                    ),
                     const SizedBox(height: 16),
 
                     // Nama Pemilik
@@ -133,28 +195,23 @@ class _EditChannelPageState extends State<EditChannelPage> {
                     const SizedBox(height: 6),
                     _buildImagePicker(
                       label: "Logo saat ini:",
-                      imagePath: newThumbnail ??
-                          widget.channel['thumbnail'] ??
+                      file: newThumbnailFile,
+                      defaultImagePath: widget.channel['thumbnail'] ??
                           'assets/images/default.jpg',
-                      onTap: () {
-                        setState(() =>
-                            newThumbnail = widget.channel['thumbnail']);
-                      },
+                      onTap: () => _pickFile(true),
                     ),
+
                     const SizedBox(height: 16),
 
                     // QR
-                    _buildLabel("QR Code"),
-                    const SizedBox(height: 6),
                     _buildImagePicker(
                       label: "QR saat ini:",
-                      imagePath: newQR ??
-                          widget.channel['qr'] ??
+                      file: newQRFile,
+                      defaultImagePath: widget.channel['qr'] ??
                           'assets/images/default_qr.png',
-                      onTap: () {
-                        setState(() => newQR = widget.channel['qr']);
-                      },
+                      onTap: () => _pickFile(false),
                     ),
+
                     const SizedBox(height: 16),
 
                     // Catatan
@@ -174,11 +231,12 @@ class _EditChannelPageState extends State<EditChannelPage> {
                                   fontSize: 16, fontWeight: FontWeight.w600),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.primaryBlue,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              backgroundColor: AppTheme.greenDark,
+                              foregroundColor: AppTheme.putihFull,
+                              padding: const EdgeInsets.symmetric(vertical: 18),
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14)),
+                                borderRadius: BorderRadius.circular(50),
+                              ),
                             ),
                             onPressed: _saveChannel,
                           ),
@@ -193,11 +251,12 @@ class _EditChannelPageState extends State<EditChannelPage> {
                                   fontSize: 16, fontWeight: FontWeight.w600),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.redMedium,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              backgroundColor: AppTheme.redMediumDark,
+                              foregroundColor: AppTheme.putihFull,
+                              padding: const EdgeInsets.symmetric(vertical: 18),
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14)),
+                                borderRadius: BorderRadius.circular(50),
+                              ),
                             ),
                             onPressed: _resetFields,
                           ),
@@ -214,23 +273,29 @@ class _EditChannelPageState extends State<EditChannelPage> {
     );
   }
 
+  // Widget untuk menampilkan label di atas input field
   Widget _buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         text,
         style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.primaryBlue),
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: AppTheme.primaryBlue,
+        ),
       ),
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint,
-      {bool isPassword = false,
-      bool readOnly = false,
-      TextInputType keyboardType = TextInputType.text}) {
+  // Widget untuk membuat TextField dengan berbagai opsi
+  Widget _buildTextField(
+    TextEditingController controller,
+    String hint, {
+    bool isPassword = false,
+    bool readOnly = false,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
     return TextField(
       controller: controller,
       obscureText: isPassword,
@@ -239,7 +304,7 @@ class _EditChannelPageState extends State<EditChannelPage> {
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: readOnly ? Colors.grey[200] : AppTheme.lightBlue,
+        fillColor: readOnly ? AppTheme.abu : AppTheme.lightBlue,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: AppTheme.blueLight, width: 1),
@@ -248,19 +313,24 @@ class _EditChannelPageState extends State<EditChannelPage> {
     );
   }
 
+  /// Widget untuk menampilkan preview image dan picker
   Widget _buildImagePicker({
     required String label,
-    required String imagePath,
     required VoidCallback onTap,
+    File? file,
+    String? defaultImagePath,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.blueDark)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppTheme.blueDark,
+          ),
+        ),
         const SizedBox(height: 6),
         GestureDetector(
           onTap: onTap,
@@ -272,7 +342,12 @@ class _EditChannelPageState extends State<EditChannelPage> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppTheme.blueLight, width: 1),
             ),
-            child: Image.asset(imagePath, fit: BoxFit.contain),
+            child: file != null
+                ? Image.file(file, fit: BoxFit.contain)
+                : Image.asset(
+                    defaultImagePath ?? 'assets/images/default.jpg',
+                    fit: BoxFit.contain,
+                  ),
           ),
         ),
       ],
