@@ -12,11 +12,11 @@ import '../Dashboard/keuangan.dart';
 import '../Dashboard/kependudukan.dart';
 
 // === Warga dan Rumah ===
-import '../DataWargaDanRumah/Rumah/DaftarRumah.dart';
-import '../DataWargaDanRumah/Rumah/TambahRumah.dart';
-import '../DataWargaDanRumah/Warga/DaftarWarga.dart';
-import '../DataWargaDanRumah/Warga/TambahWarga.dart';
-import '../DataWargaDanRumah/Keluarga.dart';
+import '../DataWargaDanRumah/pages/Rumah/DaftarRumah.dart';
+import '../DataWargaDanRumah/pages/Rumah/TambahRumah.dart';
+import '../DataWargaDanRumah/pages/Warga/DaftarWarga.dart';
+import '../DataWargaDanRumah/pages/Warga/TambahWarga.dart';
+import '../DataWargaDanRumah/pages/Keluarga/Keluarga.dart';
 
 // === Menu Utama ===
 import '../LaporanKeuangan/pages/semua_pemasukan_page.dart';

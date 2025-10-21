@@ -60,7 +60,7 @@ class DashboardKependudukanPage extends StatelessWidget {
         title: 'Status Penduduk',
         color: AppTheme.backgroundBlueWhite,
         textColor: AppTheme.blueDark,
-        data: {'Aktif': 100},
+        data: {'Aktif': 50, 'Pindah': 30, 'Wafat': 20},
       ),
       _PieCard(
         title: 'Jenis Kelamin',
@@ -84,13 +84,21 @@ class DashboardKependudukanPage extends StatelessWidget {
         title: 'Agama',
         color: AppTheme.backgroundBlueWhite,
         textColor: AppTheme.blueDark,
-        data: {'Islam': 50, 'Katolik': 50},
+        data: {
+          'Islam': 50,
+          'Katolik': 10,
+          'Protestan': 15,
+          'Hindu': 10,
+          'Budha': 5,
+          'Konghucu': 7,
+          'Lainnya': 3
+        },
       ),
       _PieCard(
         title: 'Pendidikan',
         color: AppTheme.backgroundBlueWhite,
         textColor: AppTheme.blueDark,
-        data: {'Sarjana/Diploma': 100},
+        data: {'S2': 5, 'Sarjana/Diploma': 15, 'SMA': 40, 'SMP': 10, 'SD': 30},
       ),
     ];
   }
@@ -177,11 +185,14 @@ class _PieCard extends StatelessWidget {
 
     // Warna kategori (dari AppTheme)
     final colorList = [
-      AppTheme.yellowLight,
-      AppTheme.yellowMedium,
-      AppTheme.yellowMediumDark,
       AppTheme.yellowMediumLight,
-      AppTheme.redMedium,
+      AppTheme.greenMediumLight,
+      AppTheme.redMediumLight,
+      AppTheme.blueMedium,
+      AppTheme.pinkSoft,
+      AppTheme.blueMediumLight,
+      AppTheme.yellowMediumDark,
+      AppTheme.pinkPinky,
     ];
 
     // Hitung total semua kegiatan
