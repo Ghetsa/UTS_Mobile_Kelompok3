@@ -3,6 +3,8 @@ import '../../../theme/app_theme.dart';
 import '../../../layout/sidebar.dart';
 import '../widgets/info_box.dart';
 import '../widgets/filter_kategori_iuran.dart';
+import 'edit_kategori_page.dart';
+import 'detail_kategori_page.dart';
 
 class KategoriIuranPage extends StatelessWidget {
   const KategoriIuranPage({super.key});
@@ -14,13 +16,13 @@ class KategoriIuranPage extends StatelessWidget {
         "no": "1",
         "nama": "Mingguan",
         "jenis": "Iuran Khusus",
-        "nominal": "Rp 10,000",
+        "nominal": "10000",
       },
       {
         "no": "2",
         "nama": "Agustusan",
         "jenis": "Iuran Khusus",
-        "nominal": "Rp 15,000",
+        "nominal": "15000",
       },
     ];
 
@@ -37,137 +39,164 @@ class KategoriIuranPage extends StatelessWidget {
             const InfoBox(),
             const SizedBox(height: 16),
 
-            /// Tombol navigasi responsif
+            // === Tombol Tambah & Filter ===
             LayoutBuilder(
               builder: (context, constraints) {
-                final addButton = ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pushNamed(
-                        context, '/pemasukan/pages/tambah_kategori');
-                  },
-                  icon: const Icon(Icons.add_circle_outline, color: Colors.white),
-                  label: const Text("Tambah"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                );
-
                 final filterButton = ElevatedButton.icon(
                   onPressed: () async {
                     final result = await showDialog(
                       context: context,
                       builder: (_) => const FilterKategoriIuranDialog(),
                     );
-
                     if (result != null) {
                       debugPrint("Filter dipilih: $result");
-                      // TODO: terapkan filter ke tabel sesuai jenis iuran
                     }
                   },
-                  icon: const Icon(Icons.filter_list, color: Colors.white),
-                  label: const Text("Filter"),
+                  icon:
+                      const Icon(Icons.filter_alt, color: AppTheme.yellowDark),
+                  label: const Text(
+                    "Filter",
+                    style: TextStyle(color: AppTheme.yellowDark),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    backgroundColor: AppTheme.yellowExtraLight,
+                    foregroundColor: AppTheme.yellowDark,
                   ),
                 );
 
-                if (constraints.maxWidth > 600) {
-                  // layar besar → tombol sejajar kanan atas
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      addButton,
-                      const SizedBox(width: 12),
-                      filterButton,
-                    ],
-                  );
-                } else {
-                  // layar kecil → tombol ke tengah atas (stacked)
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      addButton,
-                      const SizedBox(height: 8),
-                      filterButton,
-                    ],
-                  );
-                }
+                final tambahButton = ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/pemasukan/pages/tambah_kategori',
+                    );
+                  },
+                  icon: const Icon(Icons.add,
+                      color: AppTheme.greenSuperDark),
+                  label: const Text(
+                    "Tambah",
+                    style: TextStyle(color: AppTheme.greenSuperDark),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: AppTheme.greenExtraLight,
+                  ),
+                );
+
+                return constraints.maxWidth > 600
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          filterButton,
+                          const SizedBox(width: 12),
+                          tambahButton,
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          filterButton,
+                          const SizedBox(height: 8),
+                          tambahButton,
+                        ],
+                      );
               },
             ),
 
             const SizedBox(height: 16),
 
-            /// Tabel Data Responsif
+            // === Card List View Data Iuran (model tampilan seperti Tagihan) ===
             Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                        child: DataTable(
-                          headingRowColor: WidgetStateProperty.all(AppTheme.lightBlue),
-                          dataRowColor: WidgetStateProperty.all(Colors.white),
-                          columns: const [
-                            DataColumn(
-                              label: Text("No",
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
-                            ),
-                            DataColumn(
-                              label: Text("Nama Iuran",
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
-                            ),
-                            DataColumn(
-                              label: Text("Jenis Iuran",
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
-                            ),
-                            DataColumn(
-                              label: Text("Nominal",
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
-                            ),
-                            DataColumn(
-                              label: Text("Aksi",
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
-                            ),
-                          ],
-                          rows: dataIuran.map((row) {
-                            return DataRow(
-                              cells: [
-                                DataCell(Text(row["no"]!)),
-                                DataCell(Text(row["nama"]!)),
-                                DataCell(Text(row["jenis"]!)),
-                                DataCell(Text(row["nominal"]!)),
-                                DataCell(
-                                  IconButton(
-                                    icon: const Icon(Icons.more_vert,
-                                        color: AppTheme.primaryBlue),
-                                    onPressed: () {
-                                      Navigator.pushNamed(
-                                        context,
-                                        '/pemasukan/pages/detail_kategori',
-                                        arguments: row,
-                                      );
-                                    },
+              child: ListView.builder(
+                itemCount: dataIuran.length,
+                itemBuilder: (context, index) {
+                  final row = dataIuran[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    elevation: 0, // 🔹 tanpa bayangan
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: Colors.grey.shade300, // 🔹 border abu muda
+                        width: 1.2,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 🔹 Header: nama iuran dan menu aksi
+                          Row(
+                            children: [
+                              const Icon(Icons.category, color: Colors.blue),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  row["nama"]!,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
                                   ),
                                 ),
-                              ],
-                            );
-                          }).toList(),
-                        ),
+                              ),
+                              PopupMenuButton<String>(
+                                icon: const Icon(Icons.more_vert,
+                                    color: AppTheme.primaryBlue),
+                                onSelected: (value) async {
+                                  if (value == 'detail') {
+                                    await showDialog(
+                                      context: context,
+                                      barrierDismissible: true,
+                                      builder: (context) =>
+                                          DetailKategoriDialog(kategori: row),
+                                    );
+                                  } else if (value == 'edit') {
+                                    final result =
+                                        await showDialog<Map<String, String>>(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) =>
+                                          EditIuranDialog(iuran: row),
+                                    );
+                                    if (result != null) {
+                                      debugPrint(
+                                          "Data iuran diperbarui: $result");
+                                    }
+                                  }
+                                },
+                                itemBuilder: (context) => const [
+                                  PopupMenuItem(
+                                    value: 'detail',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.visibility,
+                                            color: Colors.blue),
+                                        SizedBox(width: 8),
+                                        Text("Detail"),
+                                      ],
+                                    ),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'edit',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.edit, color: Colors.orange),
+                                        SizedBox(width: 8),
+                                        Text("Edit"),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // 🔹 Info baris tanpa icon, label bold ringan
+                          _buildInfoRow("Jenis Iuran", row["jenis"]!),
+                          _buildInfoRow("Nominal", "Rp ${row["nominal"]},00"),
+                        ],
                       ),
                     ),
                   );
@@ -179,4 +208,29 @@ class KategoriIuranPage extends StatelessWidget {
       ),
     );
   }
+}
+
+// === Helper Info Row ===
+Widget _buildInfoRow(String label, String value) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 4),
+    child: Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: "$label: ",
+            style: const TextStyle(
+              fontWeight: FontWeight.w600, // label sedikit tebal
+            ),
+          ),
+          TextSpan(
+            text: value,
+            style: const TextStyle(
+              fontWeight: FontWeight.normal, // isi font biasa
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
