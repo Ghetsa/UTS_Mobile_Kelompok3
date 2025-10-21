@@ -325,12 +325,16 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
                         'Apakah kamu yakin ingin menghapus aspirasi "${data['judul']}"?'),
                     actions: [
                       TextButton(
-                          child: const Text('Batal'),
+                          child: const Text('Batal',
+                              style: TextStyle(color: AppTheme.hitam)),
                           onPressed: () => Navigator.pop(context)),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.redMedium),
-                        child: const Text('Hapus'),
+                        child: const Text(
+                          'Hapus',
+                          style: TextStyle(color: AppTheme.putihFull),
+                        ),
                         onPressed: () {
                           Navigator.pop(context);
                           setState(() => aspirationData.remove(data));
