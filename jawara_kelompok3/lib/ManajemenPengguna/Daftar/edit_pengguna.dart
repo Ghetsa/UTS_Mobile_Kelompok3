@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../Theme/app_theme.dart'; 
+import '../../Theme/app_theme.dart';
 import '../../main.dart';
 import 'daftar_pengguna.dart';
 
@@ -55,13 +55,12 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
 
   // Fungsi untuk mengeksekusi update data pengguna
   void _updatePengguna() {
-
     if (passwordController.text.isNotEmpty &&
         passwordController.text != confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Password baru dan konfirmasi tidak cocok!"),
-          backgroundColor: Colors.red,
+          backgroundColor: AppTheme.redMedium,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -72,12 +71,12 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Data ${namaController.text} berhasil diperbarui!"),
-        backgroundColor: AppTheme.greenMediumDark,
+        backgroundColor: AppTheme.greenMedium,
         behavior: SnackBarBehavior.floating,
       ),
     );
 
-    Navigator.pop(context); 
+    Navigator.pop(context);
   }
 
   @override
@@ -87,7 +86,8 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
       appBar: AppBar(
         title: const Text(
           "Edit Akun Pengguna",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style:
+              TextStyle(fontWeight: FontWeight.bold, color: AppTheme.putihFull),
         ),
         centerTitle: true,
         backgroundColor: AppTheme.primaryBlue,
@@ -139,14 +139,16 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
 
                     // Field Password Baru
                     _buildLabel("Password Baru (kosongkan jika tidak diganti)"),
-                    _buildTextField(passwordController, "Masukkan password baru",
+                    _buildTextField(
+                        passwordController, "Masukkan password baru",
                         isPassword: true),
                     const SizedBox(height: 16),
 
                     // Field Konfirmasi Password Baru
                     _buildLabel("Konfirmasi Password Baru"),
-                    _buildTextField(confirmPasswordController,
-                        "Masukkan kembali password", isPassword: true),
+                    _buildTextField(
+                        confirmPasswordController, "Masukkan kembali password",
+                        isPassword: true),
                     const SizedBox(height: 16),
 
                     // Field Role (tidak dapat diubah)
@@ -165,11 +167,11 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
                               fontSize: 16, fontWeight: FontWeight.w600),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primaryBlue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          backgroundColor: AppTheme.greenDark,
+                          foregroundColor: AppTheme.putihFull,
+                          padding: const EdgeInsets.symmetric(vertical: 20),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14)),
+                              borderRadius: BorderRadius.circular(100)),
                         ),
                         onPressed: _updatePengguna,
                       ),
@@ -191,7 +193,9 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
       child: Text(
         text,
         style: TextStyle(
-            fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.primaryBlue),
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.primaryBlue),
       ),
     );
   }
@@ -209,10 +213,11 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: readOnly ? Colors.grey[200] : AppTheme.lightBlue,
+        fillColor: readOnly ? AppTheme.abu : AppTheme.abu.withOpacity(0.2),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppTheme.blueLight, width: 1),
+          borderSide:
+              BorderSide(color: AppTheme.abu.withOpacity(0.2), width: 1),
         ),
       ),
     );
@@ -222,9 +227,9 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
   Widget _buildDropdown(String value, List<String> items) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.lightBlue,
+        color: AppTheme.abu.withOpacity(0.2),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.blueLight, width: 1),
+        border: Border.all(color: AppTheme.abu.withOpacity(0.2), width: 1),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: DropdownButton<String>(
@@ -232,11 +237,11 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
         isExpanded: true,
         underline: const SizedBox(),
         borderRadius: BorderRadius.circular(14),
-        onChanged: null, 
+        onChanged: null,
         items: items.map((String item) {
           return DropdownMenuItem(
             value: item,
-            child: Text(item, style: TextStyle(color: AppTheme.primaryBlue)),
+            child: Text(item, style: TextStyle(color: AppTheme.hitam)),
           );
         }).toList(),
       ),
