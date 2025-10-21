@@ -152,39 +152,132 @@ class AppSidebar extends StatelessWidget {
               ),
             ),
 
+            // === Manajemen Pengguna (ExpansionTile) ===
+            Theme(
+              data: Theme.of(
+                context,
+              ).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading: const Icon(
+                  Icons.receipt_long,
+                  color: AppTheme.primaryBlue,
+                ),
+                title: const Text(
+                  "Manajemen Pengguna",
+                  style: TextStyle(
+                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                children: [
+                  _buildSubMenuItem(
+                    "Daftar Pengguna",
+                    "/pengguna/penggunaDaftar",
+                    context,
+                    currentRoute,
+                  ),
+                  _buildSubMenuItem(
+                    "Tambah Pengguna",
+                    "/pengguna/penggunaTambah",
+                    context,
+                    currentRoute,
+                  ),
+                ],
+              ),
+            ),
+
+            // === Channel Transfer ===
+            Theme(
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading: const Icon(
+                  Icons.swap_horiz,
+                  color: AppTheme.primaryBlue,
+                ),
+                title: const Text(
+                  "Channel Transfer",
+                  style: TextStyle(
+                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                children: [
+                  _buildSubMenuItem(
+                    "Daftar Channel",
+                    "/channel/channelDaftar",
+                    context,
+                    currentRoute,
+                  ),
+                  _buildSubMenuItem(
+                    "Tambah Channel",
+                    "/channel/channelTambah",
+                    context,
+                    currentRoute,
+                  ),
+                ],
+              ),
+            ),
+
+            // === Log Aktifitas ===
+            Theme(
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading: const Icon(
+                  Icons.history, 
+                  color: AppTheme.primaryBlue,
+                ),
+                title: const Text(
+                  "Log Aktifitas",
+                  style: TextStyle(
+                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                children: [
+                  _buildSubMenuItem(
+                    "Semua Aktifitas",
+                    "/semuaAktifitas", 
+                    context,
+                    currentRoute,
+                  ),
+                ],
+              ),
+            ),
+            
+            // === Pesan Warga ===
+            Theme(
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading: const Icon(
+                  Icons.history, 
+                  color: AppTheme.primaryBlue,
+                ),
+                title: const Text(
+                  "Pesan Warga",
+                  style: TextStyle(
+                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                children: [
+                  _buildSubMenuItem(
+                    "Informasi Aspirasi",
+                    "/informasiAspirasi", 
+                    context,
+                    currentRoute,
+                  ),
+                ],
+              ),
+            ),
+
             // === Menu utama lain ===
             _buildMenuItem(
               Icons.insert_chart,
               "Laporan Keuangan",
               "/laporan",
-              context,
-              currentRoute,
-            ),
-            _buildMenuItem(
-              Icons.people_alt,
-              "Manajemen Pengguna",
-              "/manajemen",
-              context,
-              currentRoute,
-            ),
-            _buildMenuItem(
-              Icons.swap_horiz,
-              "Channel Transfer",
-              "/channel",
-              context,
-              currentRoute,
-            ),
-            _buildMenuItem(
-              Icons.history,
-              "Log Aktifitas",
-              "/log",
-              context,
-              currentRoute,
-            ),
-            _buildMenuItem(
-              Icons.message,
-              "Pesan Warga",
-              "/pesan",
               context,
               currentRoute,
             ),

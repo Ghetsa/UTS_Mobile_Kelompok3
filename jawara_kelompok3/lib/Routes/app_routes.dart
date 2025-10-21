@@ -34,6 +34,8 @@ import '../Pemasukan/tagihIuran/tagih_iuran_page.dart';
 import '../Pemasukan/tagihan/tagihan_page.dart';
 import '../Pemasukan/pemasukanLain/daftar_page.dart';
 import '../Pemasukan/pemasukanLain/tambah_page.dart';
+import '../Pemasukan/kategoriIuran/pages/detail_kategori_page.dart';
+import '../Pemasukan/kategoriIuran/pages/edit_kategori_page.dart';
 
 // === Pengeluaran ===
 import '../Pengeluaran/Daftar/daftarPengeluaran.dart';
@@ -42,6 +44,20 @@ import '../Pengeluaran/Tambah/tambahPengeluaran.dart';
 // === Mutasi Keluarga ===
 import '../MutasiKeluarga/Daftar/daftarMutasi.dart';
 import '../MutasiKeluarga/Tambah/tambahMutasi.dart' as mutasi_tambah;
+
+// === Manajemen Pengguna ===
+import '../ManajemenPengguna/Daftar/daftar_pengguna.dart';
+import '../ManajemenPengguna/Tambah/tambah_pengguna.dart';
+
+// === Channel Transfer ===
+import '../ChannelTransfer/tambah/tambah_channel.dart';
+import '../ChannelTransfer/daftar/daftar_channel.dart';
+
+// === Log Aktifitas ===
+import '../LogAktifitas/semua_aktifitas.dart';
+
+// === Pesan Warga ===
+import '../PesanWarga/informasi_aspirasi.dart';
 
 class AppRoutes {
   static final Map<String, WidgetBuilder> routes = {
@@ -72,8 +88,10 @@ class AppRoutes {
     '/pemasukan/pages/tambah_kategori': (context) => const TambahKategoriPage(),
     '/pemasukan/tagihIuran': (context) => const TagihIuranPage(),
     '/pemasukan/tagihan': (context) => const TagihanPage(),
-    '/pemasukan/pemasukanLain-daftar': (context) => const PemasukanLainDaftarPage(),
-    '/pemasukan/pemasukanLain-tambah': (context) => const PemasukanLainTambahPage(),
+    '/pemasukan/pemasukanLain-daftar': (context) =>
+        const PemasukanLainDaftarPage(),
+    '/pemasukan/pemasukanLain-tambah': (context) =>
+        const PemasukanLainTambahPage(),
 
     // === Laporan Keuangan ===
     '/laporan/semua-pemasukan': (context) => const SemuaPemasukanPage(),
@@ -81,8 +99,8 @@ class AppRoutes {
     '/laporan/cetak': (context) => const CetakLaporanPage(),
 
     // === Pengeluaran ===
-    '/pengeluaran/daftar': (context) => const PengeluaranDaftarPage(), // ✅ Tambahan
-    '/pengeluaran/tambah': (context) => const PengeluaranTambahPage(), // ✅ Tambahan
+    '/pengeluaran/daftar': (context) => const PengeluaranDaftarPage(),
+    '/pengeluaran/tambah': (context) => const PengeluaranTambahPage(),
 
     // === Kegiatan & Broadcast ===
     '/kegiatan': (context) => const KegiatanBroadcastPage(),
@@ -93,14 +111,20 @@ class AppRoutes {
 
     // === Manajemen Pengguna ===
     '/manajemen': (context) => const ManajemenPenggunaPage(),
+    '/pengguna/penggunaDaftar': (context) => const DaftarPenggunaPage(),
+    '/pengguna/penggunaTambah': (context) => const TambahPenggunaPage(),
 
     // === Channel Transfer ===
     '/channel': (context) => const ChannelTransferPage(),
+    '/channel/channelDaftar': (context) => const DaftarChannelPage(),
+    '/channel/channelTambah': (context) => const TambahChannelPage(),
 
     // === Log Aktivitas ===
     '/log': (context) => const LogAktifitasPage(),
+    '/semuaAktifitas': (context) => const SemuaAktifitasPage(),
 
     // === Pesan Warga ===
     '/pesan': (context) => const PesanWargaPage(),
+    '/informasiAspirasi': (context) => const SemuaAspirasi(),
   };
 }

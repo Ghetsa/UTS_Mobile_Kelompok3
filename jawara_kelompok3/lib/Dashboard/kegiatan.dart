@@ -12,7 +12,6 @@ class DashboardKegiatanPage extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundBlueWhite,
       drawer: const AppSidebar(),
       appBar: AppBar(
         title: const Text('Dashboard Kegiatan'),
@@ -48,18 +47,16 @@ class DashboardKegiatanPage extends StatelessWidget {
                             title: "🎉 Total Kegiatan",
                             value: "1",
                             subtitle: "Jumlah seluruh event yang sudah ada",
-                            background:
-                                Color(0xFFE0F2FE), // Colors.blue.shade50
-                            accent: Color(0xFF1D4ED8), // Colors.blue.shade700
+                            background: AppTheme.backgroundBlueWhite,
+                            accent: AppTheme.blueDark,
                           ),
                         ),
                         SizedBox(width: 16),
                         Expanded(
                           child: PieCard(
                             title: "📂 Kegiatan per Kategori",
-                            background:
-                                Color(0xFFF0FDF4), // Colors.green.shade50
-                            accent: Color(0xFF166534), // Colors.green.shade800
+                            background: AppTheme.backgroundBlueWhite,
+                            accent: AppTheme.blueDark,
                           ),
                         ),
                         SizedBox(width: 16),
@@ -69,9 +66,8 @@ class DashboardKegiatanPage extends StatelessWidget {
                             value: "3",
                             subtitle:
                                 "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
-                            background:
-                                Color(0xFFFEF9C3), // Colors.yellow.shade50
-                            accent: Color(0xFFEA580C), // Colors.orange.shade700
+                            background: AppTheme.backgroundBlueWhite,
+                            accent: AppTheme.blueDark,
                           ),
                         ),
                       ],
@@ -87,16 +83,16 @@ class DashboardKegiatanPage extends StatelessWidget {
                                 title: "🎉 Total Kegiatan",
                                 value: "1",
                                 subtitle: "Jumlah seluruh event yang sudah ada",
-                                background: Color(0xFFE0F2FE),
-                                accent: Color(0xFF1D4ED8),
+                                background: AppTheme.backgroundBlueWhite,
+                                accent: AppTheme.blueDark,
                               ),
                             ),
                             SizedBox(width: 16),
                             Expanded(
                               child: PieCard(
                                 title: "📂 Kegiatan per Kategori",
-                                background: Color(0xFFF0FDF4),
-                                accent: Color(0xFF166534),
+                                background: AppTheme.blueLight,
+                                accent: AppTheme.blueDark,
                               ),
                             ),
                           ],
@@ -107,8 +103,8 @@ class DashboardKegiatanPage extends StatelessWidget {
                           value: "3",
                           subtitle:
                               "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
-                          background: Color(0xFFFEF9C3),
-                          accent: Color(0xFFEA580C),
+                          background: AppTheme.backgroundBlueWhite,
+                          accent: AppTheme.blueDark,
                         ),
                       ],
                     );
@@ -122,8 +118,8 @@ class DashboardKegiatanPage extends StatelessWidget {
                             title: "🎉 Total Kegiatan",
                             value: "1",
                             subtitle: "Jumlah seluruh event yang sudah ada",
-                            background: Color(0xFFE0F2FE),
-                            accent: Color(0xFF1D4ED8),
+                            background: AppTheme.backgroundBlueWhite,
+                            accent: AppTheme.blueDark,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -131,8 +127,8 @@ class DashboardKegiatanPage extends StatelessWidget {
                           width: double.infinity,
                           child: const PieCard(
                             title: "📂 Kegiatan per Kategori",
-                            background: Color(0xFFF0FDF4),
-                            accent: Color(0xFF166534),
+                            background: AppTheme.backgroundBlueWhite,
+                            accent: AppTheme.blueDark,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -143,8 +139,8 @@ class DashboardKegiatanPage extends StatelessWidget {
                             value: "3",
                             subtitle:
                                 "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
-                            background: Color(0xFFFEF9C3),
-                            accent: Color(0xFFEA580C),
+                            background: AppTheme.backgroundBlueWhite,
+                            accent: AppTheme.blueDark,
                           ),
                         ),
                       ],
@@ -207,38 +203,51 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Card(
       color: background,
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: AppTheme.blueExtraLight,
+          width: 1.5,
+        ),
+      ),
+      elevation: 0,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Judul
             Text(
               title,
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: TextStyle(
                 color: accent,
                 fontWeight: FontWeight.w700,
+                fontSize: 18, // 🔹 Ukuran font judul
               ),
             ),
             const SizedBox(height: 16),
+
+            // Nilai utama
             Text(
               value,
               style: TextStyle(
-                fontSize: 36,
+                fontSize: 36, // 🔹 Ukuran angka utama
                 fontWeight: FontWeight.bold,
                 color: accent,
               ),
             ),
             const SizedBox(height: 6),
+
+            // Keterangan tambahan
             if (subtitle.isNotEmpty)
               Text(
                 subtitle,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: accent.withOpacity(0.8),
+                style: TextStyle(
+                  fontSize: 13, // 🔹 Ukuran keterangan
+                  color: accent,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
           ],
@@ -248,7 +257,7 @@ class StatCard extends StatelessWidget {
   }
 }
 
-/// ====== WIDGET PIE CHART ======
+/// ====== PIE CHART KEGIATAN PER KATEGORI ======
 class PieCard extends StatelessWidget {
   final String title;
   final Color background;
@@ -263,75 +272,154 @@ class PieCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final width = MediaQuery.of(context).size.width;
-    final chartSize = width > 700 ? 160.0 : 120.0;
+    final isMobile = width < 600;
+    final chartSize = isMobile ? 180.0 : 200.0;
 
-    return Card(
-      color: background,
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.start, // ubah ke start agar rata kiri
-              children: [
-                const SizedBox(width: 7),
-                Flexible(
-                  child: Text(
-                    title,
-                    textAlign: TextAlign.left, // teks juga rata kiri
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: accent,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: chartSize,
-              width: chartSize, // pastikan width sama dengan height
-              child: PieChart(
-                PieChartData(
-                  centerSpaceRadius: 0,
-                  sectionsSpace: 2,
-                  sections: [
-                    PieChartSectionData(
-                      value: 100,
-                      color: accent,
-                      radius: chartSize / 2,
-                      title: '100%',
-                      titleStyle: TextStyle(
-                        color: Colors.white,
-                        fontSize: chartSize / 8,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 8,
-              runSpacing: 6,
-              children: const [
-                LegendDot(color: Colors.blue, text: 'Komunitas & Sosial'),
-                LegendDot(color: Colors.green, text: 'Keamanan'),
-                LegendDot(color: Colors.orange, text: 'Keagamaan'),
-                LegendDot(color: Colors.purple, text: 'Pendidikan'),
-                LegendDot(color: Colors.pink, text: 'Olahraga'),
-              ],
-            ),
-          ],
+    // 🔹 Data dummy kegiatan per kategori
+    final Map<String, double> data = {
+      'Komunitas & Sosial': 30,
+      'Keamanan': 25,
+      'Keagamaan': 20,
+      'Pendidikan': 15,
+      'Olahraga': 10,
+    };
+
+    // 🔹 Warna kategori
+    final colorList = [
+      AppTheme.blueMediumLight,
+      AppTheme.greenMediumLight,
+      AppTheme.pinkSoft,
+      AppTheme.yellowMediumLight,
+      AppTheme.redMediumLight,
+    ];
+
+    // 🔹 Total kegiatan
+    final totalKegiatan =
+        data.values.fold<double>(0, (prev, element) => prev + element);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppTheme.blueExtraLight,
+          width: 1.5,
         ),
       ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: accent,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // ====== PIE DAN LEGEND ======
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    height: chartSize,
+                    width: chartSize,
+                    child: PieChart(
+                      PieChartData(
+                        sectionsSpace: 2,
+                        centerSpaceRadius:
+                            chartSize / 3, // ⬅️ Buat bolong tengahnya
+                        sections: data.entries.map((e) {
+                          final index = data.keys.toList().indexOf(e.key);
+                          return PieChartSectionData(
+                            value: e.value,
+                            color: colorList[index % colorList.length],
+                            radius: chartSize / 6,
+                            showTitle: false,
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+
+                  // 🔹 Teks di tengah pie
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        totalKegiatan.toStringAsFixed(0),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: accent,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Jumlah\nKegiatan',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: accent.withOpacity(0.8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(width: 20),
+              Expanded(child: _buildLegend(data, colorList, accent)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// ====== LEGEND ======
+  Widget _buildLegend(
+      Map<String, double> data, List<Color> colorList, Color textColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: data.entries.map((e) {
+        final index = data.keys.toList().indexOf(e.key);
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Container(
+                width: 14,
+                height: 14,
+                decoration: BoxDecoration(
+                  color: colorList[index % colorList.length],
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  "${e.key} (${e.value.toStringAsFixed(0)}%)",
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 }
@@ -356,8 +444,8 @@ class LegendDot extends StatelessWidget {
         Text(
           text,
           style: TextStyle(
-            fontSize: 12,
-            color: color.withOpacity(0.8),
+            fontSize: 13,
+            color: AppTheme.blueDark,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -374,9 +462,14 @@ class ExpandedListCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Card(
-      color: Colors.purple.shade50,
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: AppTheme.backgroundBlueWhite, // 🔹 background card
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: AppTheme.blueExtraLight, // 🔹 border card
+          width: 1.5,
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -386,19 +479,36 @@ class ExpandedListCard extends StatelessWidget {
               "👤 Penanggung Jawab Terbanyak",
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: Colors.purple.shade700,
+                color: AppTheme.blueDark, // 🔹 warna teks judul
               ),
             ),
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color:
+                      AppTheme.blueMedium.withOpacity(0.5), // 🔹 border lembut
+                  width: 1,
+                ),
               ),
               child: const ListTile(
-                title: Text("Pak Joko"),
-                trailing: Text("1"),
+                title: Text(
+                  "Pak Joko",
+                  style: TextStyle(
+                    color: AppTheme.blueDark, // 🔹 warna teks isi
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                trailing: Text(
+                  "1",
+                  style: TextStyle(
+                    color: AppTheme.blueDark, // 🔹 warna angka
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ],
@@ -408,7 +518,7 @@ class ExpandedListCard extends StatelessWidget {
   }
 }
 
-/// ====== BAR CHART ======
+/// ====== BAR CHART HORIZONTAL MANUAL ======
 class BarChartCard extends StatelessWidget {
   const BarChartCard({super.key});
 
@@ -416,9 +526,9 @@ class BarChartCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final width = MediaQuery.of(context).size.width;
-    final chartHeight = width > 700 ? 300.0 : 250.0;
+    final chartHeight = width > 700 ? 420.0 : 360.0;
 
-    // Data contoh
+    // Data tetap sama
     final List<String> bulan = [
       "Jan",
       "Feb",
@@ -435,12 +545,15 @@ class BarChartCard extends StatelessWidget {
     ];
     final List<double> values = [5, 3, 4, 2, 6, 1, 0, 3, 2, 4, 5, 1];
 
-    final maxValue = values.reduce((a, b) => a > b ? a : b) + 1;
+    final double maxValue = values.reduce((a, b) => a > b ? a : b).toDouble();
 
     return Card(
-      color: Colors.pink.shade50,
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: AppTheme.backgroundBlueWhite,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: AppTheme.blueExtraLight, width: 1.5),
+      ),
+      elevation: 0,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -450,69 +563,136 @@ class BarChartCard extends StatelessWidget {
               "📅 Kegiatan per Bulan (Tahun Ini)",
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: Colors.pink.shade700,
+                color: AppTheme.blueDark,
               ),
             ),
             const SizedBox(height: 12),
+
+            // Chart area
             SizedBox(
               height: chartHeight,
-              child: BarChart(
-                BarChartData(
-                  maxY: maxValue, // skala horizontal
-                  alignment: BarChartAlignment.spaceAround,
-                  groupsSpace: 12,
-                  barTouchData: BarTouchData(enabled: false),
-                  titlesData: FlTitlesData(
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (value, meta) {
-                          if (value.toInt() >= 0 &&
-                              value.toInt() < bulan.length) {
-                            return Text(
-                              bulan[value.toInt()],
-                              style: TextStyle(fontSize: width > 700 ? 12 : 10),
-                            );
-                          }
-                          return const SizedBox.shrink();
-                        },
-                        reservedSize: 70,
-                      ),
+              child: Column(
+                children: [
+                  // Bar rows
+                  Expanded(
+                    child: ListView.separated(
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: bulan.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemBuilder: (context, index) {
+                        final value = values[index];
+                        final widthFactor =
+                            (maxValue == 0) ? 0.0 : (value / (maxValue + 0.0));
+
+                        // tinggi tiap bar
+                        final barHeight = width > 700 ? 18.0 : 14.0;
+
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // label bulan (sumbu Y)
+                            SizedBox(
+                              width: width > 700 ? 72 : 56,
+                              child: Text(
+                                bulan[index],
+                                style: TextStyle(
+                                  color: AppTheme.blueDark,
+                                  fontSize: width > 700 ? 13 : 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(width: 8),
+
+                            // batang (mengisi ruang yang tersedia)
+                            Expanded(
+                              child: Stack(
+                                alignment: Alignment.centerLeft,
+                                children: [
+                                  // background bar
+                                  Container(
+                                    height: barHeight,
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.blueMediumLight
+                                          .withOpacity(0.35),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+
+                                  // filled part
+                                  FractionallySizedBox(
+                                    alignment: Alignment.centerLeft,
+                                    widthFactor: widthFactor.clamp(0.0, 1.0),
+                                    child: Container(
+                                      height: barHeight,
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.blueDark,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(width: 8),
+
+                            // nilai di paling kanan
+                            SizedBox(
+                              width: 36,
+                              child: Text(
+                                value.toInt().toString(),
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                  color: AppTheme.blueDark,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: width > 700 ? 13 : 11,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (value, meta) {
-                          return Text(
-                            value.toInt().toString(),
-                            style: TextStyle(fontSize: width > 700 ? 12 : 10),
-                          );
-                        },
-                      ),
-                    ),
-                    topTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   ),
-                  borderData: FlBorderData(show: false),
-                  gridData: FlGridData(show: true),
-                  barGroups: List.generate(bulan.length, (index) {
-                    return BarChartGroupData(
-                      x: index,
-                      barsSpace: 4,
-                      barRods: [
-                        BarChartRodData(
-                          toY: values[index],
-                          width: width > 700 ? 18 : 12,
-                          color: Colors.pink.shade400,
-                          borderRadius: BorderRadius.circular(6),
+
+                  const SizedBox(height: 12),
+
+                  // optional: sumbu X sederhana (ticks 0..maxValue)
+                  Row(
+                    children: [
+                      SizedBox(
+                          width: width > 700 ? 72 : 56), // align with labels
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            // tampilkan beberapa tick (0, mid, max)
+                            final ticks = [
+                              0,
+                              (maxValue / 2).ceil(),
+                              maxValue.toInt()
+                            ];
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: ticks.map((t) {
+                                return Text(
+                                  t.toString(),
+                                  style: TextStyle(
+                                    color: AppTheme.blueDark.withOpacity(0.8),
+                                    fontSize: width > 700 ? 12 : 10,
+                                  ),
+                                );
+                              }).toList(),
+                            );
+                          },
                         ),
-                      ],
-                    );
-                  }),
-                ),
-                swapAnimationDuration: const Duration(milliseconds: 400),
+                      ),
+                      const SizedBox(width: 44), // align with value column
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
