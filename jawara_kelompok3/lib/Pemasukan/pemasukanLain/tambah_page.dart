@@ -146,11 +146,10 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppTheme.blueExtraLight,
+                        foregroundColor: AppTheme.blueDark,
                       ),
                       onPressed: () {
-                        // Logika simpan
                       },
                       child: const Text("Submit"),
                     ),
