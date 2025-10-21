@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'routes/app_routes.dart';
-import 'Theme/app_theme.dart'; // ✅ import theme
+import 'Theme/app_theme.dart'; // import theme
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Iuran Warga',
-      theme: AppTheme.lightTheme, // ✅ panggil tema dari AppTheme
+      theme: AppTheme.lightTheme, // panggil tema dari AppTheme
       initialRoute: '/',
       routes: AppRoutes.routes,
     );
