@@ -9,20 +9,16 @@ class AppSidebar extends StatefulWidget {
 }
 
 class _AppSidebarState extends State<AppSidebar> {
-  // track which menu is expanded. keys are logical menu ids used below
   final Map<String, bool> _expanded = {};
 
-  // keep last route so we only update expansion when route actually changes
   String? _lastRoute;
 
-  // control animation timing for smooth close -> open sequence
   final Duration _animationDuration = const Duration(milliseconds: 300);
   bool _isAnimating = false;
 
   @override
   void initState() {
     super.initState();
-    // initialize all keys (kept same order as UI)
     _expanded.addAll({
       'dashboard': false,
       'data_warga': false,
@@ -37,7 +33,6 @@ class _AppSidebarState extends State<AppSidebar> {
     });
   }
 
-  // helper to determine which logical menu a route belongs to
   bool _routeMatches(String menuKey, String route) {
     if (route.isEmpty) return false;
 
@@ -69,7 +64,6 @@ class _AppSidebarState extends State<AppSidebar> {
     }
   }
 
-  // if route changed since last build, update expanded map so the matching menu opens
   void _ensureInitialExpansion(String currentRoute) {
     if (_lastRoute == currentRoute) return; // no change
     _expanded.forEach((k, _) {
@@ -78,22 +72,17 @@ class _AppSidebarState extends State<AppSidebar> {
     _lastRoute = currentRoute;
   }
 
-  // make this menu expanded and collapse others (accordion behavior)
   void _expandOnly(String menuKey, bool expanded) {
     setState(() {
       _expanded.forEach((k, _) {
         _expanded[k] = (k == menuKey) ? expanded : false;
       });
-      // don't change _lastRoute here; route stays the same until navigation
     });
   }
 
-  // smoother version: close current open menu first, wait animation, then open target
   Future<void> _expandOnlyAnimated(String menuKey, bool expand) async {
-    // prevent overlapping animations
     if (_isAnimating) return;
 
-    // if asked to collapse the currently open menu, just collapse it
     if (!expand) {
       setState(() => _expanded[menuKey] = false);
       return;
@@ -102,7 +91,6 @@ class _AppSidebarState extends State<AppSidebar> {
     final currentOpen =
         _expanded.entries.firstWhere((e) => e.value, orElse: () => MapEntry('', false));
 
-    // if nothing open or already the same menu, just open directly
     if (currentOpen.key == '' || currentOpen.key == menuKey) {
       setState(() {
         _expanded.forEach((k, _) => _expanded[k] = (k == menuKey));
@@ -110,18 +98,15 @@ class _AppSidebarState extends State<AppSidebar> {
       return;
     }
 
-    // otherwise close current, wait for animation, then open target
     _isAnimating = true;
     setState(() => _expanded[currentOpen.key] = false);
 
-    // wait the same duration as ExpansionTile animation so the close looks smooth
     await Future.delayed(_animationDuration);
 
     setState(() {
       _expanded.forEach((k, _) => _expanded[k] = (k == menuKey));
     });
 
-    // small buffer then unlock
     await Future.delayed(const Duration(milliseconds: 40));
     _isAnimating = false;
   }
@@ -130,7 +115,6 @@ class _AppSidebarState extends State<AppSidebar> {
   Widget build(BuildContext context) {
     final currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
 
-    // update _expanded if route changed (so after navigasi, sidebar akan menampilkan submenu yang sesuai)
     _ensureInitialExpansion(currentRoute);
 
     return Drawer(
