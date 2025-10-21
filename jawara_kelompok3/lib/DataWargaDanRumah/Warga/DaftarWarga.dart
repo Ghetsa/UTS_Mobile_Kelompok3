@@ -88,18 +88,19 @@ class DaftarWargaPage extends StatelessWidget {
               children: [
                 TextButton.icon(
                   onPressed: () {},
-                  icon: Icon(Icons.add, color: AppTheme.greenSuperDark),
+                  icon: Icon(Icons.add, color: Colors.white),
                   label: Text(
-                    "Tambah Warga",
+                    "Tambah",
                     style: TextStyle(
-                      color: AppTheme.greenSuperDark,
+                      color: Colors.white,
                       fontWeight: FontWeight.w600,
+                      fontSize: 16,
                     ),
                   ),
                   style: TextButton.styleFrom(
-                    backgroundColor: AppTheme.greenExtraLight,
+                    backgroundColor: AppTheme.greenDark,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 12),
+                        horizontal: 25, vertical: 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -107,18 +108,19 @@ class DaftarWargaPage extends StatelessWidget {
                 ),
                 TextButton.icon(
                   onPressed: () {},
-                  icon: Icon(Icons.picture_as_pdf, color: AppTheme.redDark),
+                  icon: Icon(Icons.picture_as_pdf, color: Colors.white),
                   label: Text(
-                    "Cetak PDF",
+                    "Cetak",
                     style: TextStyle(
-                      color: AppTheme.redDark,
+                      color: Colors.white,
                       fontWeight: FontWeight.w600,
+                      fontSize: 16,
                     ),
                   ),
                   style: TextButton.styleFrom(
-                    backgroundColor: AppTheme.redExtraLight,
+                    backgroundColor: AppTheme.redDark,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 12),
+                        horizontal: 25, vertical: 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
