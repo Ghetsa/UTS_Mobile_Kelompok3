@@ -64,43 +64,36 @@ class TagihanPage extends StatelessWidget {
                       debugPrint("Filter dipilih: $result");
                     }
                   },
-                  icon: const Icon(Icons.filter_alt, color: AppTheme.yellowDark),
+                  icon: const Icon(Icons.filter_alt, color: Colors.white),
                   label: const Text("Filter"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.yellowExtraLight,
-                    foregroundColor: AppTheme.yellowDark,
+                    backgroundColor: AppTheme.yellowMediumDark,
+                    foregroundColor: Colors.white,
                   ),
                 );
 
                 final cetakButton = ElevatedButton.icon(
                   onPressed: () {},
-                  icon: const Icon(Icons.picture_as_pdf,
-                      color: AppTheme.redDark),
-                  label: const Text("Cetak",style: TextStyle(color: AppTheme.redDark),
+                  icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
+                  label: const Text(
+                    "Cetak",
+                    style: TextStyle(color: Colors.white),
                   ),
                   style: OutlinedButton.styleFrom(
-                    backgroundColor: AppTheme.redExtraLight,
-    
+                    backgroundColor: AppTheme.redDark,
                   ),
                 );
 
-                return constraints.maxWidth > 600
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          filterButton,
-                          const SizedBox(width: 12),
-                          cetakButton,
-                        ],
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          filterButton,
-                          const SizedBox(height: 8),
-                          cetakButton,
-                        ],
-                      );
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Tombol Filter di kiri
+                    filterButton,
+
+                    // Tombol Cetak di kanan
+                    cetakButton,
+                  ],
+                );
               },
             ),
 

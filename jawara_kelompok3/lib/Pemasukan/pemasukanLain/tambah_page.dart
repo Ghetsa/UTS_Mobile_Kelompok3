@@ -146,8 +146,8 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.blueExtraLight,
-                        foregroundColor: AppTheme.blueDark,
+                        backgroundColor: AppTheme.primaryBlue,
+                        foregroundColor: Colors.white,
                       ),
                       onPressed: () {
                       },
