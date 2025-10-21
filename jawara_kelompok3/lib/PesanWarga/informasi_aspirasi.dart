@@ -12,7 +12,7 @@ class SemuaAspirasi extends StatefulWidget {
 }
 
 class _SemuaAspirasiState extends State<SemuaAspirasi> {
-  // Data dummy 
+  // Data dummy
   List<Map<String, String>> aspirationData = [
     {
       'no': '1',
@@ -63,13 +63,13 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
   int _currentPage = 0;
   final int _rowsPerPage = 10;
 
-  // Data hasil filter 
+  // Data hasil filter
   List<Map<String, String>> _filteredAspirationData = [];
 
   @override
   void initState() {
     super.initState();
-    _filterData(); 
+    _filterData();
   }
 
   // Fungsi memfilter data
@@ -97,11 +97,11 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
         return matchesSearch && matchesStatus;
       }).toList();
 
-      _currentPage = 0; 
+      _currentPage = 0;
     });
   }
 
-  // Fungsi mereset filter 
+  // Fungsi mereset filter
   void _resetFilter() {
     setState(() {
       _searchQuery = '';
@@ -111,7 +111,7 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
     });
   }
 
-  // Fungsi menampilkan modal filter 
+  // Fungsi menampilkan modal filter
   void _showFilterModal(BuildContext context) {
     final TextEditingController searchCtrl =
         TextEditingController(text: _searchQuery);
@@ -127,22 +127,41 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
                   borderRadius: BorderRadius.circular(16)),
               title: const Text('Filter Pesan Warga',
                   style: TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.black87)),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: AppTheme.primaryBlue)),
               content: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Input field search judul
-                    const Text("Judul",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 14)),
+                    const Text(
+                      "Judul",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: AppTheme.hitam,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     TextField(
                       controller: searchCtrl,
+                      style: const TextStyle(
+                        color: AppTheme.hitam,
+                        fontSize: 16,
+                      ),
                       decoration: InputDecoration(
-                        hintText: "Cari judul...",
+                        hintText: "Cari Judul",
+                        hintStyle: const TextStyle(
+                          color: AppTheme.abu,
+                          fontSize: 16,
+                        ),
                         filled: true,
-                        fillColor: AppTheme.lightBlue.withOpacity(0.2),
+                        fillColor: AppTheme.abu.withOpacity(0.2),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: AppTheme.abu),
+                        ),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide.none),
@@ -150,11 +169,22 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
                     ),
                     const SizedBox(height: 14),
                     // Dropdown filter status
-                    const Text("Status",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 14)),
+                    const Text(
+                      "Status",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: AppTheme.hitam,
+                      ),
+                    ),
                     const SizedBox(height: 6),
-                    DropdownButtonHideUnderline(
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.abu.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppTheme.abu),
+                      ),
                       child: DropdownButton<String>(
                         isExpanded: true,
                         value: _selectedStatusFilter,
@@ -171,6 +201,11 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
                         ],
                         onChanged: (val) =>
                             setModalState(() => _selectedStatusFilter = val),
+                        dropdownColor: AppTheme.putih,
+                        style: TextStyle(
+                          color: AppTheme.hitam,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ],
@@ -186,7 +221,7 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.redMediumDark,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(50)),
                   ),
                   child: const Text('Reset Filter',
                       style: TextStyle(color: Colors.white)),
@@ -201,9 +236,9 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryGreen,
+                    backgroundColor: AppTheme.greenDark,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(50)),
                   ),
                   child: const Text('Terapkan',
                       style: TextStyle(color: Colors.white)),
@@ -222,11 +257,11 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
       case 'Diterima':
         return AppTheme.greenMedium;
       case 'Pending':
-        return AppTheme.yellowMediumDark;
+        return AppTheme.yellowMedium;
       case 'Ditolak':
         return AppTheme.redMedium;
       default:
-        return Colors.grey;
+        return AppTheme.abu;
     }
   }
 
@@ -241,7 +276,7 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
           children: [
             // Menu Lihat Detail
             ListTile(
-              leading: const Icon(Icons.info, color: Colors.blue),
+              leading: const Icon(Icons.info, color: AppTheme.blueMedium),
               title: const Text('Lihat Detail'),
               onTap: () {
                 Navigator.pop(context);
@@ -253,7 +288,7 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
             ),
             // Menu Edit Aspirasi
             ListTile(
-              leading: const Icon(Icons.edit, color: Colors.orange),
+              leading: const Icon(Icons.edit, color: AppTheme.yellowMedium),
               title: const Text('Edit'),
               onTap: () async {
                 Navigator.pop(context);
@@ -269,7 +304,7 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text('Aspirasi berhasil diperbarui'),
-                      backgroundColor: Colors.indigo.shade600,
+                      backgroundColor: AppTheme.blueMedium,
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
@@ -278,7 +313,7 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
             ),
             // Menu Hapus Aspirasi
             ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
+              leading: const Icon(Icons.delete, color: AppTheme.redMedium),
               title: const Text('Hapus'),
               onTap: () {
                 Navigator.pop(context);
@@ -294,7 +329,7 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
                           onPressed: () => Navigator.pop(context)),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red),
+                            backgroundColor: AppTheme.redMedium),
                         child: const Text('Hapus'),
                         onPressed: () {
                           Navigator.pop(context);
@@ -336,7 +371,8 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
         elevation: 3,
         title: const Text(
           'Semua Aspirasi',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style:
+              TextStyle(color: AppTheme.putihFull, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -356,12 +392,12 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
                       icon: const Icon(Icons.filter_alt),
                       label: const Text("Filter Aspirasi"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryGreen,
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppTheme.yellowDark,
+                        foregroundColor: AppTheme.putihFull,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 10),
+                            horizontal: 10, vertical: 20),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
+                            borderRadius: BorderRadius.circular(100)),
                       ),
                     ),
                   ],
@@ -374,7 +410,7 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
                         child: Center(
                           child: Text(
                             "Tidak ada aspirasi yang sesuai.",
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                            style: TextStyle(color: AppTheme.abu, fontSize: 16),
                           ),
                         ),
                       )
@@ -416,14 +452,16 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: _currentPage == i
                     ? AppTheme.primaryBlue
-                    : Colors.grey.shade300,
+                    : AppTheme.putihFull,
                 minimumSize: const Size(36, 36),
                 padding: EdgeInsets.zero,
               ),
               onPressed: () => setState(() => _currentPage = i),
               child: Text('${i + 1}',
                   style: TextStyle(
-                      color: _currentPage == i ? Colors.white : Colors.black)),
+                      color: _currentPage == i
+                          ? AppTheme.putihFull
+                          : AppTheme.hitam)),
             ),
           );
         }),
@@ -448,7 +486,7 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
         dataRowColor: MaterialStateProperty.all(AppTheme.backgroundBlueWhite),
         headingTextStyle: const TextStyle(
           fontWeight: FontWeight.bold,
-          color: Colors.black87,
+          color: AppTheme.hitam,
         ),
         columns: const [
           DataColumn(label: Text('No')),
@@ -504,11 +542,11 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.putihFull,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.shade200,
+                color: AppTheme.abu,
                 blurRadius: 6,
                 offset: const Offset(0, 3),
               ),
@@ -519,11 +557,11 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             // Nomor urut dengan lingkaran biru
             leading: CircleAvatar(
-              backgroundColor: AppTheme.primaryBlue.withOpacity(0.8),
+              backgroundColor: AppTheme.primaryBlue,
               child: Text(
                 data['no']!,
                 style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold),
+                    color: AppTheme.putihFull, fontWeight: FontWeight.bold),
               ),
             ),
             title: Text(
@@ -539,18 +577,19 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
                 Text(
                   'Pengirim: ${data['pengirim']}',
                   style: const TextStyle(
-                      color: AppTheme.primaryGreen,
+                      color: AppTheme.hitam,
                       fontWeight: FontWeight.w500,
                       fontSize: 12),
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                    const Icon(Icons.access_time,
+                        size: 14, color: AppTheme.abu),
                     const SizedBox(width: 4),
                     Text(
                       data['tanggalDibuat']!,
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                      style: const TextStyle(color: AppTheme.abu, fontSize: 12),
                     ),
                   ],
                 ),
