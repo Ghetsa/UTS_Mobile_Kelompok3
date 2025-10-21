@@ -208,7 +208,7 @@ class StatCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
         side: BorderSide(
-          color: AppTheme.blueExtraLight,
+          color: AppTheme.grayLight,
           width: 1.5,
         ),
       ),
@@ -303,7 +303,7 @@ class PieCard extends StatelessWidget {
         color: background,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.blueExtraLight,
+          color: AppTheme.grayLight,
           width: 1.5,
         ),
       ),
@@ -466,7 +466,7 @@ class ExpandedListCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
         side: BorderSide(
-          color: AppTheme.blueExtraLight, // 🔹 border card
+          color: AppTheme.grayLight, // 🔹 border card
           width: 1.5,
         ),
       ),

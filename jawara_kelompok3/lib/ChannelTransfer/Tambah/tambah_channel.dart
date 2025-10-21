@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart'; 
+import 'package:file_picker/file_picker.dart';
 import '../../Layout/sidebar.dart';
-import '../../Theme/app_theme.dart'; 
+import '../../Theme/app_theme.dart';
 
 class TambahChannelPage extends StatefulWidget {
   const TambahChannelPage({super.key});
@@ -16,13 +16,14 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _namaChannelController = TextEditingController();
-  final TextEditingController _nomorRekeningController = TextEditingController();
+  final TextEditingController _nomorRekeningController =
+      TextEditingController();
   final TextEditingController _namaPemilikController = TextEditingController();
   final TextEditingController _catatanController = TextEditingController();
 
   // Variabel dropdown dan file
   String? _selectedTipe;
-  String? _qrFileName; 
+  String? _qrFileName;
   String? _thumbnailFileName;
 
   // Dispose controller saat widget dihapus
@@ -56,27 +57,27 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
       _qrFileName = null;
       _thumbnailFileName = null;
     });
-    _formKey.currentState!.reset(); 
-    _namaChannelController.clear(); 
-    _nomorRekeningController.clear(); 
-    _namaPemilikController.clear(); 
-    _catatanController.clear(); 
+    _formKey.currentState!.reset();
+    _namaChannelController.clear();
+    _nomorRekeningController.clear();
+    _namaPemilikController.clear();
+    _catatanController.clear();
   }
 
   // Fungsi untuk membuka file picker dan memilih file
   Future<void> _pickFile(String type) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['png', 'jpg', 'jpeg'], 
+      allowedExtensions: ['png', 'jpg', 'jpeg'],
     );
 
     // Jika ada file yang dipilih, simpan nama file ke state
     if (result != null && result.files.isNotEmpty) {
       setState(() {
         if (type == 'qr') {
-          _qrFileName = result.files.first.name; 
+          _qrFileName = result.files.first.name;
         } else {
-          _thumbnailFileName = result.files.first.name; 
+          _thumbnailFileName = result.files.first.name;
         }
       });
     }
@@ -89,9 +90,10 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      drawer: const AppSidebar(), 
+      drawer: const AppSidebar(),
       appBar: AppBar(
-        title: const Text("Tambah Channel Transfer", style: TextStyle(color: Colors.white)),
+        title: const Text("Tambah Channel Transfer",
+            style: TextStyle(color: Colors.white)),
         backgroundColor: AppTheme.primaryBlue,
         iconTheme: const IconThemeData(color: Colors.white),
         leading: Builder(
@@ -101,19 +103,20 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
           ),
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.notifications), onPressed: () {}), 
-          IconButton(icon: const Icon(Icons.account_circle), onPressed: () {}), 
+          IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.account_circle), onPressed: () {}),
         ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Card(
-          elevation: 6, 
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          elevation: 6,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Form(
-              key: _formKey, 
+              key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -141,7 +144,8 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
                     label: "Tipe",
                     hint: "-- Pilih Tipe --",
                     value: _selectedTipe,
-                    onChanged: (newValue) => setState(() => _selectedTipe = newValue),
+                    onChanged: (newValue) =>
+                        setState(() => _selectedTipe = newValue),
                     dropdownItems: const ['bank', 'ewallet', 'qris', 'lainnya'],
                   ),
 
@@ -177,7 +181,8 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
                   // Catatan opsional
                   _buildNoteSection(
                     label: "Catatan (Opsional)",
-                    hint: "Contoh: Transfer hanya dari bank yang sama agar instan",
+                    hint:
+                        "Contoh: Transfer hanya dari bank yang sama agar instan",
                     controller: _catatanController,
                   ),
 
@@ -191,14 +196,16 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
                         child: ElevatedButton(
                           onPressed: _handleSubmit,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green, 
+                            backgroundColor: AppTheme.greenMediumDark,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                           child: const Text(
                             "Simpan",
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -210,14 +217,16 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
                         child: ElevatedButton(
                           onPressed: _handleReset,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red, 
+                            backgroundColor: AppTheme.redMediumDark,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                           child: const Text(
                             "Reset",
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -245,7 +254,9 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Label
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          Text(label,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           // Input field
           TextFormField(
@@ -255,13 +266,21 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
               hintText: hint,
               filled: true,
               fillColor: Colors.grey.shade100,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      BorderSide(color: AppTheme.primaryBlue, width: 2)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
             // Validasi input
             validator: (value) {
-              if (label != "Catatan (Opsional)" && (value == null || value.isEmpty)) return 'Field $label wajib diisi.';
+              if (label != "Catatan (Opsional)" &&
+                  (value == null || value.isEmpty))
+                return 'Field $label wajib diisi.';
               return null;
             },
           ),
@@ -284,7 +303,9 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Label dropdown
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          Text(label,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           // DropdownButtonFormField untuk validasi
           DropdownButtonFormField<String>(
@@ -293,15 +314,24 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
               hintText: hint,
               filled: true,
               fillColor: Colors.grey.shade100,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      BorderSide(color: AppTheme.primaryBlue, width: 2)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
-            items: dropdownItems.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
+            items: dropdownItems
+                .map((item) => DropdownMenuItem(value: item, child: Text(item)))
+                .toList(),
             onChanged: onChanged,
             // Validasi dropdown wajib dipilih
             validator: (value) {
-              if (value == null || value.isEmpty) return 'Field $label wajib dipilih.';
+              if (value == null || value.isEmpty)
+                return 'Field $label wajib dipilih.';
               return null;
             },
           ),
@@ -322,7 +352,9 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Label file upload
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          Text(label,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           // InkWell agar bisa klik untuk upload
           InkWell(
@@ -342,7 +374,10 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
                 children: [
                   const Icon(Icons.upload_file, color: AppTheme.primaryBlue),
                   const SizedBox(width: 10),
-                  Flexible(child: Text(hint, style: TextStyle(color: Colors.grey.shade600, fontSize: 14))),
+                  Flexible(
+                      child: Text(hint,
+                          style: TextStyle(
+                              color: Colors.grey.shade600, fontSize: 14))),
                 ],
               ),
             ),
@@ -364,7 +399,9 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Label
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          Text(label,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           // Input multi-line
           TextFormField(
@@ -374,9 +411,14 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
               hintText: hint,
               filled: true,
               fillColor: Colors.grey.shade100,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      BorderSide(color: AppTheme.primaryBlue, width: 2)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
           ),
         ],

@@ -12,10 +12,11 @@ import '../Dashboard/keuangan.dart';
 import '../Dashboard/kependudukan.dart';
 
 // === Warga dan Rumah ===
-import '../DataWargaDanRumah/Rumah/DaftarRumah.dart';
-import '../DataWargaDanRumah/Rumah/TambahRumah.dart';
-import '../DataWargaDanRumah/Warga/DaftarWarga.dart';
-import '../DataWargaDanRumah/Warga/TambahWarga.dart';
+import '../DataWargaDanRumah/pages/Rumah/DaftarRumah.dart';
+import '../DataWargaDanRumah/pages/Rumah/TambahRumah.dart';
+import '../DataWargaDanRumah/pages/Warga/DaftarWarga.dart';
+import '../DataWargaDanRumah/pages/Warga/TambahWarga.dart';
+import '../DataWargaDanRumah/pages/Keluarga/Keluarga.dart';
 
 // === Menu Utama ===
 import '../LaporanKeuangan/pages/semua_pemasukan_page.dart';
@@ -75,6 +76,7 @@ class AppRoutes {
     '/dashboard/keuangan': (context) => const DashboardKeuanganPage(),
     '/dashboard/kependudukan': (context) => const DashboardKependudukanPage(),
 
+    // === Data Warga & Rumah ===
     // === Data Warga ===
     '/warga/daftar': (context) => const DaftarWargaPage(),
     '/warga/tambah': (context) => const TambahWargaPage(),
@@ -82,6 +84,9 @@ class AppRoutes {
     // === Data Rumah ===
     '/rumah/daftar': (context) => const DaftarRumahPage(),
     '/rumah/tambah': (context) => const TambahRumahPage(),
+    
+    // === Data Keluarga ===
+    '/keluarga': (context) => const DaftarKeluargaPage(),
 
     // === Pemasukan ===
     '/pemasukan/pages/kategori': (context) => const KategoriIuranPage(),

@@ -12,7 +12,7 @@ class SemuaAspirasi extends StatefulWidget {
 }
 
 class _SemuaAspirasiState extends State<SemuaAspirasi> {
-  // Data dummy 
+  // Data dummy
   List<Map<String, String>> aspirationData = [
     {
       'no': '1',
@@ -63,13 +63,13 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
   int _currentPage = 0;
   final int _rowsPerPage = 10;
 
-  // Data hasil filter 
+  // Data hasil filter
   List<Map<String, String>> _filteredAspirationData = [];
 
   @override
   void initState() {
     super.initState();
-    _filterData(); 
+    _filterData();
   }
 
   // Fungsi memfilter data
@@ -97,11 +97,11 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
         return matchesSearch && matchesStatus;
       }).toList();
 
-      _currentPage = 0; 
+      _currentPage = 0;
     });
   }
 
-  // Fungsi mereset filter 
+  // Fungsi mereset filter
   void _resetFilter() {
     setState(() {
       _searchQuery = '';
@@ -111,7 +111,7 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
     });
   }
 
-  // Fungsi menampilkan modal filter 
+  // Fungsi menampilkan modal filter
   void _showFilterModal(BuildContext context) {
     final TextEditingController searchCtrl =
         TextEditingController(text: _searchQuery);
@@ -220,11 +220,11 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Diterima':
-        return AppTheme.greenMedium;
+        return AppTheme.greenMediumDark;
       case 'Pending':
         return AppTheme.yellowMediumDark;
       case 'Ditolak':
-        return AppTheme.redMedium;
+        return AppTheme.redMediumDark;
       default:
         return Colors.grey;
     }
