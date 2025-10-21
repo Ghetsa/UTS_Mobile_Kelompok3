@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../Layout/sidebar.dart';
 import '../../Theme/app_theme.dart';
-import 'detailKegiatan.dart';
+import 'detailKegiatan.dart'; // ← Tambahkan import ini
 
 class DaftarkegiatanPage extends StatelessWidget {
   const DaftarkegiatanPage({super.key});
@@ -10,22 +10,27 @@ class DaftarkegiatanPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final List<Map<String, String>> pengeluaran = [
+    // Data kegiatan contoh
+    final List<Map<String, String>> kegiatan = [
       {
         "no": "1",
-        "nama": "Pembelian ATK",
-        "kategori": "Operasional",
+        "nama": "Musyawarah RT",
+        "kategori": "Komunitas & Sosial",
         "pj": "Pak RT",
-        "tanggal": "10 Oktober 2025",
-        "nominal": "Rp 500.000,00",
+        "tanggal": "12 Oktober 2025",
+        "lokasi": "Balai RT 03",
+        "deskripsi":
+            "Rapat koordinasi rutin warga membahas kegiatan sosial dan keamanan lingkungan.",
       },
       {
         "no": "2",
-        "nama": "Bayar Listrik",
-        "kategori": "Utilitas",
+        "nama": "Senam Pagi Bersama",
+        "kategori": "Kesehatan & Olahraga",
         "pj": "Bu RW",
-        "tanggal": "5 Oktober 2025",
-        "nominal": "Rp 1.200.000,00",
+        "tanggal": "20 Oktober 2025",
+        "lokasi": "Lapangan RW 05",
+        "deskripsi":
+            "Kegiatan olahraga bersama warga untuk menjaga kesehatan dan mempererat silaturahmi.",
       },
     ];
 
@@ -49,8 +54,9 @@ class DaftarkegiatanPage extends StatelessWidget {
         child: Card(
           elevation: 3,
           color: theme.colorScheme.surface,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Column(
             children: [
               // Tombol Filter
@@ -80,13 +86,13 @@ class DaftarkegiatanPage extends StatelessWidget {
                     ),
                     columns: const [
                       DataColumn(label: Text("No")),
-                      DataColumn(label: Text("Nama")),
+                      DataColumn(label: Text("Nama Kegiatan")),
                       DataColumn(label: Text("Kategori")),
                       DataColumn(label: Text("Penanggung Jawab")),
-                      DataColumn(label: Text("Tanggal")),
+                      DataColumn(label: Text("Tanggal Pelaksanaan")),
                       DataColumn(label: Text("Aksi")),
                     ],
-                    rows: pengeluaran.map((item) {
+                    rows: kegiatan.map((item) {
                       return DataRow(
                         cells: [
                           DataCell(Text(item["no"]!)),

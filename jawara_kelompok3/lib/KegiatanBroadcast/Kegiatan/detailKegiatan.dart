@@ -24,31 +24,41 @@ class DetailKegiatanPage extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: ListView(
               children: [
-                Text("Nama Kegiatan:", style: theme.textTheme.titleMedium),
-                Text(data["nama"] ?? "-", style: theme.textTheme.bodyLarge),
-                const SizedBox(height: 12),
-
-                Text("Kategori:", style: theme.textTheme.titleMedium),
-                Text(data["kategori"] ?? "-", style: theme.textTheme.bodyLarge),
-                const SizedBox(height: 12),
-
-                Text("Penanggung Jawab:", style: theme.textTheme.titleMedium),
-                Text(data["pj"] ?? "-", style: theme.textTheme.bodyLarge),
-                const SizedBox(height: 12),
-
-                Text("Tanggal:", style: theme.textTheme.titleMedium),
-                Text(data["tanggal"] ?? "-", style: theme.textTheme.bodyLarge),
-                const SizedBox(height: 12),
-
-                Text("Nominal:", style: theme.textTheme.titleMedium),
-                Text(data["nominal"] ?? "-", style: theme.textTheme.bodyLarge),
+                _buildDetailItem(theme, "Nama Kegiatan", data["nama"]),
+                _buildDetailItem(theme, "Kategori", data["kategori"]),
+                _buildDetailItem(theme, "Penanggung Jawab", data["pj"]),
+                _buildDetailItem(theme, "Tanggal Pelaksanaan", data["tanggal"]),
+                _buildDetailItem(theme, "Lokasi", data["lokasi"]),
+                _buildDetailItem(theme, "Deskripsi", data["deskripsi"], multiline: true),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDetailItem(ThemeData theme, String title, String? value,
+      {bool multiline = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value != null && value.isNotEmpty ? value : "-",
+            style: theme.textTheme.bodyLarge,
+            textAlign: multiline ? TextAlign.justify : TextAlign.start,
+          ),
+        ],
       ),
     );
   }
