@@ -55,8 +55,8 @@ class _PemasukanLainDaftarPageState extends State<PemasukanLainDaftarPage> {
               alignment: Alignment.centerRight,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.yellowExtraLight,
-                  foregroundColor: AppTheme.yellowDark,
+                  backgroundColor: AppTheme.yellowDark,
+                  foregroundColor: Colors.white,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),

@@ -52,15 +52,14 @@ class KategoriIuranPage extends StatelessWidget {
                       debugPrint("Filter dipilih: $result");
                     }
                   },
-                  icon:
-                      const Icon(Icons.filter_alt, color: AppTheme.yellowDark),
+                  icon: const Icon(Icons.filter_alt, color: Colors.white),
                   label: const Text(
                     "Filter",
-                    style: TextStyle(color: AppTheme.yellowDark),
+                    style: TextStyle(color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.yellowExtraLight,
-                    foregroundColor: AppTheme.yellowDark,
+                    backgroundColor: AppTheme.yellowMediumDark,
+                    foregroundColor: Colors.white,
                   ),
                 );
 
@@ -71,34 +70,23 @@ class KategoriIuranPage extends StatelessWidget {
                       '/pemasukan/pages/tambah_kategori',
                     );
                   },
-                  icon: const Icon(Icons.add,
-                      color: AppTheme.greenSuperDark),
+                  icon: const Icon(Icons.add, color: Colors.white),
                   label: const Text(
                     "Tambah",
-                    style: TextStyle(color: AppTheme.greenSuperDark),
+                    style: TextStyle(color: Colors.white),
                   ),
                   style: OutlinedButton.styleFrom(
-                    backgroundColor: AppTheme.greenExtraLight,
+                    backgroundColor: AppTheme.greenDark,
                   ),
                 );
 
-                return constraints.maxWidth > 600
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          filterButton,
-                          const SizedBox(width: 12),
-                          tambahButton,
-                        ],
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          filterButton,
-                          const SizedBox(height: 8),
-                          tambahButton,
-                        ],
-                      );
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    filterButton,
+                    tambahButton,
+                  ],
+                );
               },
             ),
 
