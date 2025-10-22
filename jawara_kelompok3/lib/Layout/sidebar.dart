@@ -88,8 +88,8 @@ class _AppSidebarState extends State<AppSidebar> {
       return;
     }
 
-    final currentOpen =
-        _expanded.entries.firstWhere((e) => e.value, orElse: () => MapEntry('', false));
+    final currentOpen = _expanded.entries
+        .firstWhere((e) => e.value, orElse: () => MapEntry('', false));
 
     if (currentOpen.key == '' || currentOpen.key == menuKey) {
       setState(() {
@@ -156,10 +156,12 @@ class _AppSidebarState extends State<AppSidebar> {
 
             // === Dashboard ===
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
                 key: ValueKey('dashboard_${_expanded['dashboard'] ?? false}'),
-                leading: const Icon(Icons.receipt_long, color: AppTheme.primaryBlue),
+                leading:
+                    const Icon(Icons.receipt_long, color: AppTheme.primaryBlue),
                 title: const Text(
                   "Dashboard",
                   style: TextStyle(
@@ -169,7 +171,8 @@ class _AppSidebarState extends State<AppSidebar> {
                 ),
                 childrenPadding: EdgeInsets.zero,
                 initiallyExpanded: _expanded['dashboard'] ?? false,
-                onExpansionChanged: (expanded) => _expandOnlyAnimated('dashboard', expanded),
+                onExpansionChanged: (expanded) =>
+                    _expandOnlyAnimated('dashboard', expanded),
                 children: [
                   _buildSubMenuItem(
                     "Kegiatan",
@@ -198,7 +201,8 @@ class _AppSidebarState extends State<AppSidebar> {
 
             // === Data Warga & Rumah ===
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
                 key: ValueKey('data_warga_${_expanded['data_warga'] ?? false}'),
                 leading: const Icon(Icons.people, color: AppTheme.primaryBlue),
@@ -210,33 +214,41 @@ class _AppSidebarState extends State<AppSidebar> {
                   ),
                 ),
                 initiallyExpanded: _expanded['data_warga'] ?? false,
-                onExpansionChanged: (expanded) => _expandOnlyAnimated('data_warga', expanded),
+                onExpansionChanged: (expanded) =>
+                    _expandOnlyAnimated('data_warga', expanded),
                 children: [
                   _buildSubMenuItem(
                       "Warga - Daftar", "/warga/daftar", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('data_warga', true)),
+                      onSelected: () =>
+                          _expandOnlyAnimated('data_warga', true)),
                   _buildSubMenuItem(
                       "Warga - Tambah", "/warga/tambah", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('data_warga', true)),
+                      onSelected: () =>
+                          _expandOnlyAnimated('data_warga', true)),
                   _buildSubMenuItem(
                       "Keluarga", "/keluarga", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('data_warga', true)),
+                      onSelected: () =>
+                          _expandOnlyAnimated('data_warga', true)),
                   _buildSubMenuItem(
                       "Rumah - Daftar", "/rumah/daftar", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('data_warga', true)),
+                      onSelected: () =>
+                          _expandOnlyAnimated('data_warga', true)),
                   _buildSubMenuItem(
                       "Rumah - Tambah", "/rumah/tambah", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('data_warga', true)),
+                      onSelected: () =>
+                          _expandOnlyAnimated('data_warga', true)),
                 ],
               ),
             ),
 
             // === Pemasukan ===
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
                 key: ValueKey('pemasukan_${_expanded['pemasukan'] ?? false}'),
-                leading: const Icon(Icons.receipt_long, color: AppTheme.primaryBlue),
+                leading:
+                    const Icon(Icons.receipt_long, color: AppTheme.primaryBlue),
                 title: const Text(
                   "Pemasukan",
                   style: TextStyle(
@@ -245,14 +257,18 @@ class _AppSidebarState extends State<AppSidebar> {
                   ),
                 ),
                 initiallyExpanded: _expanded['pemasukan'] ?? false,
-                onExpansionChanged: (expanded) => _expandOnlyAnimated('pemasukan', expanded),
+                onExpansionChanged: (expanded) =>
+                    _expandOnlyAnimated('pemasukan', expanded),
                 children: [
-                  _buildSubMenuItem("Kategori Iuran", "/pemasukan/pages/kategori",
-                      context, currentRoute, onSelected: () => _expandOnlyAnimated('pemasukan', true)),
+                  _buildSubMenuItem("Kategori Iuran",
+                      "/pemasukan/pages/kategori", context, currentRoute,
+                      onSelected: () => _expandOnlyAnimated('pemasukan', true)),
                   _buildSubMenuItem("Tagih Iuran", "/pemasukan/tagihIuran",
-                      context, currentRoute, onSelected: () => _expandOnlyAnimated('pemasukan', true)),
-                  _buildSubMenuItem("Tagihan", "/pemasukan/tagihan", context,
-                      currentRoute, onSelected: () => _expandOnlyAnimated('pemasukan', true)),
+                      context, currentRoute,
+                      onSelected: () => _expandOnlyAnimated('pemasukan', true)),
+                  _buildSubMenuItem(
+                      "Tagihan", "/pemasukan/tagihan", context, currentRoute,
+                      onSelected: () => _expandOnlyAnimated('pemasukan', true)),
                   _buildSubMenuItem("Pemasukan Lain - Daftar",
                       "/pemasukan/pemasukanLain-daftar", context, currentRoute,
                       onSelected: () => _expandOnlyAnimated('pemasukan', true)),
@@ -265,10 +281,13 @@ class _AppSidebarState extends State<AppSidebar> {
 
             // === Laporan Keuangan ===
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                key: ValueKey('laporan_keuangan_${_expanded['laporan_keuangan'] ?? false}'),
-                leading: const Icon(Icons.bar_chart, color: AppTheme.primaryBlue),
+                key: ValueKey(
+                    'laporan_keuangan_${_expanded['laporan_keuangan'] ?? false}'),
+                leading:
+                    const Icon(Icons.bar_chart, color: AppTheme.primaryBlue),
                 title: const Text(
                   "Laporan Keuangan",
                   style: TextStyle(
@@ -277,14 +296,21 @@ class _AppSidebarState extends State<AppSidebar> {
                   ),
                 ),
                 initiallyExpanded: _expanded['laporan_keuangan'] ?? false,
-                onExpansionChanged: (expanded) => _expandOnlyAnimated('laporan_keuangan', expanded),
+                onExpansionChanged: (expanded) =>
+                    _expandOnlyAnimated('laporan_keuangan', expanded),
                 children: [
-                  _buildSubMenuItem("Semua Pemasukan", "/laporan/semua-pemasukan",
-                      context, currentRoute, onSelected: () => _expandOnlyAnimated('laporan_keuangan', true)),
-                  _buildSubMenuItem("Semua Pengeluaran", "/laporan/semua-pengeluaran",
-                      context, currentRoute, onSelected: () => _expandOnlyAnimated('laporan_keuangan', true)),
-                  _buildSubMenuItem("Cetak Laporan", "/laporan/cetak", context,
-                      currentRoute, onSelected: () => _expandOnlyAnimated('laporan_keuangan', true)),
+                  _buildSubMenuItem("Semua Pemasukan",
+                      "/laporan/semua-pemasukan", context, currentRoute,
+                      onSelected: () =>
+                          _expandOnlyAnimated('laporan_keuangan', true)),
+                  _buildSubMenuItem("Semua Pengeluaran",
+                      "/laporan/semua-pengeluaran", context, currentRoute,
+                      onSelected: () =>
+                          _expandOnlyAnimated('laporan_keuangan', true)),
+                  _buildSubMenuItem(
+                      "Cetak Laporan", "/laporan/cetak", context, currentRoute,
+                      onSelected: () =>
+                          _expandOnlyAnimated('laporan_keuangan', true)),
                 ],
               ),
             ),
@@ -295,7 +321,8 @@ class _AppSidebarState extends State<AppSidebar> {
                 context,
               ).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                key: ValueKey('manajemen_pengguna_${_expanded['manajemen_pengguna'] ?? false}'),
+                key: ValueKey(
+                    'manajemen_pengguna_${_expanded['manajemen_pengguna'] ?? false}'),
                 leading: const Icon(
                   Icons.receipt_long,
                   color: AppTheme.primaryBlue,
@@ -308,21 +335,24 @@ class _AppSidebarState extends State<AppSidebar> {
                   ),
                 ),
                 initiallyExpanded: _expanded['manajemen_pengguna'] ?? false,
-                onExpansionChanged: (expanded) => _expandOnlyAnimated('manajemen_pengguna', expanded),
+                onExpansionChanged: (expanded) =>
+                    _expandOnlyAnimated('manajemen_pengguna', expanded),
                 children: [
                   _buildSubMenuItem(
                     "Daftar Pengguna",
                     "/pengguna/penggunaDaftar",
                     context,
                     currentRoute,
-                    onSelected: () => _expandOnlyAnimated('manajemen_pengguna', true),
+                    onSelected: () =>
+                        _expandOnlyAnimated('manajemen_pengguna', true),
                   ),
                   _buildSubMenuItem(
                     "Tambah Pengguna",
                     "/pengguna/penggunaTambah",
                     context,
                     currentRoute,
-                    onSelected: () => _expandOnlyAnimated('manajemen_pengguna', true),
+                    onSelected: () =>
+                        _expandOnlyAnimated('manajemen_pengguna', true),
                   ),
                 ],
               ),
@@ -330,9 +360,11 @@ class _AppSidebarState extends State<AppSidebar> {
 
             // === Channel Transfer ===
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                key: ValueKey('channel_transfer_${_expanded['channel_transfer'] ?? false}'),
+                key: ValueKey(
+                    'channel_transfer_${_expanded['channel_transfer'] ?? false}'),
                 leading: const Icon(
                   Icons.swap_horiz,
                   color: AppTheme.primaryBlue,
@@ -345,21 +377,24 @@ class _AppSidebarState extends State<AppSidebar> {
                   ),
                 ),
                 initiallyExpanded: _expanded['channel_transfer'] ?? false,
-                onExpansionChanged: (expanded) => _expandOnlyAnimated('channel_transfer', expanded),
+                onExpansionChanged: (expanded) =>
+                    _expandOnlyAnimated('channel_transfer', expanded),
                 children: [
                   _buildSubMenuItem(
                     "Daftar Channel",
                     "/channel/channelDaftar",
                     context,
                     currentRoute,
-                    onSelected: () => _expandOnlyAnimated('channel_transfer', true),
+                    onSelected: () =>
+                        _expandOnlyAnimated('channel_transfer', true),
                   ),
                   _buildSubMenuItem(
                     "Tambah Channel",
                     "/channel/channelTambah",
                     context,
                     currentRoute,
-                    onSelected: () => _expandOnlyAnimated('channel_transfer', true),
+                    onSelected: () =>
+                        _expandOnlyAnimated('channel_transfer', true),
                   ),
                 ],
               ),
@@ -367,9 +402,11 @@ class _AppSidebarState extends State<AppSidebar> {
 
             // === Log Aktifitas ===
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                key: ValueKey('log_aktifitas_${_expanded['log_aktifitas'] ?? false}'),
+                key: ValueKey(
+                    'log_aktifitas_${_expanded['log_aktifitas'] ?? false}'),
                 leading: const Icon(
                   Icons.history,
                   color: AppTheme.primaryBlue,
@@ -382,14 +419,16 @@ class _AppSidebarState extends State<AppSidebar> {
                   ),
                 ),
                 initiallyExpanded: _expanded['log_aktifitas'] ?? false,
-                onExpansionChanged: (expanded) => _expandOnlyAnimated('log_aktifitas', expanded),
+                onExpansionChanged: (expanded) =>
+                    _expandOnlyAnimated('log_aktifitas', expanded),
                 children: [
                   _buildSubMenuItem(
                     "Semua Aktifitas",
                     "/semuaAktifitas",
                     context,
                     currentRoute,
-                    onSelected: () => _expandOnlyAnimated('log_aktifitas', true),
+                    onSelected: () =>
+                        _expandOnlyAnimated('log_aktifitas', true),
                   ),
                 ],
               ),
@@ -397,11 +436,13 @@ class _AppSidebarState extends State<AppSidebar> {
 
             // === Pesan Warga ===
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                key: ValueKey('pesan_warga_${_expanded['pesan_warga'] ?? false}'),
+                key: ValueKey(
+                    'pesan_warga_${_expanded['pesan_warga'] ?? false}'),
                 leading: const Icon(
-                  Icons.history,
+                  Icons.message,
                   color: AppTheme.primaryBlue,
                 ),
                 title: const Text(
@@ -412,7 +453,8 @@ class _AppSidebarState extends State<AppSidebar> {
                   ),
                 ),
                 initiallyExpanded: _expanded['pesan_warga'] ?? false,
-                onExpansionChanged: (expanded) => _expandOnlyAnimated('pesan_warga', expanded),
+                onExpansionChanged: (expanded) =>
+                    _expandOnlyAnimated('pesan_warga', expanded),
                 children: [
                   _buildSubMenuItem(
                     "Informasi Aspirasi",
@@ -425,18 +467,13 @@ class _AppSidebarState extends State<AppSidebar> {
               ),
             ),
 
-            // === Menu utama lain ===
-            _buildMenuItem(
-              Icons.insert_chart,
-              "Laporan Keuangan",
-              "/laporan",
-              context,
-              currentRoute,
-            ),
+            // === Menu Broadcast ===
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                key: ValueKey('KegiatanBroadcast_${_expanded['KegiatanBroadcast'] ?? false}'),
+                key: ValueKey(
+                    'KegiatanBroadcast_${_expanded['KegiatanBroadcast'] ?? false}'),
                 leading: const Icon(Icons.event, color: AppTheme.primaryBlue),
                 title: const Text(
                   "KegiatanBroadcsat",
@@ -446,26 +483,38 @@ class _AppSidebarState extends State<AppSidebar> {
                   ),
                 ),
                 initiallyExpanded: _expanded['KegiatanBroadcast'] ?? false,
-                onExpansionChanged: (expanded) => _expandOnlyAnimated('KegiatanBroadcast', expanded),
+                onExpansionChanged: (expanded) =>
+                    _expandOnlyAnimated('KegiatanBroadcast', expanded),
                 children: [
-                  _buildSubMenuItem("Kegiatan - Daftar", "/kegiatan/daftar", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('KegiatanBroadcast', true)),
-                  _buildSubMenuItem("Kegiatan - Tambah", "/kegiatan/tambah", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('KegiatanBroadcast', true)),
-                      _buildSubMenuItem("Broadcast - Daftar", "/broadcast/daftar", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('KegiatanBroadcast', true)),
-                  _buildSubMenuItem("Broadcast - Tambah", "/broadcast/tambah", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('KegiatanBroadcast', true)),
+                  _buildSubMenuItem("Kegiatan - Daftar", "/kegiatan/daftar",
+                      context, currentRoute,
+                      onSelected: () =>
+                          _expandOnlyAnimated('KegiatanBroadcast', true)),
+                  _buildSubMenuItem("Kegiatan - Tambah", "/kegiatan/tambah",
+                      context, currentRoute,
+                      onSelected: () =>
+                          _expandOnlyAnimated('KegiatanBroadcast', true)),
+                  _buildSubMenuItem("Broadcast - Daftar", "/broadcast/daftar",
+                      context, currentRoute,
+                      onSelected: () =>
+                          _expandOnlyAnimated('KegiatanBroadcast', true)),
+                  _buildSubMenuItem("Broadcast - Tambah", "/broadcast/tambah",
+                      context, currentRoute,
+                      onSelected: () =>
+                          _expandOnlyAnimated('KegiatanBroadcast', true)),
                 ],
               ),
             ),
 
             // Pengeluaran
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                key: ValueKey('pengeluaran_${_expanded['pengeluaran'] ?? false}'),
-                leading: const Icon(Icons.bar_chart, color: AppTheme.primaryBlue),
+                key: ValueKey(
+                    'pengeluaran_${_expanded['pengeluaran'] ?? false}'),
+                leading:
+                    const Icon(Icons.bar_chart, color: AppTheme.primaryBlue),
                 title: const Text(
                   "Pengeluaran",
                   style: TextStyle(
@@ -474,22 +523,30 @@ class _AppSidebarState extends State<AppSidebar> {
                   ),
                 ),
                 initiallyExpanded: _expanded['pengeluaran'] ?? false,
-                onExpansionChanged: (expanded) => _expandOnlyAnimated('pengeluaran', expanded),
+                onExpansionChanged: (expanded) =>
+                    _expandOnlyAnimated('pengeluaran', expanded),
                 children: [
-                  _buildSubMenuItem("Daftar", "/pengeluaran/daftar", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('pengeluaran', true)),
-                  _buildSubMenuItem("Tambah", "/pengeluaran/tambah", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('pengeluaran', true)),
+                  _buildSubMenuItem(
+                      "Daftar", "/pengeluaran/daftar", context, currentRoute,
+                      onSelected: () =>
+                          _expandOnlyAnimated('pengeluaran', true)),
+                  _buildSubMenuItem(
+                      "Tambah", "/pengeluaran/tambah", context, currentRoute,
+                      onSelected: () =>
+                          _expandOnlyAnimated('pengeluaran', true)),
                 ],
               ),
             ),
 
             // Mutasi Keluarga with submenu
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                key: ValueKey('mutasi_keluarga_${_expanded['mutasi_keluarga'] ?? false}'),
-                leading: const Icon(Icons.family_restroom, color: AppTheme.primaryBlue),
+                key: ValueKey(
+                    'mutasi_keluarga_${_expanded['mutasi_keluarga'] ?? false}'),
+                leading: const Icon(Icons.family_restroom,
+                    color: AppTheme.primaryBlue),
                 title: const Text(
                   "Mutasi Keluarga",
                   style: TextStyle(
@@ -498,12 +555,17 @@ class _AppSidebarState extends State<AppSidebar> {
                   ),
                 ),
                 initiallyExpanded: _expanded['mutasi_keluarga'] ?? false,
-                onExpansionChanged: (expanded) => _expandOnlyAnimated('mutasi_keluarga', expanded),
+                onExpansionChanged: (expanded) =>
+                    _expandOnlyAnimated('mutasi_keluarga', expanded),
                 children: [
-                  _buildSubMenuItem("Daftar", "/mutasi/daftar", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('mutasi_keluarga', true)),
-                  _buildSubMenuItem("Tambah", "/mutasi/tambah", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('mutasi_keluarga', true)),
+                  _buildSubMenuItem(
+                      "Daftar", "/mutasi/daftar", context, currentRoute,
+                      onSelected: () =>
+                          _expandOnlyAnimated('mutasi_keluarga', true)),
+                  _buildSubMenuItem(
+                      "Tambah", "/mutasi/tambah", context, currentRoute,
+                      onSelected: () =>
+                          _expandOnlyAnimated('mutasi_keluarga', true)),
                 ],
               ),
             ),
@@ -530,7 +592,8 @@ class _AppSidebarState extends State<AppSidebar> {
       ),
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
-        leading: Icon(icon, color: isActive ? Colors.white : AppTheme.primaryBlue),
+        leading:
+            Icon(icon, color: isActive ? Colors.white : AppTheme.primaryBlue),
         title: Text(
           title,
           style: TextStyle(
@@ -560,7 +623,9 @@ class _AppSidebarState extends State<AppSidebar> {
 
     return Container(
       decoration: BoxDecoration(
-        color: isActive ? AppTheme.primaryBlue.withOpacity(0.1) : Colors.transparent,
+        color: isActive
+            ? AppTheme.primaryBlue.withOpacity(0.1)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
