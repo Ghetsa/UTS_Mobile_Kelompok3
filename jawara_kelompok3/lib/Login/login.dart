@@ -12,7 +12,7 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.primaryBlue,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppTheme.primaryBlue,
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -27,14 +27,14 @@ class LoginScreen extends StatelessWidget {
                 Column(
                   children: [
                     Image.asset('assets/images/Logo_jawara.png',
-                        height: 80), // Logo aplikasi
+                        height: 60), // Logo aplikasi
                     const SizedBox(height: 8),
                     const Text(
                       'Jawara',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: AppTheme.putihFull,
                       ),
                     ),
                   ],
@@ -47,13 +47,13 @@ class LoginScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppTheme.putihFull,
                   ),
                 ),
                 const SizedBox(height: 4),
                 const Text(
                   'Login untuk mengakses sistem Jawara.',
-                  style: TextStyle(fontSize: 14, color: Colors.white70),
+                  style: TextStyle(fontSize: 14, color: AppTheme.putih),
                 ),
                 const SizedBox(height: 30),
 
@@ -67,7 +67,7 @@ class LoginScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(15),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: AppTheme.abu.withOpacity(0.2),
                           spreadRadius: 1,
                           blurRadius: 10,
                           offset: const Offset(0, 5),
@@ -82,7 +82,7 @@ class LoginScreen extends StatelessWidget {
                           child: Text(
                             'Masuk ke akun anda',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 22,
                               fontWeight: FontWeight.bold,
                               color: AppTheme.primaryBlue,
                             ),
@@ -95,19 +95,31 @@ class LoginScreen extends StatelessWidget {
                           'Email',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                            fontSize: 18,
                             color: AppTheme.primaryBlue,
                           ),
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
+                          style: const TextStyle(
+                            color: AppTheme.hitam,
+                            fontSize: 16,
+                          ),
                           decoration: InputDecoration(
                             hintText: 'Masukkan email disini',
+                            hintStyle: const TextStyle(
+                              color: AppTheme.abu,
+                              fontSize: 16,
+                            ),
                             filled: true,
-                            fillColor: Colors.white,
+                            fillColor: AppTheme.putih,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(color: AppTheme.abu),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -125,25 +137,36 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
 
-                        // Input Password
+                        // Input Email
                         const Text(
                           'Password',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                            fontSize: 18,
                             color: AppTheme.primaryBlue,
                           ),
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
-                          obscureText: true,
+                          style: const TextStyle(
+                            color: AppTheme.hitam,
+                            fontSize: 16,
+                          ),
                           decoration: InputDecoration(
                             hintText: 'Masukkan password disini',
+                            hintStyle: const TextStyle(
+                              color: AppTheme.abu,
+                              fontSize: 16,
+                            ),
                             filled: true,
-                            fillColor: Colors.white,
+                            fillColor: AppTheme.putih,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(color: AppTheme.abu),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -157,8 +180,9 @@ class LoginScreen extends StatelessWidget {
                               vertical: 12,
                             ),
                           ),
+                          keyboardType: TextInputType.emailAddress,
                         ),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 20),
 
                         // Tombol Login
                         SizedBox(
@@ -181,7 +205,7 @@ class LoginScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: AppTheme.putihFull,
                               ),
                             ),
                           ),
@@ -195,7 +219,7 @@ class LoginScreen extends StatelessWidget {
                             children: <Widget>[
                               const Text(
                                 'Belum punya akun? ',
-                                style: TextStyle(color: AppTheme.primaryBlue),
+                                style: TextStyle(color: AppTheme.hitam),
                               ),
                               GestureDetector(
                                 onTap: () {

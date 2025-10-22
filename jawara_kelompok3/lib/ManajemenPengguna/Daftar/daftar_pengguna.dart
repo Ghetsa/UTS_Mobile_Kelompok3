@@ -15,17 +15,19 @@ class User {
   final String nik;
   final String noHp;
   final String jenisKelamin;
+  final String? fotoIdentitas;
 
   User(
     this.no,
     this.nama,
     this.email,
-    this.statusRegistrasi, {
-    this.role = "Warga",
-    this.nik = "Tidak Tersedia",
-    this.noHp = "08XXXXXXXXXX",
-    this.jenisKelamin = "Tidak Tersedia",
-  });
+    this.statusRegistrasi,
+    this.role,
+    this.nik,
+    this.noHp,
+    this.jenisKelamin,
+    this.fotoIdentitas,
+  );
 }
 
 class DaftarPenggunaPage extends StatefulWidget {
@@ -38,22 +40,116 @@ class DaftarPenggunaPage extends StatefulWidget {
 class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
   // Data dummy pengguna
   List<User> _userData = [
-    User(1, "Bila", "bila@gmail.com", "Diterima",
-        role: "Bendahara",
-        noHp: "089723212412",
-        nik: "3273xxxxxxxxxxxx",
-        jenisKelamin: "Perempuan"),
-    User(2, "Ijat 4", "ijat4@gmail.com", "Diterima"),
-    User(3, "Ijat 3", "ijat3@gmail.com", "Diterima"),
-    User(4, "Ijat 2", "ijat2@gmail.com", "Diterima"),
-    User(5, "Ijat 1", "ijat1@gmail.com", "Diterima"),
-    User(6, "Afifah Khorunnisa", "afifah@gmail.com", "Diterima"),
-    User(7, "Raudhif Firdaus Naufal", "raudhif@gmail.com", "Diterima"),
-    User(8, "ASDOPAR", "asdopar@gmail.com", "Diterima"),
-    User(9, "FAJRUL", "fajrul@gmail.com", "Diterima"),
-    User(10, "Mara Nunez", "mara@mailinator.com", "Diterima"),
-    User(11, "Habibie Ed Dien", "habibie.tk@gmail.com", "Diterima"),
-    User(12, "Admin Jawara", "admin1@mailinator.com", "Diterima"),
+    User(
+      1,
+      "Bila",
+      "bila@gmail.com",
+      "Diterima",
+      "Bendahara",
+      "3273012345678901",
+      "089723212412",
+      "Perempuan",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      2,
+      "Ijat 4",
+      "ijat4@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678902",
+      "081234567890",
+      "Laki-laki",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      3,
+      "Ijat 3",
+      "ijat3@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678903",
+      "081234567891",
+      "Laki-laki",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      4,
+      "Ijat 2",
+      "ijat2@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678904",
+      "081234567892",
+      "Laki-laki",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      5,
+      "Ijat 1",
+      "ijat1@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678905",
+      "081234567893",
+      "Laki-laki",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      6,
+      "Afifah Khorunnisa",
+      "afifah@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678906",
+      "081234567894",
+      "Perempuan",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      7,
+      "Raudhif Firdaus Naufal",
+      "raudhif@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678907",
+      "081234567895",
+      "Laki-laki",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      8,
+      "ASDOPAR",
+      "asdopar@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678908",
+      "081234567896",
+      "Laki-laki",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      9,
+      "FAJRUL",
+      "fajrul@gmail.com",
+      "Diterima",
+      "Warga",
+      "3273012345678909",
+      "081234567897",
+      "Laki-laki",
+      "assets/images/gambar1.jpg",
+    ),
+    User(
+      10,
+      "Mara Nunez",
+      "mara@mailinator.com",
+      "Diterima",
+      "Warga",
+      "3273012345678910",
+      "081234567898",
+      "Perempuan",
+      "assets/images/gambar1.jpg",
+    ),
   ];
 
   // Filter & search
@@ -123,7 +219,9 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
               title: const Text('Filter Pengguna',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primaryBlue)),
               content: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,36 +231,73 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                     const SizedBox(height: 6),
                     TextField(
                       controller: searchCtrl,
+                      style: TextStyle(
+                        color: AppTheme.hitam,
+                      ),
                       decoration: InputDecoration(
-                        hintText: "Cari nama...",
+                        hintText: "Cari nama",
+                        hintStyle: TextStyle(
+                          color: AppTheme.abu,
+                        ),
                         filled: true,
-                        fillColor: AppTheme.lightBlue.withOpacity(0.2),
+                        fillColor: AppTheme.abu.withOpacity(0.2),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none),
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: AppTheme.abu,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: AppTheme.abu,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: AppTheme.primaryBlue,
+                            width: 1.5,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 14),
                       ),
                     ),
                     const SizedBox(height: 14),
                     const Text("Status",
                         style: TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 6),
-                    DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        value: _selectedStatusFilter,
-                        hint: const Text('-- Pilih Status --'),
-                        items: const [
-                          DropdownMenuItem(
-                              value: 'Semua', child: Text('Semua')),
-                          DropdownMenuItem(
-                              value: 'Diterima', child: Text('Diterima')),
-                          DropdownMenuItem(
-                              value: 'Pending', child: Text('Pending')),
-                          DropdownMenuItem(
-                              value: 'Ditolak', child: Text('Ditolak')),
-                        ],
-                        onChanged: (val) =>
-                            setModalState(() => _selectedStatusFilter = val),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.abu.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppTheme.abu),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          isExpanded: true,
+                          value: _selectedStatusFilter,
+                          hint: const Text(
+                            '-- Pilih Status --',
+                            style: TextStyle(color: AppTheme.abu),
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                                value: 'Semua', child: Text('Semua')),
+                            DropdownMenuItem(
+                                value: 'Diterima', child: Text('Diterima')),
+                            DropdownMenuItem(
+                                value: 'Pending', child: Text('Pending')),
+                            DropdownMenuItem(
+                                value: 'Ditolak', child: Text('Ditolak')),
+                          ],
+                          onChanged: (val) =>
+                              setModalState(() => _selectedStatusFilter = val),
+                          dropdownColor: AppTheme.putihFull,
+                          style: const TextStyle(color: AppTheme.hitam),
+                        ),
                       ),
                     ),
                   ],
@@ -175,12 +310,12 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.redMedium,
+                    backgroundColor: AppTheme.redMediumDark,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(50)),
                   ),
                   child: const Text('Reset Filter',
-                      style: TextStyle(color: Colors.white)),
+                      style: TextStyle(color: AppTheme.putihFull)),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -190,12 +325,12 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryGreen,
+                    backgroundColor: AppTheme.greenDark,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(50)),
                   ),
                   child: const Text('Terapkan',
-                      style: TextStyle(color: Colors.white)),
+                      style: TextStyle(color: AppTheme.putihFull)),
                 ),
               ],
             );
@@ -209,13 +344,13 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Diterima':
-        return AppTheme.greenMedium;
+        return AppTheme.greenMediumDark;
       case 'Menunggu Persetujuan':
         return AppTheme.yellowMediumDark;
       case 'Ditolak':
         return AppTheme.redMedium;
       default:
-        return Colors.grey;
+        return AppTheme.abu;
     }
   }
 
@@ -229,7 +364,7 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
         return Wrap(
           children: [
             ListTile(
-              leading: const Icon(Icons.info, color: Colors.blue),
+              leading: const Icon(Icons.info, color: AppTheme.blueMedium),
               title: const Text('Lihat Detail'),
               onTap: () {
                 Navigator.pop(context);
@@ -240,7 +375,7 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.edit, color: Colors.orange),
+              leading: const Icon(Icons.edit, color: AppTheme.yellowMedium),
               title: const Text('Edit'),
               onTap: () {
                 Navigator.pop(context);
@@ -251,11 +386,44 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
+              leading: const Icon(Icons.delete, color: AppTheme.redMedium),
               title: const Text('Hapus'),
               onTap: () {
                 Navigator.pop(context);
-                setState(() => _userData.remove(user));
+                // Konfirmasi sebelum menghapus
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Konfirmasi'),
+                      content: Text(
+                          'Apakah Anda yakin ingin menghapus pengguna "${user.nama}"?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text(
+                            'Batal',
+                            style: TextStyle(color: AppTheme.hitam),
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.redMedium,
+                          ),
+                          onPressed: () {
+                            setState(() => _userData.remove(user));
+                            _filterData();
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            'Hapus',
+                            style: TextStyle(color: AppTheme.putihFull),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
             ),
           ],
@@ -282,7 +450,8 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
       backgroundColor: AppTheme.backgroundBlueWhite,
       appBar: AppBar(
         title: const Text('Daftar Pengguna',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            style: TextStyle(
+                color: AppTheme.putihFull, fontWeight: FontWeight.bold)),
         backgroundColor: AppTheme.primaryBlue,
         elevation: 3,
       ),
@@ -303,12 +472,12 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                       icon: const Icon(Icons.filter_alt),
                       label: const Text("Filter Pengguna"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryGreen,
+                        backgroundColor: AppTheme.yellowDark,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 10),
+                            horizontal: 20, vertical: 25),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
+                            borderRadius: BorderRadius.circular(100)),
                       ),
                     ),
                   ],
@@ -319,7 +488,7 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                         child: Padding(
                           padding: EdgeInsets.all(40),
                           child: Text('Tidak ada pengguna yang sesuai.',
-                              style: TextStyle(color: Colors.grey)),
+                              style: TextStyle(color: AppTheme.abu)),
                         ),
                       )
                     : Column(
@@ -391,11 +560,11 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.putihFull,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                  color: Colors.grey.shade200,
+                  color: AppTheme.abu,
                   blurRadius: 6,
                   offset: const Offset(0, 3))
             ],
@@ -404,10 +573,10 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             leading: CircleAvatar(
-              backgroundColor: AppTheme.primaryBlue.withOpacity(0.8),
+              backgroundColor: AppTheme.primaryBlue,
               child: Text(user.no.toString(),
                   style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
+                      color: AppTheme.putihFull, fontWeight: FontWeight.bold)),
             ),
             title: Text(user.nama,
                 maxLines: 2,
@@ -419,7 +588,7 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                 const SizedBox(height: 4),
                 Text(user.email,
                     style: const TextStyle(
-                        color: AppTheme.primaryGreen, fontSize: 12)),
+                        color: AppTheme.blueMediumLight, fontSize: 12)),
                 const SizedBox(height: 4),
                 Container(
                   padding:
@@ -463,14 +632,16 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: _currentPage == i
                     ? AppTheme.primaryBlue
-                    : Colors.grey.shade300,
+                    : AppTheme.putihFull,
                 minimumSize: const Size(36, 36),
                 padding: EdgeInsets.zero,
               ),
               onPressed: () => setState(() => _currentPage = i),
               child: Text('${i + 1}',
                   style: TextStyle(
-                      color: _currentPage == i ? Colors.white : Colors.black)),
+                      color: _currentPage == i
+                          ? AppTheme.putihFull
+                          : AppTheme.hitam)),
             ),
           );
         }),

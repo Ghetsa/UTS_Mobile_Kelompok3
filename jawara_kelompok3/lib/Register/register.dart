@@ -10,11 +10,6 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  static const Color primaryDark = AppTheme.primaryBlue;
-  static const Color accentGold = Color(0xFFC7B68D);
-  static const Color textColor = AppTheme.primaryBlue;
-  static const Color secondaryText = Color(0xFF666666);
-
   // Variabel state input user
   String? _selectedFileName;
   String? _selectedAddressOption;
@@ -57,24 +52,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
             style: TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 14,
-              color: textColor,
+              color: AppTheme.primaryBlue,
             )),
         const SizedBox(height: 6),
         TextFormField(
           obscureText: obscureText,
-          style: TextStyle(color: textColor),
+          style: TextStyle(color: AppTheme.hitam),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 14),
-            fillColor: Colors.grey.shade50,
+            hintStyle: TextStyle(color: AppTheme.abu, fontSize: 14),
+            fillColor: AppTheme.putih,
             filled: true,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderSide: BorderSide(color: AppTheme.putih),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: AppTheme.abu),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: primaryDark, width: 2),
+              borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2),
             ),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -100,27 +99,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
             style: TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 14,
-              color: textColor,
+              color: AppTheme.primaryBlue,
             )),
         const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: Colors.grey.shade50,
+            color: AppTheme.putih,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: AppTheme.putih),
           ),
           child: DropdownButtonFormField<String>(
             value: selectedValue,
-            decoration: const InputDecoration(border: InputBorder.none),
             isExpanded: true,
-            hint: Text(hint,
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppTheme.putih,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: AppTheme.abu),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: AppTheme.abu),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2),
+              ),
+            ),
+            hint:
+                Text(hint, style: TextStyle(color: AppTheme.abu, fontSize: 14)),
             items: items
                 .map((value) => DropdownMenuItem(
                       value: value,
                       child: Text(value,
-                          style: TextStyle(color: textColor, fontSize: 14)),
+                          style:
+                              TextStyle(color: AppTheme.hitam, fontSize: 14)),
                     ))
                 .toList(),
             onChanged: onChanged,
@@ -138,7 +155,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       children: [
         Text(label,
             style: TextStyle(
-                fontWeight: FontWeight.w600, fontSize: 14, color: textColor)),
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: AppTheme.primaryBlue)),
         const SizedBox(height: 6),
         InkWell(
           onTap: _pickFile,
@@ -147,12 +166,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: AppTheme.putih,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: primaryDark, width: 1.2),
+              border: Border.all(color: AppTheme.abu, width: 1.2),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: AppTheme.primaryBlue.withOpacity(0.05),
                   blurRadius: 6,
                   offset: const Offset(0, 3),
                 )
@@ -165,7 +184,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   _selectedFileName != null
                       ? Icons.check_circle
                       : Icons.upload_file,
-                  color: _selectedFileName != null ? primaryDark : accentGold,
+                  color: _selectedFileName != null
+                      ? AppTheme.greenDark
+                      : AppTheme.redDark,
                   size: 22,
                 ),
                 const SizedBox(width: 10),
@@ -176,8 +197,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: _selectedFileName != null
-                          ? textColor
-                          : primaryDark.withOpacity(0.9),
+                          ? AppTheme.hitam
+                          : AppTheme.hitam.withOpacity(0.9),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
@@ -222,7 +243,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Text(
                 'Kalau tidak ada di daftar, silakan isi alamat rumah di bawah ini',
                 style: TextStyle(
-                    color: secondaryText,
+                    color: AppTheme.abu,
                     fontSize: 12,
                     fontStyle: FontStyle.italic),
               ),
@@ -257,14 +278,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Image.asset('assets/images/Logo_jawara.png',
-                        width: 80, height: 80),
+                        width: 60, height: 60),
                     const SizedBox(width: 8),
-                    const Text(
-                      'Jawara',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                    const Padding(
+                      padding: EdgeInsets.only(top: 25),
+                      child: Text(
+                        'Jawara',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.putihFull,
+                        ),
                       ),
                     ),
                   ],
@@ -281,7 +305,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: AppTheme.primaryBlue.withOpacity(0.1),
                           blurRadius: 12,
                           offset: const Offset(0, 5),
                         ),
@@ -304,7 +328,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const Text(
                           'Lengkapi formulir untuk membuat akun',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 14, color: secondaryText),
+                          style: TextStyle(fontSize: 14, color: AppTheme.hitam),
                         ),
                         const SizedBox(height: 30),
 
@@ -401,7 +425,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text('Sudah punya akun? ',
-                                style: TextStyle(color: secondaryText)),
+                                style: TextStyle(color: AppTheme.hitam)),
                             GestureDetector(
                               onTap: () => Navigator.pushReplacementNamed(
                                   context, '/login'),
@@ -409,6 +433,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 'Masuk',
                                 style: TextStyle(
                                   color: AppTheme.primaryBlue,
+                                  decoration: TextDecoration.underline,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

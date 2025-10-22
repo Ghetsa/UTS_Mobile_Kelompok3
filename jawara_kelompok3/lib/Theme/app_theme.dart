@@ -25,7 +25,8 @@ class AppTheme {
   static const Color blueMedium = Color.fromARGB(255, 84, 149, 255); // Biru sedang
   static const Color blueMediumDark = Color.fromARGB(255, 34, 103, 213); // Biru sedang
   static const Color blueDark = Color(0xFF1E40AF); // Biru gelap (lebih pekat)
-  static const Color blueSuperDark = Color.fromARGB(255, 18, 41, 116); // Biru gelap (lebih pekat)
+  static const Color blueSuperDark =
+      Color.fromARGB(255, 18, 41, 116); // Biru gelap (lebih pekat)
 
   // === Gradasi kuning-oranye tambahan ===
   static const Color yellowSuperLight = Color.fromARGB(255, 255, 249, 240); // Kuning sangat lembut (hampir putih)
@@ -38,32 +39,50 @@ class AppTheme {
   static const Color yellowSuperDark = Color.fromARGB(255, 165, 87, 8); // Oranye sangat tua (gelap ke coklat)
 
   // === Gradasi merah tambahan ===
-  static const Color redExtraLight = Color.fromARGB(255, 255, 228, 230); // Merah sangat lembut (hampir pink muda)
-  static const Color redLight = Color.fromARGB(255, 255, 186, 193); // Merah terang lembut
-  static const Color redMediumLight = Color.fromARGB(255, 255, 138, 148); // Merah sedang terang
-  static const Color redMedium = Color.fromARGB(255, 239, 68, 68); // Merah utama (cerah dan kuat)
-  static const Color redMediumDark = Color.fromARGB(255, 200, 30, 30); // Merah agak tua
+  static const Color redExtraLight = Color.fromARGB(
+      255, 255, 228, 230); // Merah sangat lembut (hampir pink muda)
+  static const Color redLight =
+      Color.fromARGB(255, 255, 186, 193); // Merah terang lembut
+  static const Color redMediumLight =
+      Color.fromARGB(255, 255, 138, 148); // Merah sedang terang
+  static const Color redMedium =
+      Color.fromARGB(255, 239, 68, 68); // Merah utama (cerah dan kuat)
+  static const Color redMediumDark =
+      Color.fromARGB(255, 200, 30, 30); // Merah agak tua
   static const Color redDark = Color(0xFF991B1B); // Merah tua pekat
-  static const Color redSuperDark = Color.fromARGB(255, 69, 10, 10); // Merah sangat tua (hampir marun gelap)
+  static const Color redSuperDark =
+      Color.fromARGB(255, 69, 10, 10); // Merah sangat tua (hampir marun gelap)
 
   // === Gradasi hijau tambahan ===
-  static const Color greenExtraLight = Color.fromARGB(255, 204, 247, 218); // Hijau sangat lembut (hampir putih)
-  static const Color greenLight = Color.fromARGB(255, 166, 232, 189); // Hijau terang
-  static const Color greenMediumLight = Color.fromARGB(255, 120, 210, 155); // Hijau sedang terang
-  static const Color greenMedium = Color.fromARGB(255, 76, 187, 123); // Hijau sedang (netral)
-  static const Color greenMediumDark = Color.fromARGB(255, 34, 153, 84); // Hijau agak tua (stabil)
+  static const Color greenExtraLight =
+      Color.fromARGB(255, 204, 247, 218); // Hijau sangat lembut (hampir putih)
+  static const Color greenLight =
+      Color.fromARGB(255, 166, 232, 189); // Hijau terang
+  static const Color greenMediumLight =
+      Color.fromARGB(255, 120, 210, 155); // Hijau sedang terang
+  static const Color greenMedium =
+      Color.fromARGB(255, 76, 187, 123); // Hijau sedang (netral)
+  static const Color greenMediumDark =
+      Color.fromARGB(255, 34, 153, 84); // Hijau agak tua (stabil)
   static const Color greenDark = Color(0xFF166534); // Hijau tua (lebih pekat)
-  static const Color greenSuperDark = Color.fromARGB(255, 9, 44, 22); // Hijau sangat tua (hampir hitam kehijauan)
+  static const Color greenSuperDark = Color.fromARGB(
+      255, 9, 44, 22); // Hijau sangat tua (hampir hitam kehijauan)
 
   // === Warna tambahan (hijau) ===
-  static const Color primaryGreen = Color(0xFF065F46); // Hijau tua (teks / aksen)
-  static const Color lightGreen = Color(0xFFD1FAE5); // Hijau muda (latar lembut)
+  static const Color primaryGreen =
+      Color(0xFF065F46); // Hijau tua (teks / aksen)
+  static const Color lightGreen =
+      Color(0xFFD1FAE5); // Hijau muda (latar lembut)
 
   // === Warna kontras dan cerah ===
-  static const Color purpleDeep = Color(0xFFAC25EB); // Ungu tua cerah (tombol Filter)
-  static const Color pinkPinky = Color(0xFFE010AC); // Pink fuchsia terang (tombol Tambah)
-  static const Color orangeDeep = Color(0xFFE07410); // Oranye dalam (aksen atau peringatan)
-  static const Color orangeAccent = Color(0xFFFFA500); // Oranye terang aksen (lebih cerah)
+  static const Color purpleDeep =
+      Color(0xFFAC25EB); // Ungu tua cerah (tombol Filter)
+  static const Color pinkPinky =
+      Color(0xFFE010AC); // Pink fuchsia terang (tombol Tambah)
+  static const Color orangeDeep =
+      Color(0xFFE07410); // Oranye dalam (aksen atau peringatan)
+  static const Color orangeAccent =
+      Color(0xFFFFA500); // Oranye terang aksen (lebih cerah)
 
   // === Palet tambahan (biru & ungu) ===
   static const Color violetSoft = Color(0xFF7C3AED);
@@ -78,6 +97,12 @@ class AppTheme {
   static const Color yellowBright = Color(0xFFFACC15); // Kuning cerah
   static const Color orangeSoft = Color(0xFFFFEDD5); // Oranye pastel lembut
 
+  // == Pallet tambahan (coklat & hitam) ==
+  static const Color hitam = Color.fromARGB(255, 0, 0, 0);
+  static const Color abu = Color.fromARGB(255, 185, 180, 180);
+  static const Color putih = Color.fromARGB(255, 252, 252, 252);
+  static const Color putihFull = Color.fromARGB(255, 255, 255, 255);
+
   // === Tema umum aplikasi ===
   static ThemeData get lightTheme {
     return ThemeData(
@@ -88,13 +113,10 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-
       drawerTheme: const DrawerThemeData(
         backgroundColor: lightBlue,
       ),
-
       iconTheme: const IconThemeData(color: primaryBlue),
-
       colorScheme: const ColorScheme.light(
         primary: primaryBlue,
         secondary: lightBlue,

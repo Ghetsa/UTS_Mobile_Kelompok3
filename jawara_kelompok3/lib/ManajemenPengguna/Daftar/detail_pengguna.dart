@@ -37,10 +37,10 @@ class DetailPenggunaPage extends StatelessWidget {
           "Detail Pengguna",
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AppTheme.putihFull,
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: AppTheme.putihFull),
       ),
 
       // Konten body
@@ -52,25 +52,11 @@ class DetailPenggunaPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Tombol Kembali
-                TextButton.icon(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back, color: AppTheme.primaryBlue),
-                  label: const Text(
-                    "Kembali",
-                    style: TextStyle(
-                      color: AppTheme.primaryBlue,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
                 // Card detail pengguna
                 Card(
                   elevation: 8,
                   shadowColor: AppTheme.blueExtraLight,
-                  color: Colors.white,
+                  color: AppTheme.putihFull,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -103,7 +89,7 @@ class DetailPenggunaPage extends StatelessWidget {
                               child: Icon(
                                 Icons.person,
                                 size: 35,
-                                color: Colors.white,
+                                color: AppTheme.putihFull,
                               ),
                             ),
                             const SizedBox(width: 20),
@@ -123,7 +109,7 @@ class DetailPenggunaPage extends StatelessWidget {
                                   user.role,
                                   style: TextStyle(
                                     fontSize: 14,
-                                    color: Colors.grey[600],
+                                    color: AppTheme.hitam,
                                   ),
                                 ),
                               ],
@@ -141,6 +127,28 @@ class DetailPenggunaPage extends StatelessWidget {
                           "Status Registrasi",
                           user.statusRegistrasi,
                           statusColor: _getStatusColor(user.statusRegistrasi),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Foto identitas
+                        const Text(
+                          "Foto Identitas:",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87),
+                        ),
+                        const SizedBox(height: 8),
+                        Center(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.asset(
+                              user.fotoIdentitas ?? 'assets/images/gambar1.jpg',
+                              width: double.infinity,
+                              height: 250,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -174,7 +182,7 @@ class DetailPenggunaPage extends StatelessWidget {
     );
   }
 
-  // Widget pembantu untuk menampilkan satu baris detail 
+  // Widget pembantu untuk menampilkan satu baris detail
   Widget _buildDetailRow(String label, String value, {Color? statusColor}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15.0),
@@ -197,16 +205,17 @@ class DetailPenggunaPage extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: AppTheme.lightBlue,
+              color: AppTheme.lightBlue.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.blueLight, width: 1),
+              border: Border.all(color: AppTheme.lightBlue, width: 1),
             ),
             child: Text(
               value,
               style: TextStyle(
                 fontSize: 15,
-                fontWeight: statusColor != null ? FontWeight.bold : FontWeight.normal,
-                color: statusColor ?? AppTheme.primaryBlue,
+                fontWeight:
+                    statusColor != null ? FontWeight.bold : FontWeight.normal,
+                color: statusColor ?? AppTheme.hitam,
               ),
             ),
           ),

@@ -20,6 +20,7 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
       'tipe': 'ewallet',
       'a/n': '23234',
       'thumbnail': 'assets/images/gambar1.jpg',
+      'qr': 'assets/images/gambar1.jpg',
     },
     {
       'no': '2',
@@ -27,6 +28,7 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
       'tipe': 'bank',
       'a/n': 'RT Jawara Karangploso',
       'thumbnail': 'assets/images/gambar1.jpg',
+      'qr': 'assets/images/gambar1.jpg',
     },
     {
       'no': '3',
@@ -34,6 +36,7 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
       'tipe': 'ewallet',
       'a/n': 'Budi Santoso',
       'thumbnail': 'assets/images/gambar1.jpg',
+      'qr': 'assets/images/gambar1.jpg',
     },
     {
       'no': '4',
@@ -41,6 +44,7 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
       'tipe': 'qris',
       'a/n': 'RW 08 Karangploso',
       'thumbnail': 'assets/images/gambar1.jpg',
+      'qr': 'assets/images/gambar1.jpg',
     },
   ];
 
@@ -72,38 +76,64 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
         return Wrap(
           children: [
             ListTile(
-              leading: const Icon(Icons.info, color: Colors.blue),
+              leading: const Icon(Icons.info, color: AppTheme.blueMedium),
               title: const Text('Lihat Detail'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => DetailChannelPage(channel: channel),
-                      )
-                  );
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DetailChannelPage(channel: channel),
+                  ),
+                );
               },
             ),
             ListTile(
-              leading: const Icon(Icons.edit, color: Colors.orange),
+              leading: const Icon(Icons.edit, color: AppTheme.yellowMedium),
               title: const Text('Edit'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => EditChannelPage(channel: channel),
-                    )
+                    builder: (_) => EditChannelPage(channel: channel),
+                  ),
                 );
-                
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
+              leading: const Icon(Icons.delete, color: AppTheme.redMedium),
               title: const Text('Hapus'),
               onTap: () {
-                Navigator.pop(context);
-                setState(() => channelData.remove(channel));
+                Navigator.pop(context); // tutup bottom sheet terlebih dahulu
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Konfirmasi Hapus'),
+                    content: const Text(
+                        'Apakah Anda yakin ingin menghapus channel ini?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context), // batal
+                        child: const Text('Batal'),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.redMedium, // tombol merah
+                        ),
+                        onPressed: () {
+                          setState(
+                              () => channelData.remove(channel)); // hapus data
+                          Navigator.pop(context); // tutup dialog
+                        },
+                        child: const Text(
+                          'Hapus',
+                          style: TextStyle(color: AppTheme.putihFull),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
               },
             ),
           ],
@@ -160,12 +190,12 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.redMedium,
+                    backgroundColor: AppTheme.redMediumDark,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(50)),
                   ),
                   child: const Text('Reset Filter',
-                      style: TextStyle(color: Colors.white)),
+                      style: TextStyle(color: AppTheme.putihFull)),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -173,12 +203,12 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryGreen,
+                    backgroundColor: AppTheme.greenDark,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(50)),
                   ),
                   child: const Text('Terapkan',
-                      style: TextStyle(color: Colors.white)),
+                      style: TextStyle(color: AppTheme.putihFull)),
                 ),
               ],
             );
@@ -212,7 +242,8 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
         elevation: 3,
         title: const Text(
           "Daftar Channel Transfer",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style:
+              TextStyle(color: AppTheme.putihFull, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -233,10 +264,10 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
                     label: const Text('Filter',
                         style: TextStyle(fontWeight: FontWeight.w600)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryGreen,
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppTheme.yellowMediumDark,
+                      foregroundColor: AppTheme.putihFull,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                          borderRadius: BorderRadius.circular(100)),
                     ),
                   ),
                 ),
@@ -248,7 +279,7 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
                           padding: EdgeInsets.all(40),
                           child: Text(
                             'Tidak ada channel tersedia.',
-                            style: TextStyle(color: Colors.grey),
+                            style: TextStyle(color: AppTheme.abu),
                           ),
                         ),
                       )
@@ -275,7 +306,7 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _currentPage == i
                                 ? AppTheme.primaryBlue
-                                : Colors.grey.shade300,
+                                : AppTheme.putih,
                             minimumSize: const Size(36, 36),
                             padding: EdgeInsets.zero,
                           ),
@@ -284,8 +315,8 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
                             '${i + 1}',
                             style: TextStyle(
                                 color: _currentPage == i
-                                    ? Colors.white
-                                    : Colors.black),
+                                    ? AppTheme.putihFull
+                                    : AppTheme.hitam),
                           ),
                         ),
                       );
@@ -317,7 +348,7 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
           fontWeight: FontWeight.bold,
           color: AppTheme.primaryBlue,
         ),
-        dataRowColor: MaterialStateProperty.all(Colors.white),
+        dataRowColor: MaterialStateProperty.all(AppTheme.putihFull),
         columns: const [
           DataColumn(label: Text('No')),
           DataColumn(label: Text('Nama')),
@@ -359,13 +390,13 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
       itemBuilder: (context, index) {
         final item = paginatedData[index];
         return Container(
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: const EdgeInsets.only(bottom: 20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.putihFull,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                  color: Colors.grey.shade200,
+                  color: AppTheme.putih,
                   blurRadius: 6,
                   offset: const Offset(0, 3)),
             ],
@@ -374,10 +405,10 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             leading: CircleAvatar(
-              backgroundColor: AppTheme.primaryBlue.withOpacity(0.8),
+              backgroundColor: AppTheme.primaryBlue,
               child: Text(item['no']!,
                   style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
+                      color: AppTheme.putihFull, fontWeight: FontWeight.bold)),
             ),
             title: Text(
               item['nama']!,
@@ -398,7 +429,7 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
                 Text(
                   'A/N: ${item['a/n']}',
                   style: const TextStyle(
-                      color: Colors.grey,
+                      color: AppTheme.abu,
                       fontWeight: FontWeight.w500,
                       fontSize: 12),
                 ),

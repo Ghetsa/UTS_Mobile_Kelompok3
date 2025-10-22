@@ -95,17 +95,13 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
         title: const Text("Tambah Channel Transfer",
             style: TextStyle(color: Colors.white)),
         backgroundColor: AppTheme.primaryBlue,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: AppTheme.putihFull),
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        actions: [
-          IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.account_circle), onPressed: () {}),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -196,11 +192,11 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
                         child: ElevatedButton(
                           onPressed: _handleSubmit,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.greenMediumDark,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: AppTheme.greenDark,
+                            foregroundColor: AppTheme.putihFull,
+                            padding: const EdgeInsets.symmetric(vertical: 18),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
+                                borderRadius: BorderRadius.circular(50)),
                           ),
                           child: const Text(
                             "Simpan",
@@ -218,10 +214,10 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
                           onPressed: _handleReset,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.redMediumDark,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            foregroundColor: AppTheme.putihFull,
+                            padding: const EdgeInsets.symmetric(vertical: 18),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
+                                borderRadius: BorderRadius.circular(50)),
                           ),
                           child: const Text(
                             "Reset",
@@ -265,7 +261,7 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
             decoration: InputDecoration(
               hintText: hint,
               filled: true,
-              fillColor: Colors.grey.shade100,
+              fillColor: AppTheme.putih,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none),
@@ -313,7 +309,7 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
             decoration: InputDecoration(
               hintText: hint,
               filled: true,
-              fillColor: Colors.grey.shade100,
+              fillColor: AppTheme.putih,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none),
@@ -364,9 +360,9 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
               height: 70,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: AppTheme.putih,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade400),
+                border: Border.all(color: AppTheme.putih),
               ),
               alignment: Alignment.center,
               child: Row(
@@ -376,8 +372,7 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
                   const SizedBox(width: 10),
                   Flexible(
                       child: Text(hint,
-                          style: TextStyle(
-                              color: Colors.grey.shade600, fontSize: 14))),
+                          style: TextStyle(color: AppTheme.abu, fontSize: 14))),
                 ],
               ),
             ),
@@ -410,7 +405,7 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
             decoration: InputDecoration(
               hintText: hint,
               filled: true,
-              fillColor: Colors.grey.shade100,
+              fillColor: AppTheme.putih,
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               focusedBorder: OutlineInputBorder(

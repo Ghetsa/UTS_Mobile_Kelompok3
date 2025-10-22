@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../Theme/app_theme.dart'; 
+import '../../Theme/app_theme.dart';
 
 class DetailAspirasi extends StatelessWidget {
   final Map<String, String> data;
@@ -9,13 +9,13 @@ class DetailAspirasi extends StatelessWidget {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Diterima':
-        return AppTheme.greenMediumDark; 
+        return AppTheme.greenMediumDark;
       case 'Pending':
-        return AppTheme.yellowMediumDark; 
+        return AppTheme.yellowMediumDark;
       case 'Ditolak':
-        return AppTheme.redMedium; 
+        return AppTheme.redMedium;
       default:
-        return AppTheme.blueDark;
+        return AppTheme.hitam;
     }
   }
 
@@ -23,30 +23,30 @@ class DetailAspirasi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundBlueWhite, 
+      backgroundColor: AppTheme.backgroundBlueWhite,
       appBar: AppBar(
-        backgroundColor: AppTheme.primaryBlue, 
-        elevation: 2, 
-        centerTitle: true, 
+        backgroundColor: AppTheme.primaryBlue,
+        elevation: 2,
+        centerTitle: true,
         title: const Text(
-          "Detail Aspirasi", 
+          "Detail Aspirasi",
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white, 
+            color: AppTheme.putihFull,
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white), 
+        iconTheme: const IconThemeData(color: AppTheme.putihFull),
       ),
 
-      // Card detail aspirasi 
+      // Card detail aspirasi
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Card(
-          elevation: 8, 
-          shadowColor: AppTheme.blueExtraLight, 
-          color: Colors.white, 
+          elevation: 8,
+          shadowColor: AppTheme.blueExtraLight,
+          color: AppTheme.putihFull,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20), 
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -76,7 +76,7 @@ class DetailAspirasi extends StatelessWidget {
                 _buildDetailRow(
                   "Status",
                   data['status'],
-                  statusColor: _getStatusColor(data['status'] ?? ''), 
+                  statusColor: _getStatusColor(data['status'] ?? ''),
                 ),
                 const SizedBox(height: 12),
 
@@ -86,7 +86,7 @@ class DetailAspirasi extends StatelessWidget {
                 _buildDetailRow("Tanggal Dibuat", data['tanggalDibuat']),
                 const SizedBox(height: 8),
 
-                // Garis pemisah 
+                // Garis pemisah
                 const Divider(
                   height: 30,
                   thickness: 1,
@@ -141,17 +141,17 @@ class DetailAspirasi extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-            color: AppTheme.lightBlue,
+            color: AppTheme.backgroundBlueWhite,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: AppTheme.blueLight, width: 1),
           ),
           child: Text(
-            value ?? '-', 
+            value ?? '-',
             style: TextStyle(
               fontSize: 15,
-              color: statusColor ?? AppTheme.primaryBlue, 
+              color: statusColor ?? AppTheme.hitam,
               fontWeight:
-                  statusColor != null ? FontWeight.bold : FontWeight.normal, 
+                  statusColor != null ? FontWeight.bold : FontWeight.normal,
             ),
           ),
         ),

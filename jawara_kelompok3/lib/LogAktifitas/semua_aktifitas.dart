@@ -88,7 +88,7 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
     },
   ];
 
-  // Data hasil filter 
+  // Data hasil filter
   List<Map<String, String>> _filteredActivityData = _allActivityData;
 
   // Variabel filter
@@ -109,7 +109,7 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
     _filterData();
   }
 
-  // Fungsi memfilter data 
+  // Fungsi memfilter data
   void _filterData({
     String? deskripsi,
     String? aktor,
@@ -117,7 +117,7 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
     DateTime? endDate,
   }) {
     setState(() {
-      // Update nilai filter 
+      // Update nilai filter
       _searchDeskripsi = deskripsi ?? _searchDeskripsi;
       _searchAktor = aktor ?? _searchAktor;
       _startDate = startDate ?? _startDate;
@@ -131,7 +131,7 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
         final aktorMatch =
             data['aktor']!.toLowerCase().contains(_searchAktor.toLowerCase());
 
-        // Ubah tanggal 
+        // Ubah tanggal
         final tanggalString = data['tanggal']!;
         DateTime? dataTanggal;
 
@@ -156,7 +156,7 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
         return deskripsiMatch && aktorMatch && dateMatch;
       }).toList();
 
-      _currentPage = 0; 
+      _currentPage = 0;
     });
   }
 
@@ -218,9 +218,9 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
   // Menampilkan modal filter dengan input deskripsi, aktor, dan tanggal
   void _showFilterModal(BuildContext context) {
     final TextEditingController deskripsiCtrl =
-      TextEditingController(text: _searchDeskripsi);
+        TextEditingController(text: _searchDeskripsi);
     final TextEditingController aktorCtrl =
-      TextEditingController(text: _searchAktor);
+        TextEditingController(text: _searchAktor);
 
     showDialog(
       context: context,
@@ -250,63 +250,100 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
 
             return AlertDialog(
               backgroundColor: AppTheme.backgroundBlueWhite,
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               title: const Text(
                 'Filter Aktivitas',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: AppTheme.primaryBlue,
                 ),
               ),
               content: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Deskripsi",
-                        style:
-                            TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    const Text(
+                      "Deskripsi",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: AppTheme.hitam,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     TextField(
                       controller: deskripsiCtrl,
+                      style: TextStyle(color: AppTheme.hitam),
                       decoration: InputDecoration(
                         hintText: "Cari deskripsi...",
+                        hintStyle: TextStyle(color: AppTheme.abu),
                         filled: true,
-                        fillColor: AppTheme.lightBlue.withOpacity(0.2),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none),
+                        fillColor: AppTheme.abu.withOpacity(0.2),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: AppTheme.abu),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                              color: AppTheme.primaryBlue, width: 1.5),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 14),
-                    const Text("Nama Pelaku",
-                        style:
-                            TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    const Text(
+                      "Nama Pelaku",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: AppTheme.hitam,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     TextField(
                       controller: aktorCtrl,
+                      style: TextStyle(color: AppTheme.hitam),
                       decoration: InputDecoration(
                         hintText: "Contoh: Fafa",
+                        hintStyle: TextStyle(color: AppTheme.abu),
                         filled: true,
-                        fillColor: AppTheme.lightBlue.withOpacity(0.2),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none),
+                        fillColor: AppTheme.abu.withOpacity(0.2),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: AppTheme.abu),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                              color: AppTheme.primaryBlue, width: 1.5),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 14),
-                    const Text("Dari Tanggal",
-                        style:
-                            TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    const Text(
+                      "Dari Tanggal",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: AppTheme.hitam,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     InkWell(
                       onTap: () => pickDate(true),
                       child: _buildDateField(localStartDate),
                     ),
                     const SizedBox(height: 14),
-                    const Text("Sampai Tanggal",
-                        style:
-                            TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    const Text(
+                      "Sampai Tanggal",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: AppTheme.hitam,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     InkWell(
                       onTap: () => pickDate(false),
@@ -324,11 +361,11 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.redMediumDark,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(50)),
                   ),
                   child: const Text(
                     'Reset Filter',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: AppTheme.putihFull),
                   ),
                 ),
                 ElevatedButton(
@@ -342,13 +379,13 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryGreen,
+                    backgroundColor: AppTheme.greenDark,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(50)),
                   ),
                   child: const Text(
                     'Terapkan',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: AppTheme.putihFull),
                   ),
                 ),
               ],
@@ -367,14 +404,14 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       decoration: BoxDecoration(
-        color: AppTheme.lightBlue.withOpacity(0.2),
+        color: AppTheme.abu.withOpacity(0.2),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+          const Icon(Icons.calendar_today, size: 16, color: AppTheme.abu),
           const SizedBox(width: 8),
-          Text(text, style: const TextStyle(color: Colors.black87)),
+          Text(text, style: const TextStyle(color: AppTheme.hitam)),
         ],
       ),
     );
@@ -397,29 +434,24 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
     final int totalPages = (_filteredActivityData.length / _rowsPerPage).ceil();
 
     return Scaffold(
-      drawer: const AppSidebar(),
-      backgroundColor: AppTheme.backgroundBlueWhite,
-      appBar: AppBar(
-        backgroundColor: AppTheme.primaryBlue,
-        elevation: 3,
-        title: const Text(
-          'Semua Aktivitas',
-          style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.3),
+        drawer: const AppSidebar(),
+        backgroundColor: AppTheme.backgroundBlueWhite,
+        appBar: AppBar(
+          backgroundColor: AppTheme.primaryBlue,
+          elevation: 3,
+          title: const Text(
+            'Semua Aktivitas',
+            style: TextStyle(
+                color: AppTheme.putihFull,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.3),
+          ),
         ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1100),
-            child: Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
-              color: Colors.white,
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1100),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
@@ -433,8 +465,8 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
                             child: Center(
                               child: Text(
                                 "Tidak ditemukan aktivitas yang sesuai.",
-                                style:
-                                    TextStyle(color: Colors.grey, fontSize: 16),
+                                style: TextStyle(
+                                    color: AppTheme.abu, fontSize: 16),
                               ),
                             ),
                           )
@@ -453,9 +485,7 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
               ),
             ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   // Widget kontrol pagination
@@ -480,7 +510,7 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: _currentPage == i
                     ? AppTheme.primaryBlue
-                    : Colors.grey.shade300,
+                    : AppTheme.putihFull,
                 minimumSize: const Size(36, 36),
                 padding: EdgeInsets.zero,
               ),
@@ -492,7 +522,8 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
               child: Text(
                 '${i + 1}',
                 style: TextStyle(
-                  color: _currentPage == i ? Colors.white : Colors.black,
+                  color:
+                      _currentPage == i ? AppTheme.putihFull : AppTheme.hitam,
                 ),
               ),
             ),
@@ -522,11 +553,11 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
           icon: const Icon(Icons.filter_alt),
           label: const Text("Filter Aktivitas"),
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.primaryGreen,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            backgroundColor: AppTheme.yellowDark,
+            foregroundColor: AppTheme.putihFull,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(100)),
           ),
         ),
       ],
@@ -543,7 +574,7 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
         headingRowColor:
             MaterialStateProperty.all(AppTheme.lightBlue.withOpacity(0.3)),
         dataRowColor: MaterialStateProperty.all(AppTheme.backgroundBlueWhite),
-        border: TableBorder.all(color: Colors.grey.shade200),
+        border: TableBorder.all(color: AppTheme.putihFull),
         columns: const [
           DataColumn(label: Text('No')),
           DataColumn(label: Text('Deskripsi')),
@@ -569,38 +600,37 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
   Widget _buildMobileActivityList(
       BuildContext context, List<Map<String, String>> paginatedData) {
     return ListView.builder(
-      physics:
-          const NeverScrollableScrollPhysics(), 
-      shrinkWrap: true, 
-      itemCount: paginatedData.length, 
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: paginatedData.length,
       itemBuilder: (context, index) {
-        final data = paginatedData[index]; 
+        final data = paginatedData[index];
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 12), 
+          margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12), 
+            color: AppTheme.putihFull,
+            borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                  color: Colors.grey.shade200,
+                  color: AppTheme.hitam.withOpacity(0.2),
                   blurRadius: 6,
-                  offset: const Offset(0, 3)), 
+                  offset: const Offset(0, 3)),
             ],
           ),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: AppTheme.primaryBlue.withOpacity(0.8),
+              backgroundColor: AppTheme.primaryBlue,
               child: Text(
                 data['no']!,
                 style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold),
+                    color: AppTheme.putihFull, fontWeight: FontWeight.bold),
               ),
             ),
             title: Text(
-              data['deskripsi']!, 
-              maxLines: 2, 
-              overflow: TextOverflow.ellipsis, 
+              data['deskripsi']!,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
             ),
             subtitle: Column(
@@ -608,20 +638,21 @@ class _SemuaAktifitasPageState extends State<SemuaAktifitasPage> {
               children: [
                 const SizedBox(height: 4),
                 Text(
-                  data['aktor']!, 
+                  data['aktor']!,
                   style: const TextStyle(
-                      color: AppTheme.primaryGreen,
+                      color: AppTheme.yellowMediumDark,
                       fontWeight: FontWeight.w500,
                       fontSize: 12),
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                    const Icon(Icons.access_time,
+                        size: 14, color: AppTheme.abu),
                     const SizedBox(width: 4),
                     Text(
-                      data['tanggal']!, 
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                      data['tanggal']!,
+                      style: const TextStyle(color: AppTheme.abu, fontSize: 12),
                     ),
                   ],
                 ),

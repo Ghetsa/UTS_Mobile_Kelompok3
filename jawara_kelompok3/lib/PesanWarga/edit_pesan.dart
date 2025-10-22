@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../Theme/app_theme.dart'; 
+import '../../Theme/app_theme.dart';
 
 class EditAspirasi extends StatefulWidget {
-  final Map<String, String> data; 
+  final Map<String, String> data;
   const EditAspirasi({super.key, required this.data});
 
   @override
@@ -12,7 +12,7 @@ class EditAspirasi extends StatefulWidget {
 class _EditAspirasiState extends State<EditAspirasi> {
   late TextEditingController judulController;
   late TextEditingController deskripsiController;
-  String? selectedStatus; 
+  String? selectedStatus;
 
   final List<String> statusList = [
     'Pending',
@@ -20,7 +20,7 @@ class _EditAspirasiState extends State<EditAspirasi> {
     'Ditolak',
   ];
 
-  // Inisialisasi data awal 
+  // Inisialisasi data awal
   @override
   void initState() {
     super.initState();
@@ -29,7 +29,7 @@ class _EditAspirasiState extends State<EditAspirasi> {
     selectedStatus = widget.data['status'];
   }
 
-  // Membersihkan controller 
+  // Membersihkan controller
   @override
   void dispose() {
     judulController.dispose();
@@ -60,8 +60,7 @@ class _EditAspirasiState extends State<EditAspirasi> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          AppTheme.backgroundBlueWhite, 
+      backgroundColor: AppTheme.backgroundBlueWhite,
       appBar: AppBar(
         backgroundColor: AppTheme.primaryBlue,
         elevation: 2,
@@ -70,17 +69,17 @@ class _EditAspirasiState extends State<EditAspirasi> {
           "Edit Aspirasi",
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AppTheme.putihFull,
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: AppTheme.putihFull),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Card(
           elevation: 8,
           shadowColor: AppTheme.blueExtraLight,
-          color: Colors.white,
+          color: AppTheme.putihFull,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -130,17 +129,17 @@ class _EditAspirasiState extends State<EditAspirasi> {
                     label: const Text(
                       "Update",
                       style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBlue,
+                      backgroundColor: AppTheme.greenDark,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(100),
                       ),
                     ),
-                    onPressed: _updateAspirasi, 
+                    onPressed: _updateAspirasi,
                   ),
                 ),
               ],
@@ -158,7 +157,7 @@ class _EditAspirasiState extends State<EditAspirasi> {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 15,
+          fontSize: 16,
           fontWeight: FontWeight.w600,
           color: AppTheme.primaryBlue,
         ),
@@ -173,10 +172,14 @@ class _EditAspirasiState extends State<EditAspirasi> {
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: AppTheme.lightBlue,
+        fillColor: AppTheme.backgroundBlueWhite,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: AppTheme.blueLight, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: AppTheme.blueLight, width: 1.5),
         ),
       ),
     );
@@ -190,10 +193,14 @@ class _EditAspirasiState extends State<EditAspirasi> {
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: AppTheme.lightBlue,
+        fillColor: AppTheme.backgroundBlueWhite,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: AppTheme.blueLight, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: AppTheme.blueLight, width: 1.5),
         ),
       ),
     );
@@ -201,14 +208,14 @@ class _EditAspirasiState extends State<EditAspirasi> {
 
   // Dropdown status aspirasi
   Widget _buildDropdown({
-    required String? value, 
+    required String? value,
     required List<String> items,
-    required String hint, 
-    required Function(String?) onChanged, 
+    required String hint,
+    required Function(String?) onChanged,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.lightBlue,
+        color: AppTheme.backgroundBlueWhite,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppTheme.blueLight, width: 1),
       ),
@@ -217,15 +224,15 @@ class _EditAspirasiState extends State<EditAspirasi> {
         value: value,
         hint: Text(hint),
         isExpanded: true,
-        underline: const SizedBox(), 
+        underline: const SizedBox(),
         borderRadius: BorderRadius.circular(14),
-        onChanged: onChanged, 
+        onChanged: onChanged,
         items: items.map((String item) {
           return DropdownMenuItem(
             value: item,
             child: Text(
               item,
-              style: TextStyle(color: AppTheme.primaryBlue),
+              style: TextStyle(color: AppTheme.hitam),
             ),
           );
         }).toList(),
