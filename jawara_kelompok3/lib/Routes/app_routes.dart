@@ -12,10 +12,11 @@ import '../Dashboard/keuangan.dart';
 import '../Dashboard/kependudukan.dart';
 
 // === Warga dan Rumah ===
-import '../DataWargaDanRumah/Rumah/DaftarRumah.dart';
-import '../DataWargaDanRumah/Rumah/TambahRumah.dart';
-import '../DataWargaDanRumah/Warga/DaftarWarga.dart';
-import '../DataWargaDanRumah/Warga/TambahWarga.dart';
+import '../DataWargaDanRumah/pages/Rumah/DaftarRumah.dart';
+import '../DataWargaDanRumah/pages/Rumah/TambahRumah.dart';
+import '../DataWargaDanRumah/pages/Warga/DaftarWarga.dart';
+import '../DataWargaDanRumah/pages/Warga/TambahWarga.dart';
+import '../DataWargaDanRumah/pages/Keluarga/Keluarga.dart';
 
 // === Menu Utama ===
 import '../LaporanKeuangan/pages/semua_pemasukan_page.dart';
@@ -25,7 +26,12 @@ import '../ManajemenPengguna/manajemen_pengguna.dart';
 import '../ChannelTransfer/channel_transfer.dart';
 import '../LogAktifitas/log_aktifitas.dart';
 import '../PesanWarga/pesan_warga.dart';
-import '../KegiatanDanBroadcast/kegiatan.dart';
+
+// === Kegiatan & Broadcast ===
+import '../KegiatanBroadcast/Kegiatan/daftarKegiatan.dart' as kb_daftar;
+import '../KegiatanBroadcast/Kegiatan/tambahKegiatan.dart' as kb_tambah;
+import '../KegiatanBroadcast/Broadcast/daftarBroadcast.dart' as br_daftar;
+import '../KegiatanBroadcast/Broadcast/tambahBroadcast.dart' as br_tambah;
 
 // === Pemasukan ===
 import '../Pemasukan/kategoriIuran/pages/iuran_page.dart';
@@ -34,6 +40,7 @@ import '../Pemasukan/tagihIuran/tagih_iuran_page.dart';
 import '../Pemasukan/tagihan/tagihan_page.dart';
 import '../Pemasukan/pemasukanLain/daftar_page.dart';
 import '../Pemasukan/pemasukanLain/tambah_page.dart';
+// detail/edit kategori pages are imported where needed in their own modules
 
 // === Pengeluaran ===
 import '../Pengeluaran/Daftar/daftarPengeluaran.dart';
@@ -73,6 +80,7 @@ class AppRoutes {
     '/dashboard/keuangan': (context) => const DashboardKeuanganPage(),
     '/dashboard/kependudukan': (context) => const DashboardKependudukanPage(),
 
+    // === Data Warga & Rumah ===
     // === Data Warga ===
     '/warga/daftar': (context) => const DaftarWargaPage(),
     '/warga/tambah': (context) => const TambahWargaPage(),
@@ -80,6 +88,9 @@ class AppRoutes {
     // === Data Rumah ===
     '/rumah/daftar': (context) => const DaftarRumahPage(),
     '/rumah/tambah': (context) => const TambahRumahPage(),
+    
+    // === Data Keluarga ===
+    '/keluarga': (context) => const DaftarKeluargaPage(),
 
     // === Pemasukan ===
     '/pemasukan/pages/kategori': (context) => const KategoriIuranPage(),
@@ -97,13 +108,14 @@ class AppRoutes {
     '/laporan/cetak': (context) => const CetakLaporanPage(),
 
     // === Pengeluaran ===
-    '/pengeluaran/daftar': (context) =>
-        const PengeluaranDaftarPage(), 
-    '/pengeluaran/tambah': (context) =>
-        const PengeluaranTambahPage(), 
+    '/pengeluaran/daftar': (context) => const PengeluaranDaftarPage(),
+    '/pengeluaran/tambah': (context) => const PengeluaranTambahPage(),
 
     // === Kegiatan & Broadcast ===
-    '/kegiatan': (context) => const KegiatanBroadcastPage(),
+    '/kegiatan/tambah': (context) => const kb_tambah.TambahkegiatanPage(),
+    '/kegiatan/daftar': (context) => const kb_daftar.DaftarkegiatanPage(),
+    '/broadcast/tambah': (context) => const br_tambah.TambahbroadcastPage(),
+    '/broadcast/daftar': (context) => const br_daftar.DaftarbroadcastPage(),
 
     // === Mutasi Keluarga ===
     '/mutasi/daftar': (context) => const DaftarMutasiPage(),

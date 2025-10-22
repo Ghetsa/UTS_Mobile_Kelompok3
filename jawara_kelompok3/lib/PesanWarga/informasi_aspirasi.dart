@@ -255,11 +255,11 @@ class _SemuaAspirasiState extends State<SemuaAspirasi> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Diterima':
-        return AppTheme.greenMedium;
+        return AppTheme.greenMediumDark;
       case 'Pending':
         return AppTheme.yellowMedium;
       case 'Ditolak':
-        return AppTheme.redMedium;
+        return AppTheme.redMediumDark;
       default:
         return AppTheme.abu;
     }

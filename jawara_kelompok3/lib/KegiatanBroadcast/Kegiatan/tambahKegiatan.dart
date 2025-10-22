@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import '../../main.dart';
 import '../../Layout/sidebar.dart';
-import '../../theme/app_theme.dart'; // pastikan path sesuai lokasi AppTheme.dart
+import '../../Theme/app_theme.dart';
 
-class PemasukanLainTambahPage extends StatefulWidget {
-  const PemasukanLainTambahPage({super.key});
+class TambahkegiatanPage extends StatefulWidget {
+  const TambahkegiatanPage({super.key});
 
   @override
-  State<PemasukanLainTambahPage> createState() => _PemasukanLainTambahPageState();
+  State<TambahkegiatanPage> createState() => _TambahKegiatanPageState();
 }
 
-class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
+class _TambahKegiatanPageState extends State<TambahkegiatanPage> {
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _nominalController = TextEditingController();
   DateTime? _selectedDate;
@@ -22,7 +21,7 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Pemasukan Lain - Tambah"),
+        title: const Text("Kegiatan - Tambah"),
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: Colors.white,
       ),
@@ -32,13 +31,14 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
         child: Card(
           elevation: 3,
           color: theme.colorScheme.background,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: ListView(
               children: [
                 Text(
-                  "Buat Pemasukan Non Iuran Baru",
+                  "Buat Kegiatan Baru",
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.primary,
@@ -46,12 +46,12 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Nama pemasukan
+                // Nama pengeluaran
                 TextField(
                   controller: _namaController,
                   decoration: const InputDecoration(
-                    labelText: "Nama Pemasukan",
-                    hintText: "Masukkan nama pemasukan",
+                    labelText: "Nama Kegiatan",
+                    hintText: "Contoh : Rapat Koordinasi",
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -60,7 +60,7 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                 // Tanggal
                 InputDecorator(
                   decoration: const InputDecoration(
-                    labelText: "Tanggal Pemasukan",
+                    labelText: "Tanggal Pengeluaran",
                     border: OutlineInputBorder(),
                   ),
                   child: Row(
@@ -74,7 +74,8 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.calendar_today, color: theme.iconTheme.color),
+                        icon: Icon(Icons.calendar_today,
+                            color: theme.iconTheme.color),
                         onPressed: () async {
                           DateTime? pickedDate = await showDatePicker(
                             context: context,
@@ -98,10 +99,17 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                 DropdownButtonFormField<String>(
                   value: _kategori,
                   decoration: const InputDecoration(
-                    labelText: "Kategori Pemasukan",
+                    labelText: "Kategori Kegiatan",
                     border: OutlineInputBorder(),
                   ),
-                  items: ["Pendapatan Lainnya", "Donasi", "Sumbangan"]
+                  items: [
+                    "Komunitas & Sosial",
+                    "Kebersihan & Keamanan",
+                    "Pendidikan",
+                    "Keagamaan",
+                    "Kesehatan & Olahraga",
+                    "Lainnya"
+                  ]
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                       .toList(),
                   onChanged: (value) {
@@ -112,33 +120,42 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Nominal
+                // Lokasi
                 TextField(
                   controller: _nominalController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: "Nominal",
-                    hintText: "Masukkan nominal pemasukan",
+                    labelText: "Lokasi",
+                    hintText: "Contoh : Balai RT 03",
                     border: OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // Upload bukti
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: theme.colorScheme.secondary),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    "Upload bukti pemasukan (.png/.jpg)",
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.primary,
-                    ),
+                // Penanggung Jawab
+                TextField(
+                  controller: _nominalController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: "Penanggung Jawab",
+                    hintText: "Contoh : Pak RT atau Bu RW",
+                    border: OutlineInputBorder(),
                   ),
                 ),
+                const SizedBox(height: 16),
+
+                // Deskripsi
+                TextField(
+                  controller: _nominalController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: "Deskripsi",
+                    hintText:
+                        "Tuliskan detail event seperti agenda, keperluan, dll",
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                ),      
                 const SizedBox(height: 16),
 
                 // Tombol
@@ -146,10 +163,11 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryBlue,
+                        backgroundColor: theme.colorScheme.primary,
                         foregroundColor: Colors.white,
                       ),
                       onPressed: () {
+                        // Logika simpan
                       },
                       child: const Text("Submit"),
                     ),

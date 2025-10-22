@@ -161,12 +161,18 @@ class _CetakLaporanPageState extends State<CetakLaporanPage> {
                       icon: const Icon(Icons.picture_as_pdf),
                       label: const Text("Download PDF"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryBlue,
+                        backgroundColor: AppTheme.redDark,
                         foregroundColor: Colors.white,
                       ),
                     ),
                     const SizedBox(width: 12),
                     OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.blueSuperDark,
+                        side: const BorderSide(color: AppTheme.blueSuperDark),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                      ),
                       onPressed: _resetForm,
                       child: const Text("Reset"),
                     ),

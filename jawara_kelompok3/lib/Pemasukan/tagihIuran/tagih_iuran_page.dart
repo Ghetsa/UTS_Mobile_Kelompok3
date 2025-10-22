@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../main.dart';
 import '../../Layout/sidebar.dart';
+import '../../theme/app_theme.dart';
 
 class TagihIuranPage extends StatefulWidget {
   const TagihIuranPage({super.key});
@@ -71,15 +72,14 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
                     },
                   ),
                   const SizedBox(height: 20),
-
-                  // Tombol aksi (pakai Wrap biar responsif)
                   Wrap(
                     spacing: 12,
-                    runSpacing: 12, // jarak kalau turun ke bawah
+                    runSpacing: 12, 
                     children: [
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4F46E5),
+                          backgroundColor: AppTheme.blueSuperDark,
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 12),
                         ),
@@ -95,6 +95,8 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
                       ),
                       OutlinedButton(
                         style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.blueSuperDark,
+                          side: const BorderSide(color: AppTheme.blueSuperDark),
                           padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 12),
                         ),
