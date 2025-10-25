@@ -1,31 +1,30 @@
 import 'package:flutter/material.dart';
 import '../../Layout/sidebar.dart';
-import '../../theme/app_theme.dart';
+import '../../Theme/app_theme.dart';
 
-class TambahbroadcastPage extends StatefulWidget {
-  const TambahbroadcastPage({super.key});
+class TambahBroadcastPage extends StatefulWidget {
+  const TambahBroadcastPage({super.key});
 
   @override
-  State<TambahbroadcastPage> createState() => _PengeluaranTambahPageState();
+  State<TambahBroadcastPage> createState() => _TambahBroadcastPageState();
 }
 
-class _PengeluaranTambahPageState extends State<TambahbroadcastPage> {
-  final TextEditingController _namaController = TextEditingController();
-  final TextEditingController _nominalController = TextEditingController();
+class _TambahBroadcastPageState extends State<TambahBroadcastPage> {
+  final TextEditingController _judulController = TextEditingController();
+  final TextEditingController _isiController = TextEditingController();
   DateTime? _selectedDate;
-  String? _kategori;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
+      drawer: const AppSidebar(),
       appBar: AppBar(
-        title: const Text("Pengeluaran - Tambah"),
-        backgroundColor: theme.colorScheme.primary,
+        title: const Text("Broadcast - Tambah"),
+        backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
       ),
-      drawer: const AppSidebar(),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Card(
@@ -38,29 +37,41 @@ class _PengeluaranTambahPageState extends State<TambahbroadcastPage> {
             child: ListView(
               children: [
                 Text(
-                  "Buat Pengeluaran Baru",
+                  "Buat Broadcast Baru",
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary,
+                    color: AppTheme.primaryBlue,
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // Nama pengeluaran
+                // Judul
                 TextField(
-                  controller: _namaController,
+                  controller: _judulController,
                   decoration: const InputDecoration(
-                    labelText: "Nama Pengeluaran",
-                    hintText: "Masukkan nama pengeluaran",
+                    labelText: "Judul Broadcast",
+                    hintText: "Masukkan judul pesan",
                     border: OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // Tanggal
+                // Isi Pesan
+                TextField(
+                  controller: _isiController,
+                  maxLines: 4,
+                  decoration: const InputDecoration(
+                    labelText: "Isi Pesan",
+                    hintText: "Tulis pesan yang ingin disampaikan",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Tanggal Kirim
                 InputDecorator(
                   decoration: const InputDecoration(
-                    labelText: "Tanggal Pengeluaran",
+                    labelText: "Tanggal Kirim",
                     border: OutlineInputBorder(),
                   ),
                   child: Row(
@@ -70,17 +81,16 @@ class _PengeluaranTambahPageState extends State<TambahbroadcastPage> {
                           _selectedDate == null
                               ? "--/--/----"
                               : "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}",
-                          style: theme.textTheme.bodyMedium,
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.calendar_today,
-                            color: theme.iconTheme.color),
+                        icon:
+                            const Icon(Icons.calendar_today, color: Colors.blue),
                         onPressed: () async {
-                          DateTime? pickedDate = await showDatePicker(
+                          final pickedDate = await showDatePicker(
                             context: context,
                             initialDate: DateTime.now(),
-                            firstDate: DateTime(2000),
+                            firstDate: DateTime(2020),
                             lastDate: DateTime(2100),
                           );
                           if (pickedDate != null) {
@@ -93,86 +103,38 @@ class _PengeluaranTambahPageState extends State<TambahbroadcastPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
 
-                // Kategori
-                DropdownButtonFormField<String>(
-                  value: _kategori,
-                  decoration: const InputDecoration(
-                    labelText: "Kategori Pengeluaran",
-                    border: OutlineInputBorder(),
-                  ),
-                  items: ["Operasional", "Utilitas", "Lainnya"]
-                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _kategori = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Nominal
-                TextField(
-                  controller: _nominalController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: "Nominal",
-                    hintText: "Masukkan nominal pengeluaran",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Upload bukti
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: theme.colorScheme.secondary),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    "Upload bukti pengeluaran (.png/.jpg)",
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Tombol
+                // Tombol Aksi
                 Row(
                   children: [
-                    ElevatedButton(
+                    ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
+                        backgroundColor: AppTheme.primaryBlue,
                         foregroundColor: Colors.white,
                       ),
-                      onPressed: () {
-                        // Logika simpan
-                      },
-                      child: const Text("Submit"),
+                      onPressed: () {},
+                      icon: const Icon(Icons.send),
+                      label: const Text("Kirim Sekarang"),
                     ),
-                    const SizedBox(width: 16),
-                    OutlinedButton(
+                    const SizedBox(width: 12),
+                    OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: theme.colorScheme.primary,
-                        side: BorderSide(color: theme.colorScheme.primary),
+                        foregroundColor: AppTheme.primaryBlue,
+                        side: const BorderSide(color: AppTheme.primaryBlue),
                       ),
                       onPressed: () {
-                        _namaController.clear();
-                        _nominalController.clear();
+                        _judulController.clear();
+                        _isiController.clear();
                         setState(() {
                           _selectedDate = null;
-                          _kategori = null;
                         });
                       },
-                      child: const Text("Reset"),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text("Reset"),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
