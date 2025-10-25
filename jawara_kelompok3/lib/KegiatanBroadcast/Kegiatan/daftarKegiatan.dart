@@ -1,171 +1,185 @@
 import 'package:flutter/material.dart';
+import '../../../theme/app_theme.dart';
 import '../../Layout/sidebar.dart';
-import '../../Theme/app_theme.dart';
-import 'detailKegiatan.dart'; // ← Tambahkan import ini
 
-class DaftarkegiatanPage extends StatelessWidget {
-  const DaftarkegiatanPage({super.key});
+class DaftarKegiatanPage extends StatefulWidget {
+  const DaftarKegiatanPage({super.key});
+
+  @override
+  State<DaftarKegiatanPage> createState() => _DaftarKegiatanPageState();
+}
+
+class _DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
+  List<Map<String, String>> kegiatanList = [
+    {
+      "judul": "Kerja Bakti Mingguan",
+      "tanggal": "12 Oktober 2025",
+      "lokasi": "Balai RW 05",
+      "keterangan": "Membersihkan area taman dan saluran air.",
+    },
+    {
+      "judul": "Rapat Evaluasi Bulanan",
+      "tanggal": "20 Oktober 2025",
+      "lokasi": "Balai Desa",
+      "keterangan": "Membahas laporan kegiatan dan dokumentasi warga.",
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    // Data kegiatan contoh
-    final List<Map<String, String>> kegiatan = [
-      {
-        "no": "1",
-        "nama": "Musyawarah RT",
-        "kategori": "Komunitas & Sosial",
-        "pj": "Pak RT",
-        "tanggal": "12 Oktober 2025",
-        "lokasi": "Balai RT 03",
-        "deskripsi":
-            "Rapat koordinasi rutin warga membahas kegiatan sosial dan keamanan lingkungan.",
-      },
-      {
-        "no": "2",
-        "nama": "Senam Pagi Bersama",
-        "kategori": "Kesehatan & Olahraga",
-        "pj": "Bu RW",
-        "tanggal": "20 Oktober 2025",
-        "lokasi": "Lapangan RW 05",
-        "deskripsi":
-            "Kegiatan olahraga bersama warga untuk menjaga kesehatan dan mempererat silaturahmi.",
-      },
-    ];
-
     return Scaffold(
       drawer: const AppSidebar(),
       appBar: AppBar(
-        title: const Text("Kegiatan - Daftar"),
-        backgroundColor: theme.colorScheme.primary,
+        title: const Text("Daftar Kegiatan"),
+        backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => Navigator.pushNamed(context, '/kegiatan/tambah'),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Card(
-          elevation: 3,
-          color: theme.colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            children: [
-              // Tombol Filter
-              Container(
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.all(12),
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                  ),
-                  onPressed: () {},
-                  icon: const Icon(Icons.filter_alt),
-                  label: const Text("Filter"),
+        child: Column(
+          children: [
+            TextField(
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                hintText: "Cari kegiatan...",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                filled: true,
+                fillColor: Colors.grey.shade100,
               ),
-
-              // Tabel
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    headingRowColor: MaterialStatePropertyAll(
-                      theme.colorScheme.secondary.withOpacity(0.2),
-                    ),
-                    columns: const [
-                      DataColumn(label: Text("No")),
-                      DataColumn(label: Text("Nama Kegiatan")),
-                      DataColumn(label: Text("Kategori")),
-                      DataColumn(label: Text("Penanggung Jawab")),
-                      DataColumn(label: Text("Tanggal Pelaksanaan")),
-                      DataColumn(label: Text("Aksi")),
-                    ],
-                    rows: kegiatan.map((item) {
-                      return DataRow(
-                        cells: [
-                          DataCell(Text(item["no"]!)),
-                          DataCell(Text(item["nama"]!)),
-                          DataCell(Text(item["kategori"]!)),
-                          DataCell(Text(item["pj"]!)),
-                          DataCell(Text(item["tanggal"]!)),
-                          DataCell(
-                            PopupMenuButton<String>(
-                              onSelected: (value) {
-                                if (value == "detail") {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          DetailKegiatanPage(data: item),
-                                    ),
-                                  );
-                                } else if (value == "edit") {
-                                  // TODO: Navigasi ke halaman edit
-                                } else if (value == "hapus") {
-                                  // TODO: Logika hapus data
-                                }
+              onChanged: (query) {
+                // implement pencarian sederhana
+                setState(() {
+                  kegiatanList = kegiatanList
+                      .where((item) => item["judul"]!
+                          .toLowerCase()
+                          .contains(query.toLowerCase()))
+                      .toList();
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: kegiatanList.isEmpty
+                  ? const Center(child: Text("Belum ada kegiatan."))
+                  : ListView.builder(
+                      itemCount: kegiatanList.length,
+                      itemBuilder: (context, index) {
+                        final kegiatan = kegiatanList[index];
+                        return Card(
+                          elevation: 3,
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              kegiatan["judul"] ?? "-",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              "${kegiatan["tanggal"]} • ${kegiatan["lokasi"]}",
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.info_outline),
+                              color: AppTheme.primaryBlue,
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => _DetailKegiatanDialog(
+                                    kegiatan: kegiatan,
+                                  ),
+                                );
                               },
-                              itemBuilder: (context) => [
-                                const PopupMenuItem(
-                                    value: "detail", child: Text("Detail")),
-                                const PopupMenuItem(
-                                    value: "edit", child: Text("Edit")),
-                                const PopupMenuItem(
-                                    value: "hapus", child: Text("Hapus")),
-                              ],
                             ),
                           ),
-                        ],
-                      );
-                    }).toList(),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailKegiatanDialog extends StatelessWidget {
+  final Map<String, String> kegiatan;
+
+  const _DetailKegiatanDialog({required this.kegiatan});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      insetPadding: const EdgeInsets.all(24),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Detail Kegiatan",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            _buildField("Judul", kegiatan["judul"] ?? "-"),
+            const SizedBox(height: 12),
+            _buildField("Tanggal", kegiatan["tanggal"] ?? "-"),
+            const SizedBox(height: 12),
+            _buildField("Lokasi", kegiatan["lokasi"] ?? "-"),
+            const SizedBox(height: 12),
+            _buildField("Keterangan", kegiatan["keterangan"] ?? "-"),
+            const SizedBox(height: 20),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryBlue,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
+                child:
+                    const Text("Tutup", style: TextStyle(color: Colors.white)),
               ),
-
-              // Pagination
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      onPressed: null,
-                      icon: Icon(Icons.chevron_left,
-                          color: theme.iconTheme.color),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(32, 32),
-                        padding: EdgeInsets.zero,
-                      ),
-                      child: const Text("1"),
-                    ),
-                    IconButton(
-                      onPressed: null,
-                      icon: Icon(Icons.chevron_right,
-                          color: theme.iconTheme.color),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildField(String label, String value) {
+    return TextFormField(
+      readOnly: true,
+      initialValue: value,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(fontWeight: FontWeight.w500),
+        border: const OutlineInputBorder(),
+        filled: true,
+        fillColor: Colors.grey.shade100,
       ),
     );
   }

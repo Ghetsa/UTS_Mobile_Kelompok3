@@ -501,7 +501,7 @@ class _AppSidebarState extends State<AppSidebar> {
                   _buildSubMenuItem("Broadcast - Tambah", "/broadcast/tambah",
                       context, currentRoute,
                       onSelected: () =>
-                          _expandOnlyAnimated('KegiatanBroadcast', true)),
+                          _expandOnlyAnimated('Kegiatan & Broadcast', true)),
                 ],
               ),
             ),

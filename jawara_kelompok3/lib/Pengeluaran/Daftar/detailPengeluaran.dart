@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_theme.dart';
 
-class DetailMutasiDialog extends StatelessWidget {
-  final Map<String, String> mutasi;
+class DetailPengeluaranDialog extends StatelessWidget {
+  final Map<String, String> pengeluaran;
 
-  const DetailMutasiDialog({super.key, required this.mutasi});
+  const DetailPengeluaranDialog({super.key, required this.pengeluaran});
 
   @override
   Widget build(BuildContext context) {
@@ -18,24 +18,21 @@ class DetailMutasiDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Detail Mutasi Keluarga",
+              "Detail Pengeluaran",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
 
-            _buildField("Nama Kepala Keluarga", mutasi["nama"] ?? "-"),
+            _buildField("Nama", pengeluaran["nama"] ?? "-"),
             const SizedBox(height: 12),
 
-            _buildField("Jenis Mutasi", mutasi["jenis"] ?? "-"),
+            _buildField("Jenis Pengeluaran", pengeluaran["jenis"] ?? "-"),
             const SizedBox(height: 12),
 
-            _buildField("Tanggal Mutasi", mutasi["tanggal"] ?? "-"),
+            _buildField("Tanggal", pengeluaran["tanggal"] ?? "-"),
             const SizedBox(height: 12),
 
-            _buildField("Alamat Tujuan / Asal", mutasi["alamat"] ?? "-"),
-            const SizedBox(height: 12),
-
-            _buildField("Keterangan", mutasi["keterangan"] ?? "-"),
+            _buildField("Nominal", pengeluaran["nominal"] ?? "-"),
             const SizedBox(height: 20),
 
             Align(
@@ -44,8 +41,7 @@ class DetailMutasiDialog extends StatelessWidget {
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryBlue,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -68,6 +64,7 @@ class DetailMutasiDialog extends StatelessWidget {
       initialValue: value,
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: const TextStyle(fontWeight: FontWeight.w500),
         border: const OutlineInputBorder(),
         filled: true,
         fillColor: Colors.grey.shade100,

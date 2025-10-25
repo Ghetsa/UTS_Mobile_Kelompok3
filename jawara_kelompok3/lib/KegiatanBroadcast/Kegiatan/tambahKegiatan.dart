@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../Layout/sidebar.dart';
-import '../../Theme/app_theme.dart';
+import '../../theme/app_theme.dart';
 
-class TambahkegiatanPage extends StatefulWidget {
-  const TambahkegiatanPage({super.key});
+class TambahKegiatanPage extends StatefulWidget {
+  const TambahKegiatanPage({super.key});
 
   @override
-  State<TambahkegiatanPage> createState() => _TambahKegiatanPageState();
+  State<TambahKegiatanPage> createState() => _TambahKegiatanPageState();
 }
 
-class _TambahKegiatanPageState extends State<TambahkegiatanPage> {
+class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
   final TextEditingController _namaController = TextEditingController();
-  final TextEditingController _nominalController = TextEditingController();
+  final TextEditingController _lokasiController = TextEditingController();
   DateTime? _selectedDate;
   String? _kategori;
 
@@ -21,7 +21,7 @@ class _TambahKegiatanPageState extends State<TambahkegiatanPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Kegiatan - Tambah"),
+        title: const Text("Tambah Kegiatan Baru"),
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: Colors.white,
       ),
@@ -31,14 +31,13 @@ class _TambahKegiatanPageState extends State<TambahkegiatanPage> {
         child: Card(
           elevation: 3,
           color: theme.colorScheme.background,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: ListView(
               children: [
                 Text(
-                  "Buat Kegiatan Baru",
+                  "Form Jadwal Kegiatan",
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.primary,
@@ -46,12 +45,12 @@ class _TambahKegiatanPageState extends State<TambahkegiatanPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Nama pengeluaran
+                // Nama Kegiatan
                 TextField(
                   controller: _namaController,
                   decoration: const InputDecoration(
                     labelText: "Nama Kegiatan",
-                    hintText: "Contoh : Rapat Koordinasi",
+                    hintText: "Masukkan nama kegiatan",
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -60,7 +59,7 @@ class _TambahKegiatanPageState extends State<TambahkegiatanPage> {
                 // Tanggal
                 InputDecorator(
                   decoration: const InputDecoration(
-                    labelText: "Tanggal Pengeluaran",
+                    labelText: "Tanggal Kegiatan",
                     border: OutlineInputBorder(),
                   ),
                   child: Row(
@@ -74,8 +73,7 @@ class _TambahKegiatanPageState extends State<TambahkegiatanPage> {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.calendar_today,
-                            color: theme.iconTheme.color),
+                        icon: Icon(Icons.calendar_today, color: theme.iconTheme.color),
                         onPressed: () async {
                           DateTime? pickedDate = await showDatePicker(
                             context: context,
@@ -102,14 +100,7 @@ class _TambahKegiatanPageState extends State<TambahkegiatanPage> {
                     labelText: "Kategori Kegiatan",
                     border: OutlineInputBorder(),
                   ),
-                  items: [
-                    "Komunitas & Sosial",
-                    "Kebersihan & Keamanan",
-                    "Pendidikan",
-                    "Keagamaan",
-                    "Kesehatan & Olahraga",
-                    "Lainnya"
-                  ]
+                  items: ["Rapat", "Gotong Royong", "Peringatan Hari Besar", "Sosialisasi"]
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                       .toList(),
                   onChanged: (value) {
@@ -122,40 +113,30 @@ class _TambahKegiatanPageState extends State<TambahkegiatanPage> {
 
                 // Lokasi
                 TextField(
-                  controller: _nominalController,
-                  keyboardType: TextInputType.number,
+                  controller: _lokasiController,
                   decoration: const InputDecoration(
-                    labelText: "Lokasi",
-                    hintText: "Contoh : Balai RT 03",
+                    labelText: "Lokasi Kegiatan",
+                    hintText: "Masukkan lokasi kegiatan",
                     border: OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // Penanggung Jawab
-                TextField(
-                  controller: _nominalController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: "Penanggung Jawab",
-                    hintText: "Contoh : Pak RT atau Bu RW",
-                    border: OutlineInputBorder(),
+                // Upload Dokumentasi
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: theme.colorScheme.secondary),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    "Upload dokumentasi kegiatan (.png/.jpg)",
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 16),
-
-                // Deskripsi
-                TextField(
-                  controller: _nominalController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: "Deskripsi",
-                    hintText:
-                        "Tuliskan detail event seperti agenda, keperluan, dll",
-                    border: OutlineInputBorder(),
-                  ),
-                  maxLines: 3,
-                ),      
                 const SizedBox(height: 16),
 
                 // Tombol
@@ -163,12 +144,10 @@ class _TambahKegiatanPageState extends State<TambahkegiatanPage> {
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
+                        backgroundColor: AppTheme.primaryBlue,
                         foregroundColor: Colors.white,
                       ),
-                      onPressed: () {
-                        // Logika simpan
-                      },
+                      onPressed: () {},
                       child: const Text("Submit"),
                     ),
                     const SizedBox(width: 16),
@@ -179,7 +158,7 @@ class _TambahKegiatanPageState extends State<TambahkegiatanPage> {
                       ),
                       onPressed: () {
                         _namaController.clear();
-                        _nominalController.clear();
+                        _lokasiController.clear();
                         setState(() {
                           _selectedDate = null;
                           _kategori = null;
