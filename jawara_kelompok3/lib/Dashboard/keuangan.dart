@@ -8,7 +8,7 @@ class DashboardKeuanganPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    // final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
       drawer: const AppSidebar(),
@@ -17,114 +17,121 @@ class DashboardKeuanganPage extends StatelessWidget {
         title: const Text(
           'Dashboard Keuangan',
           style: TextStyle(
-            fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        centerTitle: true,
+        // centerTitle: true,
         backgroundColor: AppTheme.primaryBlue,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // === Baris 1: Total Pemasukan & Total Pengeluaran ===
-            Row(
-              children: const [
-                Expanded(
-                  child: _StatCard(
-                    title: "Total Pemasukan",
-                    value: "50 jt",
-                    background: AppTheme.backgroundBlueWhite,
-                    textColor: AppTheme.greenDark,
-                  ),
+      body: SafeArea(
+        child: Container(
+          color: AppTheme.backgroundBlueWhite, // ✅ ganti background di sini
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                // === Baris 1: Total Pemasukan & Total Pengeluaran ===
+                Row(
+                  children: const [
+                    Expanded(
+                      child: _StatCard(
+                        title: "Total Pemasukan",
+                        value: "50 jt",
+                        background: Colors.white,
+                        textColor: AppTheme.greenDark,
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: _StatCard(
+                        title: "Total Pengeluaran",
+                        value: "2.1 rb",
+                        background: Colors.white,
+                        textColor: AppTheme.redDark,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: _StatCard(
-                    title: "Total Pengeluaran",
-                    value: "2.1 rb",
-                    background: AppTheme.backgroundBlueWhite,
-                    textColor: AppTheme.redDark,
-                  ),
+                const SizedBox(height: 16),
+                // === Baris 2: Jumlah Transaksi ===
+                Row(
+                  children: const [
+                    Expanded(
+                      child: _StatCard(
+                        title: "Jumlah Transaksi",
+                        value: "5",
+                        background: Colors.white,
+                        textColor: AppTheme.yellowDark,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // === Bar Chart ===
+                const _BarChartCard(
+                  title: '📈 Pemasukan per Bulan',
+                  color: Colors.white,
+                  textColor: AppTheme.greenDark,
+                  data: {
+                    'Jan': 120000,
+                    'Feb': 80000,
+                    'Mar': 160000,
+                    'Apr': 100000,
+                    'Mei': 200000,
+                    'Jun': 120000,
+                    'Jul': 80000,
+                    'Agu': 160000,
+                    'Sep': 100000,
+                    'Okt': 200000,
+                    'Nov': 160000,
+                    'Des': 100000,
+                  },
+                ),
+
+                const _BarChartCard(
+                  title: '📉 Pengeluaran per Bulan',
+                  color: Colors.white,
+                  textColor: AppTheme.blueDark,
+                  data: {
+                    'Jan': 30000,
+                    'Feb': 30000,
+                    'Mar': 160000,
+                    'Apr': 100000,
+                    'Mei': 180000,
+                    'Jun': 50000,
+                    'Jul': 60000,
+                    'Agu': 150000,
+                    'Sep': 110000,
+                    'Okt': 140000,
+                    'Nov': 120000,
+                    'Des': 150000,
+                  },
+                  isRupiah: true,
+                ),
+
+                // === Pie Chart ===
+                const _PieCard(
+                  title: '🧾 Pemasukan Berdasarkan Kategori',
+                  color: AppTheme.graySuperLight,
+                  textColor: AppTheme.yellowSuperDark,
+                  colorType: _PieColorType.defaultColor,
+                  data: {
+                    'Dana Bantuan Pemerintah': 100,
+                    'Pendapatan Lainnya': 0
+                  },
+                ),
+                const _PieCard(
+                  title: '🧾 Pengeluaran Berdasarkan Kategori',
+                  color: AppTheme.graySuperLight,
+                  textColor: AppTheme.yellowSuperDark,
+                  colorType: _PieColorType.defaultColor,
+                  data: {'Operasional RT/RW': 0, 'Pemeliharaan Fasilitas': 100},
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            // === Baris 2: Jumlah Transaksi ===
-            Row(
-              children: const [
-                Expanded(
-                  child: _StatCard(
-                    title: "Jumlah Transaksi",
-                    value: "5",
-                    background: AppTheme.backgroundBlueWhite,
-                    textColor: AppTheme.yellowDark,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // === Bar Chart ===
-            const _BarChartCard(
-              title: '📈 Pemasukan per Bulan',
-              color: AppTheme.backgroundBlueWhite,
-              textColor: AppTheme.greenDark,
-              data: {
-                'Jan': 120000,
-                'Feb': 80000,
-                'Mar': 160000,
-                'Apr': 100000,
-                'Mei': 200000,
-                'Jun': 120000,
-                'Jul': 80000,
-                'Agu': 160000,
-                'Sep': 100000,
-                'Okt': 200000,
-                'Nov': 160000,
-                'Des': 100000,
-              },
-            ),
-
-            const _BarChartCard(
-              title: '📉 Pengeluaran per Bulan',
-              color: AppTheme.backgroundBlueWhite,
-              textColor: AppTheme.blueDark,
-              data: {
-                'Jan': 30000,
-                'Feb': 30000,
-                'Mar': 160000,
-                'Apr': 100000,
-                'Mei': 180000,
-                'Jun': 50000,
-                'Jul': 60000,
-                'Agu': 150000,
-                'Sep': 110000,
-                'Okt': 140000,
-                'Nov': 120000,
-                'Des': 150000,
-              },
-              isRupiah: true,
-            ),
-
-            // === Pie Chart ===
-            const _PieCard(
-              title: '🧾 Pemasukan Berdasarkan Kategori',
-              color: AppTheme.graySuperLight,
-              textColor: AppTheme.grayMediumDark,
-              colorType: _PieColorType.defaultColor,
-              data: {'Dana Bantuan Pemerintah': 100, 'Pendapatan Lainnya': 0},
-            ),
-            const _PieCard(
-              title: '🧾 Pengeluaran Berdasarkan Kategori',
-              color: AppTheme.graySuperLight,
-              textColor: AppTheme.grayMediumDark,
-              colorType: _PieColorType.defaultColor,
-              data: {'Operasional RT/RW': 0, 'Pemeliharaan Fasilitas': 100},
-            ),
-          ],
+          ),
         ),
       ),
     );

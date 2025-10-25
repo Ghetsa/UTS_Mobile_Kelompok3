@@ -25,158 +25,162 @@ class DashboardKegiatanPage extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ====== BAGIAN ATAS ======
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  // Lebar layar saat ini
-                  final width = constraints.maxWidth;
+        child: Container(
+          color: AppTheme.backgroundBlueWhite,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ====== BAGIAN ATAS ======
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    // Lebar layar saat ini
+                    final width = constraints.maxWidth;
 
-                  if (width > 1100) {
-                    // 🖥️ Desktop: 3 kolom
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: StatCard(
-                            title: "🎉 Total Kegiatan",
-                            value: "1",
-                            subtitle: "Jumlah seluruh event yang sudah ada",
-                            background: AppTheme.backgroundBlueWhite,
-                            accent: AppTheme.blueDark,
+                    if (width > 1100) {
+                      // 🖥️ Desktop: 3 kolom
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: StatCard(
+                              title: "🎉 Total Kegiatan",
+                              value: "1",
+                              subtitle: "Jumlah seluruh event yang sudah ada",
+                              background: Colors.white,
+                              accent: AppTheme.blueDark,
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: PieCard(
-                            title: "📂 Kegiatan per Kategori",
-                            background: AppTheme.backgroundBlueWhite,
-                            accent: AppTheme.blueDark,
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: PieCard(
+                              title: "📂 Kegiatan per Kategori",
+                              background: Colors.white,
+                              accent: AppTheme.blueDark,
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: StatCard(
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: StatCard(
+                              title: "⏰ Kegiatan berdasarkan Waktu",
+                              value: "3",
+                              subtitle:
+                                  "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
+                              background: Colors.white,
+                              accent: AppTheme.blueDark,
+                            ),
+                          ),
+                        ],
+                      );
+                    } else if (width > 700) {
+                      // 💻 Tablet: 2 kolom
+                      return Column(
+                        children: [
+                          Row(
+                            children: const [
+                              Expanded(
+                                child: StatCard(
+                                  title: "🎉 Total Kegiatan",
+                                  value: "1",
+                                  subtitle:
+                                      "Jumlah seluruh event yang sudah ada",
+                                  background: Colors.white,
+                                  accent: AppTheme.blueDark,
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: PieCard(
+                                  title: "📂 Kegiatan per Kategori",
+                                  background: Colors.white,
+                                  accent: AppTheme.blueDark,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          const StatCard(
                             title: "⏰ Kegiatan berdasarkan Waktu",
                             value: "3",
                             subtitle:
                                 "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
-                            background: AppTheme.backgroundBlueWhite,
+                            background: Colors.white,
                             accent: AppTheme.blueDark,
                           ),
-                        ),
-                      ],
-                    );
-                  } else if (width > 700) {
-                    // 💻 Tablet: 2 kolom
-                    return Column(
-                      children: [
-                        Row(
-                          children: const [
-                            Expanded(
-                              child: StatCard(
-                                title: "🎉 Total Kegiatan",
-                                value: "1",
-                                subtitle: "Jumlah seluruh event yang sudah ada",
-                                background: AppTheme.backgroundBlueWhite,
-                                accent: AppTheme.blueDark,
-                              ),
+                        ],
+                      );
+                    } else {
+                      // 📱 Mobile: 1 kolom (full width semua)
+                      return Column(
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: const StatCard(
+                              title: "🎉 Total Kegiatan",
+                              value: "1",
+                              subtitle: "Jumlah seluruh event yang sudah ada",
+                              background: Colors.white,
+                              accent: AppTheme.blueDark,
                             ),
-                            SizedBox(width: 16),
-                            Expanded(
-                              child: PieCard(
-                                title: "📂 Kegiatan per Kategori",
-                                background: AppTheme.blueLight,
-                                accent: AppTheme.blueDark,
-                              ),
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: const PieCard(
+                              title: "📂 Kegiatan per Kategori",
+                              background: Colors.white,
+                              accent: AppTheme.blueDark,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        const StatCard(
-                          title: "⏰ Kegiatan berdasarkan Waktu",
-                          value: "3",
-                          subtitle:
-                              "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
-                          background: AppTheme.backgroundBlueWhite,
-                          accent: AppTheme.blueDark,
-                        ),
-                      ],
-                    );
-                  } else {
-                    // 📱 Mobile: 1 kolom (full width semua)
-                    return Column(
-                      children: [
-                        SizedBox(
-                          width: double.infinity,
-                          child: const StatCard(
-                            title: "🎉 Total Kegiatan",
-                            value: "1",
-                            subtitle: "Jumlah seluruh event yang sudah ada",
-                            background: AppTheme.backgroundBlueWhite,
-                            accent: AppTheme.blueDark,
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: const PieCard(
-                            title: "📂 Kegiatan per Kategori",
-                            background: AppTheme.backgroundBlueWhite,
-                            accent: AppTheme.blueDark,
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: const StatCard(
+                              title: "⏰ Kegiatan berdasarkan Waktu",
+                              value: "3",
+                              subtitle:
+                                  "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
+                              background: Colors.white,
+                              accent: AppTheme.blueDark,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: const StatCard(
-                            title: "⏰ Kegiatan berdasarkan Waktu",
-                            value: "3",
-                            subtitle:
-                                "Sudah Lewat: 1\nHari Ini: 0\nAkan Datang: 0",
-                            background: AppTheme.backgroundBlueWhite,
-                            accent: AppTheme.blueDark,
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-                },
-              ),
+                        ],
+                      );
+                    }
+                  },
+                ),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // ====== BAGIAN BAWAH ======
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  if (width > 700) {
-                    // Tampilan desktop/tablet — dua kolom
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Expanded(child: ExpandedListCard()),
-                        SizedBox(width: 16),
-                        Expanded(child: BarChartCard()),
-                      ],
-                    );
-                  } else {
-                    // Tampilan mobile — full width satu-satu
-                    return Column(
-                      children: const [
-                        ExpandedListCard(),
-                        SizedBox(height: 16),
-                        BarChartCard(),
-                      ],
-                    );
-                  }
-                },
-              ),
-            ],
+                // ====== BAGIAN BAWAH ======
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (width > 700) {
+                      // Tampilan desktop/tablet — dua kolom
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Expanded(child: ExpandedListCard()),
+                          SizedBox(width: 16),
+                          Expanded(child: BarChartCard()),
+                        ],
+                      );
+                    } else {
+                      // Tampilan mobile — full width satu-satu
+                      return Column(
+                        children: const [
+                          ExpandedListCard(),
+                          SizedBox(height: 16),
+                          BarChartCard(),
+                        ],
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -462,7 +466,7 @@ class ExpandedListCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Card(
-      color: AppTheme.backgroundBlueWhite, // 🔹 background card
+      color: Colors.white, // 🔹 background card
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
         side: BorderSide(
@@ -486,7 +490,7 @@ class ExpandedListCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppTheme.backgroundBlueWhite,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color:
@@ -526,7 +530,6 @@ class BarChartCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final width = MediaQuery.of(context).size.width;
-    final chartHeight = width > 700 ? 420.0 : 360.0;
 
     // Data tetap sama
     final List<String> bulan = [
@@ -539,19 +542,26 @@ class BarChartCard extends StatelessWidget {
       "Jul",
       "Agu",
       "Sep",
-      "Okt",
-      "Nov",
-      "Des"
+      // "Okt",
+      // "Nov",
+      // "Des"
     ];
+    // final List<double> values = [5, 3, 4, 2, 6, 1, 0, 3, 2];
     final List<double> values = [5, 3, 4, 2, 6, 1, 0, 3, 2, 4, 5, 1];
 
+    // final chartHeight = width > 700 ? 420.0 : 360.0;
     final double maxValue = values.reduce((a, b) => a > b ? a : b).toDouble();
+    // Hitung tinggi otomatis berdasarkan jumlah data
+    final barHeight = width > 700 ? 18.0 : 14.0;
+    final barSpacing = 10.0; // jarak antar bar
+    final chartHeight =
+        bulan.length * (barHeight + barSpacing) + 60; // total tinggi dinamis
 
     return Card(
-      color: AppTheme.backgroundBlueWhite,
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        side: BorderSide(color: AppTheme.blueExtraLight, width: 1.5),
+        side: BorderSide(color: AppTheme.grayLight, width: 1.5),
       ),
       elevation: 0,
       child: Padding(
@@ -584,13 +594,9 @@ class BarChartCard extends StatelessWidget {
                         final widthFactor =
                             (maxValue == 0) ? 0.0 : (value / (maxValue + 0.0));
 
-                        // tinggi tiap bar
-                        final barHeight = width > 700 ? 18.0 : 14.0;
-
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            // label bulan (sumbu Y)
                             SizedBox(
                               width: width > 700 ? 72 : 56,
                               child: Text(
@@ -602,15 +608,11 @@ class BarChartCard extends StatelessWidget {
                                 ),
                               ),
                             ),
-
                             const SizedBox(width: 8),
-
-                            // batang (mengisi ruang yang tersedia)
                             Expanded(
                               child: Stack(
                                 alignment: Alignment.centerLeft,
                                 children: [
-                                  // background bar
                                   Container(
                                     height: barHeight,
                                     decoration: BoxDecoration(
@@ -619,8 +621,6 @@ class BarChartCard extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-
-                                  // filled part
                                   FractionallySizedBox(
                                     alignment: Alignment.centerLeft,
                                     widthFactor: widthFactor.clamp(0.0, 1.0),
@@ -635,10 +635,7 @@ class BarChartCard extends StatelessWidget {
                                 ],
                               ),
                             ),
-
                             const SizedBox(width: 8),
-
-                            // nilai di paling kanan
                             SizedBox(
                               width: 36,
                               child: Text(
@@ -659,16 +656,14 @@ class BarChartCard extends StatelessWidget {
 
                   const SizedBox(height: 12),
 
-                  // optional: sumbu X sederhana (ticks 0..maxValue)
+                  // sumbu X sederhana (ticks 0..maxValue)
                   Row(
                     children: [
-                      SizedBox(
-                          width: width > 700 ? 72 : 56), // align with labels
+                      SizedBox(width: width > 700 ? 72 : 56),
                       const SizedBox(width: 8),
                       Expanded(
                         child: LayoutBuilder(
                           builder: (context, constraints) {
-                            // tampilkan beberapa tick (0, mid, max)
                             final ticks = [
                               0,
                               (maxValue / 2).ceil(),
@@ -689,12 +684,12 @@ class BarChartCard extends StatelessWidget {
                           },
                         ),
                       ),
-                      const SizedBox(width: 44), // align with value column
+                      const SizedBox(width: 44),
                     ],
                   ),
                 ],
               ),
-            ),
+            )
           ],
         ),
       ),
