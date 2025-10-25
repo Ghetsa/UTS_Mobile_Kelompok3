@@ -28,10 +28,11 @@ import '../LogAktifitas/log_aktifitas.dart';
 import '../PesanWarga/pesan_warga.dart';
 
 // === Kegiatan & Broadcast ===
-import '../KegiatanBroadcast/Kegiatan/daftarKegiatan.dart' as kb_daftar;
-import '../KegiatanBroadcast/Kegiatan/tambahKegiatan.dart' as kb_tambah;
-import '../KegiatanBroadcast/Broadcast/daftarBroadcast.dart' as br_daftar;
-import '../KegiatanBroadcast/Broadcast/tambahBroadcast.dart' as br_tambah;
+import '../KegiatanBroadcast/Kegiatan/daftarKegiatan.dart';
+import '../KegiatanBroadcast/Kegiatan/tambahKegiatan.dart';
+// Broadcast
+import '../KegiatanBroadcast/Broadcast/daftarBroadcast.dart';
+import '../KegiatanBroadcast/Broadcast/tambahBroadcast.dart';
 
 // === Pemasukan ===
 import '../Pemasukan/kategoriIuran/pages/iuran_page.dart';
@@ -40,7 +41,6 @@ import '../Pemasukan/tagihIuran/tagih_iuran_page.dart';
 import '../Pemasukan/tagihan/tagihan_page.dart';
 import '../Pemasukan/pemasukanLain/daftar_page.dart';
 import '../Pemasukan/pemasukanLain/tambah_page.dart';
-// detail/edit kategori pages are imported where needed in their own modules
 
 // === Pengeluaran ===
 import '../Pengeluaran/Daftar/daftarPengeluaran.dart';
@@ -48,7 +48,7 @@ import '../Pengeluaran/Tambah/tambahPengeluaran.dart';
 
 // === Mutasi Keluarga ===
 import '../MutasiKeluarga/Daftar/daftarMutasi.dart';
-import '../MutasiKeluarga/Tambah/tambahMutasi.dart' as mutasi_tambah;
+import '../MutasiKeluarga/Tambah/tambahMutasi.dart';
 
 // === Manajemen Pengguna ===
 import '../ManajemenPengguna/Daftar/daftar_pengguna.dart';
@@ -81,15 +81,10 @@ class AppRoutes {
     '/dashboard/kependudukan': (context) => const DashboardKependudukanPage(),
 
     // === Data Warga & Rumah ===
-    // === Data Warga ===
     '/warga/daftar': (context) => const DaftarWargaPage(),
     '/warga/tambah': (context) => const TambahWargaPage(),
-
-    // === Data Rumah ===
     '/rumah/daftar': (context) => const DaftarRumahPage(),
     '/rumah/tambah': (context) => const TambahRumahPage(),
-    
-    // === Data Keluarga ===
     '/keluarga': (context) => const DaftarKeluargaPage(),
 
     // === Pemasukan ===
@@ -102,24 +97,25 @@ class AppRoutes {
     '/pemasukan/pemasukanLain-tambah': (context) =>
         const PemasukanLainTambahPage(),
 
+    // === Pengeluaran ===
+    '/pengeluaran/daftar': (context) => const PengeluaranDaftarPage(),
+    '/pengeluaran/tambah': (context) => const TambahPengeluaranPage(),
+
     // === Laporan Keuangan ===
     '/laporan/semua-pemasukan': (context) => const SemuaPemasukanPage(),
     '/laporan/semua-pengeluaran': (context) => const SemuaPengeluaranPage(),
     '/laporan/cetak': (context) => const CetakLaporanPage(),
 
-    // === Pengeluaran ===
-    '/pengeluaran/daftar': (context) => const PengeluaranDaftarPage(),
-    '/pengeluaran/tambah': (context) => const PengeluaranTambahPage(),
-
     // === Kegiatan & Broadcast ===
-    '/kegiatan/tambah': (context) => const kb_tambah.TambahkegiatanPage(),
-    '/kegiatan/daftar': (context) => const kb_daftar.DaftarkegiatanPage(),
-    '/broadcast/tambah': (context) => const br_tambah.TambahbroadcastPage(),
-    '/broadcast/daftar': (context) => const br_daftar.DaftarbroadcastPage(),
+    '/kegiatan/daftar': (context) => const DaftarKegiatanPage(),
+    '/kegiatan/tambah': (context) => const TambahKegiatanPage(),
+    // Broadcast
+    '/broadcast/daftar': (context) => const DaftarBroadcastPage(),
+    '/broadcast/tambah': (context) => const TambahBroadcastPage(),
 
     // === Mutasi Keluarga ===
-    '/mutasi/daftar': (context) => const DaftarMutasiPage(),
-    '/mutasi/tambah': (context) => const mutasi_tambah.TambahMutasiPage(),
+    '/mutasi/daftar': (context) => const MutasiDaftarPage(),
+    '/mutasi/tambah': (context) => const MutasiTambahPage(),
 
     // === Manajemen Pengguna ===
     '/manajemen': (context) => const ManajemenPenggunaPage(),
