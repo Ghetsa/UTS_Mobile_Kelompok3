@@ -13,8 +13,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Iuran Warga',
-      theme: AppTheme.lightTheme, // panggil tema dari AppTheme
+      title: 'Jawara Mobile',
+      theme: AppTheme.lightTheme,
       initialRoute: '/',
       routes: AppRoutes.routes,
     );

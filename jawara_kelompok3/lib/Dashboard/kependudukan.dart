@@ -17,37 +17,42 @@ class DashboardKependudukanPage extends StatelessWidget {
         centerTitle: true,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // === Total Keluarga & Total Penduduk ===
-            Row(
-              children: const [
-                Expanded(
-                  child: _StatCard(
-                    title: "Total Keluarga",
-                    value: "6",
-                    background: AppTheme.blueSuperLight,
-                    textColor: AppTheme.blueDark,
-                  ),
+      body: SafeArea(
+        child: Container(
+          color: AppTheme.backgroundBlueWhite, // ✅ ganti background di sini
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                // === Total Keluarga & Total Penduduk ===
+                Row(
+                  children: const [
+                    Expanded(
+                      child: _StatCard(
+                        title: "Total Keluarga",
+                        value: "6",
+                        background: Colors.white,
+                        textColor: AppTheme.greenDark,
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: _StatCard(
+                        title: "Total Penduduk",
+                        value: "8",
+                        background: Colors.white,
+                        textColor: AppTheme.redDark,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: _StatCard(
-                    title: "Total Penduduk",
-                    value: "8",
-                    background: AppTheme.blueSuperLight,
-                    textColor: AppTheme.blueDark,
-                  ),
-                ),
+                const SizedBox(height: 16),
+
+                // === Pie Cards ===
+                ..._buildPieCards(),
               ],
             ),
-            const SizedBox(height: 16),
-
-            // === Pie Cards ===
-            ..._buildPieCards(),
-          ],
+          ),
         ),
       ),
     );
@@ -58,31 +63,31 @@ class DashboardKependudukanPage extends StatelessWidget {
     return const [
       _PieCard(
         title: 'Status Penduduk',
-        color: AppTheme.backgroundBlueWhite,
+        color: Colors.white,
         textColor: AppTheme.blueDark,
         data: {'Aktif': 50, 'Pindah': 30, 'Wafat': 20},
       ),
       _PieCard(
         title: 'Jenis Kelamin',
-        color: AppTheme.backgroundBlueWhite,
+        color: Colors.white,
         textColor: AppTheme.blueDark,
         data: {'Laki-laki': 88, 'Perempuan': 12},
       ),
       _PieCard(
         title: 'Pekerjaan Penduduk',
-        color: AppTheme.backgroundBlueWhite,
+        color: Colors.white,
         textColor: AppTheme.blueDark,
         data: {'Lainnya': 100},
       ),
       _PieCard(
         title: 'Peran dalam Keluarga',
-        color: AppTheme.backgroundBlueWhite,
+        color: Colors.white,
         textColor: AppTheme.blueDark,
         data: {'Kepala Keluarga': 75, 'Anak': 13, 'Anggota Lain': 12},
       ),
       _PieCard(
         title: 'Agama',
-        color: AppTheme.backgroundBlueWhite,
+        color: Colors.white,
         textColor: AppTheme.blueDark,
         data: {
           'Islam': 50,
@@ -96,7 +101,7 @@ class DashboardKependudukanPage extends StatelessWidget {
       ),
       _PieCard(
         title: 'Pendidikan',
-        color: AppTheme.backgroundBlueWhite,
+        color: Colors.white,
         textColor: AppTheme.blueDark,
         data: {'S2': 5, 'Sarjana/Diploma': 15, 'SMA': 40, 'SMP': 10, 'SD': 30},
       ),
@@ -131,7 +136,7 @@ class _StatCard extends StatelessWidget {
         //   ),
         // ],
         border: Border.all(
-          color: AppTheme.blueExtraLight,
+          color: AppTheme.grayExtraLight,
           width: 1.5,
         ),
         borderRadius: BorderRadius.circular(20),
