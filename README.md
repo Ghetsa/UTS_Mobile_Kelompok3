@@ -79,18 +79,6 @@ Tahapan selanjutnya (untuk pengembangan penuh):
 
 ---
 
-## 📷 Tampilan Preview 
-
-Beberapa halaman utama aplikasi:
-- **Dashboard**
-- **Daftar Warga**
-- **Pemasukan & Pengeluaran**
-- **Laporan Keuangan**
-- **Kegiatan & Broadcast**
-- **Login & Pendaftaran**
-
----
-
 ## 👏 Kontributor
 
 Tim Pengembang UTS — *Aplikasi JAWARA (Manajemen Perumahan)*  
