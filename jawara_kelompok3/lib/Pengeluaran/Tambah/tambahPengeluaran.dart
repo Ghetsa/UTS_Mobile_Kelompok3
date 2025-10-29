@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import '../../main.dart';
+import '../../Layout/sidebar.dart';
+import '../../theme/app_theme.dart';
 
-class TambahMutasiPage extends StatefulWidget {
-  const TambahMutasiPage({super.key});
+class TambahPengeluaranPage extends StatefulWidget {
+  const TambahPengeluaranPage({super.key});
 
   @override
-  State<TambahMutasiPage> createState() => _TambahMutasiPageState();
+  State<TambahPengeluaranPage> createState() => _TambahPengeluaranPageState();
 }
 
-class _TambahMutasiPageState extends State<TambahMutasiPage> {
+class _TambahPengeluaranPageState extends State<TambahPengeluaranPage> {
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _nominalController = TextEditingController();
   DateTime? _selectedDate;
@@ -15,37 +18,40 @@ class _TambahMutasiPageState extends State<TambahMutasiPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Mutasi Keluarga - Tambah",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: const Color(0xFF4B3D1A),
+        title: const Text("Tambah Pengeluaran"),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: Colors.white,
       ),
+      drawer: const AppSidebar(),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Card(
           elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          color: theme.colorScheme.background,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: ListView(
               children: [
-                const Text(
-                  "Form Tambah Mutasi Keluarga",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  "Buat Data Pengeluaran Baru",
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                  ),
                 ),
                 const SizedBox(height: 16),
 
-                // Nama pemasukan
+                // Nama Pengeluaran
                 TextField(
                   controller: _namaController,
                   decoration: const InputDecoration(
-                    labelText: "Nama Pemasukan",
-                    hintText: "Masukkan nama pemasukan",
+                    labelText: "Nama Pengeluaran",
+                    hintText: "Masukkan nama pengeluaran",
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -54,7 +60,7 @@ class _TambahMutasiPageState extends State<TambahMutasiPage> {
                 // Tanggal
                 InputDecorator(
                   decoration: const InputDecoration(
-                    labelText: "Tanggal Pemasukan",
+                    labelText: "Tanggal Pengeluaran",
                     border: OutlineInputBorder(),
                   ),
                   child: Row(
@@ -64,10 +70,11 @@ class _TambahMutasiPageState extends State<TambahMutasiPage> {
                           _selectedDate == null
                               ? "--/--/----"
                               : "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}",
+                          style: theme.textTheme.bodyMedium,
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.calendar_today),
+                        icon: Icon(Icons.calendar_today, color: theme.iconTheme.color),
                         onPressed: () async {
                           DateTime? pickedDate = await showDatePicker(
                             context: context,
@@ -75,9 +82,11 @@ class _TambahMutasiPageState extends State<TambahMutasiPage> {
                             firstDate: DateTime(2000),
                             lastDate: DateTime(2100),
                           );
-                          setState(() {
-                            _selectedDate = pickedDate;
-                          });
+                          if (pickedDate != null) {
+                            setState(() {
+                              _selectedDate = pickedDate;
+                            });
+                          }
                         },
                       ),
                     ],
@@ -87,12 +96,12 @@ class _TambahMutasiPageState extends State<TambahMutasiPage> {
 
                 // Kategori
                 DropdownButtonFormField<String>(
-                  initialValue: _kategori,
+                  value: _kategori,
                   decoration: const InputDecoration(
-                    labelText: "Kategori Pemasukan",
+                    labelText: "Kategori Pengeluaran",
                     border: OutlineInputBorder(),
                   ),
-                  items: ["Pendapatan Lainnya", "Donasi", "Sumbangan"]
+                  items: ["Operasional", "Perawatan", "Konsumsi", "Transportasi"]
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                       .toList(),
                   onChanged: (value) {
@@ -108,22 +117,27 @@ class _TambahMutasiPageState extends State<TambahMutasiPage> {
                   controller: _nominalController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: "Nominal",
-                    hintText: "Masukkan nominal pemasukan",
+                    labelText: "Nominal Pengeluaran",
+                    hintText: "Masukkan nominal pengeluaran",
                     border: OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // Upload bukti
+                // Upload Bukti
                 Container(
                   padding: const EdgeInsets.all(20),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
+                    border: Border.all(color: theme.colorScheme.secondary),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text("Upload bukti pemasukan (.png/.jpg)"),
+                  child: Text(
+                    "Upload bukti pengeluaran (.png/.jpg)",
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
 
@@ -132,16 +146,18 @@ class _TambahMutasiPageState extends State<TambahMutasiPage> {
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.indigo,
+                        backgroundColor: AppTheme.primaryBlue,
                         foregroundColor: Colors.white,
                       ),
-                      onPressed: () {
-                        // Simpan logika submit
-                      },
+                      onPressed: () {},
                       child: const Text("Submit"),
                     ),
                     const SizedBox(width: 16),
                     OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: theme.colorScheme.primary,
+                        side: BorderSide(color: theme.colorScheme.primary),
+                      ),
                       onPressed: () {
                         _namaController.clear();
                         _nominalController.clear();
@@ -153,7 +169,7 @@ class _TambahMutasiPageState extends State<TambahMutasiPage> {
                       child: const Text("Reset"),
                     ),
                   ],
-                ),
+                )
               ],
             ),
           ),
