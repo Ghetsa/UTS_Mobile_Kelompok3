@@ -65,54 +65,6 @@ Fitur desain utama:
 
 ---
 
-## 🧭 Struktur Navigasi
-
-**JAWARA**
-├── **Dashboard**
-│ ├── Kegiatan
-│ ├── Kependudukan
-│ └── Keuangan
-├── **Data Warga & Rumah**
-│ ├── Warga - Daftar
-│ ├── Warga - Tambah
-│ ├── Keluarga
-│ ├── Rumah - Daftar
-│ └── Rumah - Tambah
-├── **Pemasukan**
-│ ├── Kategori Iuran
-│ ├── Tagih Iuran
-│ ├── Tagihan
-│ ├── Pemasukan Lain - Daftar
-│ └── Pemasukan Lain - Tambah
-├── **Laporan Keuangan**
-│ ├── Semua Pemasukan
-│ ├── Semua Pengeluaran
-│ └── Cetak Laporan
-├── **Manajemen Pengguna**
-│ ├── Daftar Pengguna
-│ └── Tambah Pengguna
-├── **Channel Transfer**
-│ ├── Daftar Channel
-│ └── Tambah Channel
-├── **Log Aktivitas**
-│ └── Semua Aktifitas
-├── **Pesan Warga**
-│ └── Informasi Aspirasi
-├── **Kegiatan & Broadcast**
-│ ├── Kegiatan - Daftar
-│ ├── Kegiatan - Tambah
-│ ├── Broadcast - Daftar
-│ └── Broadcast - Tambah
-└── **Pengeluaran**
-│ ├── Daftar
-│ └── Tambah
-└── **Mutasi Keluarga**
-│ ├── Daftar
-│ └── Tambah
-
-
----
-
 ## ⚙️ Status Pengembangan
 
 > **Catatan:**  
