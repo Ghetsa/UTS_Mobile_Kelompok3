@@ -36,12 +36,12 @@ Aplikasi **JAWARA** dibuat untuk memberikan kemudahan dalam:
 
 ## 👩‍💻 Pembagian Tugas Tim
 
-| No | Nama | Absen / NIM | Menu yang Dikerjakan |
-|----|------|-------------|-----------------------|
-| 1 | **Ghetsa Ramadhani Riska A.** | 12 / 2341720004 |Dashboard, Data Warga & Rumah |
-| 2 | **Oltha Rosyeda Al'haq** | 12 / 2341720145 | Pemasukan, Laporan Keuangan |
-| 3 | **Muhammad Syahrul Gunawan** | 12 / 2341720002 | Manajemen Pengguna, Channel Transfer, Log Aktivitas, Pesan Warga, Login, Pendaftaran |
-| 4 | **Luthfi Triaswangga** | 12 / 2341720208 | Kegiatan & Broadcast, Pengeluaran, Mutasi Keluarga |
+| No | Nama | Absen | NIM | Menu yang Dikerjakan |
+|----|------|------|-------|-----------------------|
+| 1 | **Ghetsa Ramadhani Riska A.** | 12 | 2341720004 |Dashboard, Data Warga & Rumah |
+| 2 | **Oltha Rosyeda Al'haq** | 25 | 2341720145 | Pemasukan, Laporan Keuangan |
+| 3 | **Muhammad Syahrul Gunawan** | 22 | 2341720002 | Manajemen Pengguna, Channel Transfer, Log Aktivitas, Pesan Warga, Login, Pendaftaran |
+| 4 | **Luthfi Triaswangga** | 19 | 2341720208 | Kegiatan & Broadcast, Pengeluaran, Mutasi Keluarga |
 
 ---
 
