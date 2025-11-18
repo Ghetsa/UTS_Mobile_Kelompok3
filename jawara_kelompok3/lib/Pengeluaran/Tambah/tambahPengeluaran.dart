@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import '../../main.dart';
 import '../../Layout/sidebar.dart';
 import '../../theme/app_theme.dart';
 
-class PengeluaranTambahPage extends StatefulWidget {
-  const PengeluaranTambahPage({super.key});
+class TambahPengeluaranPage extends StatefulWidget {
+  const TambahPengeluaranPage({super.key});
 
   @override
-  State<PengeluaranTambahPage> createState() => _PengeluaranTambahPageState();
+  State<TambahPengeluaranPage> createState() => _TambahPengeluaranPageState();
 }
 
-class _PengeluaranTambahPageState extends State<PengeluaranTambahPage> {
+class _TambahPengeluaranPageState extends State<TambahPengeluaranPage> {
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _nominalController = TextEditingController();
   DateTime? _selectedDate;
@@ -21,7 +22,7 @@ class _PengeluaranTambahPageState extends State<PengeluaranTambahPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Pengeluaran - Tambah"),
+        title: const Text("Tambah Pengeluaran"),
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: Colors.white,
       ),
@@ -31,14 +32,13 @@ class _PengeluaranTambahPageState extends State<PengeluaranTambahPage> {
         child: Card(
           elevation: 3,
           color: theme.colorScheme.background,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: ListView(
               children: [
                 Text(
-                  "Buat Pengeluaran Baru",
+                  "Buat Data Pengeluaran Baru",
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.primary,
@@ -46,7 +46,7 @@ class _PengeluaranTambahPageState extends State<PengeluaranTambahPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Nama pengeluaran
+                // Nama Pengeluaran
                 TextField(
                   controller: _namaController,
                   decoration: const InputDecoration(
@@ -74,8 +74,7 @@ class _PengeluaranTambahPageState extends State<PengeluaranTambahPage> {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.calendar_today,
-                            color: theme.iconTheme.color),
+                        icon: Icon(Icons.calendar_today, color: theme.iconTheme.color),
                         onPressed: () async {
                           DateTime? pickedDate = await showDatePicker(
                             context: context,
@@ -102,7 +101,7 @@ class _PengeluaranTambahPageState extends State<PengeluaranTambahPage> {
                     labelText: "Kategori Pengeluaran",
                     border: OutlineInputBorder(),
                   ),
-                  items: ["Operasional", "Utilitas", "Lainnya"]
+                  items: ["Operasional", "Perawatan", "Konsumsi", "Transportasi"]
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                       .toList(),
                   onChanged: (value) {
@@ -118,14 +117,14 @@ class _PengeluaranTambahPageState extends State<PengeluaranTambahPage> {
                   controller: _nominalController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: "Nominal",
+                    labelText: "Nominal Pengeluaran",
                     hintText: "Masukkan nominal pengeluaran",
                     border: OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // Upload bukti
+                // Upload Bukti
                 Container(
                   padding: const EdgeInsets.all(20),
                   alignment: Alignment.center,
@@ -147,12 +146,10 @@ class _PengeluaranTambahPageState extends State<PengeluaranTambahPage> {
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
+                        backgroundColor: AppTheme.primaryBlue,
                         foregroundColor: Colors.white,
                       ),
-                      onPressed: () {
-                        // Logika simpan
-                      },
+                      onPressed: () {},
                       child: const Text("Submit"),
                     ),
                     const SizedBox(width: 16),

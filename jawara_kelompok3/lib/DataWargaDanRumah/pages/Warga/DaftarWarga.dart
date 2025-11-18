@@ -219,7 +219,7 @@ class _DaftarWargaPageState extends State<DaftarWargaPage> {
     );
   }
 
-  /// 🔹 Tombol Aksi Reusable
+  /// 🔹 Tombol Aksi
   Widget _buildActionButton({
     required String label,
     required IconData icon,

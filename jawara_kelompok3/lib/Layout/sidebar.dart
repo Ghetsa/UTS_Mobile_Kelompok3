@@ -476,7 +476,7 @@ class _AppSidebarState extends State<AppSidebar> {
                     'KegiatanBroadcast_${_expanded['KegiatanBroadcast'] ?? false}'),
                 leading: const Icon(Icons.event, color: AppTheme.primaryBlue),
                 title: const Text(
-                  "KegiatanBroadcsat",
+                  "Kegiatan & Broadcast",
                   style: TextStyle(
                     color: AppTheme.primaryBlue,
                     fontWeight: FontWeight.w600,
