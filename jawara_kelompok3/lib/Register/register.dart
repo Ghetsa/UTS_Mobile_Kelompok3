@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../Theme/app_theme.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -10,13 +14,23 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  // Variabel state input user
+  // Controllers untuk input
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+  final TextEditingController nikController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController manualAddressController = TextEditingController();
+
+  // Variabel lainnya tetap sama
   String? _selectedFileName;
   String? _selectedAddressOption;
   String? _selectedOwnershipStatus;
   String? _selectedGender;
+  late FirebaseAuth _auth;
 
-  // Konstanta opsi alamat manual
   static const String manualAddressOption =
       'Alamat Rumah (Jika Tidak Ada di List)';
 
@@ -24,6 +38,118 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void initState() {
     super.initState();
     _selectedAddressOption = null;
+    initializeFirebase();
+  }
+
+  Future<void> initializeFirebase() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    _auth = FirebaseAuth.instance;
+  }
+
+  Future<void> registerUser() async {
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+    String confirmPassword = confirmPasswordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      await showMessageDialog(
+          title: 'Gagal!',
+          message: 'Email dan password wajib diisi',
+          success: false);
+      return;
+    }
+
+    if (password != confirmPassword) {
+      await showMessageDialog(
+          title: 'Gagal!',
+          message: 'Password dan konfirmasi password tidak cocok',
+          success: false);
+      return;
+    }
+
+    try {
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Semua user otomatis jadi warga
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .set({
+        'email': email,
+        'name': nameController.text.trim(),
+        'role': "warga", // tidak hapus role untuk kesesuaian Firestore
+        'nik': nikController.text.trim(),
+        'phone': phoneController.text.trim(),
+      });
+
+      await showMessageDialog(
+        title: 'Berhasil!',
+        message: 'Akun berhasil dibuat. Silakan login.',
+        success: true,
+      );
+
+      Navigator.pushReplacementNamed(context, '/login');
+    } on FirebaseAuthException catch (e) {
+      String message = 'Terjadi kesalahan, coba lagi';
+
+      if (e.code == 'email-already-in-use') {
+        message = 'Email sudah terdaftar';
+      } else if (e.code == 'invalid-email') {
+        message = 'Email tidak valid';
+      } else if (e.code == 'weak-password') {
+        message = 'Password terlalu lemah';
+      }
+
+      await showMessageDialog(
+        title: 'Berhasil!',
+        message: 'Akun berhasil dibuat. Silakan login.',
+        success: true,
+      );
+
+      // Tutup dialog dulu
+      Navigator.of(context).pop();
+
+      // pindah ke login
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+  }
+
+  Future<void> showMessageDialog({
+    required String title,
+    required String message,
+    required bool success,
+  }) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor:
+            success ? AppTheme.greenExtraLight : AppTheme.redExtraLight,
+        title: Row(
+          children: [
+            Icon(
+              success ? Icons.check_circle_outline : Icons.error_outline,
+              color: success ? AppTheme.greenDark : AppTheme.redDark,
+            ),
+            const SizedBox(width: 8),
+            Text(title),
+          ],
+        ),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   // Fungsi memilih file menggunakan FilePicker
@@ -44,6 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     required String label,
     required String hint,
     bool obscureText = false,
+    TextEditingController? controller, // tambahkan controller
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,6 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             )),
         const SizedBox(height: 6),
         TextFormField(
+          controller: controller, // hubungkan controller
           obscureText: obscureText,
           style: TextStyle(color: AppTheme.hitam),
           decoration: InputDecoration(
@@ -341,15 +469,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 child: Column(
                                   children: [
                                     _buildInputField(
-                                        label: 'Nama Lengkap',
-                                        hint: 'Masukkan nama lengkap'),
+                                      label: 'Nama Lengkap',
+                                      hint: 'Masukkan nama lengkap',
+                                      controller: nameController,
+                                    ),
                                     _buildInputField(
-                                        label: 'Email',
-                                        hint: 'Masukkan email aktif'),
+                                      label: 'Email',
+                                      hint: 'Masukkan email aktif',
+                                      controller: emailController,
+                                    ),
                                     _buildInputField(
-                                        label: 'Password',
-                                        hint: 'Masukkan password',
-                                        obscureText: true),
+                                      label: 'Password',
+                                      hint: 'Masukkan password',
+                                      obscureText: true,
+                                      controller: passwordController,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -358,14 +492,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 child: Column(
                                   children: [
                                     _buildInputField(
-                                        label: 'NIK', hint: 'Masukkan NIK'),
+                                      label: 'NIK',
+                                      hint: 'Masukkan NIK',
+                                      controller: nikController,
+                                    ),
                                     _buildInputField(
-                                        label: 'No Telepon',
-                                        hint: 'Masukkan nomor telepon'),
+                                      label: 'No Telepon',
+                                      hint: 'Masukkan nomor telepon',
+                                      controller: phoneController,
+                                    ),
                                     _buildInputField(
-                                        label: 'Konfirmasi Password',
-                                        hint: 'Masukkan ulang password',
-                                        obscureText: true),
+                                      label: 'Konfirmasi Password',
+                                      hint: 'Masukkan ulang password',
+                                      obscureText: true,
+                                      controller: confirmPasswordController,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -398,9 +539,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: () => Navigator.pushReplacementNamed(
-                                context,
-                                '/login'), // Kembali ke login setelah submit
+                            onPressed: registerUser,
+                            // Kembali ke login setelah submit
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.primaryBlue,
                               shape: RoundedRectangleBorder(
