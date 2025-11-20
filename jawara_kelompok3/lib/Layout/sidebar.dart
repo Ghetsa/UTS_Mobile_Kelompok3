@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AppSidebar extends StatefulWidget {
   const AppSidebar({super.key});
@@ -568,6 +569,58 @@ class _AppSidebarState extends State<AppSidebar> {
                           _expandOnlyAnimated('mutasi_keluarga', true)),
                 ],
               ),
+            ),
+
+            // === Logout ===
+            ListTile(
+              leading: const Icon(Icons.logout, color: AppTheme.primaryBlue),
+              title: const Text(
+                "Logout",
+                style: TextStyle(
+                  color: AppTheme.primaryBlue,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              onTap: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("Konfirmasi Logout"),
+                      content: const Text("Apakah Anda yakin ingin logout?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text("Batal"),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.redMediumDark,
+                            foregroundColor: AppTheme.grayMediumLight,
+                          ),
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text("Logout"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+                if (confirm == true) {
+                  // tutup drawer SETELAH dialog
+                  Navigator.pop(context);
+
+                  try {
+                    await FirebaseAuth.instance.signOut();
+                  } catch (e) {}
+
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/login',
+                    (route) => false,
+                  );
+                }
+              },
             ),
           ],
         ),

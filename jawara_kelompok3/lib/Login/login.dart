@@ -1,8 +1,137 @@
 import 'package:flutter/material.dart';
 import '../Theme/app_theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../firebase_options.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  bool isLoading = false;
+  bool _obscurePassword = true;
+
+  late FirebaseAuth _auth;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeFirebase();
+  }
+
+  Future<void> initializeFirebase() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    _auth = FirebaseAuth.instance;
+  }
+
+  // LOGIN
+  Future<void> login() async {
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final user = userCredential.user;
+
+      if (user != null) {
+        // Tampilkan dialog sukses
+        await showMessageDialog(
+          title: 'Berhasil!',
+          message: 'Selamat datang ${user.email}',
+          success: true,
+        );
+
+        setState(() {
+          isLoading = false;
+        });
+
+        // Arahkan langsung ke dashboard TAMPA ROLE
+        Navigator.pushReplacementNamed(
+          context,
+          '/dashboard/kegiatan',
+          arguments: {'user': user},
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+
+      String message = 'Terjadi kesalahan, coba lagi';
+
+      if (e.code == 'user-not-found') {
+        message = 'Email tidak ditemukan';
+      } else if (e.code == 'wrong-password') {
+        message = 'Password salah';
+      }
+
+      await showMessageDialog(
+        title: 'Gagal!',
+        message: message,
+        success: false,
+      );
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+
+      await showMessageDialog(
+        title: 'Kesalahan!',
+        message: 'Terjadi kesalahan, coba lagi',
+        success: false,
+      );
+    }
+  }
+
+  Future<void> showMessageDialog({
+    required String title,
+    required String message,
+    required bool success,
+  }) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor:
+            success ? AppTheme.greenExtraLight : AppTheme.redExtraLight,
+        title: Row(
+          children: [
+            Icon(
+              success ? Icons.check_circle_outline : Icons.error_outline,
+              color: success ? AppTheme.greenDark : AppTheme.redDark,
+            ),
+            const SizedBox(width: 8),
+            Text(title),
+          ],
+        ),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +230,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
+                          controller: emailController,
                           style: const TextStyle(
                             color: AppTheme.hitam,
                             fontSize: 16,
@@ -148,6 +278,8 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
+                          controller: passwordController,
+                          obscureText: _obscurePassword,
                           style: const TextStyle(
                             color: AppTheme.hitam,
                             fontSize: 16,
@@ -179,8 +311,21 @@ class LoginScreen extends StatelessWidget {
                               horizontal: 16,
                               vertical: 12,
                             ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                color: AppTheme.abu,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
                           ),
-                          keyboardType: TextInputType.emailAddress,
+                          keyboardType: TextInputType.visiblePassword,
                         ),
                         const SizedBox(height: 20),
 
@@ -189,10 +334,7 @@ class LoginScreen extends StatelessWidget {
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushReplacementNamed(
-                                  context, '/dashboard/kegiatan');
-                            },
+                            onPressed: login,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.primaryBlue,
                               shape: RoundedRectangleBorder(
@@ -200,14 +342,17 @@ class LoginScreen extends StatelessWidget {
                               ),
                               elevation: 5,
                             ),
-                            child: const Text(
-                              'Login',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.putihFull,
-                              ),
-                            ),
+                            child: isLoading
+                                ? const CircularProgressIndicator(
+                                    color: AppTheme.putihFull)
+                                : const Text(
+                                    'Login',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.putihFull,
+                                    ),
+                                  ),
                           ),
                         ),
                         const SizedBox(height: 20),

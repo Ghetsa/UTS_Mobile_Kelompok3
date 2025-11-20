@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "39237261880",
+    "project_id": "jawara-kelompok3-77166",
+    "storage_bucket": "jawara-kelompok3-77166.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:39237261880:android:baf3aad47e7d6e50e3a4cd",
+        "android_client_info": {
+          "package_name": "com.example.jawara_kelompok3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_-OmZQWiwJX0HgiJVMBkYHZkoKiT1Yp8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

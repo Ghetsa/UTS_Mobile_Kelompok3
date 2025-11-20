@@ -1,16 +1,1 @@
-{
-  "hosting": {
-    "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
-  }
-}
+{"flutter":{"platforms":{"android":{"default":{"projectId":"jawara-kelompok3-77166","appId":"1:39237261880:android:baf3aad47e7d6e50e3a4cd","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"jawara-kelompok3-77166","configurations":{"android":"1:39237261880:android:baf3aad47e7d6e50e3a4cd","ios":"1:39237261880:ios:5fbe4995bfe1e265e3a4cd","macos":"1:39237261880:ios:5fbe4995bfe1e265e3a4cd","web":"1:39237261880:web:abdd2f329a422eace3a4cd","windows":"1:39237261880:web:bf70e4b0d77c6bc2e3a4cd"}}}}}}
