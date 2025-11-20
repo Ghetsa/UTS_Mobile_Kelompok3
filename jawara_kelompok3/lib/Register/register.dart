@@ -24,7 +24,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController manualAddressController = TextEditingController();
 
-  // Variabel lainnya tetap sama
+  // Variabel 
   String? _selectedFileName;
   String? _selectedAddressOption;
   String? _selectedOwnershipStatus;
@@ -111,11 +111,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         message: 'Akun berhasil dibuat. Silakan login.',
         success: true,
       );
-
-      // Tutup dialog dulu
+      
       Navigator.of(context).pop();
-
-      // pindah ke login
       Navigator.pushReplacementNamed(context, '/login');
     }
   }
