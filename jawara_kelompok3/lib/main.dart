@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'routes/app_routes.dart';
-import 'Theme/app_theme.dart';
+import 'core/routes/app_routes.dart';
+import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
