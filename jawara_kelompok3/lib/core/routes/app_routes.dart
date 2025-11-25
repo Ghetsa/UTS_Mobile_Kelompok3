@@ -16,7 +16,7 @@ import '../../features/warga/presentation/pages/rumah/daftar_rumah_page.dart';
 import '../../features/warga/presentation/pages/rumah/tambah_rumah_page.dart';
 import '../../features/warga/presentation/pages/warga/daftar_warga_page.dart';
 import '../../features/warga/presentation/pages/warga/tambah_warga_page.dart';
-import '../../features/warga/presentation/pages/keluarga/Keluarga.dart';
+import '../../features/warga/presentation/pages/keluarga/keluarga_page.dart';
 
 // === Menu Utama ===
 import '../../features/laporan/presentation/pages/pemasukan/semua_pemasukan_page.dart';

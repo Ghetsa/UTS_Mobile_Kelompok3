@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class AppSidebar extends StatefulWidget {
   const AppSidebar({super.key});
@@ -11,11 +10,19 @@ class AppSidebar extends StatefulWidget {
 
 class _AppSidebarState extends State<AppSidebar> {
   final Map<String, bool> _expanded = {};
-
   String? _lastRoute;
 
   final Duration _animationDuration = const Duration(milliseconds: 300);
   bool _isAnimating = false;
+
+  final Gradient mainGradient = const LinearGradient(
+    colors: [
+      Color(0xFF48B0E0),
+      Color(0xFF0C88C2),
+    ],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
 
   @override
   void initState() {
@@ -36,7 +43,6 @@ class _AppSidebarState extends State<AppSidebar> {
 
   bool _routeMatches(String menuKey, String route) {
     if (route.isEmpty) return false;
-
     switch (menuKey) {
       case 'dashboard':
         return route.startsWith('/dashboard');
@@ -66,561 +72,98 @@ class _AppSidebarState extends State<AppSidebar> {
   }
 
   void _ensureInitialExpansion(String currentRoute) {
-    if (_lastRoute == currentRoute) return; // no change
+    if (_lastRoute == currentRoute) return;
     _expanded.forEach((k, _) {
       _expanded[k] = _routeMatches(k, currentRoute);
     });
     _lastRoute = currentRoute;
   }
 
-  void _expandOnly(String menuKey, bool expanded) {
-    setState(() {
-      _expanded.forEach((k, _) {
-        _expanded[k] = (k == menuKey) ? expanded : false;
-      });
-    });
-  }
-
-  Future<void> _expandOnlyAnimated(String menuKey, bool expand) async {
+  Future<void> _expandOnlyAnimated(String key, bool expand) async {
     if (_isAnimating) return;
 
     if (!expand) {
-      setState(() => _expanded[menuKey] = false);
+      setState(() => _expanded[key] = false);
       return;
     }
 
-    final currentOpen = _expanded.entries
+    final current = _expanded.entries
         .firstWhere((e) => e.value, orElse: () => MapEntry('', false));
 
-    if (currentOpen.key == '' || currentOpen.key == menuKey) {
+    if (current.key == '' || current.key == key) {
       setState(() {
-        _expanded.forEach((k, _) => _expanded[k] = (k == menuKey));
+        _expanded.forEach((k, _) => _expanded[k] = (k == key));
       });
       return;
     }
 
     _isAnimating = true;
-    setState(() => _expanded[currentOpen.key] = false);
-
+    setState(() => _expanded[current.key] = false);
     await Future.delayed(_animationDuration);
 
     setState(() {
-      _expanded.forEach((k, _) => _expanded[k] = (k == menuKey));
+      _expanded.forEach((k, _) => _expanded[k] = (k == key));
     });
 
     await Future.delayed(const Duration(milliseconds: 40));
     _isAnimating = false;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
+  // =============================================================
+  // 🔥 WIDGET TEXT GRADIENT
+  // =============================================================
+  Widget gradientText(String text,
+      {double fontSize = 15, FontWeight weight = FontWeight.w600}) {
+    return ShaderMask(
+      shaderCallback: (bounds) => mainGradient.createShader(bounds),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: fontSize,
+          fontWeight: weight,
+        ),
+      ),
+    );
+  }
 
-    _ensureInitialExpansion(currentRoute);
+  Widget _buildSubMenuItem(
+    String label,
+    String route,
+    BuildContext context,
+    String currentRoute, {
+    VoidCallback? onSelected,
+  }) {
+    final bool selected = currentRoute == route;
 
-    return Drawer(
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, route);
+        if (onSelected != null) onSelected();
+      },
       child: Container(
-        color: AppTheme.lightBlue,
-        child: ListView(
-          padding: EdgeInsets.zero,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: selected ? AppTheme.blueExtraLight : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: AppTheme.primaryBlue,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 25,
-                    backgroundColor: AppTheme.backgroundBlueWhite,
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Admin Jawara",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    "admin1@gmail.com",
-                    style: TextStyle(
-                      color: Color(0xFFE0E7FF),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
+            Icon(
+              Icons.circle,
+              size: 8,
+              color: selected ? const Color(0xFF0C88C2) : Colors.grey.shade500,
             ),
+            const SizedBox(width: 10),
 
-            // === Dashboard ===
-            Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                key: ValueKey('dashboard_${_expanded['dashboard'] ?? false}'),
-                leading:
-                    const Icon(Icons.receipt_long, color: AppTheme.primaryBlue),
-                title: const Text(
-                  "Dashboard",
-                  style: TextStyle(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                childrenPadding: EdgeInsets.zero,
-                initiallyExpanded: _expanded['dashboard'] ?? false,
-                onExpansionChanged: (expanded) =>
-                    _expandOnlyAnimated('dashboard', expanded),
-                children: [
-                  _buildSubMenuItem(
-                    "Kegiatan",
-                    "/dashboard/kegiatan",
-                    context,
-                    currentRoute,
-                    onSelected: () => _expandOnlyAnimated('dashboard', true),
-                  ),
-                  _buildSubMenuItem(
-                    "Kependudukan",
-                    "/dashboard/kependudukan",
-                    context,
-                    currentRoute,
-                    onSelected: () => _expandOnlyAnimated('dashboard', true),
-                  ),
-                  _buildSubMenuItem(
-                    "Keuangan",
-                    "/dashboard/keuangan",
-                    context,
-                    currentRoute,
-                    onSelected: () => _expandOnlyAnimated('dashboard', true),
-                  ),
-                ],
+            /// TEXT GRADIENT
+            Expanded(
+              child: gradientText(
+                label,
+                fontSize: 14,
+                weight: selected ? FontWeight.bold : FontWeight.w500,
               ),
-            ),
-
-            // === Data Warga & Rumah ===
-            Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                key: ValueKey('data_warga_${_expanded['data_warga'] ?? false}'),
-                leading: const Icon(Icons.people, color: AppTheme.primaryBlue),
-                title: const Text(
-                  "Data Warga & Rumah",
-                  style: TextStyle(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                initiallyExpanded: _expanded['data_warga'] ?? false,
-                onExpansionChanged: (expanded) =>
-                    _expandOnlyAnimated('data_warga', expanded),
-                children: [
-                  _buildSubMenuItem(
-                      "Warga - Daftar", "/warga/daftar", context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('data_warga', true)),
-                  _buildSubMenuItem(
-                      "Warga - Tambah", "/warga/tambah", context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('data_warga', true)),
-                  _buildSubMenuItem(
-                      "Keluarga", "/keluarga", context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('data_warga', true)),
-                  _buildSubMenuItem(
-                      "Rumah - Daftar", "/rumah/daftar", context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('data_warga', true)),
-                  _buildSubMenuItem(
-                      "Rumah - Tambah", "/rumah/tambah", context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('data_warga', true)),
-                ],
-              ),
-            ),
-
-            // === Pemasukan ===
-            Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                key: ValueKey('pemasukan_${_expanded['pemasukan'] ?? false}'),
-                leading:
-                    const Icon(Icons.receipt_long, color: AppTheme.primaryBlue),
-                title: const Text(
-                  "Pemasukan",
-                  style: TextStyle(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                initiallyExpanded: _expanded['pemasukan'] ?? false,
-                onExpansionChanged: (expanded) =>
-                    _expandOnlyAnimated('pemasukan', expanded),
-                children: [
-                  _buildSubMenuItem("Kategori Iuran",
-                      "/pemasukan/pages/kategori", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('pemasukan', true)),
-                  _buildSubMenuItem("Tagih Iuran", "/pemasukan/tagihIuran",
-                      context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('pemasukan', true)),
-                  _buildSubMenuItem(
-                      "Tagihan", "/pemasukan/tagihan", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('pemasukan', true)),
-                  _buildSubMenuItem("Pemasukan Lain - Daftar",
-                      "/pemasukan/pemasukanLain-daftar", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('pemasukan', true)),
-                  _buildSubMenuItem("Pemasukan Lain - Tambah",
-                      "/pemasukan/pemasukanLain-tambah", context, currentRoute,
-                      onSelected: () => _expandOnlyAnimated('pemasukan', true)),
-                ],
-              ),
-            ),
-
-            // === Laporan Keuangan ===
-            Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                key: ValueKey(
-                    'laporan_keuangan_${_expanded['laporan_keuangan'] ?? false}'),
-                leading:
-                    const Icon(Icons.bar_chart, color: AppTheme.primaryBlue),
-                title: const Text(
-                  "Laporan Keuangan",
-                  style: TextStyle(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                initiallyExpanded: _expanded['laporan_keuangan'] ?? false,
-                onExpansionChanged: (expanded) =>
-                    _expandOnlyAnimated('laporan_keuangan', expanded),
-                children: [
-                  _buildSubMenuItem("Semua Pemasukan",
-                      "/laporan/semua-pemasukan", context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('laporan_keuangan', true)),
-                  _buildSubMenuItem("Semua Pengeluaran",
-                      "/laporan/semua-pengeluaran", context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('laporan_keuangan', true)),
-                  _buildSubMenuItem(
-                      "Cetak Laporan", "/laporan/cetak", context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('laporan_keuangan', true)),
-                ],
-              ),
-            ),
-
-            // === Manajemen Pengguna (ExpansionTile) ===
-            Theme(
-              data: Theme.of(
-                context,
-              ).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                key: ValueKey(
-                    'manajemen_pengguna_${_expanded['manajemen_pengguna'] ?? false}'),
-                leading: const Icon(
-                  Icons.receipt_long,
-                  color: AppTheme.primaryBlue,
-                ),
-                title: const Text(
-                  "Manajemen Pengguna",
-                  style: TextStyle(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                initiallyExpanded: _expanded['manajemen_pengguna'] ?? false,
-                onExpansionChanged: (expanded) =>
-                    _expandOnlyAnimated('manajemen_pengguna', expanded),
-                children: [
-                  _buildSubMenuItem(
-                    "Daftar Pengguna",
-                    "/pengguna/penggunaDaftar",
-                    context,
-                    currentRoute,
-                    onSelected: () =>
-                        _expandOnlyAnimated('manajemen_pengguna', true),
-                  ),
-                  _buildSubMenuItem(
-                    "Tambah Pengguna",
-                    "/pengguna/penggunaTambah",
-                    context,
-                    currentRoute,
-                    onSelected: () =>
-                        _expandOnlyAnimated('manajemen_pengguna', true),
-                  ),
-                ],
-              ),
-            ),
-
-            // === Channel Transfer ===
-            Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                key: ValueKey(
-                    'channel_transfer_${_expanded['channel_transfer'] ?? false}'),
-                leading: const Icon(
-                  Icons.swap_horiz,
-                  color: AppTheme.primaryBlue,
-                ),
-                title: const Text(
-                  "Channel Transfer",
-                  style: TextStyle(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                initiallyExpanded: _expanded['channel_transfer'] ?? false,
-                onExpansionChanged: (expanded) =>
-                    _expandOnlyAnimated('channel_transfer', expanded),
-                children: [
-                  _buildSubMenuItem(
-                    "Daftar Channel",
-                    "/channel/channelDaftar",
-                    context,
-                    currentRoute,
-                    onSelected: () =>
-                        _expandOnlyAnimated('channel_transfer', true),
-                  ),
-                  _buildSubMenuItem(
-                    "Tambah Channel",
-                    "/channel/channelTambah",
-                    context,
-                    currentRoute,
-                    onSelected: () =>
-                        _expandOnlyAnimated('channel_transfer', true),
-                  ),
-                ],
-              ),
-            ),
-
-            // === Log Aktifitas ===
-            Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                key: ValueKey(
-                    'log_aktifitas_${_expanded['log_aktifitas'] ?? false}'),
-                leading: const Icon(
-                  Icons.history,
-                  color: AppTheme.primaryBlue,
-                ),
-                title: const Text(
-                  "Log Aktifitas",
-                  style: TextStyle(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                initiallyExpanded: _expanded['log_aktifitas'] ?? false,
-                onExpansionChanged: (expanded) =>
-                    _expandOnlyAnimated('log_aktifitas', expanded),
-                children: [
-                  _buildSubMenuItem(
-                    "Semua Aktifitas",
-                    "/semuaAktifitas",
-                    context,
-                    currentRoute,
-                    onSelected: () =>
-                        _expandOnlyAnimated('log_aktifitas', true),
-                  ),
-                ],
-              ),
-            ),
-
-            // === Pesan Warga ===
-            Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                key: ValueKey(
-                    'pesan_warga_${_expanded['pesan_warga'] ?? false}'),
-                leading: const Icon(
-                  Icons.message,
-                  color: AppTheme.primaryBlue,
-                ),
-                title: const Text(
-                  "Pesan Warga",
-                  style: TextStyle(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                initiallyExpanded: _expanded['pesan_warga'] ?? false,
-                onExpansionChanged: (expanded) =>
-                    _expandOnlyAnimated('pesan_warga', expanded),
-                children: [
-                  _buildSubMenuItem(
-                    "Informasi Aspirasi",
-                    "/informasiAspirasi",
-                    context,
-                    currentRoute,
-                    onSelected: () => _expandOnlyAnimated('pesan_warga', true),
-                  ),
-                ],
-              ),
-            ),
-
-            // === Menu Broadcast ===
-            Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                key: ValueKey(
-                    'KegiatanBroadcast_${_expanded['KegiatanBroadcast'] ?? false}'),
-                leading: const Icon(Icons.event, color: AppTheme.primaryBlue),
-                title: const Text(
-                  "Kegiatan & Broadcast",
-                  style: TextStyle(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                initiallyExpanded: _expanded['KegiatanBroadcast'] ?? false,
-                onExpansionChanged: (expanded) =>
-                    _expandOnlyAnimated('KegiatanBroadcast', expanded),
-                children: [
-                  _buildSubMenuItem("Kegiatan - Daftar", "/kegiatan/daftar",
-                      context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('KegiatanBroadcast', true)),
-                  _buildSubMenuItem("Kegiatan - Tambah", "/kegiatan/tambah",
-                      context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('KegiatanBroadcast', true)),
-                  _buildSubMenuItem("Broadcast - Daftar", "/broadcast/daftar",
-                      context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('KegiatanBroadcast', true)),
-                  _buildSubMenuItem("Broadcast - Tambah", "/broadcast/tambah",
-                      context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('KegiatanBroadcast', true)),
-                ],
-              ),
-            ),
-
-            // Pengeluaran
-            Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                key: ValueKey(
-                    'pengeluaran_${_expanded['pengeluaran'] ?? false}'),
-                leading:
-                    const Icon(Icons.bar_chart, color: AppTheme.primaryBlue),
-                title: const Text(
-                  "Pengeluaran",
-                  style: TextStyle(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                initiallyExpanded: _expanded['pengeluaran'] ?? false,
-                onExpansionChanged: (expanded) =>
-                    _expandOnlyAnimated('pengeluaran', expanded),
-                children: [
-                  _buildSubMenuItem(
-                      "Daftar", "/pengeluaran/daftar", context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('pengeluaran', true)),
-                  _buildSubMenuItem(
-                      "Tambah", "/pengeluaran/tambah", context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('pengeluaran', true)),
-                ],
-              ),
-            ),
-
-            // Mutasi Keluarga with submenu
-            Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                key: ValueKey(
-                    'mutasi_keluarga_${_expanded['mutasi_keluarga'] ?? false}'),
-                leading: const Icon(Icons.family_restroom,
-                    color: AppTheme.primaryBlue),
-                title: const Text(
-                  "Mutasi Keluarga",
-                  style: TextStyle(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                initiallyExpanded: _expanded['mutasi_keluarga'] ?? false,
-                onExpansionChanged: (expanded) =>
-                    _expandOnlyAnimated('mutasi_keluarga', expanded),
-                children: [
-                  _buildSubMenuItem(
-                      "Daftar", "/mutasi/daftar", context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('mutasi_keluarga', true)),
-                  _buildSubMenuItem(
-                      "Tambah", "/mutasi/tambah", context, currentRoute,
-                      onSelected: () =>
-                          _expandOnlyAnimated('mutasi_keluarga', true)),
-                ],
-              ),
-            ),
-
-            // === Logout ===
-            ListTile(
-              leading: const Icon(Icons.logout, color: AppTheme.primaryBlue),
-              title: const Text(
-                "Logout",
-                style: TextStyle(
-                  color: AppTheme.primaryBlue,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              onTap: () async {
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: const Text("Konfirmasi Logout"),
-                      content: const Text("Apakah Anda yakin ingin logout?"),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text("Batal"),
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.redMediumDark,
-                            foregroundColor: AppTheme.grayMediumLight,
-                          ),
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text("Logout"),
-                        ),
-                      ],
-                    );
-                  },
-                );
-
-                if (confirm == true) {
-                  // tutup drawer SETELAH dialog
-                  Navigator.pop(context);
-
-                  try {
-                    await FirebaseAuth.instance.signOut();
-                  } catch (e) {}
-
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/login',
-                    (route) => false,
-                  );
-                }
-              },
             ),
           ],
         ),
@@ -628,79 +171,218 @@ class _AppSidebarState extends State<AppSidebar> {
     );
   }
 
-  /// Menu utama biasa
-  static Widget _buildMenuItem(
-    IconData icon,
-    String title,
-    String route,
-    BuildContext context,
-    String currentRoute,
-  ) {
-    final bool isActive = route == currentRoute;
+  // =============================================================
+  // 🔥 MAIN BUILD
+  // =============================================================
+  @override
+  Widget build(BuildContext context) {
+    final currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
+    _ensureInitialExpansion(currentRoute);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isActive ? AppTheme.primaryBlue : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: ListTile(
-        leading:
-            Icon(icon, color: isActive ? Colors.white : AppTheme.primaryBlue),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isActive ? Colors.white : AppTheme.primaryBlue,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+    return Drawer(
+      child: Column(
+        children: [
+          // =============================================================
+          // 🔵 HEADER GRADIENT (TETAP BIRU)
+          // =============================================================
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+            decoration: BoxDecoration(gradient: mainGradient),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 54,
+                  height: 54,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(.3),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child:
+                      const Icon(Icons.person, size: 36, color: Colors.white),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  "Admin Jawara",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "admin1@gmail.com",
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+              ],
+            ),
           ),
-        ),
-        onTap: () {
-          Navigator.pop(context);
-          if (ModalRoute.of(context)?.settings.name != route) {
-            Navigator.pushNamed(context, route);
-          }
-        },
+
+          // =============================================================
+          // ⚪ BODY PUTIH + TEXT GRADIENT
+          // =============================================================
+          Expanded(
+            child: Container(
+              color: Colors.white,
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  /// =========================== MENU ==========================
+                  _buildMenuSection(
+                    icon: Icons.dashboard_rounded,
+                    title: "Dashboard",
+                    keyValue: "dashboard",
+                    context: context,
+                    currentRoute: currentRoute,
+                    children: [
+                      _buildSubMenuItem("Kegiatan", "/dashboard/kegiatan",
+                          context, currentRoute),
+                      _buildSubMenuItem("Kependudukan",
+                          "/dashboard/kependudukan", context, currentRoute),
+                      _buildSubMenuItem("Keuangan", "/dashboard/keuangan",
+                          context, currentRoute),
+                    ],
+                  ),
+
+                  _buildMenuSection(
+                    icon: Icons.people_alt_rounded,
+                    title: "Data Warga & Rumah",
+                    keyValue: "data_warga",
+                    context: context,
+                    currentRoute: currentRoute,
+                    children: [
+                      _buildSubMenuItem("Warga - Daftar", "/warga/daftar",
+                          context, currentRoute),
+                      _buildSubMenuItem("Warga - Tambah", "/warga/tambah",
+                          context, currentRoute),
+                      _buildSubMenuItem(
+                          "Keluarga", "/keluarga", context, currentRoute),
+                      _buildSubMenuItem("Rumah - Daftar", "/rumah/daftar",
+                          context, currentRoute),
+                      _buildSubMenuItem("Rumah - Tambah", "/rumah/tambah",
+                          context, currentRoute),
+                    ],
+                  ),
+
+                  _buildMenuSection(
+                    icon: Icons.payments_rounded,
+                    title: "Pemasukan",
+                    keyValue: "pemasukan",
+                    context: context,
+                    currentRoute: currentRoute,
+                    children: [
+                      _buildSubMenuItem("Kategori Iuran",
+                          "/pemasukan/pages/kategori", context, currentRoute),
+                      _buildSubMenuItem("Tagih Iuran", "/pemasukan/tagihIuran",
+                          context, currentRoute),
+                      _buildSubMenuItem("Tagihan", "/pemasukan/tagihan",
+                          context, currentRoute),
+                      _buildSubMenuItem(
+                          "Pemasukan Lain - Daftar",
+                          "/pemasukan/pemasukanLain-daftar",
+                          context,
+                          currentRoute),
+                      _buildSubMenuItem(
+                          "Pemasukan Lain - Tambah",
+                          "/pemasukan/pemasukanLain-tambah",
+                          context,
+                          currentRoute),
+                    ],
+                  ),
+
+                  _buildMenuSection(
+                    icon: Icons.bar_chart_rounded,
+                    title: "Laporan Keuangan",
+                    keyValue: "laporan_keuangan",
+                    context: context,
+                    currentRoute: currentRoute,
+                    children: [
+                      _buildSubMenuItem("Semua Pemasukan",
+                          "/laporan/semua-pemasukan", context, currentRoute),
+                      _buildSubMenuItem("Semua Pengeluaran",
+                          "/laporan/semua-pengeluaran", context, currentRoute),
+                      _buildSubMenuItem("Cetak Laporan", "/laporan/cetak",
+                          context, currentRoute),
+                    ],
+                  ),
+
+                  _buildMenuSection(
+                    icon: Icons.person_search_rounded,
+                    title: "Manajemen Pengguna",
+                    keyValue: "manajemen_pengguna",
+                    context: context,
+                    currentRoute: currentRoute,
+                    children: [
+                      _buildSubMenuItem("Daftar Pengguna",
+                          "/pengguna/penggunaDaftar", context, currentRoute),
+                      _buildSubMenuItem("Tambah Pengguna",
+                          "/pengguna/penggunaTambah", context, currentRoute),
+                    ],
+                  ),
+
+                  _buildMenuSection(
+                    icon: Icons.swap_horiz_rounded,
+                    title: "Channel Transfer",
+                    keyValue: "channel_transfer",
+                    context: context,
+                    currentRoute: currentRoute,
+                    children: [
+                      _buildSubMenuItem("Daftar Channel", "/channel/list",
+                          context, currentRoute),
+                      _buildSubMenuItem("Tambah Channel", "/channel/add",
+                          context, currentRoute),
+                    ],
+                  ),
+
+                  // const SizedBox(height: 10),
+
+                  ListTile(
+                    leading: const Icon(Icons.logout_rounded,
+                        color: AppTheme.redDark),
+                    title: const Text(
+                      "Logout",
+                      style: TextStyle(
+                          color: AppTheme.redDark, fontWeight: FontWeight.bold),
+                    ),
+                    onTap: () {
+                      Navigator.pushNamed(context, '/login');
+                    },
+                  ),
+                ],
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
 
-  /// Submenu
-  static Widget _buildSubMenuItem(
-    String title,
-    String route,
-    BuildContext context,
-    String currentRoute, {
-    VoidCallback? onSelected,
+  Widget _buildMenuSection({
+    required IconData icon,
+    required String title,
+    required String keyValue,
+    required BuildContext context,
+    required String currentRoute,
+    required List<Widget> children,
   }) {
-    final bool isActive = route == currentRoute;
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        key: ValueKey('${keyValue}_${_expanded[keyValue]}'),
+        initiallyExpanded: _expanded[keyValue] ?? false,
+        onExpansionChanged: (expanded) =>
+            _expandOnlyAnimated(keyValue, expanded),
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isActive
-            ? AppTheme.primaryBlue.withOpacity(0.1)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      child: ListTile(
-        dense: true,
-        contentPadding: const EdgeInsets.only(left: 60.0), // indent submenu
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isActive ? AppTheme.primaryBlue : const Color(0xFF1E40AF),
-            fontSize: 14,
-            fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-          ),
+        // ICON + TEXT GRADIENT
+        leading: ShaderMask(
+          shaderCallback: (bounds) => mainGradient.createShader(bounds),
+          child: Icon(icon, color: Colors.white, size: 24),
         ),
-        onTap: () {
-          if (onSelected != null) onSelected();
 
-          Navigator.pop(context);
-          if (ModalRoute.of(context)?.settings.name != route) {
-            Navigator.pushNamed(context, route);
-          }
-        },
+        title: gradientText(title),
+
+        children: children,
       ),
     );
   }
