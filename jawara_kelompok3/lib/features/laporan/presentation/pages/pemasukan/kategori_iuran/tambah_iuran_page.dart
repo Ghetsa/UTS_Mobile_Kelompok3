@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../../../main.dart';
 import '../../../../../../core/layout/header.dart';
 import '../../../../../../core/layout/sidebar.dart';
-import '../../../../../../core/theme/app_theme.dart'; // pastikan path sesuai lokasi AppTheme.dart
+import '../../../../../../core/theme/app_theme.dart'; 
 
 class TambahKategoriPage extends StatefulWidget {
   const TambahKategoriPage({super.key});

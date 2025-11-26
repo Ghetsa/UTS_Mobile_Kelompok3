@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../../../../core/layout/header.dart';
 import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
-import 'detail_pengeluaran_dialog.dart';
-import 'edit_pengeluaran_dialog.dart';
+import '../../widgets/dialog/detail_pengeluaran_dialog.dart';
+import '../../widgets/dialog/edit_pengeluaran_dialog.dart';
 
 class SemuaPengeluaranPage extends StatefulWidget {
   const SemuaPengeluaranPage({super.key});
