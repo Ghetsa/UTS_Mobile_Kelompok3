@@ -49,6 +49,7 @@ class _AppSidebarState extends State<AppSidebar> {
       case 'data_warga':
         return route.startsWith('/warga') ||
             route.startsWith('/keluarga') ||
+            route.startsWith('/mutasi') ||
             route.startsWith('/rumah');
       case 'pemasukan':
         return route.startsWith('/pemasukan');
@@ -247,20 +248,18 @@ class _AppSidebarState extends State<AppSidebar> {
 
                   _buildMenuSection(
                     icon: Icons.people_alt_rounded,
-                    title: "Data Warga & Rumah",
+                    title: "Data Kependudukan",
                     keyValue: "data_warga",
                     context: context,
                     currentRoute: currentRoute,
                     children: [
-                      _buildSubMenuItem("Warga - Daftar", "/warga/daftar",
+                      _buildSubMenuItem("Data Warga", "/data-warga/daftar",
                           context, currentRoute),
-                      _buildSubMenuItem("Warga - Tambah", "/warga/tambah",
+                      _buildSubMenuItem("Data Rumah", "/data-rumah/daftar",
                           context, currentRoute),
-                      _buildSubMenuItem(
-                          "Keluarga", "/keluarga", context, currentRoute),
-                      _buildSubMenuItem("Rumah - Daftar", "/rumah/daftar",
+                      _buildSubMenuItem("Data Keluarga", "/data-keluarga",
                           context, currentRoute),
-                      _buildSubMenuItem("Rumah - Tambah", "/rumah/tambah",
+                      _buildSubMenuItem("Mutasi Keluarga", "/mutasi/daftar",
                           context, currentRoute),
                     ],
                   ),

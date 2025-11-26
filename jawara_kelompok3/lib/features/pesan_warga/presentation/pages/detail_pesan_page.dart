@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/theme/app_theme.dart';
-import '../../../../../core/layout/sidebar.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/layout/sidebar.dart';
 
 class DetailAspirasi extends StatelessWidget {
   final Map<String, String> data;

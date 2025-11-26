@@ -50,6 +50,8 @@ class _DaftarKeluargaPageState extends State<DaftarKeluargaPage> {
             MainHeader(
               title: "Data Keluarga",
               searchHint: "Cari kepala keluarga...",
+              showSearchBar: true,
+              showFilterButton: true,
               onSearch: (value) {
                 setState(() => search = value.trim());
               },

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/theme/app_theme.dart';
-import '../../../../../core/layout/sidebar.dart';
+import '../../../data/models/rumah_model.dart';
+import '../../../data/services/rumah_service.dart';
 
 class EditRumahDialog extends StatefulWidget {
-  final Map<String, dynamic> rumah;
-
+  final RumahModel rumah;
   const EditRumahDialog({super.key, required this.rumah});
 
   @override
@@ -12,120 +11,73 @@ class EditRumahDialog extends StatefulWidget {
 }
 
 class _EditRumahDialogState extends State<EditRumahDialog> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _noController;
-  late TextEditingController _alamatController;
-  late TextEditingController _statusController;
-  late TextEditingController _kepemilikanController;
-  late TextEditingController _penghuniController;
+  final _alamatC = TextEditingController();
+  final _penghuniC = TextEditingController();
+  String? _status;
+  String? _kepemilikan;
+  final RumahService _service = RumahService();
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
-    _noController = TextEditingController(text: widget.rumah['no'].toString());
-    _alamatController = TextEditingController(text: widget.rumah['alamat']);
-    _statusController = TextEditingController(text: widget.rumah['status']);
-    _kepemilikanController =
-        TextEditingController(text: widget.rumah['kepemilikan']);
-    _penghuniController =
-        TextEditingController(text: widget.rumah['penghuni']);
+    _alamatC.text = widget.rumah.alamat;
+    _penghuniC.text = widget.rumah.penghuni;
+    _status = widget.rumah.status;
+    _kepemilikan = widget.rumah.kepemilikan;
   }
 
-  @override
-  void dispose() {
-    _noController.dispose();
-    _alamatController.dispose();
-    _statusController.dispose();
-    _kepemilikanController.dispose();
-    _penghuniController.dispose();
-    super.dispose();
-  }
-
-  void _simpan() {
-    if (_formKey.currentState!.validate()) {
-      final updated = {
-        "no": _noController.text,
-        "alamat": _alamatController.text,
-        "status": _statusController.text,
-        "kepemilikan": _kepemilikanController.text,
-        "penghuni": _penghuniController.text,
-      };
-      Navigator.pop(context, updated);
-    }
+  Future<void> _save() async {
+    setState(() => _loading = true);
+    final data = {
+      "alamat": _alamatC.text,
+      "penghuni": _penghuniC.text,
+      "status": _status,
+      "kepemilikan": _kepemilikan,
+    };
+    final ok = await _service.updateRumah(widget.rumah.id, data);
+    setState(() => _loading = false);
+    if (ok) Navigator.pop(context, true);
+    else ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Gagal update")));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("Edit Rumah",
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 8),
-                const Text("Ubah data rumah yang diperlukan.",
-                    style: TextStyle(color: Colors.black54)),
-                const SizedBox(height: 24),
-
-                _buildField("Nomor Rumah", _noController),
-                const SizedBox(height: 16),
-                _buildField("Alamat", _alamatController),
-                const SizedBox(height: 16),
-                _buildField("Status", _statusController),
-                const SizedBox(height: 16),
-                _buildField("Status Kepemilikan", _kepemilikanController),
-                const SizedBox(height: 16),
-                _buildField("Penghuni", _penghuniController),
-                const SizedBox(height: 24),
-
-                _buildActionButtons(context),
+    return AlertDialog(
+      title: const Text("Edit Rumah"),
+      content: SingleChildScrollView(
+        child: Column(
+          children: [
+            TextField(controller: _alamatC, decoration: const InputDecoration(labelText: 'Alamat')),
+            const SizedBox(height: 8),
+            TextField(controller: _penghuniC, decoration: const InputDecoration(labelText: 'Penghuni')),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              value: _status,
+              items: const [
+                DropdownMenuItem(value: "Ditempati", child: Text("Ditempati")),
+                DropdownMenuItem(value: "Tersedia", child: Text("Tersedia")),
               ],
+              onChanged: (v) => setState(() => _status = v),
+              decoration: const InputDecoration(labelText: 'Status'),
             ),
-          ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              value: _kepemilikan,
+              items: const [
+                DropdownMenuItem(value: "Pemilik", child: Text("Pemilik")),
+                DropdownMenuItem(value: "Penyewa", child: Text("Penyewa")),
+                DropdownMenuItem(value: "Kosong", child: Text("Kosong")),
+              ],
+              onChanged: (v) => setState(() => _kepemilikan = v),
+              decoration: const InputDecoration(labelText: 'Kepemilikan'),
+            ),
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _buildField(String label, TextEditingController controller) {
-    return TextFormField(
-      controller: controller,
-      decoration:
-          InputDecoration(labelText: label, border: const OutlineInputBorder()),
-      validator: (val) =>
-          val == null || val.isEmpty ? "Wajib diisi" : null,
-    );
-  }
-
-  Widget _buildActionButtons(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          style: TextButton.styleFrom(foregroundColor: Colors.black54),
-          child: const Text("Batal"),
-        ),
-        const SizedBox(width: 8),
-        ElevatedButton(
-          onPressed: _simpan,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.primaryBlue,
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          ),
-          child: const Text("Simpan",
-              style: TextStyle(color: Colors.white)),
-        ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+        ElevatedButton(onPressed: _loading ? null : _save, child: _loading ? const CircularProgressIndicator() : const Text('Simpan')),
       ],
     );
   }
