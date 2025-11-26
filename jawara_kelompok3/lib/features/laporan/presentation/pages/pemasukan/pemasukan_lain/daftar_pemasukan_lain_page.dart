@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../../../../core/layout/header.dart';
 import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
-import 'detail_pemasukan_lain_dialog.dart';
-import 'edit_pemasukan_lain_dialog.dart';
+import '../../../widgets/dialog/detail_pemasukan_lain_dialog.dart';
+import '../../../widgets/dialog/edit_pemasukan_lain_dialog.dart';
+
 
 class PemasukanLainDaftarPage extends StatefulWidget {
   const PemasukanLainDaftarPage({super.key});

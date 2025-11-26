@@ -3,8 +3,8 @@ import '../../../../../../core/layout/header.dart';
 import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../widgets/filter/tagihan_filter.dart';
-import 'detail_tagihan_page.dart';
-import 'edit_tagihan_page.dart';
+import '../../../widgets/dialog/detail_tagihan_dialog.dart';
+import '../../../widgets/dialog/edit_tagihan_dialog.dart';
 
 class TagihanPage extends StatelessWidget {
   const TagihanPage({super.key});

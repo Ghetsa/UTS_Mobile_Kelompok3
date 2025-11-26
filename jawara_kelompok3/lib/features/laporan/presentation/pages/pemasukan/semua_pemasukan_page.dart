@@ -3,8 +3,8 @@ import '../../../../../../core/layout/header.dart';
 import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../../../core/widgets/filter_form.dart';
-import 'detail_pemasukan_dialog.dart';
-import 'edit_pemasukan_dialog.dart';
+import '../../widgets/dialog/detail_pemasukan_dialog.dart';
+import '../../widgets/dialog/edit_pemasukan_dialog.dart';
 
 class SemuaPemasukanPage extends StatelessWidget {
   const SemuaPemasukanPage({super.key});
