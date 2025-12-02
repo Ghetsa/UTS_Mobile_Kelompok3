@@ -8,28 +8,43 @@ class DetailRumahDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Detail Rumah"),
+      title: const Text("Detail Rumah"),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text("Nomor Rumah (id): ${rumah.id}"),
+          const SizedBox(height: 8),
           Text("Alamat: ${rumah.alamat}"),
           const SizedBox(height: 8),
-          Text("Penghuni: ${rumah.penghuni}"),
+          Text("RT/RW: ${rumah.rt}/${rumah.rw}"),
+          const SizedBox(height: 8),
+          Text(
+            "Penghuni (ID Keluarga): "
+            "${rumah.penghuniKeluargaId.isEmpty ? '-' : rumah.penghuniKeluargaId}",
+          ),
           const SizedBox(height: 8),
           Text("Kepemilikan: ${rumah.kepemilikan}"),
           const SizedBox(height: 8),
-          Text("Status: ${rumah.status}"),
-          if (rumah.idRumah != null) ...[
-            const SizedBox(height: 8),
-            Text("ID Rumah: ${rumah.idRumah}"),
-          ],
+          Text("Status Rumah: ${rumah.statusRumah}"),
           const SizedBox(height: 12),
-          Text("Dibuat: ${rumah.createdAt != null ? rumah.createdAt.toString().substring(0, 16) : '-'}"),
+          Text(
+            "Dibuat: ${rumah.createdAt != null ? rumah.createdAt.toString().substring(0, 16) : '-'}",
+          ),
+          if (rumah.updatedAt != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              "Diubah: ${rumah.updatedAt.toString().substring(0, 16)}",
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text("Tutup")),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Tutup"),
+        ),
       ],
     );
   }

@@ -14,14 +14,20 @@ class EditMutasiDialog extends StatefulWidget {
 class _EditMutasiDialogState extends State<EditMutasiDialog> {
   final _service = MutasiService();
 
-  late TextEditingController alasanC;
-  late String jenis;
+  late TextEditingController keteranganC;
+  late String jenisMutasi;
 
   @override
   void initState() {
     super.initState();
-    alasanC = TextEditingController(text: widget.data.alasan);
-    jenis = widget.data.jenis;
+    keteranganC = TextEditingController(text: widget.data.keterangan);
+    jenisMutasi = widget.data.jenisMutasi;
+  }
+
+  @override
+  void dispose() {
+    keteranganC.dispose();
+    super.dispose();
   }
 
   @override
@@ -31,33 +37,40 @@ class _EditMutasiDialogState extends State<EditMutasiDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          DropdownButtonFormField(
-            value: jenis,
+          DropdownButtonFormField<String>(
+            value: jenisMutasi,
             items: const [
               DropdownMenuItem(value: "Masuk", child: Text("Masuk")),
               DropdownMenuItem(value: "Keluar", child: Text("Keluar")),
             ],
-            decoration: const InputDecoration(labelText: "Jenis"),
-            onChanged: (v) => jenis = v!,
+            decoration: const InputDecoration(labelText: "Jenis Mutasi"),
+            onChanged: (v) {
+              if (v != null) {
+                setState(() => jenisMutasi = v);
+              }
+            },
           ),
           const SizedBox(height: 12),
           TextField(
-            controller: alasanC,
-            decoration: const InputDecoration(labelText: "Alasan"),
+            controller: keteranganC,
+            decoration: const InputDecoration(labelText: "Keterangan"),
           ),
         ],
       ),
       actions: [
         TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Batal")),
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Batal"),
+        ),
         ElevatedButton(
           onPressed: () async {
             await _service.updateMutasi(widget.data.uid, {
-              "jenis": jenis,
-              "alasan": alasanC.text,
+              "jenis_mutasi": jenisMutasi,
+              "keterangan": keteranganC.text,
+              // kalau mau, di sini juga bisa update "tanggal"
             });
-            Navigator.pop(context, true);
+
+            Navigator.pop(context, true); // return true = sukses
           },
           child: const Text("Simpan"),
         ),

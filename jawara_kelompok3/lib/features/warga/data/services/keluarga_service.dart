@@ -11,7 +11,6 @@ class KeluargaService {
   Future<List<KeluargaModel>> getDataKeluarga() async {
     final snapshot = await _ref.orderBy("kepala_keluarga").get();
 
-
     return snapshot.docs
         .map((doc) => KeluargaModel.fromFirestore(
               doc.id,
@@ -80,6 +79,21 @@ class KeluargaService {
       );
     } catch (e) {
       print("ERROR GET DETAIL KELUARGA: $e");
+      return null;
+    }
+  }
+
+  Future<KeluargaModel?> getByDocId(String docId) async {
+    try {
+      final doc = await _ref.doc(docId).get();
+      if (!doc.exists) return null;
+
+      return KeluargaModel.fromFirestore(
+        doc.id,
+        doc.data() as Map<String, dynamic>,
+      );
+    } catch (e) {
+      print("ERROR GET KELUARGA BY DOC ID: $e");
       return null;
     }
   }

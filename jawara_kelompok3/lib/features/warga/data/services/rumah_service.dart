@@ -5,69 +5,127 @@ class RumahService {
   final CollectionReference _ref =
       FirebaseFirestore.instance.collection("rumah");
 
-  /// Ambil semua rumah terurut (by alamat)
+  // ============================================================
+  // 🔵 GET SEMUA RUMAH
+  // ============================================================
   Future<List<RumahModel>> getAllRumah() async {
     try {
+      // bisa juga orderBy('nomor') kalau mau urut nomor rumah
       final snapshot = await _ref.orderBy('alamat').get();
+
       return snapshot.docs
-          .map((d) => RumahModel.fromFirestore(d.id, d.data() as Map<String, dynamic>))
+          .map(
+            (doc) => RumahModel.fromFirestore(
+              doc.id,
+              doc.data() as Map<String, dynamic>,
+            ),
+          )
           .toList();
     } catch (e) {
-      print("ERROR GET ALL RUMAH: $e");
+      print("❌ ERROR GET ALL RUMAH: $e");
       return [];
     }
   }
 
-  /// Ambil 1 rumah berdasarkan doc id
-  Future<RumahModel?> getById(String id) async {
+  // ============================================================
+  // 🟣 GET SATU RUMAH BERDASARKAN DOC ID
+  // ============================================================
+  Future<RumahModel?> getByDocId(String docId) async {
     try {
-      final doc = await _ref.doc(id).get();
+      final doc = await _ref.doc(docId).get();
+
       if (!doc.exists) return null;
-      return RumahModel.fromFirestore(doc.id, doc.data() as Map<String, dynamic>);
+
+      return RumahModel.fromFirestore(
+        doc.id,
+        doc.data() as Map<String, dynamic>,
+      );
     } catch (e) {
-      print("ERROR GET RUMAH BY ID: $e");
+      print("❌ ERROR GET RUMAH BY DOC ID: $e");
       return null;
     }
   }
 
-  /// Tambah rumah (pakai id sebagai doc id jika disediakan)
+  // ============================================================
+  // 🟢 TAMBAH RUMAH
+  // ============================================================
   Future<bool> addRumah(RumahModel rumah) async {
     try {
-      // jika id kosong gunakan add, tapi id pada model direkomendasikan diisi
+      // Di model terbaru, 'id' kita anggap sebagai docId
       if (rumah.id.isEmpty) {
+        // docId otomatis dari Firestore
         await _ref.add(rumah.toMap());
       } else {
+        // pakai id yang kamu set sendiri
         await _ref.doc(rumah.id).set(rumah.toMap());
       }
       return true;
     } catch (e) {
-      print("ERROR ADD RUMAH: $e");
+      print("❌ ERROR ADD RUMAH: $e");
       return false;
     }
   }
 
-  /// Update rumah
-  Future<bool> updateRumah(String id, Map<String, dynamic> data) async {
+  // ============================================================
+  // 🟡 UPDATE RUMAH
+  // ============================================================
+  Future<bool> updateRumah(String docId, Map<String, dynamic> data) async {
     try {
-      await _ref.doc(id).update({
+      await _ref.doc(docId).update({
         ...data,
         "updated_at": FieldValue.serverTimestamp(),
       });
+
       return true;
     } catch (e) {
-      print("ERROR UPDATE RUMAH: $e");
+      print("❌ ERROR UPDATE RUMAH: $e");
       return false;
     }
   }
 
-  /// Hapus rumah
-  Future<bool> deleteRumah(String id) async {
+  // ============================================================
+  // 🔴 DELETE RUMAH
+  // ============================================================
+  Future<bool> deleteRumah(String docId) async {
     try {
-      await _ref.doc(id).delete();
+      await _ref.doc(docId).delete();
       return true;
     } catch (e) {
-      print("ERROR DELETE RUMAH: $e");
+      print("❌ ERROR DELETE RUMAH: $e");
       return false;
+    }
+  }
+
+  // ============================================================
+  // 🟦 GET NAMA KEPALA KELUARGA DARI KOLEKSI /keluarga
+  // ============================================================
+  Future<String?> getNamaKepalaKeluarga(String keluargaId) async {
+    try {
+      final ref = FirebaseFirestore.instance.collection("keluarga");
+      final doc = await ref.doc(keluargaId).get();
+
+      if (!doc.exists) return null;
+
+      final data = doc.data() as Map<String, dynamic>;
+
+      // Di struktur kamu: nama kepala keluarga disimpan di "kepala_keluarga"
+      if (data.containsKey("kepala_keluarga")) {
+        return data["kepala_keluarga"] as String?;
+      }
+
+      // fallback kalau suatu saat pakai nama lain
+      if (data.containsKey("nama_kepala_keluarga")) {
+        return data["nama_kepala_keluarga"] as String?;
+      }
+
+      if (data.containsKey("nama")) {
+        return data["nama"] as String?;
+      }
+
+      return null;
+    } catch (e) {
+      print("❌ ERROR GET NAMA KEPALA KELUARGA: $e");
+      return null;
     }
   }
 }

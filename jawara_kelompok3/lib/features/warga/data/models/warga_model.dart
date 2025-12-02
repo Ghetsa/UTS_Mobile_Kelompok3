@@ -1,89 +1,95 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class WargaModel {
+  /// ID dokumen Firestore
+  final String docId;
+
+  /// Field "uid" di dokumen (ID internal yang kamu simpan sendiri)
   final String uid;
-  final String nama;
+
   final String nik;
   final String noKk;
-  final String noHp;
-  final String agama;
-  final String jenisKelamin;
+  final String nama;
   final String pendidikan;
   final String pekerjaan;
-  final String statusWarga;
+  final String agama;
+  final String jenisKelamin;   // "p" / "l"
+  final String statusWarga;    // "aktif" / "non-aktif" dll
   final String idRumah;
-  final DateTime tanggalLahir;
-  final DateTime createdAt;
+  final String noHp;
+
+  final DateTime? tanggalLahir;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   WargaModel({
+    required this.docId,
     required this.uid,
-    required this.nama,
     required this.nik,
     required this.noKk,
-    required this.noHp,
-    required this.agama,
-    required this.jenisKelamin,
+    required this.nama,
     required this.pendidikan,
     required this.pekerjaan,
+    required this.agama,
+    required this.jenisKelamin,
     required this.statusWarga,
     required this.idRumah,
-    required this.tanggalLahir,
-    required this.createdAt,
+    required this.noHp,
+    this.tanggalLahir,
+    this.createdAt,
+    this.updatedAt,
   });
 
-  factory WargaModel.fromFirestore(String id, Map<String, dynamic> data) {
+  /// Firestore → Model
+  factory WargaModel.fromFirestore(String docId, Map<String, dynamic> data) {
     return WargaModel(
+      docId: docId,
       uid: data['uid'] ?? '',
-      nama: data['nama'] ?? '',
       nik: data['nik'] ?? '',
       noKk: data['no_kk'] ?? '',
-      noHp: data['no_hp'] ?? '',
-      agama: data['agama'] ?? '',
-      jenisKelamin: data['jenis_kelamin'] ?? '',
+      nama: data['nama'] ?? '',
       pendidikan: data['pendidikan'] ?? '',
       pekerjaan: data['pekerjaan'] ?? '',
+      agama: data['agama'] ?? '',
+      jenisKelamin: data['jenis_kelamin'] ?? '',
       statusWarga: data['status_warga'] ?? '',
       idRumah: data['id_rumah'] ?? '',
-      tanggalLahir: (data['tanggal_lahir'] as Timestamp).toDate(),
-      createdAt: (data['created_at'] as Timestamp).toDate(),
+      noHp: data['no_hp'] ?? '',
+      tanggalLahir: data['tanggal_lahir'] != null
+          ? (data['tanggal_lahir'] as Timestamp).toDate()
+          : null,
+      createdAt: data['created_at'] != null
+          ? (data['created_at'] as Timestamp).toDate()
+          : null,
+      updatedAt: data['updated_at'] != null
+          ? (data['updated_at'] as Timestamp).toDate()
+          : null,
     );
   }
 
+  /// Model → Map (untuk tambah / update Firestore)
   Map<String, dynamic> toMap() {
     return {
-      "uid": uid,
-      "nama": nama,
-      "nik": nik,
-      "no_kk": noKk,
-      "no_hp": noHp,
-      "agama": agama,
-      "jenis_kelamin": jenisKelamin,
-      "pendidikan": pendidikan,
-      "pekerjaan": pekerjaan,
-      "status_warga": statusWarga,
-      "id_rumah": idRumah,
-      "tanggal_lahir": tanggalLahir,
-      "created_at": createdAt,
+      'uid': uid,
+      'nik': nik,
+      'no_kk': noKk,
+      'nama': nama,
+      'pendidikan': pendidikan,
+      'pekerjaan': pekerjaan,
+      'agama': agama,
+      'jenis_kelamin': jenisKelamin,
+      'status_warga': statusWarga,
+      'id_rumah': idRumah,
+      'no_hp': noHp,
+      'tanggal_lahir': tanggalLahir != null
+          ? Timestamp.fromDate(tanggalLahir!)
+          : FieldValue.serverTimestamp(),
+      'created_at': createdAt != null
+          ? Timestamp.fromDate(createdAt!)
+          : FieldValue.serverTimestamp(),
+      'updated_at': updatedAt != null
+          ? Timestamp.fromDate(updatedAt!)
+          : FieldValue.serverTimestamp(),
     };
   }
-
-  factory WargaModel.fromMap(Map<String, dynamic> data) {
-  return WargaModel(
-    uid: data['uid'] ?? '',
-    nama: data['nama'] ?? '',
-    nik: data['nik'] ?? '',
-    noKk: data['no_kk'] ?? '',
-    noHp: data['no_hp'] ?? '',
-    agama: data['agama'] ?? '',
-    jenisKelamin: data['jenis_kelamin'] ?? '',
-    pendidikan: data['pendidikan'] ?? '',
-    pekerjaan: data['pekerjaan'] ?? '',
-    statusWarga: data['status_warga'] ?? '',
-    idRumah: data['id_rumah'] ?? '',
-    tanggalLahir: (data['tanggal_lahir'] as Timestamp).toDate(),
-    createdAt: (data['created_at'] as Timestamp).toDate(),
-  );
-}
-
 }

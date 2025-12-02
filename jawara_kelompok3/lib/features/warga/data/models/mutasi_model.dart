@@ -1,44 +1,56 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MutasiModel {
-  final String uid;         // <-- doc ID dari Firestore
-  final String alasan;
-  final String dibuatOleh;
-  final String idWarga;
-  final String jenis;
+  final String uid;               // docId
+  final String keterangan;        // dari firestore
+  final String idWarga;           // firestore pakai "id"
+  final String jenisMutasi;       // firestore pakai "jenis_mutasi"
   final DateTime? tanggal;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   MutasiModel({
     required this.uid,
-    required this.alasan,
-    required this.dibuatOleh,
+    required this.keterangan,
     required this.idWarga,
-    required this.jenis,
+    required this.jenisMutasi,
     this.tanggal,
+    this.createdAt,
+    this.updatedAt,
   });
 
-  /// Konversi dari Firestore
+  /// Dari Firestore → Model
   factory MutasiModel.fromFirestore(String id, Map<String, dynamic> data) {
     return MutasiModel(
       uid: id,
-      alasan: data["alasan"] ?? "",
-      dibuatOleh: data["dibuat_oleh"] ?? "",
-      idWarga: data["id_warga"] ?? "",
-      jenis: data["jenis"] ?? "",
+      keterangan: data["keterangan"] ?? "",
+      idWarga: data["id"] ?? "",
+      jenisMutasi: data["jenis_mutasi"] ?? "",
       tanggal: data["tanggal"] != null
           ? (data["tanggal"] as Timestamp).toDate()
+          : null,
+      createdAt: data["created_at"] != null
+          ? (data["created_at"] as Timestamp).toDate()
+          : null,
+      updatedAt: data["updated_at"] != null
+          ? (data["updated_at"] as Timestamp).toDate()
           : null,
     );
   }
 
-  /// Konversi ke map untuk Firestore
+  /// Model → Firestore
   Map<String, dynamic> toMap() {
     return {
-      "alasan": alasan,
-      "dibuat_oleh": dibuatOleh,
-      "id_warga": idWarga,
-      "jenis": jenis,
-      "tanggal": tanggal != null ? Timestamp.fromDate(tanggal!) : FieldValue.serverTimestamp(),
+      "keterangan": keterangan,
+      "id": idWarga,
+      "jenis_mutasi": jenisMutasi,
+      "tanggal": tanggal != null
+          ? Timestamp.fromDate(tanggal!)
+          : FieldValue.serverTimestamp(),
+      "created_at": createdAt != null
+          ? Timestamp.fromDate(createdAt!)
+          : FieldValue.serverTimestamp(),
+      "updated_at": FieldValue.serverTimestamp(),
     };
   }
 }

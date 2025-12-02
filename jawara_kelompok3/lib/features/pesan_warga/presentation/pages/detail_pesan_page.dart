@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/layout/sidebar.dart';
+import '../../data/models/pesan_warga_model.dart';
 
 class DetailAspirasi extends StatelessWidget {
-  final Map<String, String> data;
-  const DetailAspirasi({super.key, required this.data});
+  final PesanWargaModel model;
 
-  // Warna berdasarkan status
+  const DetailAspirasi({super.key, required this.model});
+
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Diterima':
@@ -20,44 +20,32 @@ class DetailAspirasi extends StatelessWidget {
     }
   }
 
-  // Tampilan halaman detail
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
       appBar: AppBar(
         backgroundColor: AppTheme.primaryBlue,
-        elevation: 2,
+        title:
+            const Text("Detail Aspirasi", style: TextStyle(color: Colors.white)),
+        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
-        title: const Text(
-          "Detail Aspirasi",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppTheme.putihFull,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: AppTheme.putihFull),
       ),
-
-      // Card detail aspirasi
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Card(
-          elevation: 8,
+          elevation: 6,
           shadowColor: AppTheme.blueExtraLight,
-          color: AppTheme.putihFull,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(22),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Judul card
                 Center(
                   child: Text(
-                    "Detail Aspirasi Warga",
+                    "Detail Aspirasi",
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -67,51 +55,31 @@ class DetailAspirasi extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
 
-                // Data
-                _buildDetailRow("Judul", data['judul']),
+                _buildRow("ID Pesan", model.idPesan),
                 const SizedBox(height: 12),
 
-                _buildDetailRow("Deskripsi", data['deskripsi'] ?? '-'),
+                _buildRow("Isi Pesan", model.isiPesan),
                 const SizedBox(height: 12),
 
-                _buildDetailRow(
+                _buildRow("Kategori", model.kategori),
+                const SizedBox(height: 12),
+
+                _buildRow(
                   "Status",
-                  data['status'],
-                  statusColor: _getStatusColor(data['status'] ?? ''),
+                  model.status,
+                  color: _getStatusColor(model.status),
                 ),
                 const SizedBox(height: 12),
 
-                _buildDetailRow("Dibuat oleh", data['pengirim']),
+                _buildRow(
+                  "Tanggal Dibuat",
+                  model.createdAt?.toString() ?? "-",
+                ),
                 const SizedBox(height: 12),
 
-                _buildDetailRow("Tanggal Dibuat", data['tanggalDibuat']),
-                const SizedBox(height: 8),
-
-                // Garis pemisah
-                const Divider(
-                  height: 30,
-                  thickness: 1,
-                  color: AppTheme.blueLight,
-                  indent: 10,
-                  endIndent: 10,
-                ),
-
-                // Catatan card bawah
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.lightbulb_outline,
-                        color: AppTheme.primaryBlue, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      "Terima kasih atas aspirasi Anda",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.blueDark,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+                _buildRow(
+                  "Terakhir Update",
+                  model.updatedAt?.toString() ?? "-",
                 ),
               ],
             ),
@@ -121,38 +89,31 @@ class DetailAspirasi extends StatelessWidget {
     );
   }
 
-  // Fungsi pembantu untuk menampilkan satu baris detail data
-  Widget _buildDetailRow(String label, String? value, {Color? statusColor}) {
+  Widget _buildRow(String label, String value, {Color? color}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Label “Judul:”, “Status:”, dll.
-        Text(
-          "$label:",
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.primaryBlue,
-          ),
-        ),
+        Text("$label:",
+            style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryBlue)),
         const SizedBox(height: 6),
 
-        // Kotak nilai dari data
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: AppTheme.backgroundBlueWhite,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppTheme.blueLight, width: 1),
+            border: Border.all(color: AppTheme.blueLight),
           ),
           child: Text(
-            value ?? '-',
+            value,
             style: TextStyle(
               fontSize: 15,
-              color: statusColor ?? AppTheme.hitam,
-              fontWeight:
-                  statusColor != null ? FontWeight.bold : FontWeight.normal,
+              color: color ?? AppTheme.hitam,
+              fontWeight: color != null ? FontWeight.bold : FontWeight.normal,
             ),
           ),
         ),

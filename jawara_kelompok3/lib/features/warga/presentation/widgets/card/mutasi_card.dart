@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/mutasi_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MutasiCard extends StatelessWidget {
   final MutasiModel data;
@@ -13,6 +12,13 @@ class MutasiCard extends StatelessWidget {
     this.onDetail,
     this.onEdit,
   });
+
+  String _formatDate(DateTime? dt) {
+    if (dt == null) return "-";
+    return "${dt.day.toString().padLeft(2, '0')}-"
+        "${dt.month.toString().padLeft(2, '0')}-"
+        "${dt.year}";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +59,7 @@ class MutasiCard extends StatelessWidget {
               children: [
                 /// Jenis Mutasi
                 Text(
-                  "${data.jenis.toUpperCase()}",
+                  data.jenisMutasi.toUpperCase(),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 17,
@@ -70,42 +76,48 @@ class MutasiCard extends StatelessWidget {
                   ),
                 ),
 
+                const SizedBox(height: 4),
+
                 Text(
-                  "Dibuat oleh: ${data.dibuatOleh}",
+                  "Keterangan: ${data.keterangan}",
                   style: TextStyle(
                     color: Colors.grey.shade700,
                     fontSize: 13,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
 
-                Text(
-                  "Alasan: ${data.alasan}",
-                  style: TextStyle(
-                    color: Colors.grey.shade700,
-                    fontSize: 13,
-                  ),
-                ),
+                const SizedBox(height: 4),
 
                 Text(
-                  "UID: ${data.uid}",
+                  "Doc ID: ${data.uid}",
                   style: TextStyle(
                     color: Colors.grey.shade600,
-                    fontSize: 13,
+                    fontSize: 12,
                   ),
                 ),
 
                 const SizedBox(height: 6),
 
-                /// TANGGAL (fix null check)
+                /// TANGGAL MUTASI
                 Text(
-                  data.tanggal != null
-                      ? data.tanggal!.toString().substring(0, 16)
-                      : "-",
+                  "Tanggal mutasi: ${_formatDate(data.tanggal)}",
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey.shade500,
                   ),
                 ),
+
+                /// OPSIONAL: kalau mau tampilkan createdAt juga
+                if (data.createdAt != null)
+                  Text(
+                    "Dibuat: ${_formatDate(data.createdAt)}",
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade400,
+                    ),
+                  ),
               ],
             ),
           ),
