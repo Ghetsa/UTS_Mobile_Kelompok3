@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/layout/sidebar.dart';
 import '../../../../../core/layout/header.dart';
+
 import '../../../data/models/rumah_model.dart';
-import '../../../data/services/rumah_service.dart';
+import '../../../controller/rumah_controller.dart'; // ⬅️ pakai controller
 import '../../widgets/card/rumah_card.dart';
 import '../../widgets/filter/rumah_filter.dart';
 import 'detail_rumah_page.dart';
@@ -18,7 +19,7 @@ class DaftarRumahPage extends StatefulWidget {
 }
 
 class _DaftarRumahPageState extends State<DaftarRumahPage> {
-  final RumahService _service = RumahService();
+  final RumahController _controller = RumahController();
   List<RumahModel> data = [];
 
   String search = "";
@@ -29,9 +30,53 @@ class _DaftarRumahPageState extends State<DaftarRumahPage> {
     loadData();
   }
 
-  void loadData() async {
-    data = await _service.getAllRumah();
+  Future<void> loadData() async {
+    data = await _controller.fetchAll();
     setState(() {});
+  }
+
+  void _confirmDelete(RumahModel rumah) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Hapus Rumah?"),
+        content: Text("Yakin ingin menghapus rumah di '${rumah.alamat}' ?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              Navigator.pop(context);
+
+              // pakai docId untuk delete
+              final ok = await _controller.delete(rumah.docId);
+
+              if (ok) {
+                await loadData();
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Rumah berhasil dihapus."),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              } else {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Gagal menghapus rumah."),
+                  ),
+                );
+              }
+            },
+            child: const Text("Hapus"),
+          ),
+        ],
+      ),
+    );
   }
 
   void _openAdd() async {
@@ -58,10 +103,10 @@ class _DaftarRumahPageState extends State<DaftarRumahPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// HEADER MIRIP WARGA
+            /// HEADER
             MainHeader(
               title: "Data Rumah",
-              searchHint: "Cari alamat atau penghuni...",
+              searchHint: "Cari alamat / penghuni / RT RW...",
               showSearchBar: true,
               showFilterButton: true,
               onSearch: (value) {
@@ -72,6 +117,7 @@ class _DaftarRumahPageState extends State<DaftarRumahPage> {
                   context: context,
                   builder: (_) => FilterRumahDialog(
                     onApply: (filterData) {
+                      // Nanti bisa dipakai untuk filter RT/RW/status/kepemilikan
                       print("HASIL FILTER RUMAH: $filterData");
                     },
                   ),
@@ -89,9 +135,11 @@ class _DaftarRumahPageState extends State<DaftarRumahPage> {
                 itemBuilder: (_, i) {
                   final item = data[i];
 
-                  // FILTER SEARCH
+                  // FILTER SEARCH: alamat + rt/rw + penghuni (id keluarga)
+                  final searchable =
+                      "${item.alamat} ${item.rt}/${item.rw} ${item.penghuniKeluargaId}";
                   if (search.isNotEmpty &&
-                      !("${item.alamat} ${item.penghuni}")
+                      !searchable
                           .toLowerCase()
                           .contains(search.toLowerCase())) {
                     return const SizedBox();
@@ -112,6 +160,7 @@ class _DaftarRumahPageState extends State<DaftarRumahPage> {
                       );
                       if (result == true) loadData();
                     },
+                    onDelete: () => _confirmDelete(item),
                   );
                 },
               ),

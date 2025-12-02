@@ -14,16 +14,29 @@ class DetailMutasiDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _row("Jenis", data.jenis),
+          _row("Jenis Mutasi", data.jenisMutasi),
           _row("ID Warga", data.idWarga),
-          _row("Alasan", data.alasan),
-          _row("Tanggal", data.tanggal?.toString() ?? "-"),
-          _row("Dibuat Oleh", data.dibuatOleh),
-          _row("UID", data.uid),
+          _row("Keterangan", data.keterangan),
+          _row(
+            "Tanggal Mutasi",
+            data.tanggal != null ? data.tanggal.toString() : "-",
+          ),
+          _row(
+            "Dibuat Pada",
+            data.createdAt != null ? data.createdAt.toString() : "-",
+          ),
+          _row(
+            "Terakhir Diupdate",
+            data.updatedAt != null ? data.updatedAt.toString() : "-",
+          ),
+          _row("UID Dokumen", data.uid),
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text("Tutup")),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Tutup"),
+        ),
       ],
     );
   }
@@ -31,7 +44,10 @@ class DetailMutasiDialog extends StatelessWidget {
   Widget _row(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: Text("$label: $value", style: const TextStyle(fontSize: 14)),
+      child: Text(
+        "$label: $value",
+        style: const TextStyle(fontSize: 14),
+      ),
     );
   }
 }

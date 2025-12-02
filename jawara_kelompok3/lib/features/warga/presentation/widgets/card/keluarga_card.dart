@@ -79,7 +79,7 @@ class KeluargaCard extends StatelessWidget {
                   ),
                 ),
 
-                /// ID Rumah
+                /// ID Rumah (docId rumah yang dikaitkan)
                 Text(
                   "ID Rumah: ${data.idRumah}",
                   style: TextStyle(
@@ -88,20 +88,13 @@ class KeluargaCard extends StatelessWidget {
                   ),
                 ),
 
-                /// Alamat
-                Text(
-                  data.alamat,
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 13,
-                  ),
-                ),
-
                 const SizedBox(height: 6),
 
                 /// Created at
                 Text(
-                  "${data.createdAt != null ? data.createdAt.toString().substring(0, 16) : '-'}",
+                  data.createdAt != null
+                      ? data.createdAt.toString().substring(0, 16)
+                      : '-',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey.shade500,

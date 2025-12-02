@@ -35,7 +35,7 @@ class _AppSidebarState extends State<AppSidebar> {
       'manajemen_pengguna': false,
       'channel_transfer': false,
       'log_aktifitas': false,
-      'pesan_warga': false,
+      'pesan_warga': false,      // ✅ sudah ada
       'pengeluaran': false,
       'mutasi_keluarga': false,
     });
@@ -62,6 +62,7 @@ class _AppSidebarState extends State<AppSidebar> {
       case 'log_aktifitas':
         return route.startsWith('/semuaAktifitas');
       case 'pesan_warga':
+        // ✅ akan aktif kalau lagi di halaman aspirasi
         return route.startsWith('/informasiAspirasi');
       case 'pengeluaran':
         return route.startsWith('/pengeluaran');
@@ -89,7 +90,7 @@ class _AppSidebarState extends State<AppSidebar> {
     }
 
     final current = _expanded.entries
-        .firstWhere((e) => e.value, orElse: () => MapEntry('', false));
+        .firstWhere((e) => e.value, orElse: () => const MapEntry('', false));
 
     if (current.key == '' || current.key == key) {
       setState(() {
@@ -157,8 +158,6 @@ class _AppSidebarState extends State<AppSidebar> {
               color: selected ? const Color(0xFF0C88C2) : Colors.grey.shade500,
             ),
             const SizedBox(width: 10),
-
-            /// TEXT GRADIENT
             Expanded(
               child: gradientText(
                 label,
@@ -183,9 +182,7 @@ class _AppSidebarState extends State<AppSidebar> {
     return Drawer(
       child: Column(
         children: [
-          // =============================================================
-          // 🔵 HEADER GRADIENT (TETAP BIRU)
-          // =============================================================
+          // HEADER
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
@@ -220,16 +217,14 @@ class _AppSidebarState extends State<AppSidebar> {
             ),
           ),
 
-          // =============================================================
-          // ⚪ BODY PUTIH + TEXT GRADIENT
-          // =============================================================
+          // BODY
           Expanded(
             child: Container(
               color: Colors.white,
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  /// =========================== MENU ==========================
+                  /// DASHBOARD
                   _buildMenuSection(
                     icon: Icons.dashboard_rounded,
                     title: "Dashboard",
@@ -246,6 +241,7 @@ class _AppSidebarState extends State<AppSidebar> {
                     ],
                   ),
 
+                  /// DATA KEPENDUDUKAN
                   _buildMenuSection(
                     icon: Icons.people_alt_rounded,
                     title: "Data Kependudukan",
@@ -264,6 +260,25 @@ class _AppSidebarState extends State<AppSidebar> {
                     ],
                   ),
 
+                  /// 🔹 PESAN WARGA (ASPIRASI)
+                  _buildMenuSection(
+                    icon: Icons.mark_chat_unread_rounded,
+                    title: "Pesan Warga",
+                    keyValue: "pesan_warga",
+                    context: context,
+                    currentRoute: currentRoute,
+                    children: [
+                      // kalau nanti ada menu lain (misal Inbox, Arsip) bisa ditambah di sini
+                      _buildSubMenuItem(
+                        "Informasi & Aspirasi",
+                        "/informasiAspirasi",   // ✅ route ke halaman SemuaAspirasi
+                        context,
+                        currentRoute,
+                      ),
+                    ],
+                  ),
+
+                  /// PEMASUKAN
                   _buildMenuSection(
                     icon: Icons.payments_rounded,
                     title: "Pemasukan",
@@ -290,6 +305,7 @@ class _AppSidebarState extends State<AppSidebar> {
                     ],
                   ),
 
+                  /// LAPORAN
                   _buildMenuSection(
                     icon: Icons.bar_chart_rounded,
                     title: "Laporan Keuangan",
@@ -306,6 +322,7 @@ class _AppSidebarState extends State<AppSidebar> {
                     ],
                   ),
 
+                  /// MANAJEMEN PENGGUNA
                   _buildMenuSection(
                     icon: Icons.person_search_rounded,
                     title: "Manajemen Pengguna",
@@ -320,6 +337,7 @@ class _AppSidebarState extends State<AppSidebar> {
                     ],
                   ),
 
+                  /// CHANNEL TRANSFER
                   _buildMenuSection(
                     icon: Icons.swap_horiz_rounded,
                     title: "Channel Transfer",
@@ -333,8 +351,6 @@ class _AppSidebarState extends State<AppSidebar> {
                           context, currentRoute),
                     ],
                   ),
-
-                  // const SizedBox(height: 10),
 
                   ListTile(
                     leading: const Icon(Icons.logout_rounded,
@@ -372,15 +388,11 @@ class _AppSidebarState extends State<AppSidebar> {
         initiallyExpanded: _expanded[keyValue] ?? false,
         onExpansionChanged: (expanded) =>
             _expandOnlyAnimated(keyValue, expanded),
-
-        // ICON + TEXT GRADIENT
         leading: ShaderMask(
           shaderCallback: (bounds) => mainGradient.createShader(bounds),
           child: Icon(icon, color: Colors.white, size: 24),
         ),
-
         title: gradientText(title),
-
         children: children,
       ),
     );

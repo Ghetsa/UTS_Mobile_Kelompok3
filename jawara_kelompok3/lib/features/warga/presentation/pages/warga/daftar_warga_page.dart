@@ -5,6 +5,8 @@ import '../../../../../core/layout/header.dart';
 import '../../../../../core/layout/sidebar.dart';
 import '../../widgets/card/warga_card.dart';
 import '../../widgets/filter/warga_filter.dart';
+import 'detail_warga_page.dart';
+import 'edit_warga_page.dart'; // pastikan file ini ada
 
 class DaftarWargaPage extends StatefulWidget {
   const DaftarWargaPage({super.key});
@@ -25,9 +27,45 @@ class _DaftarWargaPageState extends State<DaftarWargaPage> {
     loadData();
   }
 
-  void loadData() async {
+  Future<void> loadData() async {
     data = await _service.getAllWarga();
     setState(() {});
+  }
+
+  /// KONFIRMASI HAPUS
+  void _confirmDelete(WargaModel item) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Hapus Warga?"),
+        content: Text("Yakin ingin menghapus '${item.nama}' ?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              Navigator.pop(context);
+
+              final success = await _service.deleteWarga(item.docId);
+
+              if (success) {
+                loadData();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Warga berhasil dihapus."),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            child: const Text("Hapus"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -35,19 +73,23 @@ class _DaftarWargaPageState extends State<DaftarWargaPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFE9F2F9),
       drawer: const AppSidebar(),
+
+      /// Tombol Tambah
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF0C88C2),
         elevation: 4,
         onPressed: () {
-          print("TAMBAH WARGA DITEKAN");
+          Navigator.pushNamed(context, "/data-warga/tambah")
+              .then((_) => loadData());
         },
         child: const Icon(Icons.add, size: 32, color: Colors.white),
       ),
+
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// 🔵 Header seperti Keluarga
+            /// HEADER
             MainHeader(
               title: "Data Warga",
               searchHint: "Cari nama warga...",
@@ -60,9 +102,7 @@ class _DaftarWargaPageState extends State<DaftarWargaPage> {
                 await showDialog(
                   context: context,
                   builder: (_) => FilterWargaDialog(
-                    onApply: (filterData) {
-                      print("HASIL FILTER WARGA: $filterData");
-                    },
+                    onApply: (filterData) {},
                   ),
                 );
               },
@@ -77,17 +117,38 @@ class _DaftarWargaPageState extends State<DaftarWargaPage> {
                 itemBuilder: (_, i) {
                   final item = data[i];
 
-                  // 🔍 Filter search nama warga
+                  /// Filter search
                   if (search.isNotEmpty &&
                       !item.nama.toLowerCase().contains(search.toLowerCase())) {
                     return const SizedBox();
                   }
 
-                  // return WargaCard(
-                  //   data: item,
-                  //   onDetail: () {},
-                  //   onEdit: () {},
-                  // );
+                  return WargaCard(
+                    data: item,
+
+                    /// DETAIL
+                    onDetail: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => DetailWargaPage(data: item),
+                      );
+                    },
+
+                    /// EDIT
+                    onEdit: () async {
+                      final updated = await showDialog(
+                        context: context,
+                        builder: (_) => EditWargaPage(data: item),
+                      );
+
+                      if (updated == true) {
+                        loadData();
+                      }
+                    },
+
+                    /// DELETE
+                    onDelete: () => _confirmDelete(item),
+                  );
                 },
               ),
             ),

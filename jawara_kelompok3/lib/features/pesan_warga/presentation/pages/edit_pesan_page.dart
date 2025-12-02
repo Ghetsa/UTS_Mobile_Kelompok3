@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/layout/sidebar.dart';
+import '../../data/models/pesan_warga_model.dart';
+import '../../data/services/pesan_warga_service.dart';
 
 class EditAspirasi extends StatefulWidget {
-  final Map<String, String> data;
-  const EditAspirasi({super.key, required this.data});
+  final PesanWargaModel model;
+
+  const EditAspirasi({super.key, required this.model});
 
   @override
   State<EditAspirasi> createState() => _EditAspirasiState();
 }
 
 class _EditAspirasiState extends State<EditAspirasi> {
-  late TextEditingController judulController;
-  late TextEditingController deskripsiController;
+  late TextEditingController isiController;
+  late TextEditingController kategoriController;
   String? selectedStatus;
+
+  final PesanWargaService _service = PesanWargaService();
 
   final List<String> statusList = [
     'Pending',
@@ -21,98 +25,80 @@ class _EditAspirasiState extends State<EditAspirasi> {
     'Ditolak',
   ];
 
-  // Inisialisasi data awal
   @override
   void initState() {
     super.initState();
-    judulController = TextEditingController(text: widget.data['judul']);
-    deskripsiController = TextEditingController(text: widget.data['deskripsi']);
-    selectedStatus = widget.data['status'];
+    isiController = TextEditingController(text: widget.model.isiPesan);
+    kategoriController = TextEditingController(text: widget.model.kategori);
+    selectedStatus = widget.model.status;
   }
 
-  // Membersihkan controller
   @override
   void dispose() {
-    judulController.dispose();
-    deskripsiController.dispose();
+    isiController.dispose();
+    kategoriController.dispose();
     super.dispose();
   }
 
-  // Fungsi menyimpan perubahan
-  void _updateAspirasi() {
-    // Notifikasi berhasil diperbarui
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Aspirasi berhasil diperbarui!'),
-        backgroundColor: AppTheme.greenMediumDark,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-
-    // Mengembalikan data perubahan
-    Navigator.pop(context, {
-      'judul': judulController.text,
-      'deskripsi': deskripsiController.text,
-      'status': selectedStatus,
+  Future<void> _updateAspirasi() async {
+    final success = await _service.updatePesan(widget.model.docId, {
+      "isi_pesan": isiController.text,
+      "kategori": kategoriController.text,
+      "status": selectedStatus,
     });
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Aspirasi berhasil diperbarui!"),
+          backgroundColor: AppTheme.greenMediumDark,
+        ),
+      );
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Gagal memperbarui aspirasi."),
+          backgroundColor: AppTheme.redMedium,
+        ),
+      );
+    }
   }
 
-  // Tampilan halaman EditAspirasi
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
       appBar: AppBar(
         backgroundColor: AppTheme.primaryBlue,
-        elevation: 2,
-        centerTitle: true,
-        title: const Text(
-          "Edit Aspirasi",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppTheme.putihFull,
-          ),
-        ),
+        title: const Text("Edit Aspirasi",
+            style: TextStyle(color: AppTheme.putihFull)),
         iconTheme: const IconThemeData(color: AppTheme.putihFull),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Card(
-          elevation: 8,
-          shadowColor: AppTheme.blueExtraLight,
-          color: AppTheme.putihFull,
+          elevation: 6,
+          shadowColor: AppTheme.blueLight,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(22),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Judul utama halaman
-                Center(
-                  child: Text(
-                    "Edit Informasi Aspirasi Warga",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryBlue,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 28),
-
-                // Judul Pesan
-                _buildLabel("Judul Pesan"),
-                _buildTextField(judulController, "Masukkan judul pesan"),
+                _buildLabel("Isi Aspirasi"),
+                _buildTextArea(isiController, "Tulis isi aspirasi..."),
                 const SizedBox(height: 16),
 
-                // Deskripsi Pesan
-                _buildLabel("Deskripsi Pesan"),
-                _buildTextArea(deskripsiController, "Tuliskan deskripsi pesan"),
+                _buildLabel("Kategori"),
+                _buildTextField(kategoriController, "Contoh: Infrastruktur"),
                 const SizedBox(height: 16),
 
-                // Dropdown Status
                 _buildLabel("Status"),
                 _buildDropdown(
                   value: selectedStatus,
@@ -120,27 +106,22 @@ class _EditAspirasiState extends State<EditAspirasi> {
                   hint: "Pilih status",
                   onChanged: (val) => setState(() => selectedStatus = val),
                 ),
-                const SizedBox(height: 32),
 
-                // Tombol Update
+                const SizedBox(height: 28),
+
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    icon: const Icon(Icons.update_rounded),
-                    label: const Text(
-                      "Update",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                    ),
+                    onPressed: _updateAspirasi,
+                    icon: const Icon(Icons.save),
+                    label: const Text("Simpan Perubahan"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.greenDark,
-                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(100),
+                        borderRadius: BorderRadius.circular(50),
                       ),
                     ),
-                    onPressed: _updateAspirasi,
                   ),
                 ),
               ],
@@ -151,22 +132,16 @@ class _EditAspirasiState extends State<EditAspirasi> {
     );
   }
 
-  // Label teks di atas input field
-  Widget _buildLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: AppTheme.primaryBlue,
-        ),
-      ),
-    );
-  }
+  Widget _buildLabel(String text) => Padding(
+        padding: const EdgeInsets.only(bottom: 6),
+        child: Text(text,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.primaryBlue,
+            )),
+      );
 
-  // Input 1 baris judul aspirasi
   Widget _buildTextField(TextEditingController controller, String hint) {
     return TextField(
       controller: controller,
@@ -175,39 +150,27 @@ class _EditAspirasiState extends State<EditAspirasi> {
         filled: true,
         fillColor: AppTheme.backgroundBlueWhite,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppTheme.blueLight, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppTheme.blueLight, width: 1.5),
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
     );
   }
 
-  // Input multiline deskripsi panjang
   Widget _buildTextArea(TextEditingController controller, String hint) {
     return TextField(
-      controller: controller,
       maxLines: 4,
+      controller: controller,
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
         fillColor: AppTheme.backgroundBlueWhite,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppTheme.blueLight, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppTheme.blueLight, width: 1.5),
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
     );
   }
 
-  // Dropdown status aspirasi
   Widget _buildDropdown({
     required String? value,
     required List<String> items,
@@ -215,28 +178,26 @@ class _EditAspirasiState extends State<EditAspirasi> {
     required Function(String?) onChanged,
   }) {
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
         color: AppTheme.backgroundBlueWhite,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.blueLight, width: 1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.blueLight),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: DropdownButton<String>(
+        isExpanded: true,
         value: value,
         hint: Text(hint),
-        isExpanded: true,
         underline: const SizedBox(),
-        borderRadius: BorderRadius.circular(14),
         onChanged: onChanged,
-        items: items.map((String item) {
-          return DropdownMenuItem(
-            value: item,
-            child: Text(
-              item,
-              style: TextStyle(color: AppTheme.hitam),
-            ),
-          );
-        }).toList(),
+        items: items
+            .map(
+              (item) => DropdownMenuItem(
+                value: item,
+                child: Text(item),
+              ),
+            )
+            .toList(),
       ),
     );
   }

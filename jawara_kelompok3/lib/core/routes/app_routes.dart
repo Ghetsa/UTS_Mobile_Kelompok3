@@ -47,6 +47,9 @@ import '../../features/channel_transfer/channel_transfer_page.dart';
 import '../../features/channel_transfer/presentation/pages/daftar_channel_page.dart';
 import '../../features/channel_transfer/presentation/pages/tambah_channel_page.dart';
 
+//  === Aspirasi Warga ===
+import '../../features/pesan_warga/presentation/pages/informasi_aspirasi_page.dart';
+
 class AppRoutes {
   static final Map<String, WidgetBuilder> routes = {
     // === Default Route ===
@@ -62,24 +65,24 @@ class AppRoutes {
     '/dashboard/kependudukan': (context) => const DashboardKependudukanPage(),
 
     // ============================================================
-    // ✅ DATA WARGA
+    // DATA WARGA
     // ============================================================
     '/data-warga/daftar': (context) => const DaftarWargaPage(),
     '/data-warga/tambah': (context) => const TambahWargaPage(),
 
     // ============================================================
-    // ✅ DATA RUMAH
+    // DATA RUMAH
     // ============================================================
     '/data-rumah/daftar': (context) => const DaftarRumahPage(),
     '/data-rumah/tambah': (context) => const TambahRumahPage(),
 
     // ============================================================
-    // ✅ DATA KELUARGA
+    // DATA KELUARGA
     // ============================================================
     '/data-keluarga': (context) => const DaftarKeluargaPage(),
 
     // ============================================================
-    // ✅ MUTASI KELUARGA
+    // MUTASI KELUARGA
     // ============================================================
     '/mutasi/daftar': (context) => const MutasiDaftarPage(),
     '/mutasi/tambah': (context) => const MutasiTambahPage(),
@@ -109,5 +112,10 @@ class AppRoutes {
     '/channel': (context) => const ChannelTransferPage(),
     '/channel/daftar': (context) => const DaftarChannelPage(),
     '/channel/tambah': (context) => const TambahChannelPage(),
+
+    // ============================================================
+    // PESAN WARGA → INFORMASI & ASPIRASI
+    // ============================================================
+    '/informasiAspirasi': (context) => const SemuaAspirasi(),
   };
 }
