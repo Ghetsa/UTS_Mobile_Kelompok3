@@ -1,81 +1,52 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/theme/app_theme.dart';
-import '../../../../../core/layout/sidebar.dart';
+import '../../../data/models/warga_model.dart';
 
-class DetailWargaDialog extends StatelessWidget {
-  final Map<String, dynamic> warga;
+class DetailWargaPage extends StatelessWidget {
+  final WargaModel data;
+  const DetailWargaPage({super.key, required this.data});
 
-  const DetailWargaDialog({super.key, required this.warga});
+  String _formatDate(DateTime? dt) {
+    if (dt == null) return "-";
+    return "${dt.day.toString().padLeft(2, '0')}-"
+        "${dt.month.toString().padLeft(2, '0')}-"
+        "${dt.year}";
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// 🔹 Header
-              const Text(
-                "Detail Warga",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                "Informasi lengkap data warga.",
-                style: TextStyle(color: Colors.black54),
-              ),
-              const SizedBox(height: 24),
-
-              /// 🔹 Field Data
-              _buildField("Nama", warga['nama']),
-              const SizedBox(height: 16),
-              _buildField("NIK", warga['nik']),
-              const SizedBox(height: 16),
-              _buildField("Keluarga", warga['keluarga']),
-              const SizedBox(height: 16),
-              _buildField("Jenis Kelamin", warga['jenisKelamin']),
-              const SizedBox(height: 16),
-              _buildField("Status Domisili", warga['statusDomisili']),
-              const SizedBox(height: 16),
-              _buildField("Status Hidup", warga['statusHidup']),
-
-              const SizedBox(height: 24),
-
-              /// 🔹 Tombol Tutup
-              Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton.icon(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  label: const Text("Tutup", style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+    return AlertDialog(
+      title: Text("Detail ${data.nama}"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _row("NIK", data.nik),
+          _row("No KK", data.noKk),
+          _row("No HP", data.noHp),
+          _row("Agama", data.agama),
+          _row("Jenis Kelamin", data.jenisKelamin),
+          _row("Pekerjaan", data.pekerjaan),
+          _row("Pendidikan", data.pendidikan.toUpperCase()),
+          _row("Status Warga", data.statusWarga),
+          _row("ID Rumah", data.idRumah),
+          _row("Tanggal Lahir", _formatDate(data.tanggalLahir)),
+        ],
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Tutup"),
+        ),
+      ],
     );
   }
 
-  Widget _buildField(String label, String value) {
-    return TextFormField(
-      initialValue: value,
-      readOnly: true,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
+  Widget _row(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Text(
+        "$label: $value",
+        style: const TextStyle(fontSize: 14),
       ),
     );
   }

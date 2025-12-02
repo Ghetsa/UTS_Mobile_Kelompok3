@@ -6,6 +6,27 @@ class AppTheme {
   static const Color lightBlue = Color(0xFFDBEAFE); // Biru muda lembut
   static const Color backgroundBlueWhite = Color(0xFFF8FAFC); // Putih kebiruan
   
+  // === Gradasi oranye tambahan ===
+  static const Color orangeSuperLight = Color.fromARGB(255, 255, 244, 230); // Oranye sangat lembut (hampir putih)
+  static const Color orangeExtraLight = Color.fromARGB(255, 255, 229, 199); // Oranye pastel lembut
+  static const Color orangeLight = Color.fromARGB(255, 255, 203, 154); // Oranye terang lembut
+  static const Color orangeMediumLight = Color.fromARGB(255, 255, 176, 112); // Oranye terang
+  static const Color orangeMedium = Color.fromARGB(255, 255, 143, 60); // Oranye sedang (utama)
+  static const Color orangeMediumDark = Color.fromARGB(255, 230, 110, 30); // Oranye agak gelap
+  static const Color orangeDark = Color.fromARGB(255, 199, 82, 16); // Oranye tua pekat
+  static const Color orangeSuperDark = Color.fromARGB(255, 140, 56, 10); // Oranye sangat tua (gelap ke coklat)
+
+  // === Gradasi ungu tambahan ===
+  static const Color purpleSuperLight = Color.fromARGB(255, 250, 245, 255); // Ungu sangat lembut (hampir putih)
+  static const Color purpleExtraLight = Color.fromARGB(255, 233, 216, 255); // Ungu pastel lembut
+  static const Color purpleLight = Color.fromARGB(255, 212, 187, 255); // Ungu terang lembut
+  static const Color purpleMediumLight = Color.fromARGB(255, 177, 139, 255); // Ungu sedang terang
+  static const Color purpleMedium = Color.fromARGB(255, 149, 91, 255); // Ungu utama cerah
+  static const Color purpleMediumDark = Color.fromARGB(255, 120, 55, 232); // Ungu lebih gelap
+  static const Color purpleDark = Color.fromARGB(255, 90, 32, 165); // Ungu tua pekat
+  static const Color purpleSuperDark = Color.fromARGB(255, 55, 16, 110); // Ungu sangat tua (gelap dalam)
+
+
   // === Gradasi abu tambahan ===
   static const Color graySuperLight = Color.fromARGB(255, 252, 252, 252); // Abu sangat lembut (hampir putih)
   static const Color grayExtraLight = Color.fromARGB(255, 235, 235, 235); // Abu sangat muda

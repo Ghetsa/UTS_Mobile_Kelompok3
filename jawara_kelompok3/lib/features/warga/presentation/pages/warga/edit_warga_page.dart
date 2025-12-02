@@ -1,139 +1,158 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/theme/app_theme.dart';
-import '../../../../../core/layout/sidebar.dart';
+import '../../../data/models/warga_model.dart';
+import '../../../data/services/warga_service.dart';
 
-class EditWargaDialog extends StatefulWidget {
-  final Map<String, dynamic> warga;
+class EditWargaPage extends StatefulWidget {
+  final WargaModel data;
 
-  const EditWargaDialog({super.key, required this.warga});
+  const EditWargaPage({super.key, required this.data});
 
   @override
-  State<EditWargaDialog> createState() => _EditWargaDialogState();
+  State<EditWargaPage> createState() => _EditWargaPageState();
 }
 
-class _EditWargaDialogState extends State<EditWargaDialog> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _namaController;
-  late TextEditingController _nikController;
-  late TextEditingController _keluargaController;
-  late TextEditingController _jenisKelaminController;
-  late TextEditingController _statusDomisiliController;
-  late TextEditingController _statusHidupController;
+class _EditWargaPageState extends State<EditWargaPage> {
+  final WargaService _service = WargaService();
+
+  late TextEditingController namaC;
+  late TextEditingController nikC;
+  late TextEditingController noHpC;
+  late TextEditingController pekerjaanC;
+  late TextEditingController pendidikanC;
+  late TextEditingController idRumahC;
+
+  String jenisKelamin = "p";
+  String statusWarga = "aktif";
+  String? agama;   // ⬅ dropdown agama
+
+  final List<String> agamaList = [
+    "Islam",
+    "Kristen",
+    "Katolik",
+    "Hindu",
+    "Buddha",
+    "Konghucu",
+  ];
 
   @override
   void initState() {
     super.initState();
-    _namaController = TextEditingController(text: widget.warga['nama']);
-    _nikController = TextEditingController(text: widget.warga['nik']);
-    _keluargaController =
-        TextEditingController(text: widget.warga['keluarga']);
-    _jenisKelaminController =
-        TextEditingController(text: widget.warga['jenisKelamin']);
-    _statusDomisiliController =
-        TextEditingController(text: widget.warga['statusDomisili']);
-    _statusHidupController =
-        TextEditingController(text: widget.warga['statusHidup']);
-  }
+    final w = widget.data;
 
-  @override
-  void dispose() {
-    _namaController.dispose();
-    _nikController.dispose();
-    _keluargaController.dispose();
-    _jenisKelaminController.dispose();
-    _statusDomisiliController.dispose();
-    _statusHidupController.dispose();
-    super.dispose();
-  }
+    namaC = TextEditingController(text: w.nama);
+    nikC = TextEditingController(text: w.nik);
+    noHpC = TextEditingController(text: w.noHp);
+    pekerjaanC = TextEditingController(text: w.pekerjaan);
+    pendidikanC = TextEditingController(text: w.pendidikan);
+    idRumahC = TextEditingController(text: w.idRumah);
 
-  void _simpan() {
-    if (_formKey.currentState!.validate()) {
-      final updated = {
-        "nama": _namaController.text,
-        "nik": _nikController.text,
-        "keluarga": _keluargaController.text,
-        "jenisKelamin": _jenisKelaminController.text,
-        "statusDomisili": _statusDomisiliController.text,
-        "statusHidup": _statusHidupController.text,
-      };
-      Navigator.pop(context, updated);
-    }
+    jenisKelamin = w.jenisKelamin;
+    statusWarga = w.statusWarga;
+    agama = w.agama;   // ⬅ set nilai awal dropdown
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("Edit Warga",
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 8),
-                const Text("Ubah data warga yang diperlukan.",
-                    style: TextStyle(color: Colors.black54)),
-                const SizedBox(height: 24),
+    return AlertDialog(
+      title: const Text("Edit Data Warga"),
+      content: SizedBox(
+        width: 350,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextField(
+                controller: namaC,
+                decoration: const InputDecoration(labelText: "Nama"),
+              ),
+              TextField(
+                controller: nikC,
+                decoration: const InputDecoration(labelText: "NIK"),
+              ),
+              TextField(
+                controller: noHpC,
+                decoration: const InputDecoration(labelText: "No HP"),
+              ),
 
-                _buildField("Nama", _namaController),
-                const SizedBox(height: 16),
-                _buildField("NIK", _nikController),
-                const SizedBox(height: 16),
-                _buildField("Keluarga", _keluargaController),
-                const SizedBox(height: 16),
-                _buildField("Jenis Kelamin", _jenisKelaminController),
-                const SizedBox(height: 16),
-                _buildField("Status Domisili", _statusDomisiliController),
-                const SizedBox(height: 16),
-                _buildField("Status Hidup", _statusHidupController),
-                const SizedBox(height: 24),
+              // =======================================================
+              // 🔵 AGAMA — Ganti dari TextField menjadi Dropdown
+              // =======================================================
+              DropdownButtonFormField<String>(
+                value: agama,
+                decoration: const InputDecoration(labelText: "Agama"),
+                items: agamaList
+                    .map((a) => DropdownMenuItem(
+                          value: a,
+                          child: Text(a),
+                        ))
+                    .toList(),
+                onChanged: (v) => setState(() => agama = v),
+              ),
 
-                _buildActionButtons(context),
-              ],
-            ),
+              TextField(
+                controller: pekerjaanC,
+                decoration: const InputDecoration(labelText: "Pekerjaan"),
+              ),
+              TextField(
+                controller: pendidikanC,
+                decoration: const InputDecoration(labelText: "Pendidikan"),
+              ),
+              TextField(
+                controller: idRumahC,
+                decoration: const InputDecoration(labelText: "ID Rumah"),
+              ),
+
+              const SizedBox(height: 10),
+
+              DropdownButtonFormField(
+                value: jenisKelamin,
+                items: const [
+                  DropdownMenuItem(value: "l", child: Text("Laki-laki")),
+                  DropdownMenuItem(value: "p", child: Text("Perempuan")),
+                ],
+                decoration: const InputDecoration(labelText: "Jenis Kelamin"),
+                onChanged: (v) => setState(() => jenisKelamin = v!),
+              ),
+
+              DropdownButtonFormField(
+                value: statusWarga,
+                items: const [
+                  DropdownMenuItem(value: "aktif", child: Text("Aktif")),
+                  DropdownMenuItem(value: "nonaktif", child: Text("Tidak Aktif")),
+                ],
+                decoration: const InputDecoration(labelText: "Status Warga"),
+                onChanged: (v) => setState(() => statusWarga = v!),
+              ),
+            ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildField(String label, TextEditingController controller) {
-    return TextFormField(
-      controller: controller,
-      decoration:
-          InputDecoration(labelText: label, border: const OutlineInputBorder()),
-      validator: (val) =>
-          val == null || val.isEmpty ? "Wajib diisi" : null,
-    );
-  }
-
-  Widget _buildActionButtons(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
+      actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          style: TextButton.styleFrom(foregroundColor: Colors.black54),
           child: const Text("Batal"),
         ),
-        const SizedBox(width: 8),
         ElevatedButton(
-          onPressed: _simpan,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.primaryBlue,
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          ),
-          child: const Text("Simpan",
-              style: TextStyle(color: Colors.white)),
+          onPressed: () async {
+            final updated = {
+              "nama": namaC.text,
+              "nik": nikC.text,
+              "no_hp": noHpC.text,
+              "agama": agama,                    // ⬅ dropdown agama
+              "pekerjaan": pekerjaanC.text,
+              "pendidikan": pendidikanC.text,
+              "id_rumah": idRumahC.text,
+              "jenis_kelamin": jenisKelamin,
+              "status_warga": statusWarga,
+              "updated_at": DateTime.now(),
+            };
+
+            await _service.updateWarga(widget.data.docId, updated);
+            Navigator.pop(context, true);
+          },
+          child: 
+          const Text("Simpan"),
+          
+
         ),
       ],
     );
