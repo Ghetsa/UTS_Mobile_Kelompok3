@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/layout/sidebar.dart';
 import '../../../../../core/widgets/filter_keluarga.dart'; // pastikan file dialog sudah ada
-import 'DetailKeluarga.dart';
-import 'EditKeluarga.dart';
+import '../data_keluarga/detail_keluarga_page.dart';
+import '../data_keluarga/edit_keluarga_page.dart';
 
 class DaftarKeluargaPage extends StatelessWidget {
   const DaftarKeluargaPage({super.key});

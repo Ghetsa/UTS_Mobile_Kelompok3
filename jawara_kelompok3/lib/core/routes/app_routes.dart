@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../features/auth/presentation/pages/login.dart';
 
 // === Register ===
-import '../../features/auth/presentation/pages/register.dart';
+import '../../features/auth/register/register.dart';
 
 // === Dashboard ===
 import '../../features/dashboard/presentation/pages/kegiatan_dashboard_page.dart';
