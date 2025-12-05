@@ -5,6 +5,7 @@ import '../../../../../../core/theme/app_theme.dart';
 import '../../../../data/services/tagihan_service.dart';
 import '../../../../../warga/data/models/keluarga_model.dart';
 import '../../../../../warga/data/services/keluarga_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; 
 
 class TagihIuranPage extends StatefulWidget {
   const TagihIuranPage({super.key});
@@ -16,9 +17,8 @@ class TagihIuranPage extends StatefulWidget {
 class _TagihIuranPageState extends State<TagihIuranPage> {
   String? selectedIuran;
   final List<String> iuranList = ["Agustusan", "Mingguan", "Bulanan"];
-  final TagihanService _tagihanService = TagihanService();
-  final KeluargaService _keluargaService = KeluargaService();
-
+  final TagihanService _service = TagihanService();
+  final KeluargaService _keluargaService = KeluargaService(); 
   Future<void> _tagihIuran() async {
     if (selectedIuran == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -30,34 +30,42 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
     // Ambil semua keluarga yang ada di Firestore
     List<KeluargaModel> keluargaData = await _keluargaService.getDataKeluarga();
 
+    bool isSuccess = true; 
+
+   
     for (var keluarga in keluargaData) {
-      // Memeriksa status keluarga dan hanya menagih keluarga yang aktif
-      if (keluarga.status_keluarga == "Aktif") {  // Change here to status_keluarga
+      if (keluarga.statusKeluarga == "Aktif") {  
         final data = {
-          "keluarga": keluarga.kepalaKeluarga, // Ambil kepala keluarga atau data yang sesuai
+          "keluarga": keluarga.kepalaKeluarga, 
           "status": "Aktif",
           "iuran": selectedIuran!,
-          "kode": "IUR-${keluarga.uid}", // Buat kode tagihan yang unik
-          "nominal": "100000", // Tentukan nominal sesuai dengan iuran
-          "periode": selectedIuran!,
-          "tagihanStatus": "Belum Dibayar",
+          "kode": "IUR-${keluarga.uid}", 
+          "nominal": "100000", 
+          "periode": selectedIuran!, 
+          "tagihanStatus": "Belum Dibayar", 
+          "tanggalTagih": Timestamp.now(), 
         };
 
-        // Simpan data tagihan untuk keluarga aktif
-        final success = await _tagihanService.add(data);
+
+        final success = await _service.add(data);
 
         if (!success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Gagal menambahkan tagihan"), backgroundColor: Colors.red),
-          );
-          return;
+          isSuccess = false; 
+          break; 
         }
       }
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Tagihan berhasil ditambahkan")),
-    );
+    // Menampilkan pesan berdasarkan hasil
+    if (isSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Tagihan berhasil ditambahkan")),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Gagal menambahkan tagihan"), backgroundColor: Colors.red),
+      );
+    }
 
     setState(() {
       selectedIuran = null; // Reset pilihan setelah berhasil
