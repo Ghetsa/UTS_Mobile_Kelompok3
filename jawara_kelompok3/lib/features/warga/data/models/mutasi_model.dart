@@ -1,56 +1,69 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MutasiModel {
-  final String uid;               // docId
-  final String keterangan;        // dari firestore
-  final String idWarga;           // firestore pakai "id"
-  final String jenisMutasi;       // firestore pakai "jenis_mutasi"
+  /// docId di Firestore
+  final String uid;
+
+  /// id warga (relasi ke koleksi warga) → disimpan di field `id`
+  final String idWarga;
+
+  /// jenis_mutasi (mis: "pindah masuk", "pindah keluar", "sementara")
+  final String jenisMutasi;
+
+  /// keterangan mutasi
+  final String keterangan;
+
+  /// tanggal mutasi
   final DateTime? tanggal;
+
+  /// waktu dibuat
   final DateTime? createdAt;
+
+  /// waktu terakhir diupdate
   final DateTime? updatedAt;
 
   MutasiModel({
     required this.uid,
-    required this.keterangan,
     required this.idWarga,
     required this.jenisMutasi,
+    required this.keterangan,
     this.tanggal,
     this.createdAt,
     this.updatedAt,
   });
 
-  /// Dari Firestore → Model
-  factory MutasiModel.fromFirestore(String id, Map<String, dynamic> data) {
+  /// Firestore → Model
+  factory MutasiModel.fromFirestore(String docId, Map<String, dynamic> data) {
     return MutasiModel(
-      uid: id,
-      keterangan: data["keterangan"] ?? "",
-      idWarga: data["id"] ?? "",
-      jenisMutasi: data["jenis_mutasi"] ?? "",
-      tanggal: data["tanggal"] != null
-          ? (data["tanggal"] as Timestamp).toDate()
+      uid: docId,
+      idWarga: data['id'] ?? '',
+      jenisMutasi: data['jenis_mutasi'] ?? '',
+      keterangan: data['keterangan'] ?? '',
+      tanggal: data['tanggal'] is Timestamp
+          ? (data['tanggal'] as Timestamp).toDate()
           : null,
-      createdAt: data["created_at"] != null
-          ? (data["created_at"] as Timestamp).toDate()
+      createdAt: data['created_at'] is Timestamp
+          ? (data['created_at'] as Timestamp).toDate()
           : null,
-      updatedAt: data["updated_at"] != null
-          ? (data["updated_at"] as Timestamp).toDate()
+      updatedAt: data['updated_at'] is Timestamp
+          ? (data['updated_at'] as Timestamp).toDate()
           : null,
     );
   }
 
-  /// Model → Firestore
+  /// Model → Map untuk add dokumen mutasi baru
   Map<String, dynamic> toMap() {
     return {
-      "keterangan": keterangan,
-      "id": idWarga,
-      "jenis_mutasi": jenisMutasi,
-      "tanggal": tanggal != null
+      'id': idWarga,
+      'jenis_mutasi': jenisMutasi,
+      'keterangan': keterangan,
+      'tanggal': tanggal != null
           ? Timestamp.fromDate(tanggal!)
           : FieldValue.serverTimestamp(),
-      "created_at": createdAt != null
+      'created_at': createdAt != null
           ? Timestamp.fromDate(createdAt!)
           : FieldValue.serverTimestamp(),
-      "updated_at": FieldValue.serverTimestamp(),
+      'updated_at': FieldValue.serverTimestamp(),
     };
   }
 }

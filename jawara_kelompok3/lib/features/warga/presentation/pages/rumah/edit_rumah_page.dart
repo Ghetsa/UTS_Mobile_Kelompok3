@@ -12,7 +12,6 @@ class EditRumahDialog extends StatefulWidget {
 
 class _EditRumahDialogState extends State<EditRumahDialog> {
   final _alamatC = TextEditingController();
-  final _penghuniC = TextEditingController();
   final _rtC = TextEditingController();
   final _rwC = TextEditingController();
 
@@ -27,7 +26,6 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
     super.initState();
 
     _alamatC.text = widget.rumah.alamat;
-    _penghuniC.text = widget.rumah.penghuniKeluargaId;
     _rtC.text = widget.rumah.rt;
     _rwC.text = widget.rumah.rw;
 
@@ -48,9 +46,7 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
     setState(() => _loading = true);
 
     final data = {
-      // id sengaja tidak diubah di sini, kalau mau boleh tambahkan
       "alamat": _alamatC.text,
-      "penghuni": _penghuniC.text,
       "status_rumah": _statusRumah,
       "kepemilikan": _kepemilikan,
       "rt": _rtC.text,
@@ -84,15 +80,6 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
             ),
             const SizedBox(height: 8),
 
-            TextField(
-              controller: _penghuniC,
-              decoration: const InputDecoration(
-                labelText: 'Penghuni (ID Keluarga)',
-                helperText: 'Isi dengan ID keluarga (bisa docId keluarga)',
-              ),
-            ),
-            const SizedBox(height: 8),
-
             Row(
               children: [
                 Expanded(
@@ -112,7 +99,6 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
             ),
             const SizedBox(height: 8),
 
-            /// STATUS RUMAH
             DropdownButtonFormField<String>(
               value: _statusRumah,
               items: const [
@@ -125,7 +111,6 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
             ),
             const SizedBox(height: 8),
 
-            /// KEPEMILIKAN
             DropdownButtonFormField<String>(
               value: _kepemilikan,
               items: const [
@@ -139,7 +124,6 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
           ],
         ),
       ),
-
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),

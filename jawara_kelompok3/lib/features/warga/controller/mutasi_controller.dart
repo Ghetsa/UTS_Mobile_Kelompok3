@@ -1,35 +1,30 @@
 import '../data/models/mutasi_model.dart';
 import '../data/services/mutasi_service.dart';
 
-/// Controller untuk mengelola data Mutasi Keluarga.
-///
-/// Tanggung jawab:
-/// - Ambil semua mutasi dari Firestore (via MutasiService)
-/// - Menyimpan state: allData, filteredData, searchQuery
-/// - Menyediakan method untuk search & delete
+/// Controller Mutasi (per Warga)
 class MutasiController {
   final MutasiService _service;
 
-  /// Semua data hasil load dari Firestore
+  /// Semua data dari Firestore
   List<MutasiModel> allData = [];
 
-  /// Data setelah difilter (ini yang biasa dipakai di UI)
+  /// Data yang sudah difilter (dipakai di UI)
   List<MutasiModel> filteredData = [];
 
-  /// Query pencarian (sekarang: by idWarga / nama yg di-mapping ke idWarga)
+  /// Query pencarian
   String searchQuery = '';
 
-  /// Flag loading, bisa kamu pakai untuk indikator loading di UI
+  /// Flag loading
   bool isLoading = false;
 
-  /// Pesan error terakhir jika ada
+  /// Error terakhir
   String? errorMessage;
 
   MutasiController({MutasiService? service})
       : _service = service ?? MutasiService();
 
   // ============================================================
-  // 🔵 LOAD DATA DARI FIRESTORE
+  // 🔵 LOAD DATA
   // ============================================================
   Future<void> loadData() async {
     try {
@@ -38,7 +33,6 @@ class MutasiController {
 
       final result = await _service.getAllMutasi();
       allData = result;
-
       _applyFilterInternal();
     } catch (e) {
       errorMessage = 'Gagal memuat data mutasi: $e';
@@ -50,7 +44,6 @@ class MutasiController {
 
   // ============================================================
   // 🔍 SEARCH / FILTER
-  //    (sementara cuma pakai search by idWarga, bisa dikembangin)
   // ============================================================
   void setSearch(String value) {
     searchQuery = value.trim();
@@ -63,16 +56,20 @@ class MutasiController {
   }
 
   void _applyFilterInternal() {
-    filteredData = allData.where((m) {
-      if (searchQuery.isEmpty) return true;
+    final q = searchQuery.toLowerCase();
 
-      // kalau nanti kamu punya namaWarga, bisa diganti ke m.namaWarga
-      return m.idWarga.toLowerCase().contains(searchQuery.toLowerCase());
+    filteredData = allData.where((m) {
+      if (q.isEmpty) return true;
+
+      return m.idWarga.toLowerCase().contains(q) ||
+          m.jenisMutasi.toLowerCase().contains(q) ||
+          m.keterangan.toLowerCase().contains(q) ||
+          m.uid.toLowerCase().contains(q);
     }).toList();
   }
 
   // ============================================================
-  // 🔴 HAPUS MUTASI (FIRESTORE + LOCAL)
+  // 🔴 HAPUS MUTASI
   // ============================================================
   Future<bool> deleteMutasi(MutasiModel model) async {
     try {
@@ -89,7 +86,18 @@ class MutasiController {
   }
 
   // ============================================================
-  // 🟡 UPDATE MUTASI (opsional, kalau mau update lokal tanpa reload)
-  //    Sekarang lebih simpel: setelah update, kamu bisa panggil loadData()
+  // 🟡 UPDATE MUTASI (optional, untuk dialog edit)
   // ============================================================
+  Future<bool> updateMutasi(String docId, Map<String, dynamic> data) async {
+    try {
+      final ok = await _service.updateMutasi(docId, data);
+      if (ok) {
+        await loadData();
+      }
+      return ok;
+    } catch (e) {
+      errorMessage = 'Gagal mengupdate mutasi: $e';
+      return false;
+    }
+  }
 }

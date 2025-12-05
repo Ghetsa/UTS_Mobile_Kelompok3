@@ -1,19 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RumahModel {
-  /// docId = ID dokumen Firestore (bukan field "id" di dalam dokumen)
+  /// docId = ID dokumen Firestore
   final String docId;
 
-  /// field "id" di Firestore (misal nomor rumah / kode rumah)
+  /// field "id" (ID internal rumah yang kamu generate)
   final String id;
 
   final String alamat;
   final String nomor;
-  final String statusRumah;       // dari "status_rumah"
-  final String kepemilikan;       // dari "kepemilikan"
-  final String penghuniKeluargaId; // dari "penghuni" = id keluarga
-  final String rt;                // dari "rt"
-  final String rw;                // dari "rw"
+  final String statusRumah; // "Dihuni", "Kosong", "Renovasi"
+  final String kepemilikan; // "Pemilik", "Penyewa", "Kosong"
+  final String rt;
+  final String rw;
 
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -25,14 +24,15 @@ class RumahModel {
     required this.nomor,
     required this.statusRumah,
     required this.kepemilikan,
-    required this.penghuniKeluargaId,
     required this.rt,
     required this.rw,
     this.createdAt,
     this.updatedAt,
   });
 
-  /// Dari Firestore → Model
+  /// ------------------------------------------------------------
+  /// Firestore → Model
+  /// ------------------------------------------------------------
   factory RumahModel.fromFirestore(String docId, Map<String, dynamic> data) {
     return RumahModel(
       docId: docId,
@@ -41,7 +41,6 @@ class RumahModel {
       nomor: data['nomor'] ?? '',
       statusRumah: data['status_rumah'] ?? '',
       kepemilikan: data['kepemilikan'] ?? '',
-      penghuniKeluargaId: data['penghuni'] ?? '',
       rt: data['rt'] ?? '',
       rw: data['rw'] ?? '',
       createdAt: data['created_at'] != null
@@ -53,7 +52,9 @@ class RumahModel {
     );
   }
 
-  /// Model → Map untuk simpan/update ke Firestore
+  /// ------------------------------------------------------------
+  /// Model → Map (untuk Firestore)
+  /// ------------------------------------------------------------
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -61,7 +62,6 @@ class RumahModel {
       'nomor': nomor,
       'status_rumah': statusRumah,
       'kepemilikan': kepemilikan,
-      'penghuni': penghuniKeluargaId,
       'rt': rt,
       'rw': rw,
       'created_at': createdAt != null

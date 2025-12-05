@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class KeluargaModel {
-  final String uid;
+  final String uid; // docId di Firestore
   final String kepalaKeluarga;
-  final String idRumah;
+  final String idRumah; // simpan docId rumah
   final String jumlahAnggota;
   final String noKk;
+  final String statusKeluarga; // "aktif" / "pindah" / "sementara"
   final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   KeluargaModel({
     required this.uid,
@@ -14,7 +16,9 @@ class KeluargaModel {
     required this.idRumah,
     required this.jumlahAnggota,
     required this.noKk,
+    required this.statusKeluarga,
     this.createdAt,
+    this.updatedAt,
   });
 
   factory KeluargaModel.fromFirestore(String id, Map<String, dynamic> data) {
@@ -22,10 +26,14 @@ class KeluargaModel {
       uid: id,
       kepalaKeluarga: data["kepala_keluarga"] ?? "",
       idRumah: data["id_rumah"] ?? "",
-      jumlahAnggota: data["jumlah_anggota"] ?? "",
+      jumlahAnggota: data["jumlah_anggota"]?.toString() ?? "",
       noKk: data["no_kk"] ?? "",
+      statusKeluarga: (data["status_keluarga"] ?? "aktif").toString(),
       createdAt: data["created_at"] != null
           ? (data["created_at"] as Timestamp).toDate()
+          : null,
+      updatedAt: data["updated_at"] != null
+          ? (data["updated_at"] as Timestamp).toDate()
           : null,
     );
   }
@@ -36,7 +44,9 @@ class KeluargaModel {
       "id_rumah": idRumah,
       "jumlah_anggota": jumlahAnggota,
       "no_kk": noKk,
-      "created_at": createdAt != null ? Timestamp.fromDate(createdAt!) : null,
+      "status_keluarga": statusKeluarga,
+      if (createdAt != null) "created_at": Timestamp.fromDate(createdAt!),
+      if (updatedAt != null) "updated_at": Timestamp.fromDate(updatedAt!),
     };
   }
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../../../core/layout/header.dart';
+import '../../../../../core/theme/app_theme.dart';
+
 import '../../../data/models/rumah_model.dart';
 import '../../../data/services/rumah_service.dart';
 
@@ -12,7 +15,6 @@ class TambahRumahPage extends StatefulWidget {
 class _TambahRumahPageState extends State<TambahRumahPage> {
   final _alamatC = TextEditingController();
   final _nomorC = TextEditingController();
-  final _penghuniC = TextEditingController();
   final _rtC = TextEditingController();
   final _rwC = TextEditingController();
 
@@ -39,17 +41,15 @@ class _TambahRumahPageState extends State<TambahRumahPage> {
 
     setState(() => _loading = true);
 
-    /// id rumah (field "id") bisa kode unik internal
     final id = DateTime.now().millisecondsSinceEpoch.toString();
 
     final rumah = RumahModel(
-      docId: "", // biarkan kosong → service akan pakai add()
+      docId: "",
       id: id,
       alamat: _alamatC.text.trim(),
-      nomor: _nomorC.text.trim(), // ⬅️ penting
+      nomor: _nomorC.text.trim(),
       statusRumah: _statusRumah ?? "Dihuni",
       kepemilikan: _kepemilikan ?? "Pemilik",
-      penghuniKeluargaId: _penghuniC.text.trim(),
       rt: _rtC.text.trim().isEmpty ? "1" : _rtC.text.trim(),
       rw: _rwC.text.trim().isEmpty ? "1" : _rwC.text.trim(),
       createdAt: DateTime.now(),
@@ -71,93 +71,164 @@ class _TambahRumahPageState extends State<TambahRumahPage> {
     }
   }
 
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      filled: true,
+      fillColor: const Color(0xFFF4F8FB),
+      hintText: hint,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tambah Rumah')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+      backgroundColor: const Color(0xFFE9F2F9),
+      body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Alamat
-            TextField(
-              controller: _alamatC,
-              decoration: const InputDecoration(labelText: 'Alamat'),
+            const MainHeader(
+              title: "Tambah Rumah",
+              showSearchBar: false,
+              showFilterButton: false,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 18),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26.withOpacity(0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Informasi Rumah",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
 
-            // Nomor rumah (field "nomor")
-            TextField(
-              controller: _nomorC,
-              decoration: const InputDecoration(
-                labelText: 'Nomor Rumah',
-                helperText: 'Contoh: 01, 1A, 12B, dsb.',
-              ),
-            ),
-            const SizedBox(height: 8),
+                      const SizedBox(height: 16),
 
-            // Penghuni (ID keluarga)
-            TextField(
-              controller: _penghuniC,
-              decoration: const InputDecoration(
-                labelText: 'Penghuni (ID Keluarga)',
-                helperText:
-                    'Isi dengan ID keluarga (boleh dikosongkan jika belum ada)',
-              ),
-            ),
-            const SizedBox(height: 8),
+                      TextField(
+                        controller: _alamatC,
+                        decoration: _inputDecoration("Alamat rumah"),
+                      ),
+                      const SizedBox(height: 16),
 
-            // RT / RW
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _rtC,
-                    decoration: const InputDecoration(labelText: 'RT'),
+                      TextField(
+                        controller: _nomorC,
+                        decoration: _inputDecoration(
+                          "Nomor Rumah (contoh: 01, 1A, 12B)",
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _rtC,
+                              decoration: _inputDecoration("RT"),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextField(
+                              controller: _rwC,
+                              decoration: _inputDecoration("RW"),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      DropdownButtonFormField<String>(
+                        value: _statusRumah,
+                        decoration: _inputDecoration("Status Rumah")
+                            .copyWith(labelText: "Status Rumah"),
+                        items: const [
+                          DropdownMenuItem(
+                              value: "Dihuni", child: Text("Dihuni")),
+                          DropdownMenuItem(
+                              value: "Kosong", child: Text("Kosong")),
+                          DropdownMenuItem(
+                              value: "Renovasi", child: Text("Renovasi")),
+                        ],
+                        onChanged: (v) => setState(() => _statusRumah = v),
+                      ),
+                      const SizedBox(height: 16),
+
+                      DropdownButtonFormField<String>(
+                        value: _kepemilikan,
+                        decoration: _inputDecoration("Kepemilikan")
+                            .copyWith(labelText: "Kepemilikan"),
+                        items: const [
+                          DropdownMenuItem(
+                              value: "Pemilik", child: Text("Pemilik")),
+                          DropdownMenuItem(
+                              value: "Penyewa", child: Text("Penyewa")),
+                          DropdownMenuItem(
+                              value: "Kosong", child: Text("Kosong")),
+                        ],
+                        onChanged: (v) => setState(() => _kepemilikan = v),
+                      ),
+
+                      const SizedBox(height: 28),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFFFC107),
+                                foregroundColor: Colors.black,
+                              ),
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text("Kembali"),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFFFC107),
+                                foregroundColor: Colors.black,
+                              ),
+                              onPressed: _loading ? null : _save,
+                              child: _loading
+                                  ? const SizedBox(
+                                      height: 18,
+                                      width: 18,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2, color: Colors.black),
+                                    )
+                                  : const Text("Simpan"),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _rwC,
-                    decoration: const InputDecoration(labelText: 'RW'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-
-            // Status rumah
-            DropdownButtonFormField<String>(
-              value: _statusRumah,
-              items: const [
-                DropdownMenuItem(value: "Dihuni", child: Text("Dihuni")),
-                DropdownMenuItem(value: "Kosong", child: Text("Kosong")),
-                DropdownMenuItem(value: "Renovasi", child: Text("Renovasi")),
-              ],
-              onChanged: (v) => setState(() => _statusRumah = v),
-              decoration: const InputDecoration(labelText: 'Status Rumah'),
-            ),
-            const SizedBox(height: 8),
-
-            // Kepemilikan
-            DropdownButtonFormField<String>(
-              value: _kepemilikan,
-              items: const [
-                DropdownMenuItem(value: "Pemilik", child: Text("Pemilik")),
-                DropdownMenuItem(value: "Penyewa", child: Text("Penyewa")),
-                DropdownMenuItem(value: "Kosong", child: Text("Kosong")),
-              ],
-              onChanged: (v) => setState(() => _kepemilikan = v),
-              decoration: const InputDecoration(labelText: 'Kepemilikan'),
-            ),
-            const SizedBox(height: 16),
-
-            ElevatedButton(
-              onPressed: _loading ? null : _save,
-              child: _loading
-                  ? const CircularProgressIndicator()
-                  : const Text('Simpan'),
+              ),
             ),
           ],
         ),

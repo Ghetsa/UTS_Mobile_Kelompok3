@@ -12,67 +12,156 @@ class EditMutasiDialog extends StatefulWidget {
 }
 
 class _EditMutasiDialogState extends State<EditMutasiDialog> {
-  final _service = MutasiService();
+  final MutasiService _service = MutasiService();
 
-  late TextEditingController keteranganC;
-  late String jenisMutasi;
+  late TextEditingController _keteranganC;
+  late String _jenisMutasi;
+  late DateTime _tanggal;
+
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
-    keteranganC = TextEditingController(text: widget.data.keterangan);
-    jenisMutasi = widget.data.jenisMutasi;
+
+    _keteranganC = TextEditingController(text: widget.data.keterangan);
+
+    // Default jika kosong
+    _jenisMutasi = widget.data.jenisMutasi.isEmpty
+        ? "Pindah Keluar"
+        : widget.data.jenisMutasi;
+
+    _tanggal = widget.data.tanggal ?? DateTime.now();
   }
 
   @override
   void dispose() {
-    keteranganC.dispose();
+    _keteranganC.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _tanggal,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() => _tanggal = picked);
+    }
+  }
+
+  Future<void> _save() async {
+    setState(() => _loading = true);
+
+    final Map<String, dynamic> payload = {
+      "jenis_mutasi": _jenisMutasi,
+      "keterangan": _keteranganC.text.trim(),
+      "tanggal": _tanggal,
+      "updated_at": DateTime.now(),
+    };
+
+    final ok = await _service.updateMutasi(widget.data.uid, payload);
+
+    setState(() => _loading = false);
+
+    if (!mounted) return;
+
+    if (ok) {
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Gagal mengupdate data mutasi"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text("Edit Mutasi"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          DropdownButtonFormField<String>(
-            value: jenisMutasi,
-            items: const [
-              DropdownMenuItem(value: "Masuk", child: Text("Masuk")),
-              DropdownMenuItem(value: "Keluar", child: Text("Keluar")),
-            ],
-            decoration: const InputDecoration(labelText: "Jenis Mutasi"),
-            onChanged: (v) {
-              if (v != null) {
-                setState(() => jenisMutasi = v);
-              }
-            },
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: keteranganC,
-            decoration: const InputDecoration(labelText: "Keterangan"),
-          ),
-        ],
+      title: const Text("Edit Mutasi Warga"),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            /// JENIS MUTASI
+            DropdownButtonFormField<String>(
+              value: _jenisMutasi,
+              decoration: const InputDecoration(labelText: "Jenis Mutasi"),
+              items: const [
+                DropdownMenuItem(
+                    value: "Pindah Masuk", child: Text("Pindah Masuk")),
+                DropdownMenuItem(
+                    value: "Pindah Keluar", child: Text("Pindah Keluar")),
+                DropdownMenuItem(
+                  value: "Pindah Dalam",
+                  child: Text("Pindah Dalam (antar RT/RW)"),
+                ),
+                DropdownMenuItem(
+                    value: "Sementara", child: Text("Tinggal Sementara")),
+              ],
+              onChanged: (v) => setState(() => _jenisMutasi = v!),
+            ),
+
+            const SizedBox(height: 14),
+
+            /// TANGGAL MUTASI
+            InputDecorator(
+              decoration: const InputDecoration(
+                labelText: "Tanggal Mutasi",
+                border: OutlineInputBorder(),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "${_tanggal.day.toString().padLeft(2, '0')}-"
+                      "${_tanggal.month.toString().padLeft(2, '0')}-"
+                      "${_tanggal.year}",
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.calendar_today),
+                    onPressed: _pickDate,
+                  )
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 14),
+
+            /// KETERANGAN
+            TextField(
+              controller: _keteranganC,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: "Keterangan Tambahan",
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
       ),
+
+      /// ACTION BUTTONS
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text("Batal"),
         ),
         ElevatedButton(
-          onPressed: () async {
-            await _service.updateMutasi(widget.data.uid, {
-              "jenis_mutasi": jenisMutasi,
-              "keterangan": keteranganC.text,
-              // kalau mau, di sini juga bisa update "tanggal"
-            });
-
-            Navigator.pop(context, true); // return true = sukses
-          },
-          child: const Text("Simpan"),
+          onPressed: _loading ? null : _save,
+          child: _loading
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text("Simpan"),
         ),
       ],
     );
