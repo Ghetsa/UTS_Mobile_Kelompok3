@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jawara_kelompok3/features/laporan/presentation/pages/pemasukan/pemasukan_lain/tambah_pemasukan_lain_page.dart';
 
 // === Login ===
 import '../../features/auth/presentation/pages/login.dart';
@@ -25,6 +26,13 @@ import '../../features/warga/presentation/pages/mutasi/tambah_mutasi_page.dart';
 // === Pengeluaran ===
 import '../../features/laporan/presentation/pages/pengeluaran/daftar_pengeluaran_page.dart';
 import '../../features/laporan/presentation/pages/pengeluaran/tambah_pengeluaran_page.dart';
+
+// === Pengeluaran ===
+import '../../features/laporan/presentation/pages/pemasukan/kategori_iuran/iuran_page.dart';
+import '../../features/laporan/presentation/pages/pemasukan/pemasukan_lain/daftar_pemasukan_lain_page.dart';
+import '../../features/laporan/presentation/pages/pemasukan/tagih_iuran/tagih_iuran_page.dart';
+import '../../features/laporan/presentation/pages/pemasukan/tagihan/tagihan_page.dart';
+import '../../features/laporan/presentation/pages/pengeluaran/daftar_pengeluaran_page.dart';
 
 // === Laporan Keuangan ===
 import '../../features/laporan/presentation/pages/pemasukan/semua_pemasukan_page.dart';
@@ -87,6 +95,14 @@ class AppRoutes {
     '/mutasi/daftar': (context) => const MutasiDaftarPage(),
     '/mutasi/tambah': (context) => const MutasiTambahPage(),
 
+    // ============================================================
+    // PEMASUKAN 
+    // ============================================================
+    '/pemasukan/pages/kategori': (context) => const KategoriIuranPage(),
+    '/pemasukan/tagihIuran': (context) => const TagihIuranPage(),
+    '/pemasukan/tagihan': (context) => const TagihanPage(),
+    '/pemasukan/pemasukanLain-daftar': (context) => const PemasukanLainDaftarPage(),
+    '/pemasukan/pemasukanLain-tambah': (context) => const PemasukanLainTambahPage(),
     // === Pengeluaran ===
     '/pengeluaran/daftar': (context) => const PengeluaranDaftarPage(),
     '/pengeluaran/tambah': (context) => const TambahPengeluaranPage(),

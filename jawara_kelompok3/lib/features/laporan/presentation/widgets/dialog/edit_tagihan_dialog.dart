@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../../../core/layout/header.dart';
-import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
+import '../../../data/models/tagihan_model.dart';
 
 class EditTagihanDialog extends StatefulWidget {
-  final Map<String, dynamic> tagihan;
+  final TagihanModel tagihan;
 
   const EditTagihanDialog({super.key, required this.tagihan});
 
@@ -22,9 +21,11 @@ class _EditTagihanDialogState extends State<EditTagihanDialog> {
   void initState() {
     super.initState();
     _keluargaController =
-        TextEditingController(text: widget.tagihan['keluarga']);
-    _iuranController = TextEditingController(text: widget.tagihan['iuran']);
-    _nominalController = TextEditingController(text: widget.tagihan['nominal']);
+        TextEditingController(text: widget.tagihan.keluarga);
+    _iuranController =
+        TextEditingController(text: widget.tagihan.iuran);
+    _nominalController =
+        TextEditingController(text: widget.tagihan.nominal);
   }
 
   @override
@@ -37,12 +38,12 @@ class _EditTagihanDialogState extends State<EditTagihanDialog> {
 
   void _simpan() {
     if (_formKey.currentState!.validate()) {
-      final updated = {
+      // Tetap return Map biar Page bisa update UI
+      Navigator.pop(context, {
         "keluarga": _keluargaController.text,
         "iuran": _iuranController.text,
         "nominal": _nominalController.text,
-      };
-      Navigator.pop(context, updated);
+      });
     }
   }
 
@@ -113,8 +114,8 @@ class _EditTagihanDialogState extends State<EditTagihanDialog> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 12),
                     ),
-                    child:
-                        const Text("Simpan", style: TextStyle(color: Colors.white)),
+                    child: const Text("Simpan",
+                        style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),

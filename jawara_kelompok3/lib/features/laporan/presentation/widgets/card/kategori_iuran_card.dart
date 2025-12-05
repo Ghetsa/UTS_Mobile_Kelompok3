@@ -1,94 +1,116 @@
 import 'package:flutter/material.dart';
-import '../../../../../../core/theme/app_theme.dart';
-import '../dialog/detail_kategori_dialog.dart';
-import '../dialog/edit_kategori_dialog.dart';
+import '../../../data/models/kategori_iuran_model.dart';
 
 class KategoriIuranCard extends StatelessWidget {
-  final Map<String, String> row;
+  final KategoriIuranModel row;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDetail;
+  final VoidCallback? onDelete; 
 
-  const KategoriIuranCard({super.key, required this.row});
+  const KategoriIuranCard({
+    super.key,
+    required this.row,
+    this.onEdit,
+    this.onDetail,
+    this.onDelete, 
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade300, width: 1.2),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12.withOpacity(.05),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          )
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ICON KIRI
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.card_giftcard, color: Colors.blue),
+          ),
+
+          const SizedBox(width: 16),
+
+          // TEKS
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.category, color: Colors.blue),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    row["nama"]!,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
+                Text(
+                  row.nama,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 17),
                 ),
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert, color: AppTheme.primaryBlue),
-                  onSelected: (value) async {
-                    if (value == 'detail') {
-                      await showDialog(
-                        context: context,
-                        builder: (context) =>
-                            DetailKategoriDialog(kategori: row),
-                      );
-                    } else if (value == 'edit') {
-                      await showDialog<Map<String, String>>(
-                        context: context,
-                        builder: (context) =>
-                            EditIuranDialog(iuran: row),
-                      );
-                    }
-                  },
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(
-                      value: 'detail',
-                      child: Row(children: [
-                        Icon(Icons.visibility, color: Colors.blue),
-                        SizedBox(width: 8),
-                        Text("Detail"),
-                      ]),
-                    ),
-                    PopupMenuItem(
-                      value: 'edit',
-                      child: Row(children: [
-                        Icon(Icons.edit, color: Colors.orange),
-                        SizedBox(width: 8),
-                        Text("Edit"),
-                      ]),
-                    ),
-                  ],
+                const SizedBox(height: 4),
+                Text(
+                  "Jenis: ${row.jenis}",
+                  style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                ),
+                Text(
+                  "Nominal: ${row.nominal}",
+                  style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            _info("Jenis Iuran", row["jenis"]!),
-            _info("Nominal", "Rp ${row["nominal"]},00"),
-          ],
-        ),
-      ),
-    );
-  }
+          ),
 
-  Widget _info(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(text: "$label: ", style: const TextStyle(fontWeight: FontWeight.w600)),
-            TextSpan(text: value),
-          ],
-        ),
+          // POPUP
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'detail' && onDetail != null) onDetail!();
+              if (value == 'edit' && onEdit != null) onEdit!();
+              if (value == 'delete' && onDelete != null) onDelete!(); 
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem(
+                value: 'detail',
+                child: Row(
+                  children: [
+                    Icon(Icons.visibility, color: Colors.blue),
+                    SizedBox(width: 8),
+                    Text("Detail"),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, color: Colors.orange),
+                    SizedBox(width: 8),
+                    Text("Edit"),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text("Hapus"),
+                  ],
+                ),
+              ),
+            ],
+          )
+        ],
       ),
     );
   }

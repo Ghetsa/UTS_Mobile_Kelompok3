@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../../../core/layout/header.dart';
-import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
+import '../../../data/models/pemasukan_lain_model.dart';
 
 class DetailPemasukanDialog extends StatelessWidget {
-  final Map<String, dynamic> pemasukan;
+  final PemasukanLainModel pemasukan;
 
   const DetailPemasukanDialog({super.key, required this.pemasukan});
 
@@ -19,46 +18,38 @@ class DetailPemasukanDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                const Icon(Icons.attach_money, color: Colors.green),
-                const SizedBox(width: 8),
-                const Text(
-                  "Detail Pemasukan",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ],
+            const Text(
+              "Detail Pemasukan",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 16),
 
-            const SizedBox(height: 20),
-
-            _buildField("Nama", pemasukan["nama"] ?? "-"),
+            _buildField("Nama", pemasukan.nama),
             const SizedBox(height: 12),
 
-            _buildField("Jenis Pemasukan", pemasukan["jenis"] ?? "-"),
+            _buildField("Jenis Pemasukan", pemasukan.jenis),
             const SizedBox(height: 12),
 
-            _buildField("Tanggal", pemasukan["tanggal"] ?? "-"),
+            _buildField("Tanggal", pemasukan.tanggal),
             const SizedBox(height: 12),
 
-            _buildField("Nominal", pemasukan["nominal"] ?? "-"),
-
+            _buildField("Nominal", pemasukan.nominal),
             const SizedBox(height: 20),
 
             Align(
               alignment: Alignment.centerRight,
-              child: ElevatedButton.icon(
+              child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close, color: Colors.white),
-                label: const Text("Tutup"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryBlue,
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
+                ),
+                child: const Text(
+                  "Tutup",
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ),
@@ -68,7 +59,6 @@ class DetailPemasukanDialog extends StatelessWidget {
     );
   }
 
-  // 🔹 Widget Helper Field
   Widget _buildField(String label, String value) {
     return TextFormField(
       readOnly: true,
@@ -79,8 +69,6 @@ class DetailPemasukanDialog extends StatelessWidget {
         border: const OutlineInputBorder(),
         filled: true,
         fillColor: Colors.grey.shade100,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       ),
     );
   }
