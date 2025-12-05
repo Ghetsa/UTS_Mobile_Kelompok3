@@ -5,6 +5,7 @@ import '../../../../../../core/theme/app_theme.dart';
 import '../../../../../core/widgets/filter_form.dart';
 import '../../widgets/dialog/detail_pemasukan_dialog.dart';
 import '../../widgets/dialog/edit_pemasukan_dialog.dart';
+import '../../../data/models/pemasukan_lain_model.dart';
 
 class SemuaPemasukanPage extends StatelessWidget {
   const SemuaPemasukanPage({super.key});
@@ -101,10 +102,14 @@ class SemuaPemasukanPage extends StatelessWidget {
                                   if (value == 'detail') {
                                     await showDialog(
                                       context: context,
-                                      barrierDismissible:
-                                          true, // bisa ditutup dengan tap luar
-                                      builder: (context) =>
-                                          DetailPemasukanDialog(pemasukan: row),
+                                      barrierDismissible: true,
+                                      builder: (context) {
+                                        // Konversi row ke PemasukanLainModel
+                                        final pemasukan =
+                                            PemasukanLainModel.fromMap(row);
+                                        return DetailPemasukanDialog(
+                                            pemasukan: pemasukan);
+                                      },
                                     );
                                   } else if (value == 'edit') {
                                     final result =
@@ -112,8 +117,13 @@ class SemuaPemasukanPage extends StatelessWidget {
                                       context: context,
                                       barrierDismissible:
                                           false, // biar user harus tekan Simpan/Batal
-                                      builder: (context) =>
-                                          EditPemasukanDialog(pemasukan: row),
+                                      builder: (context) {
+                                        // Konversi row ke PemasukanLainModel
+                                        final pemasukan =
+                                            PemasukanLainModel.fromMap(row);
+                                        return EditPemasukanDialog(
+                                            pemasukan: pemasukan);
+                                      },
                                     );
                                     if (result != null) {
                                       debugPrint(

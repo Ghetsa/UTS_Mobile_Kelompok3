@@ -52,7 +52,8 @@ class _AppSidebarState extends State<AppSidebar> {
             route.startsWith('/mutasi') ||
             route.startsWith('/rumah');
       case 'pemasukan':
-        return route.startsWith('/pemasukan');
+        return route.startsWith('/pemasukan') ||
+            route.startsWith('/pengeluaran');
       case 'laporan_keuangan':
         return route.startsWith('/laporan');
       case 'manajemen_pengguna':
@@ -62,7 +63,6 @@ class _AppSidebarState extends State<AppSidebar> {
       case 'log_aktifitas':
         return route.startsWith('/semuaAktifitas');
       case 'pesan_warga':
-        // ✅ akan aktif kalau lagi di halaman aspirasi
         return route.startsWith('/informasiAspirasi');
       case 'pengeluaran':
         return route.startsWith('/pengeluaran');

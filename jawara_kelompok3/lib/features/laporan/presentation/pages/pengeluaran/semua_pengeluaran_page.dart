@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../../../core/layout/header.dart';
 import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../widgets/dialog/detail_pengeluaran_dialog.dart';
 import '../../widgets/dialog/edit_pengeluaran_dialog.dart';
+import '../../widgets/card/pengeluaran_card.dart';
 
 class SemuaPengeluaranPage extends StatefulWidget {
   const SemuaPengeluaranPage({super.key});
@@ -33,138 +33,56 @@ class _SemuaPengeluaranPageState extends State<SemuaPengeluaranPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.backgroundBlueWhite,
       appBar: AppBar(title: const Text("Semua Pengeluaran")),
       drawer: const AppSidebar(),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.only(top: 16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🔹 Tombol Filter
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  // showDialog(
-                  //   context: context,
-                  //   builder: (_) =>
-                  //       const FilterFormDialog(title: "Filter Pengeluaran"),
-                  // );
-                },
-                icon: const Icon(Icons.filter_alt, color: Colors.white),
-                label: const Text("Filter"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.yellowDark,
-                  foregroundColor: Colors.white,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.filter_alt, color: Colors.white),
+                  label: const Text("Filter"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.yellowDark,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ),
             ),
+            const SizedBox(height: 12),
 
-            const SizedBox(height: 16),
-
-            // === Card List View Data Pengeluaran ===
             Expanded(
               child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 itemCount: data.length,
                 itemBuilder: (context, index) {
                   final row = data[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: Colors.grey.shade300,
-                        width: 1.2,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // === Header: Icon + Nama + Menu ===
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.account_balance_wallet,
-                                color: Colors.redAccent,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  row["nama"],
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                              PopupMenuButton<String>(
-                                icon: const Icon(
-                                  Icons.more_vert,
-                                  color: AppTheme.primaryBlue,
-                                ),
-                                onSelected: (value) async {
-                                  if (value == 'detail') {
-                                    await showDialog(
-                                      context: context,
-                                      builder: (_) => DetailPengeluaranDialog(
-                                        pengeluaran: row,
-                                      ),
-                                    );
-                                  } else if (value == 'edit') {
-                                    final result = await showDialog<
-                                        Map<String, dynamic>>(
-                                      context: context,
-                                      builder: (_) => EditPengeluaranDialog(
-                                        pengeluaran: row,
-                                      ),
-                                    );
+                  return PengeluaranCard(
+                    data: row,
+                    onDetail: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (_) => DetailPengeluaranDialog(pengeluaran: row),
+                      );
+                    },
+                    onEdit: () async {
+                      final result = await showDialog<Map<String, dynamic>>(
+                        context: context,
+                        builder: (_) => EditPengeluaranDialog(pengeluaran: row),
+                      );
 
-                                    if (result != null) {
-                                      setState(() {
-                                        data[index] = result;
-                                      });
-                                    }
-                                  }
-                                },
-                                itemBuilder: (context) => const [
-                                  PopupMenuItem(
-                                    value: 'detail',
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.visibility,
-                                            color: Colors.blue),
-                                        SizedBox(width: 8),
-                                        Text("Detail"),
-                                      ],
-                                    ),
-                                  ),
-                                  PopupMenuItem(
-                                    value: 'edit',
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.edit, color: Colors.orange),
-                                        SizedBox(width: 8),
-                                        Text("Edit"),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          // === Info Detail Pengeluaran ===
-                          _buildInfoRow("Jenis Pengeluaran", row["jenis"]),
-                          _buildInfoRow("Tanggal", row["tanggal"]),
-                          _buildInfoRow("Nominal", row["nominal"]),
-                        ],
-                      ),
-                    ),
+                      if (result != null) {
+                        setState(() {
+                          data[index] = result;
+                        });
+                      }
+                    },
                   );
                 },
               ),
@@ -174,29 +92,4 @@ class _SemuaPengeluaranPageState extends State<SemuaPengeluaranPage> {
       ),
     );
   }
-}
-
-// 🔹 Helper
-Widget _buildInfoRow(String label, String value) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 4),
-    child: Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(
-            text: "$label: ",
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          TextSpan(
-            text: value,
-            style: const TextStyle(
-              fontWeight: FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
 }

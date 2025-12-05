@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../../../core/layout/header.dart';
-import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
+import '../../../data/models/tagihan_model.dart';
 
 class DetailTagihanDialog extends StatelessWidget {
-  final Map<String, dynamic> tagihan;
+  final TagihanModel tagihan;
 
   const DetailTagihanDialog({super.key, required this.tagihan});
 
@@ -31,19 +30,19 @@ class DetailTagihanDialog extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            _buildField("Nama Keluarga", tagihan['keluarga']),
+            _buildField("Nama Keluarga", tagihan.keluarga),
             const SizedBox(height: 16),
-            _buildField("Status Keluarga", tagihan['status']),
+            _buildField("Status Keluarga", tagihan.status),
             const SizedBox(height: 16),
-            _buildField("Iuran", tagihan['iuran']),
+            _buildField("Iuran", tagihan.iuran),
             const SizedBox(height: 16),
-            _buildField("Kode Tagihan", tagihan['kode']),
+            _buildField("Kode Tagihan", tagihan.kode),
             const SizedBox(height: 16),
-            _buildField("Nominal", tagihan['nominal']),
+            _buildField("Nominal", tagihan.nominal),
             const SizedBox(height: 16),
-            _buildField("Periode", tagihan['periode']),
+            _buildField("Periode", tagihan.periode),
             const SizedBox(height: 16),
-            _buildField("Status Tagihan", tagihan['tagihan']),
+            _buildField("Status Tagihan", tagihan.tagihanStatus),
 
             const SizedBox(height: 24),
             Align(
@@ -52,14 +51,13 @@ class DetailTagihanDialog extends StatelessWidget {
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryBlue,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text("Tutup",
-                    style: TextStyle(color: Colors.white)),
+                child: const Text("Tutup", style: TextStyle(color: Colors.white)),
               ),
             ),
           ],
