@@ -87,13 +87,14 @@ class _FilterWargaDialogState extends State<FilterWargaDialog> {
                 border: OutlineInputBorder(),
               ),
               items: const [
-                DropdownMenuItem(value: "sd", child: Text("SD")),
-                DropdownMenuItem(value: "smp", child: Text("SMP")),
-                DropdownMenuItem(value: "sma", child: Text("SMA")),
-                DropdownMenuItem(value: "d3", child: Text("D3")),
-                DropdownMenuItem(value: "d4", child: Text("D4")),
-                DropdownMenuItem(value: "s1", child: Text("S1")),
-                DropdownMenuItem(value: "s2", child: Text("S2")),
+                DropdownMenuItem(value: "SD", child: Text("SD")),
+                DropdownMenuItem(value: "SMP", child: Text("SMP")),
+                DropdownMenuItem(value: "SMA", child: Text("SMA / SMK")),
+                DropdownMenuItem(value: "D3", child: Text("D3")),
+                DropdownMenuItem(value: "D4", child: Text("D4")),
+                DropdownMenuItem(value: "S1", child: Text("S1")),
+                DropdownMenuItem(value: "S2", child: Text("S2")),
+                DropdownMenuItem(value: "S3", child: Text("S3")),
               ],
               onChanged: (v) => setState(() => selectedPendidikan = v),
             ),
@@ -114,15 +115,6 @@ class _FilterWargaDialogState extends State<FilterWargaDialog> {
               onChanged: (v) => setState(() => selectedStatus = v),
             ),
             const SizedBox(height: 16),
-
-            // Filter: ID Rumah
-            TextField(
-              decoration: const InputDecoration(
-                labelText: "ID Rumah",
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (v) => selectedRumah = v.trim(),
-            ),
           ],
         ),
       ),
@@ -139,7 +131,6 @@ class _FilterWargaDialogState extends State<FilterWargaDialog> {
               "agama": selectedAgama,
               "pendidikan": selectedPendidikan,
               "status_warga": selectedStatus,
-              "id_rumah": selectedRumah,
             };
 
             widget.onApply(filterData);

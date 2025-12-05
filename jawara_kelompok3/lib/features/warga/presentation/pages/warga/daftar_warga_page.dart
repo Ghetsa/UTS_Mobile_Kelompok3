@@ -6,7 +6,7 @@ import '../../../../../core/layout/sidebar.dart';
 import '../../widgets/card/warga_card.dart';
 import '../../widgets/filter/warga_filter.dart';
 import 'detail_warga_page.dart';
-import 'edit_warga_page.dart'; // pastikan file ini ada
+import 'edit_warga_page.dart';
 
 class DaftarWargaPage extends StatefulWidget {
   const DaftarWargaPage({super.key});
@@ -20,6 +20,9 @@ class _DaftarWargaPageState extends State<DaftarWargaPage> {
   List<WargaModel> data = [];
 
   String search = "";
+
+  /// 🔹 state filter aktif (diisi dari dialog)
+  Map<String, dynamic> _activeFilter = {};
 
   @override
   void initState() {
@@ -68,6 +71,51 @@ class _DaftarWargaPageState extends State<DaftarWargaPage> {
     );
   }
 
+  /// 🔍 Helper: cek apakah 1 warga lolos filter
+  bool _matchFilter(WargaModel w) {
+    final fNama = (_activeFilter['nama'] ?? '').toString().trim();
+    final fJK = (_activeFilter['jenis_kelamin'] ?? '').toString().trim();
+    final fAgama = (_activeFilter['agama'] ?? '').toString().trim();
+    final fPend = (_activeFilter['pendidikan'] ?? '').toString().trim();
+    final fStatus = (_activeFilter['status_warga'] ?? '').toString().trim();
+    final fRumah = (_activeFilter['id_rumah'] ?? '').toString().trim();
+
+    // Nama: pakai contains (case-insensitive)
+    if (fNama.isNotEmpty &&
+        !w.nama.toLowerCase().contains(fNama.toLowerCase())) {
+      return false;
+    }
+
+    // Jenis kelamin: exact match (l/p)
+    if (fJK.isNotEmpty && w.jenisKelamin.toLowerCase() != fJK.toLowerCase()) {
+      return false;
+    }
+
+    // Agama: exact (case-insensitive)
+    if (fAgama.isNotEmpty && w.agama.toLowerCase() != fAgama.toLowerCase()) {
+      return false;
+    }
+
+    // Pendidikan: boleh contains, biar fleksibel (D4, S1, dll)
+    if (fPend.isNotEmpty &&
+        !w.pendidikan.toLowerCase().contains(fPend.toLowerCase())) {
+      return false;
+    }
+
+    // Status warga
+    if (fStatus.isNotEmpty &&
+        w.statusWarga.toLowerCase() != fStatus.toLowerCase()) {
+      return false;
+    }
+
+    // ID Rumah (docId rumah)
+    if (fRumah.isNotEmpty && w.idRumah.toLowerCase() != fRumah.toLowerCase()) {
+      return false;
+    }
+
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,7 +150,12 @@ class _DaftarWargaPageState extends State<DaftarWargaPage> {
                 await showDialog(
                   context: context,
                   builder: (_) => FilterWargaDialog(
-                    onApply: (filterData) {},
+                    onApply: (filterData) {
+                      // simpan filter yang diterapkan
+                      setState(() {
+                        _activeFilter = filterData;
+                      });
+                    },
                   ),
                 );
               },
@@ -117,9 +170,14 @@ class _DaftarWargaPageState extends State<DaftarWargaPage> {
                 itemBuilder: (_, i) {
                   final item = data[i];
 
-                  /// Filter search
+                  // 1) Filter search nama
                   if (search.isNotEmpty &&
                       !item.nama.toLowerCase().contains(search.toLowerCase())) {
+                    return const SizedBox();
+                  }
+
+                  // 2) Filter berdasarkan filter dialog
+                  if (!_matchFilter(item)) {
                     return const SizedBox();
                   }
 

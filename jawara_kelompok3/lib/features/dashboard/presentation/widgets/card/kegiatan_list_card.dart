@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../../../../../core/theme/app_theme.dart';
 
 class KegiatanListCard extends StatelessWidget {
-  const KegiatanListCard({super.key});
+  final String nama;
+  final int jumlah;
+
+  const KegiatanListCard({
+    super.key,
+    required this.nama,
+    required this.jumlah,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    final hasData = jumlah > 0 && nama.isNotEmpty;
+
     return Card(
-      color: Colors.white, // 🔹 background card
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        // side: BorderSide(
-        //   color: AppTheme.grayLight, // 🔹 border card
-        //   width: 1.5,
-        // ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -31,34 +36,40 @@ class KegiatanListCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppTheme.backgroundBlueWhite,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color:
-                      AppTheme.blueMedium.withOpacity(0.5), // 🔹 border lembut
-                  width: 1,
-                ),
-              ),
-              child: const ListTile(
-                title: Text(
-                  "Pak Joko",
-                  style: TextStyle(
-                    color: AppTheme.blueDark, // 🔹 warna teks isi
-                    fontWeight: FontWeight.w600,
+            if (!hasData)
+              const Text(
+                "Belum ada data penanggung jawab kegiatan.",
+                style: TextStyle(fontSize: 13, color: Colors.grey),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppTheme.backgroundBlueWhite,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppTheme.blueMedium.withOpacity(0.5),
+                    width: 1,
                   ),
                 ),
-                trailing: Text(
-                  "1",
-                  style: TextStyle(
-                    color: AppTheme.blueDark, // 🔹 warna angka
-                    fontWeight: FontWeight.bold,
+                child: ListTile(
+                  title: Text(
+                    nama,
+                    style: const TextStyle(
+                      color: AppTheme.blueDark,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  trailing: Text(
+                    jumlah.toString(),
+                    style: const TextStyle(
+                      color: AppTheme.blueDark,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),

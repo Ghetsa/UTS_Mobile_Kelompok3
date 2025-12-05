@@ -4,7 +4,7 @@ import '../../../../../core/layout/sidebar.dart';
 import '../../../../../core/layout/header.dart';
 
 import '../../../data/models/rumah_model.dart';
-import '../../../controller/rumah_controller.dart'; // ⬅️ pakai controller
+import '../../../controller/rumah_controller.dart';
 import '../../widgets/card/rumah_card.dart';
 import '../../widgets/filter/rumah_filter.dart';
 import 'detail_rumah_page.dart';
@@ -23,6 +23,9 @@ class _DaftarRumahPageState extends State<DaftarRumahPage> {
   List<RumahModel> data = [];
 
   String search = "";
+
+  /// 🔹 state filter aktif (diisi dari FilterRumahDialog)
+  Map<String, dynamic> _activeFilter = {};
 
   @override
   void initState() {
@@ -51,7 +54,6 @@ class _DaftarRumahPageState extends State<DaftarRumahPage> {
             onPressed: () async {
               Navigator.pop(context);
 
-              // pakai docId untuk delete
               final ok = await _controller.delete(rumah.docId);
 
               if (ok) {
@@ -88,6 +90,37 @@ class _DaftarRumahPageState extends State<DaftarRumahPage> {
     if (result == true) loadData();
   }
 
+  /// 🔍 Helper: cek apakah 1 rumah lolos filter
+  bool _matchFilter(RumahModel r) {
+    final fKeyword = (_activeFilter['penghuni'] ?? '').toString().trim();
+    final fStatus = (_activeFilter['status'] ?? '').toString().trim();
+    final fKepem = (_activeFilter['kepemilikan'] ?? '').toString().trim();
+
+    // Keyword dipakai untuk cari di alamat + nomor rumah
+    if (fKeyword.isNotEmpty) {
+      final combined = "${r.alamat} ${r.nomor}".toLowerCase();
+      if (!combined.contains(fKeyword.toLowerCase())) {
+        return false;
+      }
+    }
+
+    // Status Rumah (abaikan jika kosong / "Semua")
+    if (fStatus.isNotEmpty &&
+        fStatus.toLowerCase() != 'semua' &&
+        r.statusRumah.toLowerCase() != fStatus.toLowerCase()) {
+      return false;
+    }
+
+    // Kepemilikan (abaikan jika kosong / "Semua")
+    if (fKepem.isNotEmpty &&
+        fKepem.toLowerCase() != 'semua' &&
+        r.kepemilikan.toLowerCase() != fKepem.toLowerCase()) {
+      return false;
+    }
+
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,10 +136,9 @@ class _DaftarRumahPageState extends State<DaftarRumahPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// HEADER
             MainHeader(
               title: "Data Rumah",
-              searchHint: "Cari alamat / penghuni / RT RW...",
+              searchHint: "Cari alamat / RT RW...",
               showSearchBar: true,
               showFilterButton: true,
               onSearch: (value) {
@@ -117,17 +149,15 @@ class _DaftarRumahPageState extends State<DaftarRumahPage> {
                   context: context,
                   builder: (_) => FilterRumahDialog(
                     onApply: (filterData) {
-                      // Nanti bisa dipakai untuk filter RT/RW/status/kepemilikan
-                      print("HASIL FILTER RUMAH: $filterData");
+                      setState(() {
+                        _activeFilter = filterData;
+                      });
                     },
                   ),
                 );
               },
             ),
-
             const SizedBox(height: 16),
-
-            /// LIST DATA
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -135,13 +165,17 @@ class _DaftarRumahPageState extends State<DaftarRumahPage> {
                 itemBuilder: (_, i) {
                   final item = data[i];
 
-                  // FILTER SEARCH: alamat + rt/rw + penghuni (id keluarga)
-                  final searchable =
-                      "${item.alamat} ${item.rt}/${item.rw} ${item.penghuniKeluargaId}";
+                  // 🔍 Filter text search global (alamat + rt/rw)
+                  final searchable = "${item.alamat} ${item.rt}/${item.rw}";
                   if (search.isNotEmpty &&
                       !searchable
                           .toLowerCase()
                           .contains(search.toLowerCase())) {
+                    return const SizedBox();
+                  }
+
+                  // 🎯 Filter berdasarkan dialog
+                  if (!_matchFilter(item)) {
                     return const SizedBox();
                   }
 

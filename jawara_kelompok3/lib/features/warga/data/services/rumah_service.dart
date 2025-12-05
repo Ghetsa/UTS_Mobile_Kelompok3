@@ -128,4 +128,17 @@ class RumahService {
       return null;
     }
   }
+
+   Future<String?> getAlamatRumahByDocId(String docId) async {
+    try {
+      final doc = await _ref.doc(docId).get();
+      if (!doc.exists) return null;
+
+      final data = doc.data() as Map<String, dynamic>;
+      return data['alamat'] as String? ?? '';
+    } catch (e) {
+      print('ERROR GET ALAMAT RUMAH BY DOC ID: $e');
+      return null;
+    }
+  }
 }

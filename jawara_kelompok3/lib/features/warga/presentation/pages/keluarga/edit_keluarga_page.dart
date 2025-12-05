@@ -1,131 +1,293 @@
 import 'package:flutter/material.dart';
+import '../../../../../core/layout/header.dart';
 import '../../../../../core/theme/app_theme.dart';
 
-class EditKeluargaDialog extends StatefulWidget {
-  final Map<String, dynamic> keluarga;
+import '../../../data/models/keluarga_model.dart';
+import '../../../data/models/rumah_model.dart';
+import '../../../data/services/rumah_service.dart';
+import '../../../controller/keluarga_controller.dart';
 
-  const EditKeluargaDialog({super.key, required this.keluarga});
+class EditKeluargaPage extends StatefulWidget {
+  final KeluargaModel keluarga;
+
+  const EditKeluargaPage({super.key, required this.keluarga});
 
   @override
-  State<EditKeluargaDialog> createState() => _EditKeluargaDialogState();
+  State<EditKeluargaPage> createState() => _EditKeluargaPageState();
 }
 
-class _EditKeluargaDialogState extends State<EditKeluargaDialog> {
+class _EditKeluargaPageState extends State<EditKeluargaPage> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _namaKeluargaController;
-  late TextEditingController _kepalaController;
-  late TextEditingController _alamatController;
-  late TextEditingController _statusKepemilikanController;
-  late TextEditingController _statusController;
+
+  late TextEditingController _kepalaC;
+  late TextEditingController _noKkC;
+  late TextEditingController _jumlahAnggotaC;
+
+  // status keluarga
+  late String _statusKeluarga; // aktif / pindah / sementara
+
+  // dropdown rumah
+  final RumahService _rumahService = RumahService();
+  final KeluargaController _keluargaController = KeluargaController();
+
+  List<RumahModel> _listRumah = [];
+  String? _selectedRumahDocId;
+
+  bool _loadingRumah = true;
+  bool _loadingSubmit = false;
 
   @override
   void initState() {
     super.initState();
-    _namaKeluargaController =
-        TextEditingController(text: widget.keluarga['namaKeluarga']);
-    _kepalaController =
-        TextEditingController(text: widget.keluarga['kepalaKeluarga']);
-    _alamatController = TextEditingController(text: widget.keluarga['alamat']);
-    _statusKepemilikanController =
-        TextEditingController(text: widget.keluarga['statusKepemilikan']);
-    _statusController = TextEditingController(text: widget.keluarga['status']);
+
+    _kepalaC = TextEditingController(text: widget.keluarga.kepalaKeluarga);
+    _noKkC = TextEditingController(text: widget.keluarga.noKk);
+    _jumlahAnggotaC =
+        TextEditingController(text: widget.keluarga.jumlahAnggota);
+
+    _statusKeluarga = (widget.keluarga.statusKeluarga.isEmpty
+            ? "aktif"
+            : widget.keluarga.statusKeluarga)
+        .toLowerCase();
+    if (!['aktif', 'pindah', 'sementara'].contains(_statusKeluarga)) {
+      _statusKeluarga = 'aktif';
+    }
+
+    _selectedRumahDocId =
+        widget.keluarga.idRumah.isEmpty ? null : widget.keluarga.idRumah;
+
+    _loadRumah();
+  }
+
+  Future<void> _loadRumah() async {
+    final result = await _rumahService.getAllRumah();
+    setState(() {
+      _listRumah = result;
+      _loadingRumah = false;
+
+      // pastikan idRumah masih valid
+      if (_selectedRumahDocId != null &&
+          !_listRumah.any((r) => r.docId == _selectedRumahDocId)) {
+        _selectedRumahDocId = null;
+      }
+    });
+  }
+
+  Future<void> _simpan() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_selectedRumahDocId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Silakan pilih rumah")),
+      );
+      return;
+    }
+
+    setState(() => _loadingSubmit = true);
+
+    final dataUpdate = {
+      "kepala_keluarga": _kepalaC.text.trim(),
+      "no_kk": _noKkC.text.trim(),
+      "jumlah_anggota": _jumlahAnggotaC.text.trim(),
+      "status_keluarga": _statusKeluarga,
+      "id_rumah": _selectedRumahDocId, // simpan docId rumah
+    };
+
+    final ok =
+        await _keluargaController.update(widget.keluarga.uid, dataUpdate);
+
+    setState(() => _loadingSubmit = false);
+
+    if (!mounted) return;
+
+    if (ok) {
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Gagal menyimpan perubahan"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      filled: true,
+      fillColor: const Color(0xFFF4F8FB),
+      hintText: hint,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
   }
 
   @override
   void dispose() {
-    _namaKeluargaController.dispose();
-    _kepalaController.dispose();
-    _alamatController.dispose();
-    _statusKepemilikanController.dispose();
-    _statusController.dispose();
+    _kepalaC.dispose();
+    _noKkC.dispose();
+    _jumlahAnggotaC.dispose();
     super.dispose();
-  }
-
-  void _simpan() {
-    if (_formKey.currentState!.validate()) {
-      final updated = {
-        "namaKeluarga": _namaKeluargaController.text,
-        "kepalaKeluarga": _kepalaController.text,
-        "alamat": _alamatController.text,
-        "statusKepemilikan": _statusKepemilikanController.text,
-        "status": _statusController.text,
-      };
-      Navigator.pop(context, updated);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("Edit Keluarga",
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 8),
-                const Text("Ubah data keluarga yang diperlukan.",
-                    style: TextStyle(color: Colors.black54)),
-                const SizedBox(height: 24),
-
-                _buildField("Nama Keluarga", _namaKeluargaController),
-                const SizedBox(height: 16),
-                _buildField("Kepala Keluarga", _kepalaController),
-                const SizedBox(height: 16),
-                _buildField("Alamat", _alamatController),
-                const SizedBox(height: 16),
-                _buildField("Status Kepemilikan", _statusKepemilikanController),
-                const SizedBox(height: 16),
-                _buildField("Status", _statusController),
-                const SizedBox(height: 24),
-
-                _buildActionButtons(context),
-              ],
+    return Scaffold(
+      backgroundColor: const Color(0xFFE9F2F9),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MainHeader(
+              title: "Edit Keluarga",
+              showSearchBar: false,
+              showFilterButton: false,
             ),
-          ),
+            const SizedBox(height: 18),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26.withOpacity(0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Edit Informasi Keluarga",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _kepalaC,
+                          decoration: _inputDecoration("Nama Kepala Keluarga"),
+                          validator: (v) =>
+                              v == null || v.isEmpty ? "Wajib diisi" : null,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _noKkC,
+                          decoration: _inputDecoration("Nomor KK"),
+                          validator: (v) =>
+                              v == null || v.isEmpty ? "Wajib diisi" : null,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _jumlahAnggotaC,
+                          decoration: _inputDecoration("Jumlah Anggota"),
+                          keyboardType: TextInputType.number,
+                          validator: (v) =>
+                              v == null || v.isEmpty ? "Wajib diisi" : null,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          "Status Keluarga",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        DropdownButtonFormField<String>(
+                          value: _statusKeluarga,
+                          decoration: _inputDecoration("Pilih status keluarga"),
+                          items: const [
+                            DropdownMenuItem(
+                                value: "aktif", child: Text("Aktif")),
+                            DropdownMenuItem(
+                                value: "pindah", child: Text("Pindah")),
+                            DropdownMenuItem(
+                                value: "sementara", child: Text("Sementara")),
+                          ],
+                          onChanged: (v) {
+                            if (v == null) return;
+                            setState(() => _statusKeluarga = v);
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          "Pilih Rumah",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        _loadingRumah
+                            ? const LinearProgressIndicator()
+                            : DropdownButtonFormField<String>(
+                                value: _selectedRumahDocId,
+                                isExpanded: true,
+                                decoration: _inputDecoration("Pilih rumah"),
+                                items: _listRumah.map((r) {
+                                  return DropdownMenuItem(
+                                    value: r.docId,
+                                    child: Text("No. ${r.nomor} • ${r.alamat}"),
+                                  );
+                                }).toList(),
+                                onChanged: (v) =>
+                                    setState(() => _selectedRumahDocId = v),
+                                validator: (v) =>
+                                    v == null ? "Pilih rumah" : null,
+                              ),
+                        const SizedBox(height: 30),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("Kembali"),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.blueMediumLight,
+                                  foregroundColor: Colors.black,
+                                ),
+                                onPressed: _loadingSubmit ? null : _simpan,
+                                child: _loadingSubmit
+                                    ? const SizedBox(
+                                        height: 18,
+                                        width: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : const Text("Simpan"),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _buildField(String label, TextEditingController controller) {
-    return TextFormField(
-      controller: controller,
-      decoration:
-          InputDecoration(labelText: label, border: const OutlineInputBorder()),
-      validator: (val) => val == null || val.isEmpty ? "Wajib diisi" : null,
-    );
-  }
-
-  Widget _buildActionButtons(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          style: TextButton.styleFrom(foregroundColor: Colors.black54),
-          child: const Text("Batal"),
-        ),
-        const SizedBox(width: 8),
-        ElevatedButton(
-          onPressed: _simpan,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.primaryBlue,
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          ),
-          child: const Text("Simpan",
-              style: TextStyle(color: Colors.white)),
-        ),
-      ],
     );
   }
 }

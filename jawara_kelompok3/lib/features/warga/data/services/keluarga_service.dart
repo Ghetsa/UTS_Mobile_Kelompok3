@@ -26,6 +26,7 @@ class KeluargaService {
     try {
       await _ref.add({
         ...data,
+        "status_keluarga": data["status_keluarga"] ?? "aktif",
         "created_at": FieldValue.serverTimestamp(),
       });
       return true;
@@ -65,7 +66,7 @@ class KeluargaService {
   }
 
   /// ------------------------------------------------------------
-  /// 🟣 Detail Satu Keluarga Berdasarkan ID
+  /// 🟣 Detail Satu Keluarga Berdasarkan DOC ID
   /// ------------------------------------------------------------
   Future<KeluargaModel?> getDetail(String id) async {
     try {
@@ -94,6 +95,29 @@ class KeluargaService {
       );
     } catch (e) {
       print("ERROR GET KELUARGA BY DOC ID: $e");
+      return null;
+    }
+  }
+
+  /// ------------------------------------------------------------
+  /// 🟤 Ambil keluarga berdasarkan id_rumah (relasi satu arah)
+  /// ------------------------------------------------------------
+  Future<KeluargaModel?> getKeluargaByRumahId(String rumahDocId) async {
+    try {
+      final q = await _ref
+          .where('id_rumah', isEqualTo: rumahDocId)
+          .limit(1)
+          .get();
+
+      if (q.docs.isEmpty) return null;
+
+      final doc = q.docs.first;
+      return KeluargaModel.fromFirestore(
+        doc.id,
+        doc.data() as Map<String, dynamic>,
+      );
+    } catch (e) {
+      print("ERROR GET KELUARGA BY RUMAH ID: $e");
       return null;
     }
   }

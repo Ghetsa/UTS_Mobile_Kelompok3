@@ -5,12 +5,14 @@ class MutasiCard extends StatelessWidget {
   final MutasiModel data;
   final VoidCallback? onDetail;
   final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const MutasiCard({
     super.key,
     required this.data,
     this.onDetail,
     this.onEdit,
+    this.onDelete,
   });
 
   String _formatDate(DateTime? dt) {
@@ -20,10 +22,18 @@ class MutasiCard extends StatelessWidget {
         "${dt.year}";
   }
 
+  Color _jenisColor() {
+    final j = data.jenisMutasi.toLowerCase();
+    if (j == 'pindah') return Colors.orange.shade600;
+    if (j == 'datang') return Colors.green.shade600;
+    if (j == 'sementara') return Colors.blue.shade600;
+    return Colors.grey.shade700;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 18),
+      margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -41,8 +51,8 @@ class MutasiCard extends StatelessWidget {
         children: [
           /// ICON KIRI
           Container(
-            width: 46,
-            height: 46,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: Colors.blue.shade100,
               shape: BoxShape.circle,
@@ -52,22 +62,25 @@ class MutasiCard extends StatelessWidget {
 
           const SizedBox(width: 16),
 
-          /// TEXT INFORMASI
+          /// TEKS INFORMASI
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// Jenis Mutasi
+                /// Jenis mutasi (judul)
                 Text(
-                  data.jenisMutasi.toUpperCase(),
+                  data.jenisMutasi.isEmpty
+                      ? "Mutasi"
+                      : data.jenisMutasi.toUpperCase(),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 17,
                   ),
                 ),
 
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
 
+                /// ID Warga
                 Text(
                   "ID Warga: ${data.idWarga}",
                   style: TextStyle(
@@ -78,8 +91,9 @@ class MutasiCard extends StatelessWidget {
 
                 const SizedBox(height: 4),
 
+                /// Keterangan
                 Text(
-                  "Keterangan: ${data.keterangan}",
+                  "Keterangan: ${data.keterangan.isEmpty ? '-' : data.keterangan}",
                   style: TextStyle(
                     color: Colors.grey.shade700,
                     fontSize: 13,
@@ -88,36 +102,64 @@ class MutasiCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
 
-                Text(
-                  "Doc ID: ${data.uid}",
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 12,
-                  ),
-                ),
-
-                const SizedBox(height: 6),
-
-                /// TANGGAL MUTASI
-                Text(
-                  "Tanggal mutasi: ${_formatDate(data.tanggal)}",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade500,
-                  ),
-                ),
-
-                /// OPSIONAL: kalau mau tampilkan createdAt juga
-                if (data.createdAt != null)
-                  Text(
-                    "Dibuat: ${_formatDate(data.createdAt)}",
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade400,
+                /// Baris chip jenis mutasi + tanggal
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // CHIP
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _jenisColor().withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.circle, size: 8, color: _jenisColor()),
+                          const SizedBox(width: 6),
+                          Text(
+                            data.jenisMutasi.isEmpty
+                                ? "Tidak diketahui"
+                                : data.jenisMutasi,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: _jenisColor(),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+
+                    // tanggal mutasi
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          "Tanggal: ${_formatDate(data.tanggal)}",
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        if (data.createdAt != null)
+                          Text(
+                            "Dibuat: ${_formatDate(data.createdAt)}",
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey.shade400,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -127,6 +169,7 @@ class MutasiCard extends StatelessWidget {
             onSelected: (value) {
               if (value == 'detail' && onDetail != null) onDetail!();
               if (value == 'edit' && onEdit != null) onEdit!();
+              if (value == 'hapus' && onDelete != null) onDelete!();
             },
             itemBuilder: (context) => const [
               PopupMenuItem(
@@ -149,8 +192,18 @@ class MutasiCard extends StatelessWidget {
                   ],
                 ),
               ),
+              PopupMenuItem(
+                value: 'hapus',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text("Hapus"),
+                  ],
+                ),
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
