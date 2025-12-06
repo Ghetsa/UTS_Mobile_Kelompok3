@@ -2,10 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/mutasi_model.dart';
 
 class MutasiService {
-  // Pakai generic biar e.data() langsung Map<String, dynamic>
   final CollectionReference<Map<String, dynamic>> col =
-      FirebaseFirestore.instance.collection('mutasi');
+      FirebaseFirestore.instance.collection('mutasi_warga');
 
+  // ============================================================
+  // 🔵 GET SEMUA MUTASI
+  // ============================================================
   Future<List<MutasiModel>> getAllMutasi() async {
     try {
       final snapshot = await col.orderBy('tanggal', descending: true).get();
@@ -19,38 +21,64 @@ class MutasiService {
           )
           .toList();
     } catch (e, st) {
-      print('ERROR GET ALL MUTASI: $e');
+      print('❌ ERROR GET ALL MUTASI: $e');
       print(st);
       return [];
     }
   }
 
+  // ============================================================
+  // 🟣 GET SATU MUTASI BY DOC ID
+  // ============================================================
+  Future<MutasiModel?> getByDocId(String docId) async {
+    try {
+      final doc = await col.doc(docId).get();
+      if (!doc.exists) return null;
+      return MutasiModel.fromFirestore(doc.id, doc.data()!);
+    } catch (e) {
+      print('❌ ERROR GET MUTASI BY DOC ID: $e');
+      return null;
+    }
+  }
+
+  // ============================================================
+  // 🟢 TAMBAH MUTASI
+  // ============================================================
   Future<bool> addMutasi(MutasiModel data) async {
     try {
       await col.add(data.toMap());
       return true;
     } catch (e) {
-      print('ERROR ADD MUTASI: $e');
+      print('❌ ERROR ADD MUTASI: $e');
       return false;
     }
   }
 
-  Future<bool> updateMutasi(String id, Map<String, dynamic> newData) async {
+  // ============================================================
+  // 🟡 UPDATE MUTASI
+  // ============================================================
+  Future<bool> updateMutasi(String docId, Map<String, dynamic> newData) async {
     try {
-      await col.doc(id).update(newData);
+      await col.doc(docId).update({
+        ...newData,
+        'updated_at': FieldValue.serverTimestamp(),
+      });
       return true;
     } catch (e) {
-      print('ERROR UPDATE MUTASI: $e');
+      print('❌ ERROR UPDATE MUTASI: $e');
       return false;
     }
   }
 
-  Future<bool> deleteMutasi(String id) async {
+  // ============================================================
+  // 🔴 DELETE MUTASI
+  // ============================================================
+  Future<bool> deleteMutasi(String docId) async {
     try {
-      await col.doc(id).delete();
+      await col.doc(docId).delete();
       return true;
     } catch (e) {
-      print('ERROR DELETE MUTASI: $e');
+      print('❌ ERROR DELETE MUTASI: $e');
       return false;
     }
   }

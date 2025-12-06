@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/rumah_model.dart';
-import '../../../data/services/rumah_service.dart';
+
+// 🔹 import keluarga service
+import '../../../data/services/keluarga_service.dart';
+import '../../../data/models/keluarga_model.dart';
 
 class RumahCard extends StatelessWidget {
   final RumahModel data;
   final VoidCallback? onDetail;
   final VoidCallback? onEdit;
-  final VoidCallback? onDelete; // 👈 callback hapus
+  final VoidCallback? onDelete;
 
   const RumahCard({
     super.key,
@@ -18,7 +21,6 @@ class RumahCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Warna kecil buat badge/status
     Color statusColor() {
       switch (data.statusRumah.toLowerCase()) {
         case 'dihuni':
@@ -31,6 +33,8 @@ class RumahCard extends StatelessWidget {
           return Colors.grey.shade700;
       }
     }
+
+    final keluargaService = KeluargaService();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -49,7 +53,6 @@ class RumahCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ICON
           Container(
             width: 48,
             height: 48,
@@ -62,12 +65,10 @@ class RumahCard extends StatelessWidget {
 
           const SizedBox(width: 16),
 
-          // INFO
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Alamat
                 Text(
                   data.alamat,
                   style: const TextStyle(
@@ -78,7 +79,6 @@ class RumahCard extends StatelessWidget {
 
                 const SizedBox(height: 4),
 
-                // No rumah + RT/RW
                 Text(
                   "No Rumah: ${data.nomor} • RT/RW: ${data.rt}/${data.rw}",
                   style: TextStyle(
@@ -89,49 +89,32 @@ class RumahCard extends StatelessWidget {
 
                 const SizedBox(height: 4),
 
-                // Penghuni (ambil dari id keluarga)
-                if (data.penghuniKeluargaId.isEmpty)
-                  Text(
-                    "Penghuni: -",
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade700,
-                    ),
-                  )
-                else
-                  FutureBuilder<String?>(
-                    future: RumahService()
-                        .getNamaKepalaKeluarga(data.penghuniKeluargaId),
-                    builder: (context, snapshot) {
-                      String text;
+                // 🔹 Penghuni: ambil keluarga dengan id_rumah == data.docId
+                FutureBuilder<KeluargaModel?>(
+                  future:
+                      keluargaService.getKeluargaByRumahId(data.docId),
+                  builder: (context, snapshot) {
+                    String text = "Penghuni: -";
 
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        text =
-                            "Penghuni: (memuat...) [ID: ${data.penghuniKeluargaId}]";
-                      } else if (snapshot.hasError) {
-                        text =
-                            "Penghuni: (gagal muat) [ID: ${data.penghuniKeluargaId}]";
-                      } else {
-                        final nama = snapshot.data;
-                        if (nama == null || nama.isEmpty) {
-                          text = "Penghuni: [ID: ${data.penghuniKeluargaId}]";
-                        } else {
-                          text =
-                              "Penghuni: $nama [ID: ${data.penghuniKeluargaId}]";
-                        }
-                      }
+                    if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      text = "Penghuni: (memuat...)";
+                    } else if (snapshot.hasError) {
+                      text = "Penghuni: -";
+                    } else if (snapshot.hasData && snapshot.data != null) {
+                      text = "Penghuni: ${snapshot.data!.kepalaKeluarga}";
+                    }
 
-                      return Text(
-                        text,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade700,
-                        ),
-                      );
-                    },
-                  ),
+                    return Text(
+                      text,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade700,
+                      ),
+                    );
+                  },
+                ),
 
-                // Kepemilikan
                 Text(
                   "Kepemilikan: ${data.kepemilikan}",
                   style: TextStyle(
@@ -142,11 +125,9 @@ class RumahCard extends StatelessWidget {
 
                 const SizedBox(height: 6),
 
-                // Status badge + created time
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Status badge
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -173,7 +154,6 @@ class RumahCard extends StatelessWidget {
                       ),
                     ),
 
-                    // CreatedAt
                     Text(
                       data.createdAt != null
                           ? data.createdAt.toString().substring(0, 16)
@@ -189,7 +169,6 @@ class RumahCard extends StatelessWidget {
             ),
           ),
 
-          // MENU (detail, edit, hapus)
           PopupMenuButton(
             onSelected: (v) {
               if (v == 'detail' && onDetail != null) onDetail!();

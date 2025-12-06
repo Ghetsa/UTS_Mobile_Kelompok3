@@ -34,7 +34,13 @@ class KependudukanPieCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.grayExtraLight, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12.withOpacity(.05),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         children: [

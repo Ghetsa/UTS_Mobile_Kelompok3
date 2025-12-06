@@ -1,41 +1,66 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/keluarga_model.dart';
+import '../../../data/services/rumah_service.dart';
 
 class KeluargaCard extends StatelessWidget {
   final KeluargaModel data;
   final VoidCallback? onDetail;
   final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const KeluargaCard({
     super.key,
     required this.data,
     this.onDetail,
     this.onEdit,
+    this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
+    final rawStatus =
+        (data.statusKeluarga.isEmpty ? "aktif" : data.statusKeluarga)
+            .toLowerCase();
+
+    Color statusColor() {
+      switch (rawStatus) {
+        case 'aktif':
+          return Colors.green.shade600;
+        case 'pindah':
+          return Colors.orange.shade600;
+        case 'sementara':
+          return Colors.blueGrey.shade600;
+        default:
+          return Colors.grey.shade700;
+      }
+    }
+
+    String statusText() {
+      if (rawStatus.isEmpty) return "-";
+      return rawStatus[0].toUpperCase() + rawStatus.substring(1);
+    }
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 18),
+      margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12.withOpacity(.05),
-            blurRadius: 18,
+            color: Colors.black12.withOpacity(.1),
+            blurRadius: 12,
             offset: const Offset(0, 6),
-          )
+          ),
         ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// ICON KIRI
+          // ICON KELUARGA
           Container(
-            width: 46,
-            height: 46,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: Colors.blue.shade100,
               shape: BoxShape.circle,
@@ -45,70 +70,123 @@ class KeluargaCard extends StatelessWidget {
 
           const SizedBox(width: 16),
 
-          /// TEXT INFORMASI
+          // INFO
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// Kepala Keluarga (judul utama)
+                // Kepala keluarga (pakai label seperti di form)
                 Text(
-                  data.kepalaKeluarga,
+                  "Kepala Keluarga: ${data.kepalaKeluarga}",
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
                     fontSize: 17,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
 
                 const SizedBox(height: 4),
 
-                /// No KK
+                // No KK + Jumlah anggota
                 Text(
-                  "No. KK: ${data.noKk}",
+                  "No KK: ${data.noKk} • Anggota: ${data.jumlahAnggota}",
                   style: TextStyle(
-                    color: Colors.grey.shade700,
                     fontSize: 13,
+                    color: Colors.grey.shade700,
                   ),
                 ),
 
-                /// Jumlah anggota
-                Text(
-                  "Jumlah Anggota: ${data.jumlahAnggota}",
-                  style: TextStyle(
-                    color: Colors.grey.shade700,
-                    fontSize: 13,
-                  ),
-                ),
+                const SizedBox(height: 4),
 
-                /// ID Rumah (docId rumah yang dikaitkan)
-                Text(
-                  "ID Rumah: ${data.idRumah}",
-                  style: TextStyle(
-                    color: Colors.grey.shade700,
-                    fontSize: 13,
+                // Info rumah (alamat, bukan docId)
+                if (data.idRumah.isEmpty)
+                  Text(
+                    "Rumah: -",
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade700,
+                    ),
+                  )
+                else
+                  FutureBuilder<String?>(
+                    future: RumahService().getAlamatRumahByDocId(data.idRumah),
+                    builder: (context, snapshot) {
+                      String text;
+
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        text = "Rumah: (memuat...)";
+                      } else if (snapshot.hasError) {
+                        text = "Rumah: -";
+                      } else {
+                        final alamat = snapshot.data;
+                        if (alamat == null || alamat.isEmpty) {
+                          text = "Rumah: -";
+                        } else {
+                          text = "Rumah: $alamat";
+                        }
+                      }
+
+                      return Text(
+                        text,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade700,
+                        ),
+                      );
+                    },
                   ),
-                ),
 
                 const SizedBox(height: 6),
 
-                /// Created at
-                Text(
-                  data.createdAt != null
-                      ? data.createdAt.toString().substring(0, 16)
-                      : '-',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade500,
-                  ),
+                // Status badge + createdAt
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: statusColor().withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.circle, size: 8, color: statusColor()),
+                          const SizedBox(width: 6),
+                          Text(
+                            statusText(),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: statusColor(),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      data.createdAt != null
+                          ? data.createdAt.toString().substring(0, 16)
+                          : "-",
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
 
-          /// MENU POPUP
+          // MENU
           PopupMenuButton(
             onSelected: (value) {
               if (value == 'detail' && onDetail != null) onDetail!();
               if (value == 'edit' && onEdit != null) onEdit!();
+              if (value == 'hapus' && onDelete != null) onDelete!();
             },
             itemBuilder: (context) => const [
               PopupMenuItem(
@@ -131,8 +209,18 @@ class KeluargaCard extends StatelessWidget {
                   ],
                 ),
               ),
+              PopupMenuItem(
+                value: 'hapus',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text("Hapus"),
+                  ],
+                ),
+              ),
             ],
-          )
+          ),
         ],
       ),
     );

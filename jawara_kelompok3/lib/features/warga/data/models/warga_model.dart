@@ -1,10 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class WargaModel {
-  /// ID dokumen Firestore
   final String docId;
-
-  /// Field "uid" di dokumen (ID internal yang kamu simpan sendiri)
   final String uid;
 
   final String nik;
@@ -14,8 +11,9 @@ class WargaModel {
   final String pekerjaan;
   final String agama;
   final String jenisKelamin;   // "p" / "l"
-  final String statusWarga;    // "aktif" / "non-aktif" dll
-  final String idRumah;
+  final String statusWarga;    // "aktif" / "nonaktif" dll
+  final String idRumah;        // docId rumah
+  final String idKeluarga;     // ✅ docId keluarga (baru)
   final String noHp;
 
   final DateTime? tanggalLahir;
@@ -34,13 +32,13 @@ class WargaModel {
     required this.jenisKelamin,
     required this.statusWarga,
     required this.idRumah,
+    required this.idKeluarga,   // ✅
     required this.noHp,
     this.tanggalLahir, 
     this.createdAt,
     this.updatedAt,
   });
 
-  /// Firestore → Model
   factory WargaModel.fromFirestore(String docId, Map<String, dynamic> data) {
     return WargaModel(
       docId: docId,
@@ -54,6 +52,7 @@ class WargaModel {
       jenisKelamin: data['jenis_kelamin'] ?? '',
       statusWarga: data['status_warga'] ?? '',
       idRumah: data['id_rumah'] ?? '',
+      idKeluarga: data['id_keluarga'] ?? '',   // ✅ bisa kosong
       noHp: data['no_hp'] ?? '',
       tanggalLahir: data['tanggal_lahir'] != null
           ? (data['tanggal_lahir'] as Timestamp).toDate()
@@ -67,7 +66,6 @@ class WargaModel {
     );
   }
 
-  /// Model → Map (untuk tambah / update Firestore)
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
@@ -80,6 +78,7 @@ class WargaModel {
       'jenis_kelamin': jenisKelamin,
       'status_warga': statusWarga,
       'id_rumah': idRumah,
+      'id_keluarga': idKeluarga,   // ✅ simpan relasi ke keluarga
       'no_hp': noHp,
       'tanggal_lahir': tanggalLahir != null
           ? Timestamp.fromDate(tanggalLahir!)

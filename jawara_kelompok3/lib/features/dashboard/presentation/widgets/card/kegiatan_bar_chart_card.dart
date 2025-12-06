@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_theme.dart';
 
 class KegiatanBarChartCard extends StatelessWidget {
-  const KegiatanBarChartCard({super.key});
+  final List<int> monthlyData; // panjang ideal: 12 (Jan–Des)
+
+  const KegiatanBarChartCard({
+    super.key,
+    required this.monthlyData,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,11 +20,20 @@ class KegiatanBarChartCard extends StatelessWidget {
       "Jun",
       "Jul",
       "Agu",
-      "Sep"
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des",
     ];
-    final values = [5, 3, 4, 2, 6, 1, 0, 3, 2];
 
-    final maxValue = values.reduce((a, b) => a > b ? a : b);
+    // Pastikan panjang data = 12
+    final values = monthlyData.length == 12
+        ? monthlyData
+        : List<int>.filled(12, 0);
+
+    final maxValue = values.isEmpty
+        ? 0
+        : values.reduce((a, b) => a > b ? a : b);
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -45,49 +59,60 @@ class KegiatanBarChartCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          Column(
-            children: List.generate(months.length, (i) {
-              final double percent =
-                  maxValue == 0 ? 0.0 : (values[i] / maxValue).toDouble();
+          if (maxValue == 0)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Text(
+                "Belum ada data kegiatan per bulan.",
+                style: TextStyle(fontSize: 13, color: Colors.grey),
+              ),
+            )
+          else
+            Column(
+              children: List.generate(months.length, (i) {
+                final double percent = maxValue == 0
+                    ? 0.0
+                    : (values[i] / maxValue).toDouble();
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 36,
-                      child: Text(months[i]),
-                    ),
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          Container(
-                            height: 14,
-                            decoration: BoxDecoration(
-                              color: AppTheme.blueMediumLight.withOpacity(.3),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          FractionallySizedBox(
-                            widthFactor: percent,
-                            child: Container(
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 36,
+                        child: Text(months[i]),
+                      ),
+                      Expanded(
+                        child: Stack(
+                          children: [
+                            Container(
                               height: 14,
                               decoration: BoxDecoration(
-                                color: AppTheme.blueDark,
+                                color: AppTheme.blueMediumLight
+                                    .withOpacity(.3),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                          ),
-                        ],
+                            FractionallySizedBox(
+                              widthFactor: percent,
+                              child: Container(
+                                height: 14,
+                                decoration: BoxDecoration(
+                                  color: AppTheme.blueDark,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(values[i].toString()),
-                  ],
-                ),
-              );
-            }),
-          ),
+                      const SizedBox(width: 10),
+                      Text(values[i].toString()),
+                    ],
+                  ),
+                );
+              }),
+            ),
         ],
       ),
     );

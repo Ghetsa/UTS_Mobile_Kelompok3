@@ -6,7 +6,7 @@ class BarChartCard extends StatelessWidget {
   /// Format data: {'Jan': 120000, 'Feb': 90000}
   final Map<String, num> data;
 
-  final Color? barColor; // ⬅️ nullable
+  final Color? barColor;
   final Color backgroundBarColor;
   final Color textColor;
   final double? maxValue;
@@ -15,7 +15,7 @@ class BarChartCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.data,
-    this.barColor, // ⬅️ hapus default salah
+    this.barColor,
     this.backgroundBarColor = const Color.fromARGB(50, 150, 180, 255),
     this.textColor = Colors.black,
     this.maxValue,
@@ -28,11 +28,14 @@ class BarChartCard extends StatelessWidget {
     }
 
     final labels = data.keys.toList();
-    final values = data.values.toList();
+
+    // 🔧 PENTING: paksa jadi List<double> biar reduce nggak error
+    final List<double> values =
+        data.values.map((e) => e.toDouble()).toList();
 
     final double computedMax = maxValue ??
         (values.isNotEmpty
-            ? values.reduce((a, b) => a > b ? a : b).toDouble()
+            ? values.reduce((a, b) => a > b ? a : b)
             : 1);
 
     return Container(
@@ -66,8 +69,9 @@ class BarChartCard extends StatelessWidget {
           /// ===== BAR LIST =====
           Column(
             children: List.generate(labels.length, (i) {
-              final double percent =
-                  computedMax == 0 ? 0 : (values[i] / computedMax).toDouble();
+              final double percent = computedMax == 0
+                  ? 0
+                  : (values[i] / computedMax);
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
@@ -90,14 +94,12 @@ class BarChartCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-
-                          /// ===== BAR (PASTI IKUT TEXTCOLOR) =====
                           FractionallySizedBox(
                             widthFactor: percent.clamp(0, 1),
                             child: Container(
                               height: 14,
                               decoration: BoxDecoration(
-                                color: barColor ?? textColor, // ⬅️ disini fix!
+                                color: barColor ?? textColor,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
@@ -107,7 +109,8 @@ class BarChartCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      values[i].toString(),
+                      // tampilkan angka bulat
+                      values[i].toStringAsFixed(0),
                       style: TextStyle(color: textColor),
                     ),
                   ],

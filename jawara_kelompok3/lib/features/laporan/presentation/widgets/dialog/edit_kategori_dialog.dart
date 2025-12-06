@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../../data/services/kategori_iuran_service.dart';
+import '../../../data/models/kategori_iuran_model.dart';
 
 class EditIuranDialog extends StatefulWidget {
-  final Map<String, String> iuran;
+  final Map<String, String?> iuran; // Mengubah Map menjadi Map<String, String?>
 
   const EditIuranDialog({super.key, required this.iuran});
 
@@ -14,23 +16,31 @@ class _EditIuranDialogState extends State<EditIuranDialog> {
   late TextEditingController namaCtrl;
   late TextEditingController nominalCtrl;
   late TextEditingController jenisCtrl;
+  final KategoriIuranService _service = KategoriIuranService();
 
   @override
   void initState() {
     super.initState();
-    namaCtrl = TextEditingController(text: widget.iuran["nama"]);
-    nominalCtrl = TextEditingController(text: widget.iuran["nominal"]);
-    jenisCtrl = TextEditingController(text: widget.iuran["jenis"]);
+    // Menangani nilai null dengan cara memberi nilai default jika null
+    namaCtrl = TextEditingController(text: widget.iuran["nama"] ?? '');
+    nominalCtrl = TextEditingController(text: widget.iuran["nominal"] ?? '');
+    jenisCtrl = TextEditingController(text: widget.iuran["jenis"] ?? '');
   }
 
   void _simpan() {
     if (_formKey.currentState!.validate()) {
-      Navigator.pop(context, {
-        "no": widget.iuran["no"] ?? "",
-        "nama": namaCtrl.text,
-        "jenis": jenisCtrl.text,
-        "nominal": nominalCtrl.text,
-      });
+      final updated = KategoriIuranModel(
+        id: widget.iuran['id']!, // Pastikan id tidak null
+        nama: namaCtrl.text.trim(),
+        jenis: jenisCtrl.text.trim(),
+        nominal: nominalCtrl.text.trim(),
+        createdAt: widget.iuran['created_at'] != null
+            ? DateTime.parse(widget.iuran['created_at']!)
+            : null, // Pastikan created_at diubah menjadi DateTime jika tidak null
+        updatedAt: DateTime.now(),
+      );
+
+      Navigator.pop(context, updated);
     }
   }
 
@@ -54,21 +64,18 @@ class _EditIuranDialogState extends State<EditIuranDialog> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-
               TextFormField(
                 controller: namaCtrl,
                 decoration: const InputDecoration(labelText: "Nama Iuran"),
                 validator: (val) => val!.isEmpty ? "Wajib diisi" : null,
               ),
               const SizedBox(height: 12),
-
               TextFormField(
                 controller: jenisCtrl,
                 decoration: const InputDecoration(labelText: "Jenis Iuran"),
                 validator: (val) => val!.isEmpty ? "Wajib diisi" : null,
               ),
               const SizedBox(height: 12),
-
               TextFormField(
                 controller: nominalCtrl,
                 decoration: const InputDecoration(labelText: "Nominal (Rp)"),
@@ -76,7 +83,6 @@ class _EditIuranDialogState extends State<EditIuranDialog> {
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 20),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

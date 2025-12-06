@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../../data/models/pemasukan_lain_model.dart';
 
 class EditPemasukanDialog extends StatefulWidget {
-  final Map<String, dynamic> pemasukan;
+  final PemasukanLainModel pemasukan;
 
   const EditPemasukanDialog({super.key, required this.pemasukan});
 
@@ -19,21 +20,35 @@ class _EditPemasukanDialogState extends State<EditPemasukanDialog> {
   @override
   void initState() {
     super.initState();
-    namaCtrl = TextEditingController(text: widget.pemasukan["nama"]);
-    nominalCtrl = TextEditingController(text: widget.pemasukan["nominal"]);
-    tanggalCtrl = TextEditingController(text: widget.pemasukan["tanggal"]);
-    jenisCtrl = TextEditingController(text: widget.pemasukan["jenis"]);
+    namaCtrl = TextEditingController(text: widget.pemasukan.nama);
+    nominalCtrl = TextEditingController(text: widget.pemasukan.nominal);
+    tanggalCtrl = TextEditingController(text: widget.pemasukan.tanggal);
+    jenisCtrl = TextEditingController(text: widget.pemasukan.jenis);
+  }
+
+  @override
+  void dispose() {
+    namaCtrl.dispose();
+    nominalCtrl.dispose();
+    tanggalCtrl.dispose();
+    jenisCtrl.dispose();
+    super.dispose();
   }
 
   void _simpan() {
     if (_formKey.currentState!.validate()) {
-      Navigator.pop(context, {
-        "no": widget.pemasukan["no"],
-        "nama": namaCtrl.text,
-        "jenis": jenisCtrl.text,
-        "tanggal": tanggalCtrl.text,
-        "nominal": nominalCtrl.text,
-      });
+      final updated = PemasukanLainModel(
+        id: widget.pemasukan.id,
+        nama: namaCtrl.text.trim(),
+        jenis: jenisCtrl.text.trim(),
+        tanggal: tanggalCtrl.text.trim(),
+        nominal: nominalCtrl.text.trim(),
+        buktiUrl: widget.pemasukan.buktiUrl,
+        createdAt: widget.pemasukan.createdAt,
+        updatedAt: DateTime.now(),
+      );
+
+      Navigator.pop(context, updated);
     }
   }
 
@@ -61,28 +76,28 @@ class _EditPemasukanDialogState extends State<EditPemasukanDialog> {
               TextFormField(
                 controller: namaCtrl,
                 decoration: const InputDecoration(labelText: "Nama"),
-                validator: (val) => val!.isEmpty ? "Wajib diisi" : null,
+                validator: (val) => val == null || val.isEmpty ? "Wajib diisi" : null,
               ),
               const SizedBox(height: 12),
 
               TextFormField(
                 controller: jenisCtrl,
                 decoration: const InputDecoration(labelText: "Jenis Pemasukan"),
-                validator: (val) => val!.isEmpty ? "Wajib diisi" : null,
+                validator: (val) => val == null || val.isEmpty ? "Wajib diisi" : null,
               ),
               const SizedBox(height: 12),
 
               TextFormField(
                 controller: tanggalCtrl,
                 decoration: const InputDecoration(labelText: "Tanggal"),
-                validator: (val) => val!.isEmpty ? "Wajib diisi" : null,
+                validator: (val) => val == null || val.isEmpty ? "Wajib diisi" : null,
               ),
               const SizedBox(height: 12),
 
               TextFormField(
                 controller: nominalCtrl,
                 decoration: const InputDecoration(labelText: "Nominal"),
-                validator: (val) => val!.isEmpty ? "Wajib diisi" : null,
+                validator: (val) => val == null || val.isEmpty ? "Wajib diisi" : null,
               ),
               const SizedBox(height: 20),
 

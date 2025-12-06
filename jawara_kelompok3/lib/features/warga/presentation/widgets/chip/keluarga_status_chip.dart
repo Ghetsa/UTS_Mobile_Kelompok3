@@ -7,18 +7,45 @@ class KeluargaStatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isActive = status.toLowerCase() == "aktif";
-    final bg = isActive ? Colors.green.shade50 : Colors.red.shade50;
-    final color = isActive ? Colors.green.shade800 : Colors.red.shade800;
+    final st = status.toLowerCase();
+
+    late Color bg;
+    late Color border;
+    late Color text;
+
+    // === Warna mengikuti konsep RumahStatusChip ===
+    if (st == "aktif") {
+      bg = Colors.green.shade50;
+      border = Colors.green;
+      text = Colors.green.shade700;
+    } else if (st == "pindah") {
+      bg = Colors.orange.shade50;
+      border = Colors.orange;
+      text = Colors.orange.shade700;
+    } else if (st == "sementara") {
+      bg = Colors.blue.shade50;
+      border = Colors.blue;
+      text = Colors.blue.shade700;
+    } else {
+      bg = Colors.grey.shade200;
+      border = Colors.grey;
+      text = Colors.grey.shade700;
+    }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: border, width: 0.8),
       ),
-      child: Text(status, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+      child: Text(
+        st[0].toUpperCase() + st.substring(1), // Kapitalisasi otomatis
+        style: TextStyle(
+          color: text,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 }
