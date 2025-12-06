@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import '../../../data/models/pengguna_model.dart';
+import '../../../data/models/channel_transfer_model.dart';
+import '../badge/channel_badge.dart';
 
-class PenggunaCard extends StatelessWidget {
-  final User data;
+class ChannelTransferCard extends StatelessWidget {
+  final ChannelTransfer data;
   final VoidCallback? onDetail;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
-  const PenggunaCard({
+  const ChannelTransferCard({
     super.key,
     required this.data,
     this.onDetail,
@@ -20,11 +21,23 @@ class PenggunaCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       child: ListTile(
-        title: Text(
-          data.nama,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        title: Row(
+          children: [
+            Text(
+              data.namaChannel,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 8),
+            ChannelBadge(type: data.jenis), // jenis: "manual", "auto", "qr"
+          ],
         ),
-        subtitle: Text("${data.email} - ${data.noHp}"),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Rekening: ${data.nomorRekening}"),
+            Text("Bank: ${data.kodeBank}"),
+          ],
+        ),
         trailing: PopupMenuButton(
           onSelected: (value) {
             if (value == "detail" && onDetail != null) onDetail!();

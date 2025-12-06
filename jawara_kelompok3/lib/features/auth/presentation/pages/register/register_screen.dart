@@ -1,12 +1,9 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import '../../../core/layout/header.dart';
-import '../../../core/layout/sidebar.dart';
-import '../../../core/theme/app_theme.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '../../../firebase_options.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../../../core/theme/app_theme.dart';
+import 'register_controller.dart';
+import 'dialogs.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -16,7 +13,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  // Controllers untuk input
+  // Controllers input
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -26,150 +23,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController manualAddressController = TextEditingController();
 
-  // Variabel 
-  String? _selectedFileName;
+  // Dropdown / pilihan
+  String? _selectedGender;
   String? _selectedAddressOption;
   String? _selectedOwnershipStatus;
-  String? _selectedGender;
-  late FirebaseAuth _auth;
+
+  // Upload foto KK/KTP
+  Uint8List? _profilePhotoBytes;
+  String? _profilePhotoName;
+
+  final RegisterController _controller = RegisterController();
 
   static const String manualAddressOption =
       'Alamat Rumah (Jika Tidak Ada di List)';
 
-  @override
-  void initState() {
-    super.initState();
-    _selectedAddressOption = null;
-    initializeFirebase();
-  }
+  // Toggle password
+  bool _showPassword = false;
+  bool _showConfirmPassword = false;
 
-  Future<void> initializeFirebase() async {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    _auth = FirebaseAuth.instance;
-  }
-
-  Future<void> registerUser() async {
-    String email = emailController.text.trim();
-    String password = passwordController.text.trim();
-    String confirmPassword = confirmPasswordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      await showMessageDialog(
-          title: 'Gagal!',
-          message: 'Email dan password wajib diisi',
-          success: false);
-      return;
-    }
-
-    if (password != confirmPassword) {
-      await showMessageDialog(
-          title: 'Gagal!',
-          message: 'Password dan konfirmasi password tidak cocok',
-          success: false);
-      return;
-    }
-
-    try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      // Semua user otomatis jadi warga
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userCredential.user!.uid)
-          .set({
-        'email': email,
-        'name': nameController.text.trim(),
-        'role': "warga", // tidak hapus role untuk kesesuaian Firestore
-        'nik': nikController.text.trim(),
-        'phone': phoneController.text.trim(),
-      });
-
-      await showMessageDialog(
-        title: 'Berhasil!',
-        message: 'Akun berhasil dibuat. Silakan login.',
-        success: true,
-      );
-
-      Navigator.pushReplacementNamed(context, '/login');
-    } on FirebaseAuthException catch (e) {
-      String message = 'Terjadi kesalahan, coba lagi';
-
-      if (e.code == 'email-already-in-use') {
-        message = 'Email sudah terdaftar';
-      } else if (e.code == 'invalid-email') {
-        message = 'Email tidak valid';
-      } else if (e.code == 'weak-password') {
-        message = 'Password terlalu lemah';
-      }
-
-      await showMessageDialog(
-        title: 'Berhasil!',
-        message: 'Akun berhasil dibuat. Silakan login.',
-        success: true,
-      );
-      
-      Navigator.of(context).pop();
-      Navigator.pushReplacementNamed(context, '/login');
-    }
-  }
-
-  Future<void> showMessageDialog({
-    required String title,
-    required String message,
-    required bool success,
-  }) async {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        backgroundColor:
-            success ? AppTheme.greenExtraLight : AppTheme.redExtraLight,
-        title: Row(
-          children: [
-            Icon(
-              success ? Icons.check_circle_outline : Icons.error_outline,
-              color: success ? AppTheme.greenDark : AppTheme.redDark,
-            ),
-            const SizedBox(width: 8),
-            Text(title),
-          ],
-        ),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Fungsi memilih file menggunakan FilePicker
   void _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['png', 'jpg', 'jpeg', 'pdf'],
+      type: FileType.image,
     );
+
     if (result != null) {
       setState(() {
-        _selectedFileName = result.files.first.name;
+        _profilePhotoBytes = result.files.first.bytes;
+        _profilePhotoName = result.files.first.name;
       });
     }
   }
 
-  // Fungsi input field standar (text/password)
+  // Modifikasi _buildInputField agar bisa menambahkan suffix icon
   Widget _buildInputField({
     required String label,
     required String hint,
     bool obscureText = false,
-    TextEditingController? controller, // tambahkan controller
+    TextEditingController? controller,
+    Widget? suffixIcon,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,8 +75,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             )),
         const SizedBox(height: 6),
         TextFormField(
-          controller: controller, // hubungkan controller
+          controller: controller,
           obscureText: obscureText,
+          keyboardType: keyboardType,
           style: TextStyle(color: AppTheme.hitam),
           decoration: InputDecoration(
             hintText: hint,
@@ -204,14 +98,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            suffixIcon: suffixIcon,
           ),
+          validator: validator ??
+              (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Field $label wajib diisi.';
+                }
+                return null;
+              },
         ),
         const SizedBox(height: 20),
       ],
     );
   }
 
-  // Fungsi membuat dropdown field
   Widget _buildDropdownField({
     required String label,
     required List<String> items,
@@ -275,7 +176,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // Fungsi membuat field upload file
   Widget _buildFileUploadField({required String label}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,10 +208,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  _selectedFileName != null
+                  _profilePhotoName != null
                       ? Icons.check_circle
                       : Icons.upload_file,
-                  color: _selectedFileName != null
+                  color: _profilePhotoName != null
                       ? AppTheme.greenDark
                       : AppTheme.redDark,
                   size: 22,
@@ -319,11 +219,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    _selectedFileName ?? 'Upload foto KK/KTP (.png/.jpg)',
+                    _profilePhotoName ?? 'Upload foto KK/KTP (.png/.jpg)',
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: _selectedFileName != null
+                      color: _profilePhotoName != null
                           ? AppTheme.hitam
                           : AppTheme.hitam.withOpacity(0.9),
                       fontSize: 14,
@@ -340,7 +240,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // Fungsi membangun field alamat dengan opsi manual
   Widget _buildAddressSelectionField() {
     List<String> addressOptions = [
       'Rumah Blok A (Jl. Mawar No. 1)',
@@ -364,21 +263,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           },
         ),
         if (showManualInput)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Kalau tidak ada di daftar, silakan isi alamat rumah di bawah ini',
-                style: TextStyle(
-                    color: AppTheme.abu,
-                    fontSize: 12,
-                    fontStyle: FontStyle.italic),
-              ),
-              const SizedBox(height: 8),
-              _buildInputField(
-                  label: 'Alamat Rumah (Jika Tidak Ada di List)',
-                  hint: 'Blok 5A / No. 10'),
-            ],
+          _buildInputField(
+            label: 'Alamat Rumah (Jika Tidak Ada di List)',
+            hint: 'Blok 5A / No. 10',
+            controller: manualAddressController,
           ),
       ],
     );
@@ -386,7 +274,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Lebar layar layout responsif
     final screenWidth = MediaQuery.of(context).size.width;
     final double cardMaxWidth = screenWidth > 470 ? 400.0 : screenWidth * 0.80;
 
@@ -400,7 +287,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Logo dan judul aplikasi
+                // Logo dan judul
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -422,7 +309,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // Card utama form register
+                // Card Form
                 ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: cardMaxWidth),
                   child: Container(
@@ -441,7 +328,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Judul card
                         const Text(
                           'Daftar Akun',
                           textAlign: TextAlign.center,
@@ -459,7 +345,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 30),
 
-                        // Dua kolom form sejajar
+                        // Dua kolom input
                         LayoutBuilder(builder: (context, constraints) {
                           return Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -468,20 +354,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 child: Column(
                                   children: [
                                     _buildInputField(
-                                      label: 'Nama Lengkap',
-                                      hint: 'Masukkan nama lengkap',
-                                      controller: nameController,
-                                    ),
+                                        label: 'Nama Lengkap',
+                                        hint: 'Masukkan nama lengkap',
+                                        controller: nameController),
                                     _buildInputField(
-                                      label: 'Email',
-                                      hint: 'Masukkan email aktif',
-                                      controller: emailController,
-                                    ),
+                                        label: 'Email',
+                                        hint: 'Masukkan email aktif',
+                                        controller: emailController),
+                                    // Password dengan toggle mata
                                     _buildInputField(
                                       label: 'Password',
                                       hint: 'Masukkan password',
-                                      obscureText: true,
                                       controller: passwordController,
+                                      obscureText: !_showPassword,
+                                      suffixIcon: IconButton(
+                                        icon: Icon(
+                                          _showPassword
+                                              ? Icons.visibility
+                                              : Icons.visibility_off,
+                                          color: AppTheme.abu,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            _showPassword = !_showPassword;
+                                          });
+                                        },
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -490,21 +388,54 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               Expanded(
                                 child: Column(
                                   children: [
+                                    // NIK dengan validasi 16 digit
                                     _buildInputField(
                                       label: 'NIK',
                                       hint: 'Masukkan NIK',
                                       controller: nikController,
+                                      keyboardType: TextInputType.number,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty)
+                                          return 'NIK wajib diisi.';
+                                        if (value.length != 16)
+                                          return 'NIK harus 16 digit.';
+                                        if (!RegExp(r'^[0-9]+$')
+                                            .hasMatch(value))
+                                          return 'NIK hanya angka.';
+                                        return null;
+                                      },
                                     ),
                                     _buildInputField(
-                                      label: 'No Telepon',
-                                      hint: 'Masukkan nomor telepon',
-                                      controller: phoneController,
-                                    ),
+                                        label: 'No Telepon',
+                                        hint: 'Masukkan nomor telepon',
+                                        controller: phoneController),
+                                    // Konfirmasi password dengan toggle mata
                                     _buildInputField(
                                       label: 'Konfirmasi Password',
                                       hint: 'Masukkan ulang password',
-                                      obscureText: true,
                                       controller: confirmPasswordController,
+                                      obscureText: !_showConfirmPassword,
+                                      suffixIcon: IconButton(
+                                        icon: Icon(
+                                          _showConfirmPassword
+                                              ? Icons.visibility
+                                              : Icons.visibility_off,
+                                          color: AppTheme.abu,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            _showConfirmPassword =
+                                                !_showConfirmPassword;
+                                          });
+                                        },
+                                      ),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty)
+                                          return 'Konfirmasi password wajib diisi.';
+                                        if (value != passwordController.text)
+                                          return 'Password tidak cocok.';
+                                        return null;
+                                      },
                                     ),
                                   ],
                                 ),
@@ -513,7 +444,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           );
                         }),
 
-                        // Dropdown dan field lainnya
                         _buildDropdownField(
                           label: 'Jenis Kelamin',
                           items: const ['Laki-laki', 'Perempuan'],
@@ -522,7 +452,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           onChanged: (val) =>
                               setState(() => _selectedGender = val),
                         ),
+
                         _buildAddressSelectionField(),
+
                         _buildDropdownField(
                           label: 'Status Kepemilikan Rumah',
                           items: const ['Pemilik', 'Penyewa'],
@@ -531,35 +463,50 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           onChanged: (val) =>
                               setState(() => _selectedOwnershipStatus = val),
                         ),
+
                         _buildFileUploadField(label: 'Foto Identitas'),
 
-                        // Tombol Buat Akun
                         SizedBox(
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: registerUser,
-                            // Kembali ke login setelah submit
+                            onPressed: () async {
+                              await _controller.registerUser(
+                                context: context,
+                                email: emailController.text.trim(),
+                                password: passwordController.text.trim(),
+                                confirmPassword:
+                                    confirmPasswordController.text.trim(),
+                                name: nameController.text.trim(),
+                                nik: nikController.text.trim(),
+                                phone: phoneController.text.trim(),
+                                role: 'warga',
+                                gender: _selectedGender,
+                                address: _selectedAddressOption ??
+                                    manualAddressController.text.trim(),
+                                ownershipStatus: _selectedOwnershipStatus,
+                                profilePhotoBytes: _profilePhotoBytes,
+                                profilePhotoName: _profilePhotoName,
+                              );
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.primaryBlue,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                                  borderRadius: BorderRadius.circular(12)),
                               elevation: 5,
                             ),
                             child: const Text(
                               'Buat Akun',
                               style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
                             ),
                           ),
                         ),
+
                         const SizedBox(height: 20),
 
-                        // Link ke login jika sudah punya akun
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

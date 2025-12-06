@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../main.dart';
-import '../../../../core/layout/sidebar.dart';
+import '../../../main.dart';
+import '../../../core/layout/sidebar.dart';
 
 class ManajemenPenggunaPage extends StatelessWidget {
   const ManajemenPenggunaPage({super.key});

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 // === Login ===
-import '../../features/auth/presentation/pages/login.dart';
+import '../../features/auth/presentation/pages/login/login.dart';
 
 // === Register ===
-import '../../features/auth/presentation/pages/register.dart';
+import '../../features/auth/presentation/pages/register/register_screen.dart';
 
 // === Dashboard ===
 import '../../features/dashboard/presentation/pages/kegiatan_dashboard_page.dart';
@@ -41,8 +41,9 @@ import '../../features/kegiatan_broadcast/presentation/pages/broadcast/daftar_br
 import '../../features/kegiatan_broadcast/presentation/pages/broadcast/tambah_broadcast_page.dart';
 
 // === Manajemen Pengguna ===
-import '../../features/manajemen_pengguna/presentation/pages/manajemen_pengguna_page.dart';
+import '../../features/manajemen_pengguna/presentation/manajemen_pengguna_page.dart';
 import '../../features/manajemen_pengguna/presentation/pages/daftar_pengguna_page.dart';
+import '../../features/manajemen_pengguna/presentation/pages/tambah_pengguna_page.dart';
 
 // === Channel Transfer ===
 import '../../features/channel_transfer/channel_transfer_page.dart';
@@ -108,12 +109,13 @@ class AppRoutes {
 
     // === Manajemen Pengguna ===
     '/manajemen': (context) => const ManajemenPenggunaPage(),
-    '/pengguna/daftar': (context) => const DaftarPenggunaPage(),
+    '/pengguna/penggunaDaftar': (context) => const DaftarPenggunaPage(),
+    '/pengguna/penggunaTambah': (context) => const TambahPenggunaPage(),
 
     // === Channel Transfer ===
     '/channel': (context) => const ChannelTransferPage(),
-    '/channel/daftar': (context) => const DaftarChannelPage(),
-    '/channel/tambah': (context) => const TambahChannelPage(),
+    '/channel/channelDaftar': (context) => const DaftarChannelPage(),
+    '/channel/channelTambah': (context) => const TambahChannelPage(),
 
     // ============================================================
     // PESAN WARGA → INFORMASI & ASPIRASI

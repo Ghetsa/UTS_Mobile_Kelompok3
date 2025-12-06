@@ -35,7 +35,7 @@ class WargaModel {
     required this.statusWarga,
     required this.idRumah,
     required this.noHp,
-    this.tanggalLahir,
+    this.tanggalLahir, 
     this.createdAt,
     this.updatedAt,
   });
