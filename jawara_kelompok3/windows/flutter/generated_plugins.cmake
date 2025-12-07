@@ -6,13 +6,8 @@ list(APPEND FLUTTER_PLUGIN_LIST
   cloud_firestore
   firebase_auth
   firebase_core
-<<<<<<< HEAD
   firebase_storage
   printing
-=======
-  printing
-  firebase_storage
->>>>>>> 89235790c9b093f032543b6e0082f64794564526
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
