@@ -26,14 +26,11 @@ class KegiatanBarChartCard extends StatelessWidget {
       "Des",
     ];
 
-    // Pastikan panjang data = 12
-    final values = monthlyData.length == 12
-        ? monthlyData
-        : List<int>.filled(12, 0);
+    final values =
+        monthlyData.length == 12 ? monthlyData : List<int>.filled(12, 0);
 
-    final maxValue = values.isEmpty
-        ? 0
-        : values.reduce((a, b) => a > b ? a : b);
+    final maxValue =
+        values.isEmpty ? 0 : values.reduce((a, b) => a > b ? a : b);
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -70,9 +67,8 @@ class KegiatanBarChartCard extends StatelessWidget {
           else
             Column(
               children: List.generate(months.length, (i) {
-                final double percent = maxValue == 0
-                    ? 0.0
-                    : (values[i] / maxValue).toDouble();
+                final double percent =
+                    maxValue == 0 ? 0.0 : (values[i] / maxValue).toDouble();
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
@@ -88,8 +84,7 @@ class KegiatanBarChartCard extends StatelessWidget {
                             Container(
                               height: 14,
                               decoration: BoxDecoration(
-                                color: AppTheme.blueMediumLight
-                                    .withOpacity(.3),
+                                color: AppTheme.blueMediumLight.withOpacity(.3),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),

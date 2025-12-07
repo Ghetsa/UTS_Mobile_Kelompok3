@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../../core/layout/header.dart';
-import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
-import 'daftar_channel_page.dart';
 
 class DetailChannelPage extends StatelessWidget {
-  final Map<String, String> channel;
+  final Map<String, String?> channel;
 
   const DetailChannelPage({super.key, required this.channel});
 
@@ -20,28 +17,23 @@ class DetailChannelPage extends StatelessWidget {
         backgroundColor: AppTheme.primaryBlue,
         elevation: 2,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.putihFull),
-          onPressed: () {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (_) => const DaftarChannelPage()));
-          },
+        title: Text(
+          "Detail ${channel['namaChannel'] ?? 'Channel'}",
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppTheme.putihFull,
+          ),
         ),
-        title: const Text(
-          'Detail Transfer Channel',
-          style:
-              TextStyle(color: AppTheme.putihFull, fontWeight: FontWeight.bold),
-        ),
+        iconTheme: const IconThemeData(color: AppTheme.putihFull),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(isDesktop ? 32.0 : 16.0),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
+            constraints: const BoxConstraints(maxWidth: 800),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Card detail channel
                 Card(
                   elevation: 8,
                   shadowColor: AppTheme.blueExtraLight,
@@ -54,10 +46,9 @@ class DetailChannelPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Judul Card
                         Center(
                           child: Text(
-                            "Detail Transfer Channel",
+                            "Detail Channel Transfer",
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
@@ -66,73 +57,35 @@ class DetailChannelPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 24),
-
-                        // Nama Channel
-                        _buildDetailRow("Nama Channel",
-                            channel['namaChannel'] ?? "QRIS Resmi RT 08"),
                         _buildDetailRow(
-                            "Tipe Channel", channel['tipe'] ?? "qris"),
-                        _buildDetailRow("Nama Pemilik",
-                            channel['pemilik'] ?? "RW 08 Karangploso"),
+                            "Nama Channel", channel['namaChannel'] ?? "-"),
+                        _buildDetailRow("Tipe Channel", channel['tipe'] ?? "-"),
                         _buildDetailRow(
-                            "Catatan",
-                            channel['catatan'] ??
-                                "Scan QR di bawah untuk membayar. Kirim bukti setelah pembayaran."),
-
-                        const SizedBox(height: 20),
-
-                        // Thumbnail QRIS
+                            "Nama Pemilik", channel['pemilik'] ?? "-"),
+                        _buildDetailRow("Catatan", channel['catatan'] ?? "-"),
+                        const SizedBox(height: 24),
                         const Text(
                           "Thumbnail QRIS:",
                           style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.hitam),
+                              color: AppTheme.primaryBlue),
                         ),
                         const SizedBox(height: 8),
-                        Center(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.asset(
-                              channel['thumbnail'] ??
-                                  'assets/images/default.jpg',
-                              width: double.infinity,
-                              height: 250,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // Bukti Identitas QR
+                        _imageBox(channel['thumbnail']),
+                        const SizedBox(height: 24),
                         const Text(
                           "Bukti Identitas QR:",
                           style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.hitam),
+                              color: AppTheme.primaryBlue),
                         ),
                         const SizedBox(height: 8),
-                        Center(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.asset(
-                              channel['qr'] ?? 'assets/images/default.jpg',
-                              width: double.infinity,
-                              height: 250,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 24),
+                        _imageBox(channel['qr']),
                       ],
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20),
-
-                // Catatan informasi
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -157,14 +110,12 @@ class DetailChannelPage extends StatelessWidget {
     );
   }
 
-  // Widget pembantu untuk menampilkan satu baris detail
   Widget _buildDetailRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Label
           Text(
             "$label:",
             style: const TextStyle(
@@ -174,7 +125,6 @@ class DetailChannelPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          // Kotak nilai
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -185,11 +135,33 @@ class DetailChannelPage extends StatelessWidget {
             ),
             child: Text(
               value,
-              style:
-                  const TextStyle(fontSize: 15, fontWeight: FontWeight.normal),
+              style: const TextStyle(fontSize: 15, color: AppTheme.hitam),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _imageBox(String? path) {
+    return Center(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          width: double.infinity,
+          height: 250,
+          color: Colors.grey.shade200,
+          child: path == null
+              ? const Center(child: Text("Tidak ada gambar"))
+              : Image.network(
+                  path,
+                  width: double.infinity,
+                  height: 250,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Center(child: Text("Gagal memuat gambar")),
+                ),
+        ),
       ),
     );
   }

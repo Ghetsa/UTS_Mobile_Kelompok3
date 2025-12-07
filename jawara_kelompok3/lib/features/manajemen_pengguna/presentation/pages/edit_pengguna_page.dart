@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../main.dart';
-import 'daftar_pengguna_page.dart';
+import '../../data/models/pengguna_model.dart';
+import '../../data/services/pengguna_service.dart';
 
 class EditPenggunaPage extends StatefulWidget {
-  final User user;
+  final User user; // Hanya untuk edit
   const EditPenggunaPage({super.key, required this.user});
 
   @override
@@ -44,7 +44,6 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
 
   @override
   void dispose() {
-    // Melepaskan controller agar tidak memory leak
     namaController.dispose();
     emailController.dispose();
     noHpController.dispose();
@@ -53,8 +52,8 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
     super.dispose();
   }
 
-  // Fungsi untuk mengeksekusi update data pengguna
-  void _updatePengguna() {
+  // Fungsi untuk mengeksekusi update data pengguna ke Firebase
+  void _updatePengguna() async {
     if (passwordController.text.isNotEmpty &&
         passwordController.text != confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -67,16 +66,36 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
       return;
     }
 
-    // Simulasi update data
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Data ${namaController.text} berhasil diperbarui!"),
-        backgroundColor: AppTheme.greenMedium,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    // Prepare data baru
+    final Map<String, dynamic> newData = {
+      'nama': namaController.text,
+      'email': emailController.text,
+      'noHp': noHpController.text,
+      // Hanya update password jika diisi
+      if (passwordController.text.isNotEmpty) 'password': passwordController.text,
+      'role': selectedRole,
+    };
 
-    Navigator.pop(context);
+    bool success = await UserService().updateUser(widget.user.docId, newData);
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Data ${namaController.text} berhasil diperbarui!"),
+          backgroundColor: AppTheme.greenMedium,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("Gagal memperbarui data!"),
+          backgroundColor: AppTheme.redMedium,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override
@@ -86,8 +105,8 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
       appBar: AppBar(
         title: const Text(
           "Edit Akun Pengguna",
-          style:
-              TextStyle(fontWeight: FontWeight.bold, color: AppTheme.putihFull),
+          style: TextStyle(
+              fontWeight: FontWeight.bold, color: AppTheme.putihFull),
         ),
         centerTitle: true,
         backgroundColor: AppTheme.primaryBlue,
@@ -108,7 +127,6 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Judul halaman
                     Center(
                       child: Text(
                         "Edit Informasi Akun Pengguna",
@@ -120,43 +138,36 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
                     ),
                     const SizedBox(height: 28),
 
-                    // Field Nama Lengkap
                     _buildLabel("Nama Lengkap"),
                     _buildTextField(namaController, "Masukkan nama lengkap"),
                     const SizedBox(height: 16),
 
-                    // Field Email (sudah bisa diganti)
                     _buildLabel("Email"),
                     _buildTextField(emailController, "Masukkan email",
                         keyboardType: TextInputType.emailAddress),
                     const SizedBox(height: 16),
 
-                    // Field Nomor HP
                     _buildLabel("Nomor HP"),
                     _buildTextField(noHpController, "Masukkan nomor HP",
                         keyboardType: TextInputType.phone),
                     const SizedBox(height: 16),
 
-                    // Field Password Baru
-                    _buildLabel("Password Baru (kosongkan jika tidak diganti)"),
-                    _buildTextField(
-                        passwordController, "Masukkan password baru",
+                    _buildLabel(
+                        "Password Baru (kosongkan jika tidak diganti)"),
+                    _buildTextField(passwordController, "Masukkan password baru",
                         isPassword: true),
                     const SizedBox(height: 16),
 
-                    // Field Konfirmasi Password Baru
                     _buildLabel("Konfirmasi Password Baru"),
-                    _buildTextField(
-                        confirmPasswordController, "Masukkan kembali password",
+                    _buildTextField(confirmPasswordController,
+                        "Masukkan kembali password",
                         isPassword: true),
                     const SizedBox(height: 16),
 
-                    // Field Role (tidak dapat diubah)
                     _buildLabel("Role (tidak dapat diubah)"),
                     _buildDropdown(selectedRole, roleList),
                     const SizedBox(height: 32),
 
-                    // Tombol Update
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -186,21 +197,17 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
     );
   }
 
-  // Widget pembuat label di atas input field
   Widget _buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         text,
         style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.primaryBlue),
+            fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.primaryBlue),
       ),
     );
   }
 
-  // Widget pembuat TextField
   Widget _buildTextField(TextEditingController controller, String hint,
       {bool isPassword = false,
       bool readOnly = false,
@@ -223,7 +230,6 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
     );
   }
 
-  // Widget pembuat dropdown role
   Widget _buildDropdown(String value, List<String> items) {
     return Container(
       decoration: BoxDecoration(
@@ -237,7 +243,7 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
         isExpanded: true,
         underline: const SizedBox(),
         borderRadius: BorderRadius.circular(14),
-        onChanged: null,
+        onChanged: null, // Tetap read-only
         items: items.map((String item) {
           return DropdownMenuItem(
             value: item,
