@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // ⬅️ untuk MissingPluginException
+import 'package:printing/printing.dart'; // ⬅️ cetak PDF
+import 'package:pdf/widgets.dart' as pw; // ⬅️ builder PDF
+
 import '../../../data/models/keluarga_model.dart';
 import '../../../controller/keluarga_controller.dart';
 
@@ -100,22 +104,123 @@ class _DaftarKeluargaPageState extends State<DaftarKeluargaPage> {
     return true;
   }
 
+  // ============================
+  // CETAK PDF
+  // ============================
+  Future<void> _cetakPdf(List<KeluargaModel> list) async {
+    if (list.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Tidak ada data keluarga yang bisa dicetak."),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final pdf = pw.Document();
+
+      pdf.addPage(
+        pw.MultiPage(
+          build: (context) => [
+            pw.Text(
+              'Laporan Data Keluarga',
+              style: pw.TextStyle(
+                fontSize: 18,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+            pw.SizedBox(height: 16),
+            pw.Table.fromTextArray(
+              headers: const [
+                'No',
+                'Kepala Keluarga',
+                'No KK',
+                'Jumlah Anggota',
+                'Status',
+              ],
+              data: List.generate(list.length, (i) {
+                final k = list[i];
+                return [
+                  (i + 1).toString(),
+                  k.kepalaKeluarga,
+                  k.noKk,
+                  k.jumlahAnggota,
+                  k.statusKeluarga,
+                ];
+              }),
+            ),
+          ],
+        ),
+      );
+
+      await Printing.layoutPdf(
+        onLayout: (format) async => pdf.save(),
+      );
+    } on MissingPluginException {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Fitur cetak PDF belum tersedia di platform ini.\n'
+            'Coba jalankan di emulator/device Android atau iOS.',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal mencetak PDF: $e'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // 🔹 Terapkan search + filter sekali, dipakai untuk list & print
+    final filteredList = data.where((k) {
+      // search text
+      if (search.isNotEmpty &&
+          !k.kepalaKeluarga.toLowerCase().contains(search.toLowerCase())) {
+        return false;
+      }
+      // filter dialog
+      if (!_matchFilter(k)) return false;
+      return true;
+    }).toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFE9F2F9),
       drawer: const AppSidebar(),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF0C88C2),
-        onPressed: () async {
-          final res = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const TambahKeluargaPage()),
-          );
-          if (res == true) loadData();
-        },
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
+
+      // 🔹 2 FAB: Cetak di atas, Tambah di bawah
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: 'printKeluarga',
+            backgroundColor: Colors.orange,
+            onPressed: () => _cetakPdf(filteredList),
+            child: const Icon(Icons.print, color: Colors.white),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'addKeluarga',
+            backgroundColor: const Color(0xFF0C88C2),
+            onPressed: () async {
+              final res = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TambahKeluargaPage()),
+              );
+              if (res == true) loadData();
+            },
+            child: const Icon(Icons.add, color: Colors.white, size: 28),
+          ),
+        ],
       ),
+
       body: SafeArea(
         child: Column(
           children: [
@@ -140,22 +245,9 @@ class _DaftarKeluargaPageState extends State<DaftarKeluargaPage> {
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: data.length,
+                itemCount: filteredList.length,
                 itemBuilder: (_, i) {
-                  final item = data[i];
-
-                  // 🔍 text search utama
-                  if (search.isNotEmpty &&
-                      !item.kepalaKeluarga
-                          .toLowerCase()
-                          .contains(search.toLowerCase())) {
-                    return const SizedBox();
-                  }
-
-                  // 🎯 filter dari dialog
-                  if (!_matchFilter(item)) {
-                    return const SizedBox();
-                  }
+                  final item = filteredList[i];
 
                   return KeluargaCard(
                     data: item,
