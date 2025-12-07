@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // ⬅️ untuk MissingPluginException
-import 'package:printing/printing.dart'; // ⬅️ cetak PDF
-import 'package:pdf/widgets.dart' as pw; // ⬅️ builder PDF
+import 'package:flutter/services.dart'; // untuk MissingPluginException
+import 'package:printing/printing.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
 
 import '../../../data/models/keluarga_model.dart';
 import '../../../controller/keluarga_controller.dart';
@@ -12,7 +13,6 @@ import '../../widgets/card/keluarga_card.dart';
 import '../../widgets/filter/keluarga_filter.dart';
 import '../keluarga/tambah_keluarga_page.dart';
 
-import 'kelola_anggota_keluarga_page.dart';
 import 'detail_keluarga_page.dart';
 import 'edit_keluarga_page.dart';
 
@@ -27,7 +27,6 @@ class _DaftarKeluargaPageState extends State<DaftarKeluargaPage> {
   final KeluargaController _controller = KeluargaController();
 
   List<KeluargaModel> data = [];
-
   String search = "";
 
   /// 🔹 state filter aktif (diisi dari FilterKeluargaDialog)
@@ -105,7 +104,7 @@ class _DaftarKeluargaPageState extends State<DaftarKeluargaPage> {
   }
 
   // ============================
-  // CETAK PDF
+  // CETAK PDF (mirip kegiatan)
   // ============================
   Future<void> _cetakPdf(List<KeluargaModel> list) async {
     if (list.isEmpty) {
@@ -122,6 +121,8 @@ class _DaftarKeluargaPageState extends State<DaftarKeluargaPage> {
 
       pdf.addPage(
         pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.all(24),
           build: (context) => [
             pw.Text(
               'Laporan Data Keluarga',
@@ -130,8 +131,21 @@ class _DaftarKeluargaPageState extends State<DaftarKeluargaPage> {
                 fontWeight: pw.FontWeight.bold,
               ),
             ),
+            pw.SizedBox(height: 8),
+            pw.Text(
+              'Dicetak: ${DateTime.now()}',
+              style: const pw.TextStyle(fontSize: 10),
+            ),
             pw.SizedBox(height: 16),
             pw.Table.fromTextArray(
+              headerStyle: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+                fontSize: 10,
+              ),
+              cellStyle: const pw.TextStyle(fontSize: 9),
+              headerDecoration: const pw.BoxDecoration(
+                color: PdfColors.grey300,
+              ),
               headers: const [
                 'No',
                 'Kepala Keluarga',
@@ -181,12 +195,10 @@ class _DaftarKeluargaPageState extends State<DaftarKeluargaPage> {
   Widget build(BuildContext context) {
     // 🔹 Terapkan search + filter sekali, dipakai untuk list & print
     final filteredList = data.where((k) {
-      // search text
       if (search.isNotEmpty &&
           !k.kepalaKeluarga.toLowerCase().contains(search.toLowerCase())) {
         return false;
       }
-      // filter dialog
       if (!_matchFilter(k)) return false;
       return true;
     }).toList();
@@ -195,26 +207,36 @@ class _DaftarKeluargaPageState extends State<DaftarKeluargaPage> {
       backgroundColor: const Color(0xFFE9F2F9),
       drawer: const AppSidebar(),
 
-      // 🔹 2 FAB: Cetak di atas, Tambah di bawah
+      // 🔹 2 FAB: PDF (atas, merah) + Tambah (bawah, biru) — sama konsep dg kegiatan
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           FloatingActionButton(
             heroTag: 'printKeluarga',
-            backgroundColor: Colors.orange,
+            backgroundColor: Colors.red,
+            elevation: 4,
             onPressed: () => _cetakPdf(filteredList),
-            child: const Icon(Icons.print, color: Colors.white),
+            child: const Icon(
+              Icons.picture_as_pdf,
+              size: 26,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: 12),
           FloatingActionButton(
             heroTag: 'addKeluarga',
             backgroundColor: const Color(0xFF0C88C2),
+            elevation: 4,
             onPressed: () async {
               final res = await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const TambahKeluargaPage()),
+                MaterialPageRoute(
+                  builder: (_) => const TambahKeluargaPage(),
+                ),
               );
-              if (res == true) loadData();
+              if (res == true) {
+                await loadData();
+              }
             },
             child: const Icon(Icons.add, color: Colors.white, size: 28),
           ),
