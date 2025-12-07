@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
+import '../../../data/models/semua_pengeluaran_model.dart';
 
 class PengeluaranCard extends StatelessWidget {
-  final Map<String, dynamic> data;
+  final PengeluaranModel data;
   final VoidCallback? onDetail;
   final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const PengeluaranCard({
     super.key,
     required this.data,
     this.onDetail,
     this.onEdit,
+    this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
-    final nama = data['nama']?.toString() ?? '-';
-    final jenis = data['jenis']?.toString() ?? '-';
-    final tanggal = data['tanggal']?.toString() ?? '-';
-    final nominal = data['nominal']?.toString() ?? '-';
-
     return Container(
       margin: const EdgeInsets.only(bottom: 18),
       padding: const EdgeInsets.all(18),
@@ -54,21 +52,11 @@ class PengeluaranCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  nama,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 17),
-                ),
+                Text(data.nama, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
                 const SizedBox(height: 4),
-                Text("Jenis: $jenis",
-                    style:
-                        TextStyle(color: Colors.grey.shade700, fontSize: 13)),
-                Text("Tanggal: $tanggal",
-                    style:
-                        TextStyle(color: Colors.grey.shade700, fontSize: 13)),
-                Text("Nominal: $nominal",
-                    style:
-                        TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                Text("Jenis: ${data.jenis}", style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                Text("Tanggal: ${data.tanggal}", style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                Text("Nominal: ${data.nominal}", style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
               ],
             ),
           ),
@@ -78,28 +66,12 @@ class PengeluaranCard extends StatelessWidget {
             onSelected: (value) {
               if (value == 'detail' && onDetail != null) onDetail!();
               if (value == 'edit' && onEdit != null) onEdit!();
+              if (value == 'delete' && onDelete != null) onDelete!();
             },
             itemBuilder: (context) => const [
-              PopupMenuItem(
-                value: 'detail',
-                child: Row(
-                  children: [
-                    Icon(Icons.visibility, color: Colors.blue),
-                    SizedBox(width: 8),
-                    Text("Lihat Detail"),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Icons.edit, color: Colors.orange),
-                    SizedBox(width: 8),
-                    Text("Edit"),
-                  ],
-                ),
-              ),
+              PopupMenuItem(value: 'detail', child: Row(children: [Icon(Icons.visibility, color: Colors.blue), SizedBox(width: 8), Text("Detail")])),
+              PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit, color: Colors.orange), SizedBox(width: 8), Text("Edit")])),
+              PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete, color: Colors.red), SizedBox(width: 8), Text("Hapus")])),
             ],
           ),
         ],

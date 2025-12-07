@@ -7,6 +7,7 @@ class PemasukanLainController {
   Future<List<PemasukanLainModel>> fetchAll() => _service.getAll();
   Future<PemasukanLainModel?> fetchById(String id) => _service.getById(id);
   Future<bool> add(Map<String, dynamic> data) => _service.add(data);
-  Future<bool> update(String id, Map<String, dynamic> data) => _service.update(id, data);
+  Future<bool> update(String id, Map<String, dynamic> data) =>
+      _service.update(id, data);
   Future<bool> delete(String id) => _service.delete(id);
 }
