@@ -9,6 +9,10 @@ import '../widgets/card/kegiatan_list_card.dart';
 import '../widgets/card/kegiatan_stat_card.dart';
 import '../widgets/card/kegiatan_pie_card.dart';
 import '../widgets/card/kegiatan_bar_chart_card.dart';
+import '../widgets/card/kegiatan_waktu_card.dart';
+
+// 🔹 import halaman daftar kegiatan
+import '../../../kegiatan/presentation/pages/daftar_kegiatan_page.dart';
 
 class DashboardKegiatanPage extends StatelessWidget {
   const DashboardKegiatanPage({super.key});
@@ -18,6 +22,26 @@ class DashboardKegiatanPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
       drawer: const AppSidebar(),
+
+      // 🔹 FAB di pojok kanan bawah menuju halaman Data Kegiatan
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: AppTheme.primaryBlue,
+        elevation: 4,
+        icon: const Icon(Icons.event_note, color: Colors.white),
+        label: const Text(
+          "Lihat Kegiatan",
+          style: TextStyle(color: Colors.white),
+        ),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const DaftarKegiatanPage(),
+            ),
+          );
+        },
+      ),
+
       body: SafeArea(
         child: Column(
           children: [
@@ -27,11 +51,8 @@ class DashboardKegiatanPage extends StatelessWidget {
               showSearchBar: false,
               showFilterButton: false,
             ),
-
             Expanded(
-              child: StreamBuilder<
-                  QuerySnapshot<Map<String, dynamic>>>(
-                // 🔴 SESUAIKAN NAMA KOLEKSI DI SINI
+              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                 stream: FirebaseFirestore.instance
                     .collection('kegiatan')
                     .snapshots(),
@@ -53,7 +74,6 @@ class DashboardKegiatanPage extends StatelessWidget {
 
                   final docs = snapshot.data!.docs;
 
-                  // =============== OLAH DATA ===============
                   final now = DateTime.now();
                   final today = DateTime(now.year, now.month, now.day);
 
@@ -62,29 +82,24 @@ class DashboardKegiatanPage extends StatelessWidget {
                   int hariIni = 0;
                   int akanDatang = 0;
 
-                  // 12 bulan, index 0=Jan, …, 11=Des
                   final List<int> perBulan = List.filled(12, 0);
-
-                  // kategori → jumlah
                   final Map<String, double> kategoriMap = {};
-
-                  // penanggung_jawab → jumlah
                   final Map<String, int> pjMap = {};
 
                   for (final d in docs) {
                     final data = d.data();
 
-                    // 🔹 tanggal (pastikan field 'tanggal' di Firestore)
-                    DateTime? tgl;
-                    if (data['tanggal'] != null &&
-                        data['tanggal'] is Timestamp) {
-                      tgl = (data['tanggal'] as Timestamp).toDate();
+                    // 🔹 pakai field 'tanggal_mulai' (bukan 'tanggal')
+                    DateTime? tglMulai;
+                    if (data['tanggal_mulai'] != null &&
+                        data['tanggal_mulai'] is Timestamp) {
+                      tglMulai = (data['tanggal_mulai'] as Timestamp).toDate();
                     }
 
                     // Klasifikasi lewat / hari ini / akan datang
-                    if (tgl != null) {
+                    if (tglMulai != null) {
                       final onlyDate =
-                          DateTime(tgl.year, tgl.month, tgl.day);
+                          DateTime(tglMulai.year, tglMulai.month, tglMulai.day);
 
                       if (onlyDate.isBefore(today)) {
                         lewat++;
@@ -94,22 +109,19 @@ class DashboardKegiatanPage extends StatelessWidget {
                         akanDatang++;
                       }
 
-                      // Hitung per bulan
-                      final monthIndex = tgl.month - 1;
+                      // Hitung per bulan (0 = Jan, 11 = Des)
+                      final monthIndex = tglMulai.month - 1;
                       if (monthIndex >= 0 && monthIndex < 12) {
                         perBulan[monthIndex]++;
                       }
                     }
 
-                    // 🔹 kategori (field 'kategori', ubah kalau beda)
-                    final kategori =
-                        (data['kategori'] ?? 'Lainnya').toString();
-                    kategoriMap[kategori] =
-                        (kategoriMap[kategori] ?? 0) + 1;
+                    // 🔹 kategori
+                    final kategori = (data['kategori'] ?? 'Lainnya').toString();
+                    kategoriMap[kategori] = (kategoriMap[kategori] ?? 0) + 1;
 
-                    // 🔹 penanggung_jawab (field 'penanggung_jawab', ubah kalau beda)
-                    final pj = (data['penanggung_jawab'] ??
-                            'Tidak diketahui')
+                    // 🔹 penanggung jawab
+                    final pj = (data['penanggung_jawab'] ?? 'Tidak diketahui')
                         .toString();
                     pjMap[pj] = (pjMap[pj] ?? 0) + 1;
                   }
@@ -118,22 +130,18 @@ class DashboardKegiatanPage extends StatelessWidget {
                   final subtitleWaktu =
                       "Lewat: $lewat • Hari Ini: $hariIni • Akan Datang: $akanDatang";
 
-                  // Konversi kategori ke persen (%)
                   final Map<String, double> kategoriPersen = {};
                   if (total > 0) {
                     kategoriMap.forEach((key, value) {
-                      kategoriPersen[key] =
-                          (value / total.toDouble()) * 100.0;
+                      kategoriPersen[key] = (value / total.toDouble()) * 100.0;
                     });
                   }
 
-                  // Penanggung jawab terbanyak
                   String topPj = "-";
                   int topCount = 0;
                   if (pjMap.isNotEmpty) {
                     final sorted = pjMap.entries.toList()
                       ..sort((a, b) => b.value.compareTo(a.value));
-
                     topPj = sorted.first.key;
                     topCount = sorted.first.value;
                   }
@@ -142,45 +150,31 @@ class DashboardKegiatanPage extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        // TOTAL KEGIATAN
-                        KegiatanStatCard(
-                          title: "Total Kegiatan",
-                          value: total.toString(),
-                          subtitle:
-                              "Jumlah seluruh kegiatan yang tercatat",
+                        KegiatanWaktuCard(
+                          lewat: lewat,
+                          hariIni: hariIni,
+                          akanDatang: akanDatang,
                         ),
 
                         const SizedBox(height: 16),
 
-                        // KEGIATAN BERDASARKAN WAKTU
-                        KegiatanStatCard(
-                          title: "Kegiatan berdasarkan Waktu",
-                          value: totalWaktu.toString(),
-                          subtitle: subtitleWaktu,
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        // PIE KATEGORI
+                        // 🔹 PIE KATEGORI
                         KegiatanPieCard(
                           data: kategoriPersen,
                         ),
-
                         const SizedBox(height: 16),
 
-                        // BAR PER BULAN
+                        // 🔹 BAR PER BULAN
                         KegiatanBarChartCard(
                           monthlyData: perBulan,
                         ),
-
                         const SizedBox(height: 16),
 
-                        // PENANGGUNG JAWAB TERBANYAK
+                        // 🔹 PENANGGUNG JAWAB TERBANYAK
                         KegiatanListCard(
                           nama: topPj,
                           jumlah: topCount,
                         ),
-
                         const SizedBox(height: 30),
                       ],
                     ),
