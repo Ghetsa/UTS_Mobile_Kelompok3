@@ -148,7 +148,7 @@ Kelas: **[TI-3D / Pemprograman Mobile]**
 |------|--------|
 | Ghetsa Ramadhani Riska A. | UI Dashboard & Data Warga |
 | Oltha Rosyeda Al’haq | UI Keuangan (Pemasukan & Laporan) |
-| Muhammad Syahrul Gunawan | UI Autentikasi, Pesan, dan Manajemen Pengguna |
+| Muhammad Syahrul Gunawan | UI Autentikasi, Pesan, Channel Transfer dan Manajemen Pengguna |
 | Luthfi Triaswangga | UI Kegiatan, Broadcast, dan Mutasi Keluarga |
 
 ---

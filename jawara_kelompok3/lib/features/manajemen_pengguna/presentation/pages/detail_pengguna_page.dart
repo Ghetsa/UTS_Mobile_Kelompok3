@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'daftar_pengguna_page.dart';
-import '../../../../main.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../data/models/pengguna_model.dart';
 
 class DetailPenggunaPage extends StatelessWidget {
   final User user;
@@ -13,12 +12,12 @@ class DetailPenggunaPage extends StatelessWidget {
     switch (status) {
       case 'Diterima':
         return AppTheme.greenMediumDark;
-      case 'Pending':
+      case 'Menunggu Persetujuan':
         return AppTheme.yellowMediumDark;
       case 'Ditolak':
         return AppTheme.redMedium;
       default:
-        return AppTheme.blueDark;
+        return AppTheme.abu;
     }
   }
 
@@ -42,8 +41,6 @@ class DetailPenggunaPage extends StatelessWidget {
         ),
         iconTheme: const IconThemeData(color: AppTheme.putihFull),
       ),
-
-      // Konten body
       body: SingleChildScrollView(
         padding: EdgeInsets.all(isDesktop ? 32.0 : 16.0),
         child: Center(
@@ -65,7 +62,6 @@ class DetailPenggunaPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Judul Card
                         Center(
                           child: Text(
                             "Detail Pengguna",
@@ -78,23 +74,36 @@ class DetailPenggunaPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
 
-                        // Profil pengguna (Avatar + Nama + Role)
+                        // Profil pengguna
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Avatar pengguna
-                            const CircleAvatar(
+                            CircleAvatar(
                               radius: 30,
                               backgroundColor: AppTheme.primaryBlue,
-                              child: Icon(
-                                Icons.person,
-                                size: 35,
-                                color: AppTheme.putihFull,
-                              ),
+                              child: user.fotoIdentitas != null
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(30),
+                                      child: Image.network(
+                                        user.fotoIdentitas!,
+                                        width: 60,
+                                        height: 60,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) =>
+                                            const Icon(
+                                          Icons.person,
+                                          size: 35,
+                                          color: AppTheme.putihFull,
+                                        ),
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.person,
+                                      size: 35,
+                                      color: AppTheme.putihFull,
+                                    ),
                             ),
                             const SizedBox(width: 20),
-
-                            // Nama dan Role
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -142,22 +151,35 @@ class DetailPenggunaPage extends StatelessWidget {
                         Center(
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Image.asset(
-                              user.fotoIdentitas ?? 'assets/images/gambar1.jpg',
-                              width: double.infinity,
-                              height: 250,
-                              fit: BoxFit.cover,
-                            ),
+                            child: user.fotoIdentitas != null
+                                ? Image.network(
+                                    user.fotoIdentitas!,
+                                    width: double.infinity,
+                                    height: 250,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Image.asset(
+                                      'assets/images/gambar1.jpg',
+                                      width: double.infinity,
+                                      height: 250,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : Image.asset(
+                                    'assets/images/gambar1.jpg',
+                                    width: double.infinity,
+                                    height: 250,
+                                    fit: BoxFit.cover,
+                                  ),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20),
 
-                // Catatan di bawah
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -182,14 +204,12 @@ class DetailPenggunaPage extends StatelessWidget {
     );
   }
 
-  // Widget pembantu untuk menampilkan satu baris detail
   Widget _buildDetailRow(String label, String value, {Color? statusColor}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Label
           Text(
             "$label:",
             style: const TextStyle(
@@ -199,8 +219,6 @@ class DetailPenggunaPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-
-          // Kotak nilai
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
