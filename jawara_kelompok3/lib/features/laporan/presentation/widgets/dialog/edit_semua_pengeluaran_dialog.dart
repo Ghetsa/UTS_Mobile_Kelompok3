@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import '../../../data/models/pemasukan_model.dart';
+import '../../../data/services/semua_pengeluaran_service.dart';
+import '../../../data/models/semua_pengeluaran_model.dart';
 
-class EditPemasukanDialog extends StatefulWidget {
-  final PemasukanModel pemasukan;
+class EditPengeluaranDialog extends StatefulWidget {
+  final PengeluaranModel pengeluaran;
 
-  const EditPemasukanDialog({super.key, required this.pemasukan});
+  const EditPengeluaranDialog({super.key, required this.pengeluaran});
 
   @override
-  _EditPemasukanDialogState createState() => _EditPemasukanDialogState();
+  _EditPengeluaranDialogState createState() => _EditPengeluaranDialogState();
 }
 
-class _EditPemasukanDialogState extends State<EditPemasukanDialog> {
+class _EditPengeluaranDialogState extends State<EditPengeluaranDialog> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController namaCtrl;
   late TextEditingController nominalCtrl;
@@ -20,21 +21,21 @@ class _EditPemasukanDialogState extends State<EditPemasukanDialog> {
   @override
   void initState() {
     super.initState();
-    namaCtrl = TextEditingController(text: widget.pemasukan.nama);
-    nominalCtrl = TextEditingController(text: widget.pemasukan.nominal);
-    tanggalCtrl = TextEditingController(text: widget.pemasukan.tanggal);
-    jenisCtrl = TextEditingController(text: widget.pemasukan.jenis);
+    namaCtrl = TextEditingController(text: widget.pengeluaran.nama);
+    nominalCtrl = TextEditingController(text: widget.pengeluaran.nominal);
+    tanggalCtrl = TextEditingController(text: widget.pengeluaran.tanggal);
+    jenisCtrl = TextEditingController(text: widget.pengeluaran.jenis);
   }
 
   void _save() {
     if (_formKey.currentState!.validate()) {
-      final updated = PemasukanModel(
-        id: widget.pemasukan.id,
+      final updated = PengeluaranModel(
+        id: widget.pengeluaran.id,
         nama: namaCtrl.text.trim(),
         jenis: jenisCtrl.text.trim(),
         tanggal: tanggalCtrl.text.trim(),
         nominal: nominalCtrl.text.trim(),
-        createdAt: widget.pemasukan.createdAt,
+        createdAt: widget.pengeluaran.createdAt,
         updatedAt: DateTime.now(),
       );
       Navigator.pop(context, updated);
@@ -53,11 +54,11 @@ class _EditPemasukanDialogState extends State<EditPemasukanDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text("Edit Pemasukan", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text("Edit Pengeluaran", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               TextFormField(controller: namaCtrl, decoration: const InputDecoration(labelText: "Nama"), validator: (val) => val!.isEmpty ? "Wajib diisi" : null),
               const SizedBox(height: 12),
-              TextFormField(controller: jenisCtrl, decoration: const InputDecoration(labelText: "Jenis"), validator: (val) => val!.isEmpty ? "Wajib diisi" : null),
+              TextFormField(controller: jenisCtrl, decoration: const InputDecoration(labelText: "Jenis Pengeluaran"), validator: (val) => val!.isEmpty ? "Wajib diisi" : null),
               const SizedBox(height: 12),
               TextFormField(controller: tanggalCtrl, decoration: const InputDecoration(labelText: "Tanggal"), validator: (val) => val!.isEmpty ? "Wajib diisi" : null),
               const SizedBox(height: 12),
