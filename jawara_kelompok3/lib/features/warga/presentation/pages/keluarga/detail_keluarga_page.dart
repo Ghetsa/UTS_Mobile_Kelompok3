@@ -1,81 +1,56 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/theme/app_theme.dart';
+import '../../../data/models/keluarga_model.dart';
+import 'kelola_anggota_keluarga_page.dart';
 
-class DetailKeluargaDialog extends StatelessWidget {
-  final Map<String, dynamic> keluarga;
+class DetailKeluargaPage extends StatelessWidget {
+  final KeluargaModel data;
 
-  const DetailKeluargaDialog({super.key, required this.keluarga});
+  const DetailKeluargaPage({super.key, required this.data});
 
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// 🔹 Header
-              const Text(
-                "Detail Keluarga",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                "Informasi lengkap data keluarga.",
-                style: TextStyle(color: Colors.black54),
-              ),
-              const SizedBox(height: 24),
-
-              /// 🔹 Field Data
-              _buildField("Nama Keluarga", keluarga['namaKeluarga']),
-              const SizedBox(height: 16),
-              _buildField("Kepala Keluarga", keluarga['kepalaKeluarga']),
-              const SizedBox(height: 16),
-              _buildField("Alamat", keluarga['alamat']),
-              const SizedBox(height: 16),
-              _buildField("Status Kepemilikan", keluarga['statusKepemilikan']),
-              const SizedBox(height: 16),
-              _buildField("Status Keluarga", keluarga['status']),
-
-              const SizedBox(height: 24),
-
-              /// 🔹 Tombol Tutup
-              Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton.icon(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  label: const Text("Tutup", style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+  Widget _row(String l, String v) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Text("$l: $v"),
     );
   }
 
-  /// 🔹 Fungsi Helper untuk Field
-  Widget _buildField(String label, String value) {
-    return TextFormField(
-      initialValue: value,
-      readOnly: true,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text("Detail ${data.kepalaKeluarga}"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _row("Kepala Keluarga", data.kepalaKeluarga),
+          _row("No KK", data.noKk),
+          _row("Rumah (docId)", data.idRumah),
+          _row("Jumlah Anggota", data.jumlahAnggota),
+          _row("Status", data.statusKeluarga),
+          _row("docId", data.uid),
+        ],
       ),
+      actions: [
+        TextButton(
+          child: const Text("Tutup"),
+          onPressed: () => Navigator.pop(context, false),
+        ),
+        TextButton(
+          child: const Text("Kelola Anggota"),
+          onPressed: () async {
+            final res = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => KelolaAnggotaKeluargaPage(keluarga: data),
+              ),
+            );
+            if (!context.mounted) return;
+
+            // kalau ada perubahan, tutup dialog sambil kirim sinyal refresh
+            Navigator.pop(context, res == true);
+          },
+        ),
+      ],
     );
   }
 }
