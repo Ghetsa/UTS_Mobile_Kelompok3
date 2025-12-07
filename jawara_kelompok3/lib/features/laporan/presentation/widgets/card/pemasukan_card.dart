@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../data/models/pemasukan_lain_model.dart';
+import '../../../data/models/pemasukan_model.dart';
 
 class PemasukanCard extends StatelessWidget {
-  final PemasukanLainModel data;
+  final PemasukanModel data;
   final VoidCallback? onDetail;
   final VoidCallback? onEdit;
 

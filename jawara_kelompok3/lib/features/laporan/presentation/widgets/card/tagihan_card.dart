@@ -5,14 +5,14 @@ class TagihanCard extends StatelessWidget {
   final TagihanModel data;
   final VoidCallback? onDetail;
   final VoidCallback? onEdit;
-  final VoidCallback? onDelete; // Tambahkan onDelete
+  final VoidCallback? onDelete;
 
   const TagihanCard({
     super.key,
     required this.data,
     this.onDetail,
     this.onEdit,
-    this.onDelete, // Pastikan onDelete tersedia
+    this.onDelete,
   });
 
   @override
@@ -34,7 +34,6 @@ class TagihanCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icon
           Container(
             width: 46,
             height: 46,
@@ -44,20 +43,14 @@ class TagihanCard extends StatelessWidget {
             ),
             child: const Icon(Icons.receipt_long, color: Colors.blue),
           ),
-
           const SizedBox(width: 16),
-
-          // Text Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   data.keluarga,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 6),
                 Text("Iuran: ${data.iuran}",
@@ -75,8 +68,6 @@ class TagihanCard extends StatelessWidget {
               ],
             ),
           ),
-
-          // Popup Menu
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'detail' && onDetail != null) onDetail!();

@@ -3,9 +3,6 @@ import '../../../../../../core/layout/header.dart';
 import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../../data/services/tagihan_service.dart';
-import '../../../../../warga/data/models/keluarga_model.dart';
-import '../../../../../warga/data/services/keluarga_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; 
 
 class TagihIuranPage extends StatefulWidget {
   const TagihIuranPage({super.key});
@@ -18,7 +15,7 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
   String? selectedIuran;
   final List<String> iuranList = ["Agustusan", "Mingguan", "Bulanan"];
   final TagihanService _service = TagihanService();
-  final KeluargaService _keluargaService = KeluargaService(); 
+
   Future<void> _tagihIuran() async {
     if (selectedIuran == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -27,49 +24,31 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
       return;
     }
 
-    // Ambil semua keluarga yang ada di Firestore
-    List<KeluargaModel> keluargaData = await _keluargaService.getDataKeluarga();
+    final keluargaData = "Keluarga Aktif";
+    final data = {
+      "keluarga": keluargaData,
+      "status": "Aktif",
+      "iuran": selectedIuran!,
+      "kode": "IUR-001",
+      "nominal": "100000",
+      "periode": selectedIuran!,
+      "tagihanStatus": "Belum Dibayar",
+    };
 
-    bool isSuccess = true; 
+    final success = await _service.add(data);
 
-   
-    for (var keluarga in keluargaData) {
-      if (keluarga.statusKeluarga == "Aktif") {  
-        final data = {
-          "keluarga": keluarga.kepalaKeluarga, 
-          "status": "Aktif",
-          "iuran": selectedIuran!,
-          "kode": "IUR-${keluarga.uid}", 
-          "nominal": "100000", 
-          "periode": selectedIuran!, 
-          "tagihanStatus": "Belum Dibayar", 
-          "tanggalTagih": Timestamp.now(), 
-        };
-
-
-        final success = await _service.add(data);
-
-        if (!success) {
-          isSuccess = false; 
-          break; 
-        }
-      }
-    }
-
-    // Menampilkan pesan berdasarkan hasil
-    if (isSuccess) {
+    if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Tagihan berhasil ditambahkan")),
       );
+      setState(() {
+        selectedIuran = null; // Reset pilihan setelah berhasil
+      });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Gagal menambahkan tagihan"), backgroundColor: Colors.red),
       );
     }
-
-    setState(() {
-      selectedIuran = null; // Reset pilihan setelah berhasil
-    });
   }
 
   @override
