@@ -8,7 +8,7 @@ class EditTagihanDialog extends StatefulWidget {
   const EditTagihanDialog({super.key, required this.tagihan});
 
   @override
-  State<EditTagihanDialog> createState() => _EditTagihanDialogState();
+  _EditTagihanDialogState createState() => _EditTagihanDialogState();
 }
 
 class _EditTagihanDialogState extends State<EditTagihanDialog> {
@@ -20,12 +20,9 @@ class _EditTagihanDialogState extends State<EditTagihanDialog> {
   @override
   void initState() {
     super.initState();
-    _keluargaController =
-        TextEditingController(text: widget.tagihan.keluarga);
-    _iuranController =
-        TextEditingController(text: widget.tagihan.iuran);
-    _nominalController =
-        TextEditingController(text: widget.tagihan.nominal);
+    _keluargaController = TextEditingController(text: widget.tagihan.keluarga);
+    _iuranController = TextEditingController(text: widget.tagihan.iuran);
+    _nominalController = TextEditingController(text: widget.tagihan.nominal);
   }
 
   @override
@@ -38,12 +35,18 @@ class _EditTagihanDialogState extends State<EditTagihanDialog> {
 
   void _simpan() {
     if (_formKey.currentState!.validate()) {
-      // Tetap return Map biar Page bisa update UI
-      Navigator.pop(context, {
-        "keluarga": _keluargaController.text,
-        "iuran": _iuranController.text,
-        "nominal": _nominalController.text,
-      });
+      final updatedTagihan = TagihanModel(
+        id: widget.tagihan.id,
+        keluarga: _keluargaController.text,
+        status: widget.tagihan.status,
+        iuran: _iuranController.text,
+        kode: widget.tagihan.kode,
+        nominal: _nominalController.text,
+        periode: widget.tagihan.periode,
+        tagihanStatus: widget.tagihan.tagihanStatus,
+      );
+
+      Navigator.pop(context, updatedTagihan);
     }
   }
 
@@ -70,9 +73,7 @@ class _EditTagihanDialogState extends State<EditTagihanDialog> {
 
               TextFormField(
                 controller: _keluargaController,
-                decoration: const InputDecoration(
-                    labelText: "Nama Keluarga",
-                    border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: "Nama Keluarga"),
                 validator: (val) =>
                     val == null || val.isEmpty ? "Wajib diisi" : null,
               ),
@@ -80,8 +81,7 @@ class _EditTagihanDialogState extends State<EditTagihanDialog> {
 
               TextFormField(
                 controller: _iuranController,
-                decoration: const InputDecoration(
-                    labelText: "Iuran", border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: "Iuran"),
                 validator: (val) =>
                     val == null || val.isEmpty ? "Wajib diisi" : null,
               ),
@@ -90,9 +90,7 @@ class _EditTagihanDialogState extends State<EditTagihanDialog> {
               TextFormField(
                 controller: _nominalController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                    labelText: "Nominal (Rp)",
-                    border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: "Nominal (Rp)"),
                 validator: (val) =>
                     val == null || val.isEmpty ? "Wajib diisi" : null,
               ),
@@ -114,8 +112,7 @@ class _EditTagihanDialogState extends State<EditTagihanDialog> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 12),
                     ),
-                    child: const Text("Simpan",
-                        style: TextStyle(color: Colors.white)),
+                    child: const Text("Simpan", style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),

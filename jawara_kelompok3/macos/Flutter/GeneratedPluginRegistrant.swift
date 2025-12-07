@@ -9,6 +9,8 @@ import cloud_firestore
 import file_picker
 import firebase_auth
 import firebase_core
+import open_file_mac
+import path_provider_foundation
 <<<<<<< HEAD
 import firebase_storage
 import printing
