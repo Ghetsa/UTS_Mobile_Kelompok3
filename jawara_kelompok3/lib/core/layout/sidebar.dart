@@ -35,7 +35,7 @@ class _AppSidebarState extends State<AppSidebar> {
       'manajemen_pengguna': false,
       'channel_transfer': false,
       'log_aktifitas': false,
-      'pesan_warga': false,      // ✅ sudah ada
+      'pesan_warga': false, // ✅ sudah ada
       'pengeluaran': false,
       'mutasi_keluarga': false,
     });
@@ -271,7 +271,7 @@ class _AppSidebarState extends State<AppSidebar> {
                       // kalau nanti ada menu lain (misal Inbox, Arsip) bisa ditambah di sini
                       _buildSubMenuItem(
                         "Informasi & Aspirasi",
-                        "/informasiAspirasi",   // ✅ route ke halaman SemuaAspirasi
+                        "/informasiAspirasi", // ✅ route ke halaman SemuaAspirasi
                         context,
                         currentRoute,
                       ),
@@ -345,10 +345,10 @@ class _AppSidebarState extends State<AppSidebar> {
                     context: context,
                     currentRoute: currentRoute,
                     children: [
-                      _buildSubMenuItem("Daftar Channel", "/channel/list",
-                          context, currentRoute),
-                      _buildSubMenuItem("Tambah Channel", "/channel/add",
-                          context, currentRoute),
+                      _buildSubMenuItem("Daftar Channel",
+                          "/channel/channelDaftar", context, currentRoute),
+                      _buildSubMenuItem("Tambah Channel",
+                          "/channel/channelTambah", context, currentRoute),
                     ],
                   ),
 
