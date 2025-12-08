@@ -35,39 +35,54 @@ class _AppSidebarState extends State<AppSidebar> {
       'manajemen_pengguna': false,
       'channel_transfer': false,
       'log_aktifitas': false,
-      'pesan_warga': false, // ✅ sudah ada
+      'pesan_warga': false,
       'pengeluaran': false,
       'mutasi_keluarga': false,
     });
   }
 
+  /// ✅ COCOKKAN DENGAN PREFIX ROUTE YANG KAMU PAKAI
   bool _routeMatches(String menuKey, String route) {
     if (route.isEmpty) return false;
+
     switch (menuKey) {
       case 'dashboard':
+        // semua dashboard
         return route.startsWith('/dashboard');
+
       case 'data_warga':
-        return route.startsWith('/warga') ||
-            route.startsWith('/keluarga') ||
-            route.startsWith('/mutasi') ||
-            route.startsWith('/rumah');
+        // semua data kependudukan
+        return route.startsWith('/data-warga') ||
+            route.startsWith('/data-rumah') ||
+            route.startsWith('/data-keluarga') ||
+            route.startsWith('/mutasi');
+
       case 'pemasukan':
-        return route.startsWith('/pemasukan') ||
-            route.startsWith('/pengeluaran');
+        // menu pemasukan dan yang masih kamu taruh di bawah /pemasukan
+        return route.startsWith('/pemasukan');
+
       case 'laporan_keuangan':
         return route.startsWith('/laporan');
+
       case 'manajemen_pengguna':
         return route.startsWith('/pengguna');
+
       case 'channel_transfer':
         return route.startsWith('/channel');
+
       case 'log_aktifitas':
         return route.startsWith('/semuaAktifitas');
+
       case 'pesan_warga':
         return route.startsWith('/informasiAspirasi');
+
       case 'pengeluaran':
+        // kalau ada route khusus pengeluaran di luar laporan
         return route.startsWith('/pengeluaran');
+
       case 'mutasi_keluarga':
         return route.startsWith('/mutasi');
+
       default:
         return false;
     }
@@ -75,9 +90,11 @@ class _AppSidebarState extends State<AppSidebar> {
 
   void _ensureInitialExpansion(String currentRoute) {
     if (_lastRoute == currentRoute) return;
+
     _expanded.forEach((k, _) {
       _expanded[k] = _routeMatches(k, currentRoute);
     });
+
     _lastRoute = currentRoute;
   }
 
@@ -100,6 +117,7 @@ class _AppSidebarState extends State<AppSidebar> {
     }
 
     _isAnimating = true;
+
     setState(() => _expanded[current.key] = false);
     await Future.delayed(_animationDuration);
 
@@ -111,9 +129,9 @@ class _AppSidebarState extends State<AppSidebar> {
     _isAnimating = false;
   }
 
-  // =============================================================
-  // 🔥 WIDGET TEXT GRADIENT
-  // =============================================================
+  // ==========================================
+  // TEXT GRADIENT
+  // ==========================================
   Widget gradientText(String text,
       {double fontSize = 15, FontWeight weight = FontWeight.w600}) {
     return ShaderMask(
@@ -171,9 +189,9 @@ class _AppSidebarState extends State<AppSidebar> {
     );
   }
 
-  // =============================================================
-  // 🔥 MAIN BUILD
-  // =============================================================
+  // ==========================================
+  // BUILD
+  // ==========================================
   @override
   Widget build(BuildContext context) {
     final currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
@@ -260,7 +278,7 @@ class _AppSidebarState extends State<AppSidebar> {
                     ],
                   ),
 
-                  /// 🔹 PESAN WARGA (ASPIRASI)
+                  /// PESAN WARGA
                   _buildMenuSection(
                     icon: Icons.mark_chat_unread_rounded,
                     title: "Pesan Warga",
@@ -268,10 +286,9 @@ class _AppSidebarState extends State<AppSidebar> {
                     context: context,
                     currentRoute: currentRoute,
                     children: [
-                      // kalau nanti ada menu lain (misal Inbox, Arsip) bisa ditambah di sini
                       _buildSubMenuItem(
                         "Informasi & Aspirasi",
-                        "/informasiAspirasi", // ✅ route ke halaman SemuaAspirasi
+                        "/informasiAspirasi",
                         context,
                         currentRoute,
                       ),

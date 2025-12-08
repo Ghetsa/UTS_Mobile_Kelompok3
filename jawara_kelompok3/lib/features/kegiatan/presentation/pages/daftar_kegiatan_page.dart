@@ -235,7 +235,7 @@ class _DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
           const SizedBox(height: 12),
           FloatingActionButton(
             heroTag: "fab_add",
-            backgroundColor: AppTheme.primaryBlue,
+            backgroundColor: const Color(0xFF0C88C2),
             elevation: 4,
             onPressed: () async {
               final res = await Navigator.push(
