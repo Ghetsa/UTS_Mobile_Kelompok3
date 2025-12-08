@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../../../core/layout/header.dart';
-import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../widgets/filter/tagihan_filter.dart';
 import '../../../widgets/dialog/detail_tagihan_dialog.dart';
@@ -8,9 +6,10 @@ import '../../../widgets/dialog/edit_tagihan_dialog.dart';
 import '../../../widgets/card/tagihan_card.dart';
 import '../../../../data/models/tagihan_model.dart';
 import '../../../../data/services/tagihan_service.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:pdf/pdf.dart';
-import 'dart:io'; 
+import '../../../../controller/tagihan_controller.dart';
+import '../../../../../../core/layout/header.dart';
+import '../../../../../../core/layout/sidebar.dart';
+import 'package:open_file/open_file.dart';
 
 class TagihanPage extends StatefulWidget {
   const TagihanPage({super.key});
@@ -21,6 +20,7 @@ class TagihanPage extends StatefulWidget {
 
 class _TagihanPageState extends State<TagihanPage> {
   final TagihanService _service = TagihanService();
+  final TagihanController _controller = TagihanController();
   List<TagihanModel> dataTagihan = [];
   bool _loading = true;
 
@@ -38,6 +38,7 @@ class _TagihanPageState extends State<TagihanPage> {
       _loading = false;
     });
   }
+
   void _showDetailDialog(TagihanModel tagihan) {
     showDialog(
       context: context,
@@ -52,10 +53,12 @@ class _TagihanPageState extends State<TagihanPage> {
     );
 
     if (updatedTagihan != null) {
-      final success = await _service.update(updatedTagihan.id, updatedTagihan.toMap());
+      final success =
+          await _service.update(updatedTagihan.id, updatedTagihan.toMap());
       if (success) {
         setState(() {
-          final index = dataTagihan.indexWhere((item) => item.id == updatedTagihan.id);
+          final index =
+              dataTagihan.indexWhere((item) => item.id == updatedTagihan.id);
           if (index != -1) {
             dataTagihan[index] = updatedTagihan;
           }
@@ -69,7 +72,7 @@ class _TagihanPageState extends State<TagihanPage> {
   }
 
   void _deleteTagihan(String id) async {
-    final result = await _service.delete(id); 
+    final result = await _service.delete(id);
     if (result) {
       setState(() {
         dataTagihan.removeWhere((item) => item.id == id);
@@ -79,44 +82,38 @@ class _TagihanPageState extends State<TagihanPage> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Gagal menghapus data"), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text("Gagal menghapus data"), backgroundColor: Colors.red),
       );
     }
   }
 
   void _generatePdf() async {
-    final pdf = pw.Document();
-    pdf.addPage(pw.Page(
-      build: (pw.Context context) {
-        return pw.Column(
-          children: [
-            pw.Text("Tagihan Report", style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
-            ...dataTagihan.map((tagihan) {
-              return pw.Table(
-                children: [
-                  pw.TableRow(
-                    children: [
-                      pw.Text(tagihan.keluarga),
-                      pw.Text(tagihan.nominal),
-                      pw.Text(tagihan.periode),
-                      pw.Text(tagihan.tagihanStatus),
-                    ],
-                  ),
-                ],
-              );
-            }).toList(),
-          ],
-        );
-      },
-    ));
+    if (dataTagihan.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tidak ada data tagihan untuk dicetak')),
+      );
+      return;
+    }
 
-    final output = await pdf.save();
-    final path = '/storage/emulated/0/Download/tagihan_report.pdf';
-    final file = File(path);
-    await file.writeAsBytes(output);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('PDF berhasil disimpan di $path')),
-    );
+    try {
+      final path = await _controller.generatePdf(dataTagihan);
+      await OpenFile.open(path);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('PDF berhasil disimpan di:\n$path'),
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal membuat PDF: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -128,7 +125,10 @@ class _TagihanPageState extends State<TagihanPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MainHeader(title: "Tagihan", showSearchBar: false, showFilterButton: false),
+            MainHeader(
+                title: "Tagihan",
+                showSearchBar: false,
+                showFilterButton: false),
             const SizedBox(height: 18),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -153,7 +153,8 @@ class _TagihanPageState extends State<TagihanPage> {
                     onPressed: _generatePdf,
                     icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
                     label: const Text("Cetak PDF"),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppTheme.redDark),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.redDark),
                   ),
                 ],
               ),

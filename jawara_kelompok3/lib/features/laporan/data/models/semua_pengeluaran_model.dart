@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class PemasukanModel {
+class PengeluaranModel {
   final String id;
   final String nama;
   final String jenis;
@@ -9,7 +9,7 @@ class PemasukanModel {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  PemasukanModel({
+  PengeluaranModel({
     required this.id,
     required this.nama,
     required this.jenis,
@@ -19,8 +19,8 @@ class PemasukanModel {
     this.updatedAt,
   });
 
-  factory PemasukanModel.fromFirestore(String id, Map<String, dynamic> data) {
-    return PemasukanModel(
+  factory PengeluaranModel.fromFirestore(String id, Map<String, dynamic> data) {
+    return PengeluaranModel(
       id: id,
       nama: data['nama'] ?? '',
       jenis: data['jenis'] ?? '',
@@ -40,17 +40,5 @@ class PemasukanModel {
       'created_at': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
       'updated_at': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
     };
-  }
-
-  static PemasukanModel fromMap(Map<String, dynamic> map) {
-    return PemasukanModel(
-      id: map['id'] ?? '',
-      nama: map['nama'] ?? '',
-      jenis: map['jenis'] ?? '',
-      tanggal: map['tanggal'] ?? '',
-      nominal: map['nominal'] ?? '',
-      createdAt: map['created_at'] != null ? DateTime.parse(map['created_at']) : null,
-      updatedAt: map['updated_at'] != null ? DateTime.parse(map['updated_at']) : null,
-    );
   }
 }

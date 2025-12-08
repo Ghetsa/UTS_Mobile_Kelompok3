@@ -34,7 +34,7 @@ import '../../features/laporan/presentation/pages/pemasukan/kategori_iuran/iuran
 import '../../features/laporan/presentation/pages/pemasukan/pemasukan_lain/daftar_pemasukan_lain_page.dart';
 import '../../features/laporan/presentation/pages/pemasukan/tagih_iuran/tagih_iuran_page.dart';
 import '../../features/laporan/presentation/pages/pemasukan/tagihan/tagihan_page.dart';
-import '../../features/laporan/presentation/pages/pengeluaran/daftar_pengeluaran_page.dart';
+import '../../features/laporan/presentation/pages/pengeluaran/semua_pengeluaran_page.dart';
 
 // === Laporan Keuangan ===
 import '../../features/laporan/presentation/pages/pemasukan/semua_pemasukan_page.dart';
@@ -107,7 +107,7 @@ class AppRoutes {
     '/pemasukan/pemasukanLain-daftar': (context) => const PemasukanLainDaftarPage(),
     '/pemasukan/pemasukanLain-tambah': (context) => const PemasukanLainTambahPage(),
     // === Pengeluaran ===
-    '/pengeluaran/daftar': (context) => const PengeluaranDaftarPage(),
+    // '/pengeluaran/daftar': (context) => const PengeluaranDaftarPage(),
     '/pengeluaran/tambah': (context) => const TambahPengeluaranPage(),
 
     // === Laporan Keuangan ===

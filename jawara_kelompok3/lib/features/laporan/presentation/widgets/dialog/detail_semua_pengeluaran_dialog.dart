@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import '../../../data/models/pemasukan_model.dart';
+import '../../../../../../core/layout/header.dart';
+import '../../../../../../core/layout/sidebar.dart';
+import '../../../../../../core/theme/app_theme.dart';
+import '../../../data/models/semua_pengeluaran_model.dart';
 
-class DetailPemasukanDialog extends StatelessWidget {
-  final PemasukanModel pemasukan;
+class DetailPengeluaranDialog extends StatelessWidget {
+  final PengeluaranModel pengeluaran;
 
-  const DetailPemasukanDialog({super.key, required this.pemasukan});
+  const DetailPengeluaranDialog({super.key, required this.pengeluaran});
 
   @override
   Widget build(BuildContext context) {
@@ -17,15 +20,15 @@ class DetailPemasukanDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Detail Pemasukan", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const Text("Detail Pengeluaran", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
-            _buildField("Nama", pemasukan.nama),
+            _buildField("Nama", pengeluaran.nama),
             const SizedBox(height: 12),
-            _buildField("Jenis", pemasukan.jenis),
+            _buildField("Jenis", pengeluaran.jenis),
             const SizedBox(height: 12),
-            _buildField("Tanggal", pemasukan.tanggal),
+            _buildField("Tanggal", pengeluaran.tanggal),
             const SizedBox(height: 12),
-            _buildField("Nominal", pemasukan.nominal),
+            _buildField("Nominal", pengeluaran.nominal),
             const SizedBox(height: 20),
             Align(
               alignment: Alignment.centerRight,
