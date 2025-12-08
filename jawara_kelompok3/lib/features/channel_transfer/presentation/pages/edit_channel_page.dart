@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import '../../../../core/layout/header.dart';
+import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class EditChannelPage extends StatefulWidget {
@@ -22,17 +24,18 @@ class _EditChannelPageState extends State<EditChannelPage> {
   File? newThumbnailFile;
   File? newQRFile;
 
-  final Map<String, String> tipeMap = {
-    'bank': 'Bank',
-    'ewallet': 'E-Wallet',
-    'crypto': 'Crypto',
-  };
+  final List<String> tipeItems = ["Bank", "E-Wallet", "Crypto"];
 
   @override
   void initState() {
     super.initState();
     namaController = TextEditingController(text: widget.channel?['nama'] ?? '');
-    tipeController = TextEditingController(text: widget.channel?['tipe'] ?? '');
+    tipeController = TextEditingController(
+        text: tipeItems.firstWhere(
+            (e) =>
+                e.toLowerCase() ==
+                (widget.channel?['tipe'] ?? '').toLowerCase(),
+            orElse: () => 'Bank'));
     nomorController = TextEditingController(text: widget.channel?['no'] ?? '');
     pemilikController =
         TextEditingController(text: widget.channel?['a/n'] ?? '');
@@ -56,185 +59,229 @@ class _EditChannelPageState extends State<EditChannelPage> {
 
   @override
   Widget build(BuildContext context) {
-    String? currentTipe = tipeMap[tipeController.text.toLowerCase()];
-
     return Scaffold(
-      backgroundColor: AppTheme.backgroundBlueWhite,
-      appBar: AppBar(
-        title: Text(
-          widget.channel == null
-              ? "Tambah Transfer Channel"
-              : "Edit Transfer Channel",
-          style: const TextStyle(
-              fontWeight: FontWeight.bold, color: AppTheme.putihFull),
-        ),
-        centerTitle: true,
-        backgroundColor: AppTheme.primaryBlue,
-        elevation: 2,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Card(
-              elevation: 8,
-              shadowColor: AppTheme.blueExtraLight,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Text(
-                        widget.channel == null
-                            ? "Tambah Channel Transfer"
-                            : "Edit Channel Transfer",
-                        style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.primaryBlue),
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-                    _buildLabel("Nama Channel"),
-                    _buildTextField(namaController, "Masukkan nama channel"),
-                    const SizedBox(height: 16),
-                    _buildLabel("Tipe Channel"),
-                    _buildDropdown(
-                        currentTipe ?? "", ["Bank", "E-Wallet", "Crypto"]),
-                    const SizedBox(height: 16),
-                    _buildLabel("Nomor Rekening / Akun"),
-                    _buildTextField(nomorController, "Masukkan nomor",
-                        keyboardType: TextInputType.number),
-                    const SizedBox(height: 16),
-                    _buildLabel("Atas Nama"),
-                    _buildTextField(pemilikController, "Masukkan nama pemilik"),
-                    const SizedBox(height: 16),
-                    _buildLabel("Thumbnail Channel"),
-                    const SizedBox(height: 6),
-                    _buildImagePicker(
-                        newThumbnailFile, widget.channel?['thumbnail'], true),
-                    const SizedBox(height: 20),
-                    _buildLabel("QR Code"),
-                    const SizedBox(height: 6),
-                    _buildImagePicker(newQRFile, widget.channel?['qr'], false),
-                    const SizedBox(height: 20),
-                    _buildLabel("Catatan"),
-                    _buildTextField(catatanController, "Masukkan catatan"),
-                    const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.save_rounded),
-                        label: const Text(
-                          "Simpan",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600),
+      backgroundColor: const Color(0xFFE9F2F9),
+      drawer: const AppSidebar(),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MainHeader(
+              title: widget.channel == null ? "Tambah Channel" : "Edit Channel",
+              showSearchBar: false,
+              showFilterButton: false,
+              onSearch: (_) {},
+              onFilter: () {},
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Card(
+                  elevation: 6,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Text(
+                            widget.channel == null
+                                ? "Tambah Channel Transfer"
+                                : "Edit Channel Transfer",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24,
+                                color: Color(0xFF48B0E0)),
+                          ),
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.greenDark,
-                          foregroundColor: AppTheme.putihFull,
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(100)),
+                        const SizedBox(height: 30),
+                        _buildField("Nama Channel", namaController),
+                        _buildDropdownField(
+                            "Tipe Channel", tipeController.text, tipeItems),
+                        _buildField("Nomor Rekening / Akun", nomorController,
+                            keyboardType: TextInputType.number),
+                        _buildField("Atas Nama", pemilikController),
+                        _buildImagePickerField(
+                            "Thumbnail Channel",
+                            newThumbnailFile,
+                            widget.channel?['thumbnail'],
+                            true),
+                        _buildImagePickerField(
+                            "QR Code", newQRFile, widget.channel?['qr'], false),
+                        _buildField("Catatan", catatanController, maxLines: 3),
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context, {
+                                    "nama": namaController.text,
+                                    "tipe": tipeController.text,
+                                    "no": nomorController.text,
+                                    "a/n": pemilikController.text,
+                                    "catatan": catatanController.text,
+                                    "thumbnailFile": newThumbnailFile,
+                                    "qrFile": newQRFile,
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF48B0E0),
+                                  foregroundColor: Colors.white,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50)),
+                                ),
+                                child: const Text(
+                                  "Simpan",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.grey.shade400,
+                                  foregroundColor: Colors.white,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50)),
+                                ),
+                                child: const Text(
+                                  "Kembali",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        onPressed: () {
-                          Navigator.pop(context, {
-                            "nama": namaController.text,
-                            "tipe": tipeController.text,
-                            "no": nomorController.text,
-                            "a/n": pemilikController.text,
-                            "catatan": catatanController.text,
-                            "thumbnailFile": newThumbnailFile,
-                            "qrFile": newQRFile,
-                          });
-                        },
-                      ),
+                        const SizedBox(height: 12),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildField(String label, TextEditingController controller,
+      {TextInputType keyboardType = TextInputType.text, int maxLines = 1}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Text(
-        text,
-        style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.primaryBlue),
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: controller,
+            keyboardType: keyboardType,
+            maxLines: maxLines,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      const BorderSide(color: Color(0xFF48B0E0), width: 2)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint,
-      {TextInputType keyboardType = TextInputType.text}) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        hintText: hint,
-        filled: true,
-        fillColor: AppTheme.abu.withOpacity(0.2),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide:
-              BorderSide(color: AppTheme.abu.withOpacity(0.2), width: 1),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDropdown(String value, List<String> items) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.abu.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.abu.withOpacity(0.2), width: 1),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: DropdownButton<String>(
-        value: value,
-        isExpanded: true,
-        underline: const SizedBox(),
-        borderRadius: BorderRadius.circular(14),
-        onChanged: null, // Tetap read-only
-        items: items.map((String item) {
-          return DropdownMenuItem(
-            value: item,
-            child: Text(item, style: TextStyle(color: AppTheme.hitam)),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildImagePicker(File? newFile, String? oldPath, bool isThumbnail) {
-    return GestureDetector(
-      onTap: () => _pickFile(isThumbnail),
-      child: Container(
-        height: 120,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: AppTheme.lightBlue,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: newFile != null
-            ? Image.file(newFile, fit: BoxFit.cover)
-            : Image.asset(
-                oldPath ?? "assets/images/default.jpg",
-                fit: BoxFit.cover,
+  Widget _buildDropdownField(String label, String value, List<String> items) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: DropdownButtonFormField<String>(
+              value: value,
+              items: items
+                  .map((item) => DropdownMenuItem(
+                        value: item,
+                        child: Text(item),
+                      ))
+                  .toList(),
+              onChanged: (val) {
+                if (val != null) {
+                  setState(() {
+                    tipeController.text = val;
+                  });
+                }
+              },
+              decoration: const InputDecoration(
+                border: InputBorder.none,
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImagePickerField(
+      String label, File? file, String? oldPath, bool isThumbnail) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () => _pickFile(isThumbnail),
+            child: Container(
+              height: 120,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: file != null
+                  ? Image.file(file, fit: BoxFit.cover)
+                  : Image.asset(oldPath ?? "assets/images/default.jpg",
+                      fit: BoxFit.cover),
+            ),
+          ),
+        ],
       ),
     );
   }

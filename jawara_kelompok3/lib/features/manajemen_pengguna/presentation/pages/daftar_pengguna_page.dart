@@ -150,6 +150,7 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                       final user = filteredUsers[i];
 
                       return PenggunaCard(
+                        index: i + 1,
                         data: user,
                         onDetail: () {
                           showDialog(

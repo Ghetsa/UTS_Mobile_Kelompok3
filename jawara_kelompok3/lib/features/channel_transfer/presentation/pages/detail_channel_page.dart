@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../core/layout/header.dart';
+import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class DetailChannelPage extends StatelessWidget {
@@ -8,39 +10,28 @@ class DetailChannelPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth > 800;
-
     return Scaffold(
-      backgroundColor: AppTheme.backgroundBlueWhite,
-      appBar: AppBar(
-        backgroundColor: AppTheme.primaryBlue,
-        elevation: 2,
-        centerTitle: true,
-        title: Text(
-          "Detail ${channel['namaChannel'] ?? 'Channel'}",
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppTheme.putihFull,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: AppTheme.putihFull),
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(isDesktop ? 32.0 : 16.0),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 800),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Card(
-                  elevation: 8,
-                  shadowColor: AppTheme.blueExtraLight,
-                  color: AppTheme.putihFull,
+      backgroundColor: const Color(0xFFE9F2F9),
+      drawer: const AppSidebar(),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MainHeader(
+              title: "Detail Channel",
+              showSearchBar: false,
+              showFilterButton: false,
+              onSearch: (_) {},
+              onFilter: () {},
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Card(
+                  elevation: 6,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                      borderRadius: BorderRadius.circular(20)),
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Column(
@@ -49,97 +40,99 @@ class DetailChannelPage extends StatelessWidget {
                         Center(
                           child: Text(
                             "Detail Channel Transfer",
-                            style: TextStyle(
-                              fontSize: 22,
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.primaryBlue,
+                              fontSize: 24,
+                              color: Color(0xFF48B0E0),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 24),
-                        _buildDetailRow(
+                        const SizedBox(height: 30),
+                        _buildReadOnlyField(
                             "Nama Channel", channel['namaChannel'] ?? "-"),
-                        _buildDetailRow("Tipe Channel", channel['tipe'] ?? "-"),
-                        _buildDetailRow(
+                        _buildReadOnlyField(
+                            "Tipe Channel", channel['tipe'] ?? "-"),
+                        _buildReadOnlyField(
                             "Nama Pemilik", channel['pemilik'] ?? "-"),
-                        _buildDetailRow("Catatan", channel['catatan'] ?? "-"),
+                        _buildReadOnlyField(
+                            "Catatan", channel['catatan'] ?? "-"),
                         const SizedBox(height: 24),
                         const Text(
-                          "Thumbnail QRIS:",
+                          "Thumbnail Channel:",
                           style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.primaryBlue),
+                              fontSize: 14,
+                              color: Colors.black87),
                         ),
                         const SizedBox(height: 8),
                         _imageBox(channel['thumbnail']),
                         const SizedBox(height: 24),
                         const Text(
-                          "Bukti Identitas QR:",
+                          "QR Code:",
                           style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.primaryBlue),
+                              fontSize: 14,
+                              color: Colors.black87),
                         ),
                         const SizedBox(height: 8),
                         _imageBox(channel['qr']),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF48B0E0),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50)),
+                            ),
+                            child: const Text(
+                              "Kembali",
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.info_outline,
-                        color: AppTheme.primaryBlue, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      "Informasi channel ditampilkan secara lengkap",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.blueDark,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildReadOnlyField(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 15.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "$label:",
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.primaryBlue,
-            ),
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(label,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+        const SizedBox(height: 8),
+        TextFormField(
+          initialValue: value,
+          readOnly: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.white, width: 2)),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
-          const SizedBox(height: 6),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppTheme.lightBlue.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.lightBlue, width: 1),
-            ),
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 15, color: AppTheme.hitam),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ]),
     );
   }
 

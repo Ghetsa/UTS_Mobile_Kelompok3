@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../core/layout/header.dart';
+import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/pengguna_model.dart';
 
@@ -7,56 +9,30 @@ class DetailPenggunaPage extends StatelessWidget {
 
   const DetailPenggunaPage({super.key, required this.user});
 
-  // Warna status berdasarkan nilai statusRegistrasi
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'Diterima':
-        return AppTheme.greenMediumDark;
-      case 'Menunggu Persetujuan':
-        return AppTheme.yellowMediumDark;
-      case 'Ditolak':
-        return AppTheme.redMedium;
-      default:
-        return AppTheme.abu;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth > 800;
-
     return Scaffold(
-      backgroundColor: AppTheme.backgroundBlueWhite,
-      appBar: AppBar(
-        backgroundColor: AppTheme.primaryBlue,
-        elevation: 2,
-        centerTitle: true,
-        title: const Text(
-          "Detail Pengguna",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppTheme.putihFull,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: AppTheme.putihFull),
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(isDesktop ? 32.0 : 16.0),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 800),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Card detail pengguna
-                Card(
-                  elevation: 8,
-                  shadowColor: AppTheme.blueExtraLight,
-                  color: AppTheme.putihFull,
+      backgroundColor: const Color(0xFFE9F2F9),
+      drawer: const AppSidebar(),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MainHeader(
+              title: "Detail Pengguna",
+              showSearchBar: false,
+              showFilterButton: false,
+              onSearch: (_) {},
+              onFilter: () {},
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Card(
+                  elevation: 6,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                      borderRadius: BorderRadius.circular(20)),
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Column(
@@ -65,22 +41,21 @@ class DetailPenggunaPage extends StatelessWidget {
                         Center(
                           child: Text(
                             "Detail Pengguna",
-                            style: TextStyle(
-                              fontSize: 22,
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.primaryBlue,
+                              fontSize: 24,
+                              color: Color(0xFF48B0E0),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 24),
-
-                        // Profil pengguna
+                        const SizedBox(height: 30),
+                        // Profil Pengguna
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CircleAvatar(
                               radius: 30,
-                              backgroundColor: AppTheme.primaryBlue,
+                              backgroundColor: const Color(0xFF48B0E0),
                               child: user.fotoIdentitas != null
                                   ? ClipRRect(
                                       borderRadius: BorderRadius.circular(30),
@@ -89,18 +64,19 @@ class DetailPenggunaPage extends StatelessWidget {
                                         width: 60,
                                         height: 60,
                                         fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) =>
-                                            const Icon(
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                const Icon(
                                           Icons.person,
                                           size: 35,
-                                          color: AppTheme.putihFull,
+                                          color: Colors.white,
                                         ),
                                       ),
                                     )
                                   : const Icon(
                                       Icons.person,
                                       size: 35,
-                                      color: AppTheme.putihFull,
+                                      color: Colors.white,
                                     ),
                             ),
                             const SizedBox(width: 20),
@@ -110,41 +86,35 @@ class DetailPenggunaPage extends StatelessWidget {
                                 Text(
                                   user.nama,
                                   style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 Text(
                                   user.role,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: AppTheme.hitam,
-                                  ),
+                                  style: const TextStyle(
+                                      fontSize: 14, color: Colors.black87),
                                 ),
                               ],
                             ),
                           ],
                         ),
                         const SizedBox(height: 30),
-
-                        // Detail informasi pengguna
-                        _buildDetailRow("NIK", user.nik),
-                        _buildDetailRow("Email", user.email),
-                        _buildDetailRow("Nomor HP", user.noHp),
-                        _buildDetailRow("Jenis Kelamin", user.jenisKelamin),
-                        _buildDetailRow(
-                          "Status Registrasi",
-                          user.statusRegistrasi,
-                          statusColor: _getStatusColor(user.statusRegistrasi),
-                        ),
-
+                        // Detail field (read-only)
+                        _buildReadOnlyField("Nama Lengkap", user.nama),
+                        _buildReadOnlyField("Email", user.email),
+                        _buildReadOnlyField("NIK / Nomor Identitas", user.nik),
+                        _buildReadOnlyField("Nomor HP", user.noHp),
+                        _buildReadOnlyField("Jenis Kelamin", user.jenisKelamin),
+                        _buildReadOnlyField(
+                            "Status Registrasi", user.statusRegistrasi),
+                        _buildReadOnlyField("Role", user.role),
                         const SizedBox(height: 24),
-
                         // Foto identitas
                         const Text(
                           "Foto Identitas:",
                           style: TextStyle(
                               fontWeight: FontWeight.w600,
+                              fontSize: 14,
                               color: Colors.black87),
                         ),
                         const SizedBox(height: 8),
@@ -174,71 +144,64 @@ class DetailPenggunaPage extends StatelessWidget {
                                   ),
                           ),
                         ),
+                        const SizedBox(height: 24),
+                        // Tombol Kembali
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF48B0E0),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50)),
+                            ),
+                            child: const Text(
+                              "Kembali",
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.info_outline,
-                        color: AppTheme.primaryBlue, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      "Informasi pengguna ditampilkan secara lengkap",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.blueDark,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value, {Color? statusColor}) {
+  Widget _buildReadOnlyField(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 15.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "$label:",
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.primaryBlue,
-            ),
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(label,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+        const SizedBox(height: 8),
+        TextFormField(
+          initialValue: value,
+          readOnly: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.white, width: 2)),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
-          const SizedBox(height: 6),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppTheme.lightBlue.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.lightBlue, width: 1),
-            ),
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight:
-                    statusColor != null ? FontWeight.bold : FontWeight.normal,
-                color: statusColor ?? AppTheme.hitam,
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ]),
     );
   }
 }
