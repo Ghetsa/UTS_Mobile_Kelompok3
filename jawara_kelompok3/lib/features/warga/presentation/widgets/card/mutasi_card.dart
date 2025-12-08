@@ -137,26 +137,14 @@ class MutasiCard extends StatelessWidget {
                       ),
                     ),
 
-                    // tanggal mutasi
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          "Tanggal: ${_formatDate(data.tanggal)}",
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        if (data.createdAt != null)
-                          Text(
-                            "Dibuat: ${_formatDate(data.createdAt)}",
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade400,
-                            ),
-                          ),
-                      ],
+                    Text(
+                      data.createdAt != null
+                          ? data.createdAt.toString().substring(0, 16)
+                          : "-",
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
                     ),
                   ],
                 ),

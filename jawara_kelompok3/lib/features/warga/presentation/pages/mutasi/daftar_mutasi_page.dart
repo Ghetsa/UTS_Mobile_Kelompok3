@@ -135,9 +135,10 @@ class _MutasiDaftarPageState extends State<MutasiDaftarPage> {
                 final m = list[i];
 
                 // TODO: sesuaikan field di bawah dengan MutasiModel kamu
-                final jenis = m.jenisMutasi ?? '';      // kalau namanya beda, ganti
-                final ket = m.keterangan ?? '';         // kalau namanya beda, ganti
-                final tgl = m.tanggal?.toString() ?? ''; // kalau ada field tanggal
+                final jenis = m.jenisMutasi ?? ''; // kalau namanya beda, ganti
+                final ket = m.keterangan ?? ''; // kalau namanya beda, ganti
+                final tgl =
+                    m.tanggal?.toString() ?? ''; // kalau ada field tanggal
 
                 return [
                   (i + 1).toString(),
@@ -182,7 +183,6 @@ class _MutasiDaftarPageState extends State<MutasiDaftarPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFE9F2F9),
       drawer: const AppSidebar(),
-
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -213,7 +213,6 @@ class _MutasiDaftarPageState extends State<MutasiDaftarPage> {
           ),
         ],
       ),
-
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -96,15 +96,32 @@ class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
     );
 
     final payload = {
-      "kepala_keluarga": kepala.nama,              // nama untuk tampilan
-      "id_kepala_warga": _selectedKepalaWargaId,   // docId warga
+      "kepala_keluarga": kepala.nama, // nama untuk tampilan
+      "id_kepala_warga": _selectedKepalaWargaId, // docId warga
       "no_kk": _noKkC.text.trim(),
-      "id_rumah": _selectedRumahDocId,             // docId rumah
+      "id_rumah": _selectedRumahDocId, // docId rumah
       "jumlah_anggota": _jumlahAnggotaC.text.trim(),
-      "status_keluarga": _statusKeluarga,          // aktif / pindah / sementara
+      "status_keluarga": _statusKeluarga, // aktif / pindah / sementara
     };
 
     final ok = await _keluargaService.addKeluarga(payload);
+
+    // ✅ JIKA BERHASIL, SET KEPEMILIKAN RUMAH MENJADI "Pemilik" (kalau masih kosong / Kosong)
+    if (ok && _selectedRumahDocId != null) {
+      final rumah = await _rumahService.getAllRumah().then(
+            (list) => list.firstWhere(
+              (r) => r.docId == _selectedRumahDocId,
+              orElse: () => list.isNotEmpty ? list.first : throw Exception(),
+            ),
+          );
+
+      if (rumah.kepemilikan.isEmpty ||
+          rumah.kepemilikan.toLowerCase() == 'kosong') {
+        await _rumahService.updateRumah(rumah.docId, {
+          'kepemilikan': 'Pemilik',
+        });
+      }
+    }
 
     setState(() => _loadingSubmit = false);
 

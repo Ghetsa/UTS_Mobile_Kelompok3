@@ -19,8 +19,6 @@ class DetailRumahDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Nomor Rumah (id): ${rumah.id}"),
-          const SizedBox(height: 8),
           Text("Alamat: ${rumah.alamat}"),
           const SizedBox(height: 8),
           Text("RT/RW: ${rumah.rt}/${rumah.rw}"),
