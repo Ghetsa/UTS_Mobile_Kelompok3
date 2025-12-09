@@ -26,20 +26,16 @@ import '../../features/warga/presentation/pages/mutasi/daftar_mutasi_page.dart';
 import '../../features/warga/presentation/pages/mutasi/tambah_mutasi_page.dart';
 
 // === Pengeluaran ===
-import '../../features/laporan/presentation/pages/pengeluaran/daftar_pengeluaran_page.dart';
+import '../../features/laporan/presentation/pages/pengeluaran/semua_pengeluaran_page.dart';
 import '../../features/laporan/presentation/pages/pengeluaran/tambah_pengeluaran_page.dart';
 
-// === Pengeluaran ===
+// === Laporan Keuangan ===
+import '../../features/laporan/presentation/pages/pemasukan/cetak_laporan_page.dart';
 import '../../features/laporan/presentation/pages/pemasukan/kategori_iuran/iuran_page.dart';
 import '../../features/laporan/presentation/pages/pemasukan/pemasukan_lain/daftar_pemasukan_lain_page.dart';
 import '../../features/laporan/presentation/pages/pemasukan/tagih_iuran/tagih_iuran_page.dart';
 import '../../features/laporan/presentation/pages/pemasukan/tagihan/tagihan_page.dart';
-import '../../features/laporan/presentation/pages/pengeluaran/semua_pengeluaran_page.dart';
-
-// === Laporan Keuangan ===
-import '../../features/laporan/presentation/pages/pemasukan/semua_pemasukan_page.dart';
-import '../../features/laporan/presentation/pages/pemasukan/cetak_laporan_page.dart';
-import '../../features/laporan/presentation/pages/pengeluaran/semua_pengeluaran_page.dart';
+import '../../features/laporan/presentation/pages/pemasukan/pemasukan_page.dart';
 
 // === Kegiatan & Broadcast ===
 import '../../features/kegiatan_broadcast/presentation/pages/kegiatan/daftar_kegiatan_page.dart';
@@ -106,12 +102,13 @@ class AppRoutes {
     '/pemasukan/tagihan': (context) => const TagihanPage(),
     '/pemasukan/pemasukanLain-daftar': (context) => const PemasukanLainDaftarPage(),
     '/pemasukan/pemasukanLain-tambah': (context) => const PemasukanLainTambahPage(),
+    '/pemasukan': (context) => const PemasukanPage(),
+
     // === Pengeluaran ===
     // '/pengeluaran/daftar': (context) => const PengeluaranDaftarPage(),
     '/pengeluaran/tambah': (context) => const TambahPengeluaranPage(),
 
     // === Laporan Keuangan ===
-    '/laporan/semua-pemasukan': (context) => const SemuaPemasukanPage(),
     '/laporan/semua-pengeluaran': (context) => const SemuaPengeluaranPage(),
     '/laporan/cetak': (context) => const CetakLaporanPage(),
 

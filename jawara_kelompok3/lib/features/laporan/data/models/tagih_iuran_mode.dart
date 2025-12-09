@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class TagihanModel {
+class TagihIuranModel {
   final String id;
   final String keluarga;
   final String status;
@@ -11,7 +11,7 @@ class TagihanModel {
   final String tagihanStatus;
   final DateTime? createdAt;
 
-  TagihanModel({
+  TagihIuranModel({
     required this.id,
     required this.keluarga,
     required this.status,
@@ -23,8 +23,8 @@ class TagihanModel {
     this.createdAt,
   });
 
-  factory TagihanModel.fromFirestore(String id, Map<String, dynamic> data) {
-    return TagihanModel(
+  factory TagihIuranModel.fromFirestore(String id, Map<String, dynamic> data) {
+    return TagihIuranModel(
       id: id,
       keluarga: data['keluarga'] ?? '',
       status: data['status'] ?? '',

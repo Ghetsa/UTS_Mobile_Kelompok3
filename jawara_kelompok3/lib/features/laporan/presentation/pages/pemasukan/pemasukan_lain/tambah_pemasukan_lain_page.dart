@@ -31,8 +31,7 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
       ),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
   }
 
@@ -108,7 +107,7 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MainHeader(
-              title: "Pemasukan Lain - Tambah",
+              title: "Tambah Pemasukan",
               showSearchBar: false,
               showFilterButton: false,
             ),
@@ -133,7 +132,7 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Buat Pemasukan Non Iuran Baru",
+                        "Buat Pemasukan Baru",
                         style: Theme.of(context)
                             .textTheme
                             .titleLarge
@@ -229,16 +228,23 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                               child: ElevatedButton(
                                 onPressed: _loadingSubmit ? null : _simpan,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.primaryBlue,
+                                  backgroundColor: AppTheme
+                                      .primaryBlue, // Ensure button has background color
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
                                 child: _loadingSubmit
                                     ? const CircularProgressIndicator(
-                                        color: Colors.white,
+                                        color: Colors
+                                            .white, // CircularProgressIndicator color
                                       )
-                                    : const Text("Submit"),
+                                    : const Text(
+                                        "Simpan",
+                                        style: TextStyle(
+                                            color: Colors
+                                                .white), // Make text color white
+                                      ),
                               ),
                             ),
                           ),
@@ -250,12 +256,18 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                                 onPressed: _resetForm,
                                 style: OutlinedButton.styleFrom(
                                   side: BorderSide(
-                                      color: Colors.grey.shade300),
+                                      color: Colors.grey
+                                          .shade300), // Color of the button's border
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Text("Reset"),
+                                child: const Text(
+                                  "Reset",
+                                  style: TextStyle(
+                                      color: AppTheme
+                                          .primaryBlue), // Change text color to primary blue for visibility
+                                ),
                               ),
                             ),
                           ),
@@ -263,6 +275,24 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                       ),
                     ],
                   ),
+                ),
+              ),
+            ),
+            // Tombol Kembali ke PemasukanPage
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pushNamed(
+                      context, '/pemasukan/pemasukanLain-daftar');
+                },
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                label: const Text(
+                  "Kembali",
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryBlue,
                 ),
               ),
             ),

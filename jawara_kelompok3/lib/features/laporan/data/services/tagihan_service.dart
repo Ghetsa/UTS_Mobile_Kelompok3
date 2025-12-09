@@ -2,13 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/tagihan_model.dart';
 
 class TagihanService {
-  final CollectionReference _ref = FirebaseFirestore.instance.collection('tagihan');
+  final CollectionReference _ref =
+      FirebaseFirestore.instance.collection('tagihan');
 
-  Future<List<TagihanModel>> getAll() async {
+  Future<List<TagihanModel>> getAllTagihan() async {
     try {
       final snap = await _ref.orderBy('created_at', descending: true).get();
       return snap.docs
-          .map((d) => TagihanModel.fromFirestore(d.id, d.data() as Map<String, dynamic>))
+          .map((d) => TagihanModel.fromFirestore(
+              d.id, d.data() as Map<String, dynamic>))
           .toList();
     } catch (e) {
       print('ERROR getAll Tagihan: $e');
@@ -32,7 +34,7 @@ class TagihanService {
   Future<bool> update(String id, Map<String, dynamic> data) async {
     try {
       await _ref.doc(id).update({
-        ...data,
+        ...data, // Passing updated data to Firestore
         'updated_at': FieldValue.serverTimestamp(),
       });
       return true;
@@ -56,7 +58,8 @@ class TagihanService {
     try {
       final doc = await _ref.doc(id).get();
       if (!doc.exists) return null;
-      return TagihanModel.fromFirestore(doc.id, doc.data() as Map<String, dynamic>);
+      return TagihanModel.fromFirestore(
+          doc.id, doc.data() as Map<String, dynamic>);
     } catch (e) {
       print('ERROR getById Tagihan: $e');
       return null;

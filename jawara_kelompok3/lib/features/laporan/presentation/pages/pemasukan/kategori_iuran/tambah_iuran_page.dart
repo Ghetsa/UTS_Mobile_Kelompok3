@@ -53,7 +53,7 @@ class _TambahKategoriPageState extends State<TambahKategoriPage> {
     final payload = {
       "nama": namaController.text.trim(),
       "jenis": "Iuran",
-      "nominal": nominal.toString(), 
+      "nominal": nominal.toString(),
     };
 
     final ok = await _service.add(payload);
@@ -86,19 +86,6 @@ class _TambahKategoriPageState extends State<TambahKategoriPage> {
               showFilterButton: false,
             ),
             const SizedBox(height: 8),
-
-            // Tombol kembali cepat
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back),
-                  label: const Text("Kembali"),
-                ),
-              ),
-            ),
 
             const SizedBox(height: 8),
 
@@ -161,12 +148,32 @@ class _TambahKategoriPageState extends State<TambahKategoriPage> {
                                 ? const CircularProgressIndicator(
                                     color: Colors.white,
                                   )
-                                : const Text("Simpan"),
+                                : const Text(
+                                    "Simpan",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
                           ),
                         ),
                       ],
                     ),
                   ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pushNamed(
+                      context, '/pemasukan/pages/kategori');
+                },
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                label: const Text(
+                  "Kembali",
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryBlue,
                 ),
               ),
             ),
@@ -176,3 +183,6 @@ class _TambahKategoriPageState extends State<TambahKategoriPage> {
     );
   }
 }
+
+
+

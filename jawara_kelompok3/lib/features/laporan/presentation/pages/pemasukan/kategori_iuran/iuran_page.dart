@@ -24,6 +24,7 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
   final KategoriIuranService _service = KategoriIuranService();
   List<KategoriIuranModel> dataIuran = [];
   bool _loading = true;
+  String search = "";  // Define the search variable
 
   @override
   void initState() {
@@ -40,7 +41,6 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
     });
   }
 
-  // Fungsi untuk menampilkan dialog detail kategori iuran
   void _showDetailDialog(KategoriIuranModel kategori) {
     showDialog(
       context: context,
@@ -54,7 +54,6 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
     );
   }
 
-  // Fungsi untuk menampilkan dialog edit kategori iuran
   void _showEditDialog(KategoriIuranModel kategori) async {
     final updatedKategori = await showDialog<KategoriIuranModel>(
       context: context,
@@ -69,10 +68,9 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
     );
 
     if (updatedKategori != null) {
-      // Menggunakan metode update dari service
       final success = await _service.update(
         updatedKategori.id,
-        updatedKategori.toMap(), // Mengonversi model menjadi map
+        updatedKategori.toMap(),
       );
 
       if (success) {
@@ -91,12 +89,10 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
     }
   }
 
-  // Fungsi untuk menampilkan dialog hapus kategori iuran
   void _deleteKategori(String id) async {
-    final result = await _service.delete(id); // Panggil fungsi delete
+    final result = await _service.delete(id);
     if (result) {
       setState(() {
-        // Menghapus data dari UI setelah berhasil dihapus
         dataIuran.removeWhere((item) => item.id == id);
       });
       ScaffoldMessenger.of(context).showSnackBar(
@@ -112,6 +108,15 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Filter data based on search term
+    final filteredList = dataIuran.where((item) {
+      if (search.isNotEmpty &&
+          !item.nama.toLowerCase().contains(search.toLowerCase())) {
+        return false;
+      }
+      return true;
+    }).toList();
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
       drawer: const AppSidebar(),
@@ -121,13 +126,14 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
           children: [
             MainHeader(
               title: "Kategori Iuran",
-              showSearchBar: false,
-              showFilterButton: false,
-            ),
-            const SizedBox(height: 18),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: InfoBox(),
+              searchHint: "Cari kategori iuran...",
+              showSearchBar: true,
+              showFilterButton: true,
+              onSearch: (v) => setState(() => search = v.trim()),
+              onFilter: () => showDialog(
+                context: context,
+                builder: (_) => const FilterKategoriIuranDialog(),
+              ),
             ),
             const SizedBox(height: 16),
             Padding(
@@ -180,29 +186,43 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
             Expanded(
               child: _loading
                   ? const Center(child: CircularProgressIndicator())
-                  : dataIuran.isEmpty
+                  : filteredList.isEmpty
                       ? const Center(child: Text("Belum ada kategori iuran"))
                       : ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          itemCount: dataIuran.length,
+                          itemCount: filteredList.length,
                           itemBuilder: (_, index) {
-                            final item = dataIuran[index];
+                            final item = filteredList[index];
                             return KategoriIuranCard(
                               row: item,
                               onDetail: () {
-                                _showDetailDialog(
-                                    item); // Tampilkan dialog detail
+                                _showDetailDialog(item);
                               },
                               onEdit: () {
-                                _showEditDialog(item); // Tampilkan dialog edit
+                                _showEditDialog(item);
                               },
                               onDelete: () {
-                                _deleteKategori(
-                                    item.id); // Tampilkan dialog hapus
+                                _deleteKategori(item.id);
                               },
                             );
                           },
                         ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/pemasukan');
+                },
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                label: const Text(
+                  "Kembali",
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryBlue,
+                ),
+              ),
             ),
           ],
         ),
