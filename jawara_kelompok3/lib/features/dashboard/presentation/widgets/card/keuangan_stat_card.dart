@@ -5,18 +5,18 @@ class StatCard extends StatelessWidget {
   final String value;
   final String? subtitle;
 
-  final bool centered; // ⬅️ Baru
-  final Color background; // ⬅️ Baru
-  final Color textColor; // ⬅️ Baru
+  final bool centered;
+  final Color background;
+  final Color textColor;
 
   const StatCard({
     super.key,
     required this.title,
     required this.value,
     this.subtitle,
-    this.centered = false, // default
-    this.background = Colors.white, // default
-    this.textColor = Colors.black, // default
+    this.centered = false,
+    this.background = Colors.white,
+    this.textColor = Colors.black,
   });
 
   @override
