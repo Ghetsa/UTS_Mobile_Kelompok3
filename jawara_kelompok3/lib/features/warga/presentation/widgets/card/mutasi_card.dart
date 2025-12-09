@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../data/models/mutasi_model.dart';
 
 class MutasiCard extends StatelessWidget {
@@ -15,18 +16,27 @@ class MutasiCard extends StatelessWidget {
     this.onDelete,
   });
 
-  String _formatDate(DateTime? dt) {
-    if (dt == null) return "-";
-    return "${dt.day.toString().padLeft(2, '0')}-"
-        "${dt.month.toString().padLeft(2, '0')}-"
-        "${dt.year}";
+  Future<String> _getNamaWarga(String idWarga) async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('warga')
+          .doc(idWarga)
+          .get();
+
+      if (doc.exists) {
+        return doc.data()?['nama'] ?? "Tidak diketahui";
+      }
+      return "Tidak ditemukan";
+    } catch (e) {
+      return "Gagal memuat";
+    }
   }
 
   Color _jenisColor() {
     final j = data.jenisMutasi.toLowerCase();
-    if (j == 'pindah') return Colors.orange.shade600;
-    if (j == 'datang') return Colors.green.shade600;
-    if (j == 'sementara') return Colors.blue.shade600;
+    if (j.contains('keluar')) return Colors.red.shade600;
+    if (j.contains('masuk')) return Colors.green.shade600;
+    if (j.contains('sementara')) return Colors.blue.shade600;
     return Colors.grey.shade700;
   }
 
@@ -49,7 +59,7 @@ class MutasiCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// ICON KIRI
+          // ICON
           Container(
             width: 48,
             height: 48,
@@ -62,12 +72,11 @@ class MutasiCard extends StatelessWidget {
 
           const SizedBox(width: 16),
 
-          /// TEKS INFORMASI
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// Jenis mutasi (judul)
+                // JUDUL
                 Text(
                   data.jenisMutasi.isEmpty
                       ? "Mutasi"
@@ -78,20 +87,27 @@ class MutasiCard extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
 
-                /// ID Warga
-                Text(
-                  "ID Warga: ${data.idWarga}",
-                  style: TextStyle(
-                    color: Colors.grey.shade700,
-                    fontSize: 13,
-                  ),
+                // 🔥 NAMA WARGA (AUTO FETCH)
+                FutureBuilder<String>(
+                  future: _getNamaWarga(data.idWarga),
+                  builder: (context, snapshot) {
+                    final nama = snapshot.data ?? "Memuat...";
+                    return Text(
+                      "Warga: $nama",
+                      style: TextStyle(
+                        color: Colors.grey.shade800,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    );
+                  },
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
 
-                /// Keterangan
+                // KETERANGAN
                 Text(
                   "Keterangan: ${data.keterangan.isEmpty ? '-' : data.keterangan}",
                   style: TextStyle(
@@ -104,7 +120,7 @@ class MutasiCard extends StatelessWidget {
 
                 const SizedBox(height: 8),
 
-                /// Baris chip jenis mutasi + tanggal
+                // CHIP + TANGGAL
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -119,14 +135,11 @@ class MutasiCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Row(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.circle, size: 8, color: _jenisColor()),
                           const SizedBox(width: 6),
                           Text(
-                            data.jenisMutasi.isEmpty
-                                ? "Tidak diketahui"
-                                : data.jenisMutasi,
+                            data.jenisMutasi,
                             style: TextStyle(
                               fontSize: 12,
                               color: _jenisColor(),
@@ -138,13 +151,8 @@ class MutasiCard extends StatelessWidget {
                     ),
 
                     Text(
-                      data.createdAt != null
-                          ? data.createdAt.toString().substring(0, 16)
-                          : "-",
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
+                      data.createdAt?.toString().substring(0, 16) ?? "-",
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -152,12 +160,12 @@ class MutasiCard extends StatelessWidget {
             ),
           ),
 
-          /// POPUP MENU
+          // POPUP MENU
           PopupMenuButton(
             onSelected: (value) {
-              if (value == 'detail' && onDetail != null) onDetail!();
-              if (value == 'edit' && onEdit != null) onEdit!();
-              if (value == 'hapus' && onDelete != null) onDelete!();
+              if (value == 'detail') onDetail?.call();
+              if (value == 'edit') onEdit?.call();
+              if (value == 'hapus') onDelete?.call();
             },
             itemBuilder: (context) => const [
               PopupMenuItem(

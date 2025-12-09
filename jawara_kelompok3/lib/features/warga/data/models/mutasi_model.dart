@@ -36,7 +36,7 @@ class MutasiModel {
   factory MutasiModel.fromFirestore(String docId, Map<String, dynamic> data) {
     return MutasiModel(
       uid: docId,
-      idWarga: data['id'] ?? '',
+      idWarga: data['id_warga'] ?? '',
       jenisMutasi: data['jenis_mutasi'] ?? '',
       keterangan: data['keterangan'] ?? '',
       tanggal: data['tanggal'] is Timestamp
@@ -54,7 +54,7 @@ class MutasiModel {
   /// Model → Map untuk add dokumen mutasi baru
   Map<String, dynamic> toMap() {
     return {
-      'id': idWarga,
+      'id_warga': idWarga,
       'jenis_mutasi': jenisMutasi,
       'keterangan': keterangan,
       'tanggal': tanggal != null
