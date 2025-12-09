@@ -131,7 +131,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                                       title: "Total Keluarga",
                                       value: "-",
                                       background: Colors.white,
-                                      textColor: Colors.black,
+                                      textColor: AppTheme.greenDark,
                                       centered: false,
                                     );
                                   }
@@ -143,7 +143,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                                     title: "Total Keluarga",
                                     value: totalKeluarga.toString(),
                                     background: Colors.white,
-                                    textColor: Colors.black,
+                                    textColor: AppTheme.greenDark,
                                     centered: false,
                                   );
                                 },
@@ -157,7 +157,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                                 title: "Total Penduduk",
                                 value: totalPenduduk.toString(),
                                 background: Colors.white,
-                                textColor: Colors.black,
+                                textColor: AppTheme.redDark,
                                 centered: false,
                               ),
                             ),

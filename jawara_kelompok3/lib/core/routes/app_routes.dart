@@ -68,7 +68,7 @@ class AppRoutes {
 
     // === Dashboard ===
     '/dashboard/kegiatan': (context) => const DashboardKegiatanPage(),
-    '/dashboard/keuangan': (context) => const DashboardKeuanganPage(),
+    '/dashboard/keuangan': (context) => DashboardKeuanganPage(),
     '/dashboard/kependudukan': (context) => const DashboardKependudukanPage(),
 
     // ============================================================
@@ -95,7 +95,7 @@ class AppRoutes {
     '/mutasi/tambah': (context) => const MutasiTambahPage(),
 
     // ============================================================
-    // PEMASUKAN 
+    // PEMASUKAN
     // ============================================================
     '/pemasukan/pages/kategori': (context) => const KategoriIuranPage(),
     '/pemasukan/tagihIuran': (context) => const TagihIuranPage(),
