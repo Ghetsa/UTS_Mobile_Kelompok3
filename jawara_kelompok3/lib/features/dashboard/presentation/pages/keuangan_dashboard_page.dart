@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/layout/header.dart';
 
+// SESUAIKAN PATH MODEL & SERVICE
+import '../../data/models/keuangan_dashboard_model.dart';
+import '../../data/services/keuangan_dashboard_service.dart';
+
 import '../widgets/card/keuangan_stat_card.dart';
 import '../widgets/card/keuangan_stat_card_row.dart';
 import '../widgets/card/keuangan_bar_chart_card.dart';
 import '../widgets/card/keuangan_pie_card.dart';
+import '../widgets/card/keuangan_summary_card.dart';
 
 class DashboardKeuanganPage extends StatelessWidget {
-  const DashboardKeuanganPage({super.key});
+  DashboardKeuanganPage({super.key});
 
-  // ====== KONFIGURASI NAMA KOLEKSI & FIELD FIRESTORE ======
-  static const String collectionName = 'keuangan'; // << ganti kalau beda
-  static const String fieldTipe = 'tipe'; // 'pemasukan' / 'pengeluaran'
-  static const String fieldNominal = 'nominal'; // num
-  static const String fieldTanggal = 'tanggal'; // Timestamp
-  static const String fieldKategori = 'kategori'; // String
+  final KeuanganService _service = KeuanganService();
 
   /// Format angka pendek: 1.2 jt / 2.1 rb / 950
   String _formatShortNominal(double value) {
@@ -47,15 +46,6 @@ class DashboardKeuanganPage extends StatelessWidget {
       'Nov': 0,
       'Des': 0,
     };
-  }
-
-  /// Konversi Map nilai → persentase (%)
-  Map<String, double> _toPercent(Map<String, double> source) {
-    final total = source.values.fold<double>(0, (a, b) => a + b);
-    if (total == 0) return {};
-    return source.map(
-      (k, v) => MapEntry(k, (v / total) * 100),
-    );
   }
 
   void _incrementKategori(
@@ -98,27 +88,21 @@ class DashboardKeuanganPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final keuanganStream =
-        FirebaseFirestore.instance.collection(collectionName).snapshots();
-
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
       drawer: const AppSidebar(),
       body: SafeArea(
         child: Column(
           children: [
-            /// ===== HEADER =====
             const MainHeader(
               title: "Dashboard Keuangan",
               searchHint: "Cari transaksi...",
               showSearchBar: false,
               showFilterButton: false,
             ),
-
-            /// ===== BODY (STREAM BUILDER FIRESTORE) =====
             Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: keuanganStream,
+              child: FutureBuilder<List<KeuanganModel>>(
+                future: _service.getAllKeuangan(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -133,35 +117,36 @@ class DashboardKeuanganPage extends StatelessWidget {
                     );
                   }
 
-                  final docs = snapshot.data?.docs ?? [];
-                  final jumlahTransaksi = docs.length;
+                  final list = snapshot.data ?? [];
+                  final jumlahTransaksi = list.length;
 
                   double totalPemasukan = 0;
                   double totalPengeluaran = 0;
 
-                  // per bulan
+                  int countPemasukan = 0;
+                  int countPengeluaran = 0;
+
                   final pemasukanPerBulan = _initMonthMap();
                   final pengeluaranPerBulan = _initMonthMap();
 
-                  // kategori
+                  // map NOMINAL per kategori
                   final pemasukanKategori = <String, double>{};
                   final pengeluaranKategori = <String, double>{};
 
-                  for (final doc in docs) {
-                    final data = doc.data() as Map<String, dynamic>;
+                  for (final t in list) {
+                    final nominal = t.nominal;
+                    if (nominal == 0) continue;
 
-                    final tipe = (data[fieldTipe] as String?)?.toLowerCase();
-                    final nominalRaw = data[fieldNominal] as num?;
-                    final nominal = (nominalRaw ?? 0).toDouble();
+                    final bulanLabel = _monthLabelFromDate(t.tanggal);
+                    final kategori = t.kategori;
+                    final tipeLower = t.tipe.toLowerCase();
 
-                    final timestamp = data[fieldTanggal] as Timestamp?;
-                    final tanggal = timestamp?.toDate();
-                    final bulanLabel = _monthLabelFromDate(tanggal);
+                    final isPemasukan = tipeLower == 'pemasukan';
+                    final isPengeluaran = tipeLower == 'pengeluaran';
 
-                    final kategori = data[fieldKategori] as String?;
-
-                    if (tipe == 'pemasukan') {
+                    if (isPemasukan) {
                       totalPemasukan += nominal;
+                      countPemasukan++;
 
                       if (bulanLabel.isNotEmpty &&
                           pemasukanPerBulan.containsKey(bulanLabel)) {
@@ -170,8 +155,9 @@ class DashboardKeuanganPage extends StatelessWidget {
                       }
 
                       _incrementKategori(pemasukanKategori, kategori, nominal);
-                    } else if (tipe == 'pengeluaran') {
+                    } else if (isPengeluaran) {
                       totalPengeluaran += nominal;
+                      countPengeluaran++;
 
                       if (bulanLabel.isNotEmpty &&
                           pengeluaranPerBulan.containsKey(bulanLabel)) {
@@ -184,28 +170,27 @@ class DashboardKeuanganPage extends StatelessWidget {
                     }
                   }
 
-                  // Konversi kategori ke persen untuk PIE
-                  final pemasukanKategoriPercent =
-                      _toPercent(pemasukanKategori);
-                  final pengeluaranKategoriPercent =
-                      _toPercent(pengeluaranKategori);
+                  final screenWidth = MediaQuery.of(context).size.width;
+                  final cardWidth = screenWidth * 0.85;
 
                   return SingleChildScrollView(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        /// ====== STAT CARD 2 KOLOM DINAMIS ======
+                        // ====== TOTAL PEMASUKAN / PENGELUARAN (NOMINAL) ======
                         StatCardRow(
                           cards: [
                             StatCard(
                               title: "Total Pemasukan",
                               value: _formatShortNominal(totalPemasukan),
+                              subtitle: "Sampai hari ini",
                               background: Colors.white,
                               textColor: AppTheme.greenDark,
                             ),
                             StatCard(
                               title: "Total Pengeluaran",
                               value: _formatShortNominal(totalPengeluaran),
+                              subtitle: "Sampai hari ini",
                               background: Colors.white,
                               textColor: AppTheme.redDark,
                             ),
@@ -214,54 +199,76 @@ class DashboardKeuanganPage extends StatelessWidget {
 
                         const SizedBox(height: 16),
 
-                        /// ====== STAT CARD JUMLAH TRANSAKSI ======
-                        StatCard(
-                          title: "Jumlah Transaksi",
-                          value: jumlahTransaksi.toString(),
-                          centered: true,
-                          background: Colors.white,
-                          textColor: AppTheme.yellowDark,
+                        // ====== TOTAL TRANSAKSI ala 'Total Kegiatan' ======
+                        KeuanganSummaryCard(
+                          pemasukanCount: countPemasukan,
+                          pengeluaranCount: countPengeluaran,
+                          totalTransaksi: jumlahTransaksi,
                         ),
 
                         const SizedBox(height: 16),
 
-                        /// ===== BAR CHART PEMASUKAN =====
-                        BarChartCard(
-                          title: "📈 Pemasukan per Bulan",
-                          textColor: AppTheme.greenDark,
-                          data: pemasukanPerBulan,
+// ===== PIE CHART (1 BARIS, SCROLL HORIZONTAL) =====
+                        SizedBox(
+                          height: 320, // tinggi lebih besar karena pie chart
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              SizedBox(
+                                width: cardWidth,
+                                child: PieCard(
+                                  title: "Pemasukan Berdasarkan Kategori",
+                                  textColor: AppTheme.greenDark,
+                                  data: pemasukanKategori.isEmpty
+                                      ? {"Belum ada data": 1}
+                                      : pemasukanKategori,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              SizedBox(
+                                width: cardWidth,
+                                child: PieCard(
+                                  title: "Pengeluaran Berdasarkan Kategori",
+                                  textColor: AppTheme.redDark,
+                                  data: pengeluaranKategori.isEmpty
+                                      ? {"Belum ada data": 1}
+                                      : pengeluaranKategori,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
 
                         const SizedBox(height: 16),
 
-                        /// ===== BAR CHART PENGELUARAN =====
-                        BarChartCard(
-                          title: "📉 Pengeluaran per Bulan",
-                          textColor: AppTheme.blueDark,
-                          data: pengeluaranPerBulan,
+                        // ===== BAR CHART (1 BARIS, SCROLL HORIZONTAL) =====
+                        SizedBox(
+                          height: 450, // atur tinggi sesuai BarChartCard kamu
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              SizedBox(
+                                width: cardWidth,
+                                child: BarChartCard(
+                                  title: "Pemasukan per Bulan",
+                                  textColor: AppTheme.greenDark,
+                                  data: pemasukanPerBulan,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              SizedBox(
+                                width: cardWidth,
+                                child: BarChartCard(
+                                  title: "Pengeluaran per Bulan",
+                                  textColor: AppTheme.redDark,
+                                  data: pengeluaranPerBulan,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
 
                         const SizedBox(height: 16),
-
-                        /// ===== PIE PEMASUKAN KATEGORI =====
-                        PieCard(
-                          title: "🧾 Pemasukan Berdasarkan Kategori",
-                          textColor: AppTheme.yellowSuperDark,
-                          data: pemasukanKategoriPercent.isEmpty
-                              ? {"Belum ada data": 100}
-                              : pemasukanKategoriPercent,
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        /// ===== PIE PENGELUARAN KATEGORI =====
-                        PieCard(
-                          title: "🧾 Pengeluaran Berdasarkan Kategori",
-                          textColor: AppTheme.yellowSuperDark,
-                          data: pengeluaranKategoriPercent.isEmpty
-                              ? {"Belum ada data": 100}
-                              : pengeluaranKategoriPercent,
-                        ),
                       ],
                     ),
                   );

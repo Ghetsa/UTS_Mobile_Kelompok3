@@ -24,7 +24,6 @@ class PieCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final total = data.values.fold(0.0, (a, b) => a + b);
 
-    // Fallback warna default
     final defaultColors = colors ??
         [
           AppTheme.blueMediumLight,
@@ -82,8 +81,7 @@ class PieCard extends StatelessWidget {
                       sections: List.generate(data.length, (i) {
                         return PieChartSectionData(
                           value: data.values.elementAt(i),
-                          color:
-                              defaultColors[i % defaultColors.length],
+                          color: defaultColors[i % defaultColors.length],
                           showTitle: false,
                         );
                       }),
@@ -108,8 +106,7 @@ class PieCard extends StatelessWidget {
                         "Total",
                         style: TextStyle(
                           fontSize: 12,
-                          color: (textColor ?? Colors.black87)
-                              .withOpacity(.7),
+                          color: (textColor ?? Colors.black87).withOpacity(.7),
                         ),
                       ),
                     ],
@@ -120,7 +117,7 @@ class PieCard extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          // ===== LEGEND =====
+          // ===== LEGEND (%) =====
           Wrap(
             spacing: 16,
             runSpacing: 12,
@@ -128,6 +125,8 @@ class PieCard extends StatelessWidget {
             children: List.generate(data.length, (i) {
               final key = data.keys.elementAt(i);
               final value = data.values.elementAt(i);
+
+              final percent = total == 0 ? 0 : (value / total) * 100;
 
               return Row(
                 mainAxisSize: MainAxisSize.min,
@@ -142,7 +141,7 @@ class PieCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    "$key (${value.toStringAsFixed(0)}%)",
+                    "$key (${percent.toStringAsFixed(1)}%)",
                     style: TextStyle(
                       fontSize: 13,
                       color: textColor ?? Colors.black87,
@@ -151,7 +150,7 @@ class PieCard extends StatelessWidget {
                 ],
               );
             }),
-          )
+          ),
         ],
       ),
     );
