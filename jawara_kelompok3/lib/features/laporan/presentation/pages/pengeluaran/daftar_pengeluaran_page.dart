@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
-import '../../widgets/dialog/detail_pengeluaran_dialog.dart';
-import '../../widgets/dialog/edit_pengeluaran_dialog.dart';
+import '../../widgets/dialog/detail_pengeluaran_lain_dialog.dart';
+import '../../widgets/dialog/edit_pengeluaran_lain_dialog.dart';
 import '../../widgets/card/pengeluaran_card.dart';
 
 class PengeluaranDaftarPage extends StatefulWidget {
