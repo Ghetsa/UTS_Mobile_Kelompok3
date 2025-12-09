@@ -210,8 +210,8 @@ class _MutasiTambahPageState extends State<MutasiTambahPage> {
                                 decoration: _inputDecoration("Pilih warga"),
                                 items: _listWarga.map((w) {
                                   return DropdownMenuItem(
-                                    value: w.uid,
-                                    child: Text("${w.nama} • NIK: ${w.nik}"),
+                                    value: w.docId,
+                                    child: Text("${w.nama}"),
                                   );
                                 }).toList(),
                                 onChanged: (val) =>
