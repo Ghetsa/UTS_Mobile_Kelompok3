@@ -1,58 +1,26 @@
 import 'package:flutter/material.dart';
+import '../../../../controller/pengeluaran_lain_controller.dart';
+import '../../../../data/models/pengeluaran_lain_model.dart';
 import '../../../../../../core/layout/header.dart';
 import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
-import '../../../../controller/pengeluaran_lain_controller.dart';
-import '../../../../data/models/pengeluaran_lain_model.dart';
 
-class TambahPengeluaranLainPage extends StatefulWidget {
-  final bool isEdit;
-  final PengeluaranLainModel? dataEdit;
-
-  const TambahPengeluaranLainPage({
-    super.key,
-    this.isEdit = false,
-    this.dataEdit,
-  });
+class PengeluaranLainTambahPage extends StatefulWidget {
+  const PengeluaranLainTambahPage({super.key});
 
   @override
-  State<TambahPengeluaranLainPage> createState() =>
-      _TambahPengeluaranLainPageState();
+  State<PengeluaranLainTambahPage> createState() =>
+      _PengeluaranLainTambahPageState();
 }
 
-class _TambahPengeluaranLainPageState extends State<TambahPengeluaranLainPage> {
+class _PengeluaranLainTambahPageState extends State<PengeluaranLainTambahPage> {
   final TextEditingController _namaController = TextEditingController();
-  final TextEditingController _jenisController = TextEditingController();
   final TextEditingController _nominalController = TextEditingController();
   DateTime? _selectedDate;
+  String? _kategori;
   bool _loadingSubmit = false;
 
   final PengeluaranLainController controller = PengeluaranLainController();
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.isEdit && widget.dataEdit != null) {
-      _namaController.text = widget.dataEdit!.nama;
-      _jenisController.text = widget.dataEdit!.jenis;
-      _nominalController.text = widget.dataEdit!.nominal.toString();
-      // Parse tanggal dari format "d/m/y"
-      _selectedDate = _parseTanggal(widget.dataEdit!.tanggal);
-    }
-  }
-
-  DateTime? _parseTanggal(String tanggalStr) {
-    try {
-      final parts = tanggalStr.split('/');
-      if (parts.length == 3) {
-        return DateTime(
-            int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
-      }
-    } catch (e) {
-      return null;
-    }
-    return null;
-  }
 
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
@@ -68,54 +36,46 @@ class _TambahPengeluaranLainPageState extends State<TambahPengeluaranLainPage> {
   }
 
   Future<void> _simpan() async {
-    // Validasi sederhana
     if (_namaController.text.trim().isEmpty ||
-        _jenisController.text.trim().isEmpty ||
-        _nominalController.text.trim().isEmpty ||
-        _selectedDate == null) {
+        _nominalController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Semua field wajib diisi")),
+        const SnackBar(content: Text("Nama dan nominal wajib diisi")),
       );
       return;
     }
 
     setState(() => _loadingSubmit = true);
 
-    final data = {
-      "nama": _namaController.text,
-      "jenis": _jenisController.text,
-      "tanggal":
-          "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}",
-      "nominal": int.parse(_nominalController.text),
-      "bukti_url": null,
-    };
+    final tanggalFormatted = _selectedDate != null
+        ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
+        : '';
 
-    try {
-      if (widget.isEdit) {
-        await controller.updatePengeluaran(widget.dataEdit!.id, data);
-      } else {
-        await controller.addPengeluaran(data);
-      }
-      if (!mounted) return;
-      Navigator.pop(context);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _loadingSubmit = false);
-      }
-    }
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+
+    final pengeluaran = PengeluaranLainModel(
+      docId: "",
+      id: id,
+      nama: _namaController.text.trim(),
+      jenis: _kategori ?? 'Pengeluaran Lainnya',
+      tanggal: tanggalFormatted,
+      nominal: _nominalController.text.trim(),
+      buktiUrl: null,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    await controller.add(pengeluaran);
+
+    setState(() => _loadingSubmit = false);
+    if (mounted) Navigator.pop(context, true);
   }
 
   void _resetForm() {
     _namaController.clear();
-    _jenisController.clear();
     _nominalController.clear();
     setState(() {
       _selectedDate = null;
+      _kategori = null;
     });
   }
 
@@ -129,9 +89,7 @@ class _TambahPengeluaranLainPageState extends State<TambahPengeluaranLainPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MainHeader(
-              title: widget.isEdit
-                  ? "Pengeluaran Lain - Edit"
-                  : "Pengeluaran Lain - Tambah",
+              title: "Pengeluaran Lain - Tambah",
               showSearchBar: false,
               showFilterButton: false,
             ),
@@ -155,47 +113,30 @@ class _TambahPengeluaranLainPageState extends State<TambahPengeluaranLainPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        widget.isEdit
-                            ? "Edit Pengeluaran Lainnya"
-                            : "Buat Pengeluaran Baru",
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
+                      Text("Buat Pengeluaran Baru",
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  )),
                       const SizedBox(height: 16),
-
-                      // Nama
                       TextField(
                         controller: _namaController,
                         decoration: _inputDecoration("Nama Pengeluaran"),
                       ),
                       const SizedBox(height: 12),
-
-                      // Jenis
-                      TextField(
-                        controller: _jenisController,
-                        decoration: _inputDecoration("Jenis Pengeluaran"),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Tanggal (picker)
-                      const Text(
-                        "Tanggal Pengeluaran",
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
+                      const Text("Tanggal Pengeluaran",
+                          style: TextStyle(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 6),
                       GestureDetector(
                         onTap: () async {
                           DateTime? picked = await showDatePicker(
                             context: context,
-                            initialDate: _selectedDate ?? DateTime.now(),
+                            initialDate: DateTime.now(),
                             firstDate: DateTime(2000),
                             lastDate: DateTime(2100),
                           );
-                          if (picked != null) {
+                          if (picked != null)
                             setState(() => _selectedDate = picked);
-                          }
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -222,16 +163,27 @@ class _TambahPengeluaranLainPageState extends State<TambahPengeluaranLainPage> {
                         ),
                       ),
                       const SizedBox(height: 12),
-
-                      // Nominal
+                      DropdownButtonFormField<String>(
+                        value: _kategori,
+                        decoration: _inputDecoration("Kategori Pengeluaran"),
+                        items: [
+                          "Pengeluaran Lainnya",
+                          "Operasional",
+                          "Perbaikan"
+                        ]
+                            .map((e) =>
+                                DropdownMenuItem(value: e, child: Text(e)))
+                            .toList(),
+                        onChanged: (v) => setState(() => _kategori = v),
+                      ),
+                      const SizedBox(height: 12),
                       TextField(
                         controller: _nominalController,
                         keyboardType: TextInputType.number,
                         decoration: _inputDecoration("Nominal"),
                       ),
                       const SizedBox(height: 12),
-
-                      // Upload bukti (placeholder)
+                      // Placeholder upload bukti
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(14),
@@ -251,9 +203,7 @@ class _TambahPengeluaranLainPageState extends State<TambahPengeluaranLainPage> {
                               ),
                             ),
                             ElevatedButton(
-                              onPressed: () {
-                                // placeholder: tidak ada logic upload
-                              },
+                              onPressed: () {},
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.primaryBlue,
                                 shape: RoundedRectangleBorder(
@@ -266,8 +216,6 @@ class _TambahPengeluaranLainPageState extends State<TambahPengeluaranLainPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-
-                      // Tombol: Simpan + Reset
                       Row(
                         children: [
                           Expanded(
@@ -283,8 +231,7 @@ class _TambahPengeluaranLainPageState extends State<TambahPengeluaranLainPage> {
                                 ),
                                 child: _loadingSubmit
                                     ? const CircularProgressIndicator(
-                                        color: Colors.white,
-                                      )
+                                        color: Colors.white)
                                     : const Text("Submit"),
                               ),
                             ),
@@ -316,13 +263,5 @@ class _TambahPengeluaranLainPageState extends State<TambahPengeluaranLainPage> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _namaController.dispose();
-    _jenisController.dispose();
-    _nominalController.dispose();
-    super.dispose();
   }
 }

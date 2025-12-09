@@ -2,41 +2,93 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/pengeluaran_lain_model.dart';
 
 class PengeluaranLainService {
-  final CollectionReference col =
+  final CollectionReference _ref =
       FirebaseFirestore.instance.collection('pengeluaran');
 
-  // CREATE
-  Future<void> addPengeluaran(Map<String, dynamic> data) async {
-    await col.add(data);
-  }
-
-  // READ (Stream)
-  Stream<List<PengeluaranLainModel>> streamPengeluaran() {
-    return col.orderBy('tanggal', descending: true).snapshots().map((snap) {
+  // ============================================================
+  // 🔵 GET SEMUA PENGELUARAN LAIN
+  // ============================================================
+  Future<List<PengeluaranLainModel>> getAll() async {
+    try {
+      // Try dengan orderBy tanggal, jika gagal kembalikan tanpa sort
+      QuerySnapshot snap;
       try {
-        return snap.docs.map((doc) {
-          try {
-            return PengeluaranLainModel.fromJson(
-                doc.id, doc.data() as Map<String, dynamic>);
-          } catch (e) {
-            print('Error parsing document ${doc.id}: $e');
-            rethrow;
-          }
-        }).toList();
+        snap = await _ref.orderBy('tanggal', descending: true).get();
       } catch (e) {
-        print('Error in streamPengeluaran: $e');
-        return [];
+        print('⚠️ WARNING orderBy tanggal failed: $e, fetching without order');
+        snap = await _ref.get();
       }
-    });
+
+      return snap.docs
+          .map((d) => PengeluaranLainModel.fromFirestore(
+              d.id, d.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('❌ ERROR getAll PengeluaranLain: $e');
+      return [];
+    }
   }
 
-  // UPDATE
-  Future<void> updatePengeluaran(String id, Map<String, dynamic> data) async {
-    await col.doc(id).update(data);
+  // ============================================================
+  // 🟣 GET SATU PENGELUARAN LAIN BERDASARKAN DOC ID
+  // ============================================================
+  Future<PengeluaranLainModel?> getByDocId(String docId) async {
+    try {
+      final doc = await _ref.doc(docId).get();
+      if (!doc.exists) return null;
+      return PengeluaranLainModel.fromFirestore(
+          doc.id, doc.data() as Map<String, dynamic>);
+    } catch (e) {
+      print('❌ ERROR getByDocId PengeluaranLain: $e');
+      return null;
+    }
   }
 
-  // DELETE
-  Future<void> deletePengeluaran(String id) async {
-    await col.doc(id).delete();
+  // ============================================================
+  // 🟢 TAMBAH PENGELUARAN LAIN
+  // ============================================================
+  Future<bool> add(PengeluaranLainModel pengeluaran) async {
+    try {
+      if (pengeluaran.docId.isEmpty) {
+        // docId otomatis dari Firestore
+        await _ref.add(pengeluaran.toMap());
+      } else {
+        // pakai docId yang sudah ditentukan
+        await _ref.doc(pengeluaran.docId).set(pengeluaran.toMap());
+      }
+      return true;
+    } catch (e) {
+      print('❌ ERROR add PengeluaranLain: $e');
+      return false;
+    }
+  }
+
+  // ============================================================
+  // 🟡 UPDATE PENGELUARAN LAIN
+  // ============================================================
+  Future<bool> update(String docId, Map<String, dynamic> data) async {
+    try {
+      await _ref.doc(docId).update({
+        ...data,
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+      return true;
+    } catch (e) {
+      print('❌ ERROR update PengeluaranLain: $e');
+      return false;
+    }
+  }
+
+  // ============================================================
+  // 🔴 DELETE PENGELUARAN LAIN
+  // ============================================================
+  Future<bool> delete(String docId) async {
+    try {
+      await _ref.doc(docId).delete();
+      return true;
+    } catch (e) {
+      print('❌ ERROR delete PengeluaranLain: $e');
+      return false;
+    }
   }
 }

@@ -311,7 +311,7 @@ class _AppSidebarState extends State<AppSidebar> {
                   /// PENGELUARAN LAIN
                   _buildMenuSection(
                     icon: Icons.money_off_rounded,
-                    title: "Pengeluaran Lain",
+                    title: "Pengeluaran",
                     keyValue: "pengeluaran_lain",
                     context: context,
                     currentRoute: currentRoute,

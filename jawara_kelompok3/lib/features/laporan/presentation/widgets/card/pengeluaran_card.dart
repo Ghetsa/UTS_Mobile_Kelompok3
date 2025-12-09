@@ -4,12 +4,14 @@ class PengeluaranCard extends StatelessWidget {
   final Map<String, dynamic> data;
   final VoidCallback? onDetail;
   final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const PengeluaranCard({
     super.key,
     required this.data,
     this.onDetail,
     this.onEdit,
+    this.onDelete,
   });
 
   @override
@@ -78,9 +80,10 @@ class PengeluaranCard extends StatelessWidget {
             onSelected: (value) {
               if (value == 'detail' && onDetail != null) onDetail!();
               if (value == 'edit' && onEdit != null) onEdit!();
+              if (value == 'delete' && onDelete != null) onDelete!();
             },
-            itemBuilder: (context) => const [
-              PopupMenuItem(
+            itemBuilder: (context) => [
+              const PopupMenuItem(
                 value: 'detail',
                 child: Row(
                   children: [
@@ -90,13 +93,23 @@ class PengeluaranCard extends StatelessWidget {
                   ],
                 ),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'edit',
                 child: Row(
                   children: [
                     Icon(Icons.edit, color: Colors.orange),
                     SizedBox(width: 8),
                     Text("Edit"),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text("Hapus"),
                   ],
                 ),
               ),

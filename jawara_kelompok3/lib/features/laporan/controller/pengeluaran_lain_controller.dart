@@ -1,26 +1,38 @@
 import 'package:flutter/foundation.dart';
-import '../data/services/pengeluaran_lain_service.dart';
 import '../data/models/pengeluaran_lain_model.dart';
+import '../data/services/pengeluaran_lain_service.dart';
 
 class PengeluaranLainController extends ChangeNotifier {
-  final PengeluaranLainService service = PengeluaranLainService();
+  final PengeluaranLainService _service = PengeluaranLainService();
 
-  Stream<List<PengeluaranLainModel>> get streamPengeluaran {
-    return service.streamPengeluaran();
+  /// Ambil semua data pengeluaran lain
+  Future<List<PengeluaranLainModel>> fetchAll() => _service.getAll();
+
+  /// Ambil satu pengeluaran berdasarkan docId di Firestore
+  Future<PengeluaranLainModel?> fetchByDocId(String docId) =>
+      _service.getByDocId(docId);
+
+  /// Alias kalau masih ada kode lama yang pakai fetchById
+  Future<PengeluaranLainModel?> fetchById(String docId) => fetchByDocId(docId);
+
+  /// Tambah pengeluaran (PengeluaranLainModel sudah mengatur docId di dalamnya)
+  Future<bool> add(PengeluaranLainModel pengeluaran) async {
+    final result = await _service.add(pengeluaran);
+    notifyListeners();
+    return result;
   }
 
-  Future<void> addPengeluaran(Map<String, dynamic> data) async {
-    await service.addPengeluaran(data);
+  /// Update pengeluaran berdasarkan docId
+  Future<bool> update(String docId, Map<String, dynamic> data) async {
+    final result = await _service.update(docId, data);
     notifyListeners();
+    return result;
   }
 
-  Future<void> updatePengeluaran(String id, Map<String, dynamic> data) async {
-    await service.updatePengeluaran(id, data);
+  /// Hapus pengeluaran berdasarkan docId
+  Future<bool> delete(String docId) async {
+    final result = await _service.delete(docId);
     notifyListeners();
-  }
-
-  Future<void> deletePengeluaran(String id) async {
-    await service.deletePengeluaran(id);
-    notifyListeners();
+    return result;
   }
 }

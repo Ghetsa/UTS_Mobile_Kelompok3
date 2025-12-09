@@ -27,12 +27,16 @@ import '../../features/warga/presentation/pages/mutasi/tambah_mutasi_page.dart';
 import '../../features/laporan/presentation/pages/pengeluaran/pengeluaran_lain/daftar_pengeluaran_lain_page.dart';
 import '../../features/laporan/presentation/pages/pengeluaran/pengeluaran_lain/tambah_pengeluaran_lain_page.dart';
 
-// === Pengeluaran ===
+// === Pemasukan ===
 import '../../features/laporan/presentation/pages/pemasukan/kategori_iuran/iuran_page.dart';
 import '../../features/laporan/presentation/pages/pemasukan/pemasukan_lain/daftar_pemasukan_lain_page.dart';
+import '../../features/laporan/presentation/pages/pemasukan/pemasukan_lain/tambah_pemasukan_lain_page.dart';
 import '../../features/laporan/presentation/pages/pemasukan/tagih_iuran/tagih_iuran_page.dart';
 import '../../features/laporan/presentation/pages/pemasukan/tagihan/tagihan_page.dart';
-import '../../features/laporan/presentation/pages/pengeluaran/daftar_pengeluaran_page.dart';
+
+// === Pengeluaran ===
+import '../../features/laporan/presentation/pages/pengeluaran/pengeluaran_lain/daftar_pengeluaran_lain_page.dart';
+import '../../features/laporan/presentation/pages/pengeluaran/pengeluaran_lain/tambah_pengeluaran_lain_page.dart';
 
 // === Laporan Keuangan ===
 import '../../features/laporan/presentation/pages/pemasukan/semua_pemasukan_page.dart';
@@ -109,8 +113,8 @@ class AppRoutes {
     // ============================================================
     // PENGELUARAN LAIN
     // ============================================================
-    '/pengeluaranLain/daftar': (context) => DaftarPengeluaranLainPage(),
-    '/pengeluaranLain/tambah': (context) => const TambahPengeluaranLainPage(),
+    '/pengeluaranLain/daftar': (context) => const PengeluaranLainDaftarPage(),
+    '/pengeluaranLain/tambah': (context) => const PengeluaranLainTambahPage(),
 
     // === Laporan Keuangan ===
     '/laporan/semua-pemasukan': (context) => const SemuaPemasukanPage(),
