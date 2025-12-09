@@ -35,8 +35,9 @@ class _AppSidebarState extends State<AppSidebar> {
       'manajemen_pengguna': false,
       'channel_transfer': false,
       'log_aktifitas': false,
-      'pesan_warga': false,      // ✅ sudah ada
+      'pesan_warga': false,
       'pengeluaran': false,
+      'pengeluaran_lain': false, // ✅ baru
       'mutasi_keluarga': false,
     });
   }
@@ -54,6 +55,8 @@ class _AppSidebarState extends State<AppSidebar> {
       case 'pemasukan':
         return route.startsWith('/pemasukan') ||
             route.startsWith('/pengeluaran');
+      case 'pengeluaran_lain':
+        return route.startsWith('/pengeluaranLain');
       case 'laporan_keuangan':
         return route.startsWith('/laporan');
       case 'manajemen_pengguna':
@@ -271,7 +274,7 @@ class _AppSidebarState extends State<AppSidebar> {
                       // kalau nanti ada menu lain (misal Inbox, Arsip) bisa ditambah di sini
                       _buildSubMenuItem(
                         "Informasi & Aspirasi",
-                        "/informasiAspirasi",   // ✅ route ke halaman SemuaAspirasi
+                        "/informasiAspirasi", // ✅ route ke halaman SemuaAspirasi
                         context,
                         currentRoute,
                       ),
@@ -302,6 +305,21 @@ class _AppSidebarState extends State<AppSidebar> {
                           "/pemasukan/pemasukanLain-tambah",
                           context,
                           currentRoute),
+                    ],
+                  ),
+
+                  /// PENGELUARAN LAIN
+                  _buildMenuSection(
+                    icon: Icons.money_off_rounded,
+                    title: "Pengeluaran Lain",
+                    keyValue: "pengeluaran_lain",
+                    context: context,
+                    currentRoute: currentRoute,
+                    children: [
+                      _buildSubMenuItem("Pengeluaran Lain - Daftar",
+                          "/pengeluaranLain/daftar", context, currentRoute),
+                      _buildSubMenuItem("Pengeluaran Lain - Tambah",
+                          "/pengeluaranLain/tambah", context, currentRoute),
                     ],
                   ),
 

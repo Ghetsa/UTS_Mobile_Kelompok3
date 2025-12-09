@@ -3,7 +3,7 @@ import '../models/pengeluaran_lain_model.dart';
 
 class PengeluaranLainService {
   final CollectionReference col =
-      FirebaseFirestore.instance.collection('pengeluaran_lain');
+      FirebaseFirestore.instance.collection('pengeluaran');
 
   // CREATE
   Future<void> addPengeluaran(Map<String, dynamic> data) async {
@@ -13,9 +13,20 @@ class PengeluaranLainService {
   // READ (Stream)
   Stream<List<PengeluaranLainModel>> streamPengeluaran() {
     return col.orderBy('tanggal', descending: true).snapshots().map((snap) {
-      return snap.docs.map((doc) {
-        return PengeluaranLainModel.fromJson(doc.id, doc.data() as Map<String, dynamic>);
-      }).toList();
+      try {
+        return snap.docs.map((doc) {
+          try {
+            return PengeluaranLainModel.fromJson(
+                doc.id, doc.data() as Map<String, dynamic>);
+          } catch (e) {
+            print('Error parsing document ${doc.id}: $e');
+            rethrow;
+          }
+        }).toList();
+      } catch (e) {
+        print('Error in streamPengeluaran: $e');
+        return [];
+      }
     });
   }
 

@@ -18,10 +18,10 @@ class PengeluaranLainModel {
   factory PengeluaranLainModel.fromJson(String id, Map<String, dynamic> json) {
     return PengeluaranLainModel(
       id: id,
-      nama: json['nama'],
-      jenis: json['jenis'],
-      tanggal: json['tanggal'],
-      nominal: json['nominal'],
+      nama: json['nama'] ?? 'Tidak ada nama',
+      jenis: json['jenis'] ?? 'Tidak ada jenis',
+      tanggal: json['tanggal'] ?? 'Tidak ada tanggal',
+      nominal: json['nominal'] ?? 0,
       buktiUrl: json['bukti_url'],
     );
   }

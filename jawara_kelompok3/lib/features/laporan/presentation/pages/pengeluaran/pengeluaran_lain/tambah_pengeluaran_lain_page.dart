@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../../../core/layout/header.dart';
+import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../../controller/pengeluaran_lain_controller.dart';
 import '../../../../data/models/pengeluaran_lain_model.dart';
@@ -18,115 +20,309 @@ class TambahPengeluaranLainPage extends StatefulWidget {
       _TambahPengeluaranLainPageState();
 }
 
-class _TambahPengeluaranLainPageState
-    extends State<TambahPengeluaranLainPage> {
-  final _form = GlobalKey<FormState>();
+class _TambahPengeluaranLainPageState extends State<TambahPengeluaranLainPage> {
+  final TextEditingController _namaController = TextEditingController();
+  final TextEditingController _jenisController = TextEditingController();
+  final TextEditingController _nominalController = TextEditingController();
+  DateTime? _selectedDate;
+  bool _loadingSubmit = false;
 
-  final nama = TextEditingController();
-  final jenis = TextEditingController();
-  final tanggal = TextEditingController();
-  final nominal = TextEditingController();
-
-  final controller = PengeluaranLainController();
+  final PengeluaranLainController controller = PengeluaranLainController();
 
   @override
   void initState() {
     super.initState();
     if (widget.isEdit && widget.dataEdit != null) {
-      nama.text = widget.dataEdit!.nama;
-      jenis.text = widget.dataEdit!.jenis;
-      tanggal.text = widget.dataEdit!.tanggal;
-      nominal.text = widget.dataEdit!.nominal.toString();
+      _namaController.text = widget.dataEdit!.nama;
+      _jenisController.text = widget.dataEdit!.jenis;
+      _nominalController.text = widget.dataEdit!.nominal.toString();
+      // Parse tanggal dari format "d/m/y"
+      _selectedDate = _parseTanggal(widget.dataEdit!.tanggal);
     }
+  }
+
+  DateTime? _parseTanggal(String tanggalStr) {
+    try {
+      final parts = tanggalStr.split('/');
+      if (parts.length == 3) {
+        return DateTime(
+            int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
+
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      filled: true,
+      fillColor: const Color(0xFFF4F8FB),
+      hintText: hint,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
+  }
+
+  Future<void> _simpan() async {
+    // Validasi sederhana
+    if (_namaController.text.trim().isEmpty ||
+        _jenisController.text.trim().isEmpty ||
+        _nominalController.text.trim().isEmpty ||
+        _selectedDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Semua field wajib diisi")),
+      );
+      return;
+    }
+
+    setState(() => _loadingSubmit = true);
+
+    final data = {
+      "nama": _namaController.text,
+      "jenis": _jenisController.text,
+      "tanggal":
+          "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}",
+      "nominal": int.parse(_nominalController.text),
+      "bukti_url": null,
+    };
+
+    try {
+      if (widget.isEdit) {
+        await controller.updatePengeluaran(widget.dataEdit!.id, data);
+      } else {
+        await controller.addPengeluaran(data);
+      }
+      if (!mounted) return;
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _loadingSubmit = false);
+      }
+    }
+  }
+
+  void _resetForm() {
+    _namaController.clear();
+    _jenisController.clear();
+    _nominalController.clear();
+    setState(() {
+      _selectedDate = null;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.isEdit ? "Edit Pengeluaran" : "Tambah Pengeluaran"),
-      ),
-      body: Form(
-        key: _form,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+      backgroundColor: AppTheme.backgroundBlueWhite,
+      drawer: const AppSidebar(),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _input("Nama Pengeluaran", nama),
-            _input("Jenis", jenis),
-
-            // Input tanggal dengan date picker
-            TextFormField(
-              controller: tanggal,
-              readOnly: true,
-              decoration: const InputDecoration(
-                labelText: "Tanggal",
-                suffixIcon: Icon(Icons.calendar_today),
-              ),
-              onTap: pilihTanggal,
-              validator: (v) => v!.isEmpty ? "Tanggal wajib diisi" : null,
+            MainHeader(
+              title: widget.isEdit
+                  ? "Pengeluaran Lain - Edit"
+                  : "Pengeluaran Lain - Tambah",
+              showSearchBar: false,
+              showFilterButton: false,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 18),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26.withOpacity(0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.isEdit
+                            ? "Edit Pengeluaran Lainnya"
+                            : "Buat Pengeluaran Baru",
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      const SizedBox(height: 16),
 
-            TextFormField(
-              controller: nominal,
-              decoration: const InputDecoration(labelText: "Nominal"),
-              keyboardType: TextInputType.number,
-              validator: (v) => v!.isEmpty ? "Nominal wajib diisi" : null,
-            ),
-            const SizedBox(height: 24),
+                      // Nama
+                      TextField(
+                        controller: _namaController,
+                        decoration: _inputDecoration("Nama Pengeluaran"),
+                      ),
+                      const SizedBox(height: 12),
 
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryBlue,
+                      // Jenis
+                      TextField(
+                        controller: _jenisController,
+                        decoration: _inputDecoration("Jenis Pengeluaran"),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Tanggal (picker)
+                      const Text(
+                        "Tanggal Pengeluaran",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 6),
+                      GestureDetector(
+                        onTap: () async {
+                          DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: _selectedDate ?? DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                          );
+                          if (picked != null) {
+                            setState(() => _selectedDate = picked);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF4F8FB),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _selectedDate == null
+                                      ? "--/--/----"
+                                      : "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}",
+                                  style: TextStyle(
+                                      color: Colors.grey.shade800,
+                                      fontSize: 14),
+                                ),
+                              ),
+                              const Icon(Icons.calendar_today, size: 18),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Nominal
+                      TextField(
+                        controller: _nominalController,
+                        keyboardType: TextInputType.number,
+                        decoration: _inputDecoration("Nominal"),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Upload bukti (placeholder)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                          color: const Color(0xFFF9FBFE),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.upload_file),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                "Upload bukti pengeluaran (.png/.jpg)",
+                                style: TextStyle(color: Colors.grey.shade800),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                // placeholder: tidak ada logic upload
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.primaryBlue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text("Pilih"),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Tombol: Simpan + Reset
+                      Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 46,
+                              child: ElevatedButton(
+                                onPressed: _loadingSubmit ? null : _simpan,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.primaryBlue,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: _loadingSubmit
+                                    ? const CircularProgressIndicator(
+                                        color: Colors.white,
+                                      )
+                                    : const Text("Submit"),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: SizedBox(
+                              height: 46,
+                              child: OutlinedButton(
+                                onPressed: _resetForm,
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(color: Colors.grey.shade300),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text("Reset"),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              child: const Text("Simpan", style: TextStyle(color: Colors.white)),
-              onPressed: () async {
-                if (!_form.currentState!.validate()) return;
-
-                final data = {
-                  "nama": nama.text,
-                  "jenis": jenis.text,
-                  "tanggal": tanggal.text,
-                  "nominal": int.parse(nominal.text),
-                  "bukti_url": null,
-                };
-
-                if (widget.isEdit) {
-                  await controller.updatePengeluaran(widget.dataEdit!.id, data);
-                } else {
-                  await controller.addPengeluaran(data);
-                }
-
-                Navigator.pop(context);
-              },
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _input(String label, TextEditingController c) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: TextFormField(
-        controller: c,
-        decoration: InputDecoration(labelText: label),
-        validator: (v) => v!.isEmpty ? "$label wajib diisi" : null,
-      ),
-    );
-  }
-
-  Future pilihTanggal() async {
-    final pick = await showDatePicker(
-      context: context,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      initialDate: DateTime.now(),
-    );
-
-    if (pick != null) {
-      tanggal.text = "${pick.day}/${pick.month}/${pick.year}";
-    }
+  @override
+  void dispose() {
+    _namaController.dispose();
+    _jenisController.dispose();
+    _nominalController.dispose();
+    super.dispose();
   }
 }
