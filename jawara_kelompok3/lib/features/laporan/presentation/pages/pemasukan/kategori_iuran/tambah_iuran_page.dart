@@ -139,7 +139,7 @@ class _TambahKategoriPageState extends State<TambahKategoriPage> {
                           child: ElevatedButton(
                             onPressed: _loadingSubmit ? null : _simpan,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.primaryBlue,
+                              backgroundColor:  const Color(0xFF0C88C2),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -173,7 +173,7 @@ class _TambahKategoriPageState extends State<TambahKategoriPage> {
                   style: TextStyle(color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
+                  backgroundColor: const Color(0xFF0C88C2),
                 ),
               ),
             ),

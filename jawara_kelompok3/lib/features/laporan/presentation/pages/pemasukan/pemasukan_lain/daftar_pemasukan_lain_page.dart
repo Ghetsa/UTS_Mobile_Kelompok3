@@ -69,7 +69,24 @@ class _PemasukanLainDaftarPageState extends State<PemasukanLainDaftarPage> {
 
   // Function to generate PDF
   void _generatePdf() async {
-    if (pemasukan.isEmpty) {
+    // Filter data based on search term and active filter
+    final filteredList = pemasukan.where((item) {
+      if (search.isNotEmpty &&
+          !item.nama.toLowerCase().contains(search.toLowerCase())) {
+        return false;
+      }
+      // Apply active filter logic (if any)
+      if (_activeFilter.isNotEmpty) {
+        if (_activeFilter['jenis'] != null &&
+            !item.jenis.contains(_activeFilter['jenis'])) {
+          return false;
+        }
+        // Add other filters as needed
+      }
+      return true;
+    }).toList();
+
+    if (filteredList.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Tidak ada data untuk dicetak')),
       );
@@ -119,8 +136,8 @@ class _PemasukanLainDaftarPageState extends State<PemasukanLainDaftarPage> {
                 'Tanggal',
                 'Nominal',
               ],
-              data: List.generate(pemasukan.length, (i) {
-                final item = pemasukan[i];
+              data: List.generate(filteredList.length, (i) {
+                final item = filteredList[i];
                 return [
                   (i + 1).toString(),
                   item.nama,
@@ -137,7 +154,18 @@ class _PemasukanLainDaftarPageState extends State<PemasukanLainDaftarPage> {
       await Printing.layoutPdf(
         onLayout: (format) async => pdf.save(),
       );
+    } on MissingPluginException {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Fitur cetak PDF belum tersedia di platform ini.\n'
+            'Coba jalankan di emulator/device Android atau iOS.',
+          ),
+        ),
+      );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Gagal mencetak PDF: $e'),
@@ -168,6 +196,35 @@ class _PemasukanLainDaftarPageState extends State<PemasukanLainDaftarPage> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
       drawer: const AppSidebar(),
+      
+      /// 🔹 Dua FAB: cetak PDF (atas) + tambah Pemasukan (bawah)
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: 'printPemasukan',
+            backgroundColor: AppTheme.redDark,
+            elevation: 4,
+            onPressed: _generatePdf,
+            child: const Icon(
+              Icons.picture_as_pdf,
+              size: 26,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'addPemasukan',
+            backgroundColor:  const Color(0xFF0C88C2),
+            elevation: 4,
+            onPressed: () {
+              Navigator.pushNamed(context, '/pemasukan/pemasukanLain-tambah');
+            },
+            child: const Icon(Icons.add, size: 32, color: Colors.white),
+          ),
+        ],
+      ),
+
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,20 +246,7 @@ class _PemasukanLainDaftarPageState extends State<PemasukanLainDaftarPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 18),
-
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton.icon(
-                onPressed: _generatePdf,
-                icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
-                label: const Text("Cetak PDF"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.redDark,
-                ),
-              ),
-            ),
-
+            
             const SizedBox(height: 16),
 
             Expanded(
@@ -241,35 +285,15 @@ class _PemasukanLainDaftarPageState extends State<PemasukanLainDaftarPage> {
             // Back Button
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/pemasukan');
-                    },
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    label: const Text("Kembali", style: TextStyle(color: Colors.white)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBlue,
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 20.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/pemasukan/pemasukanLain-tambah');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryBlue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text("Tambah Pemasukan", style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
-                ],
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/pemasukan');
+                },
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                label: const Text("Kembali", style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0C88C2),
+                ),
               ),
             ),
           ],

@@ -160,7 +160,7 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
                           children: [
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.blueSuperDark,
+                                backgroundColor:  const Color(0xFF0C88C2),
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                               ),
@@ -198,7 +198,7 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
                   style: TextStyle(color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
+                  backgroundColor:  const Color(0xFF0C88C2),
                 ),
               ),
             ),

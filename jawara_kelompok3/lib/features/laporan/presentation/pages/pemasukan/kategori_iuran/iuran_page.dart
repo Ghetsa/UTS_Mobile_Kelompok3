@@ -136,53 +136,6 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
               ),
             ),
             const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      final result = await showDialog(
-                        context: context,
-                        builder: (_) => const FilterKategoriIuranDialog(),
-                      );
-                      if (result != null) debugPrint("Filter dipilih: $result");
-                    },
-                    icon: const Icon(Icons.filter_alt, color: Colors.white),
-                    label: const Text(
-                      "Filter",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.yellowMediumDark,
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      final result = await Navigator.push<bool?>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const TambahKategoriPage(),
-                        ),
-                      );
-                      if (result == true) {
-                        await _load();
-                      }
-                    },
-                    icon: const Icon(Icons.add, color: Colors.white),
-                    label: const Text(
-                      "Tambah",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.greenDark,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
             Expanded(
               child: _loading
                   ? const Center(child: CircularProgressIndicator())
@@ -210,18 +163,40 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/pemasukan');
-                },
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                label: const Text(
-                  "Kembali",
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,  
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/pemasukan');
+                    },
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    label: const Text(
+                      "Kembali",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:  const Color(0xFF0C88C2),
+                    ),
+                  ),
+                  FloatingActionButton(
+                    heroTag: 'addKategoriIuran',
+                    backgroundColor: const Color(0xFF0C88C2),
+                    elevation: 4,
+                    onPressed: () async {
+                      final result = await Navigator.push<bool?>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const TambahKategoriPage(),
+                        ),
+                      );
+                      if (result == true) {
+                        await _load();
+                      }
+                    },
+                    child: const Icon(Icons.add, size: 32, color: Colors.white),
+                  ),
+                ],
               ),
             ),
           ],

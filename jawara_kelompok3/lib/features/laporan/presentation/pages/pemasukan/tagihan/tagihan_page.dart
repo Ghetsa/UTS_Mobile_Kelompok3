@@ -45,7 +45,21 @@ class _TagihanPageState extends State<TagihanPage> {
 
   // Function to generate PDF
   void _generatePdf() async {
-    if (dataTagihan.isEmpty) {
+    final filteredList = dataTagihan.where((item) {
+      if (search.isNotEmpty &&
+          !item.keluarga.toLowerCase().contains(search.toLowerCase())) {
+        return false;
+      }
+      if (_activeFilter.isNotEmpty) {
+        if (_activeFilter['periode'] != null &&
+            !item.periode.contains(_activeFilter['periode'])) {
+          return false;
+        }
+      }
+      return true;
+    }).toList();
+
+    if (filteredList.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Tidak ada data tagihan untuk dicetak')),
       );
@@ -95,8 +109,8 @@ class _TagihanPageState extends State<TagihanPage> {
                 'Nominal',
                 'Status Tagihan',
               ],
-              data: List.generate(dataTagihan.length, (i) {
-                final tagihan = dataTagihan[i];
+              data: List.generate(filteredList.length, (i) {
+                final tagihan = filteredList[i];
                 return [
                   (i + 1).toString(),
                   tagihan.keluarga,
@@ -114,6 +128,7 @@ class _TagihanPageState extends State<TagihanPage> {
         onLayout: (format) async => pdf.save(),
       );
     } on MissingPluginException {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -123,6 +138,7 @@ class _TagihanPageState extends State<TagihanPage> {
         ),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Gagal mencetak PDF: $e'),
@@ -133,25 +149,40 @@ class _TagihanPageState extends State<TagihanPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Filter data based on search term and active filter
     final filteredList = dataTagihan.where((item) {
       if (search.isNotEmpty &&
           !item.keluarga.toLowerCase().contains(search.toLowerCase())) {
         return false;
       }
-      // Apply active filter logic (if any)
       if (_activeFilter.isNotEmpty) {
         if (_activeFilter['periode'] != null &&
             !item.periode.contains(_activeFilter['periode'])) {
           return false;
         }
-        // Add other filters as needed
+
       }
       return true;
     }).toList();
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
+      
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 40.0), 
+        child: FloatingActionButton(
+          heroTag: 'printTagihan',
+          backgroundColor: Colors.red,
+          elevation: 4,
+          onPressed: _generatePdf,
+          child: const Icon(
+            Icons.picture_as_pdf,
+            size: 26,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,23 +199,9 @@ class _TagihanPageState extends State<TagihanPage> {
                 builder: (_) => const FilterTagihanDialog(),
               ),
             ),
-            const SizedBox(height: 18),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: _generatePdf,
-                    icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
-                    label: const Text("Cetak PDF"),
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.redDark),
-                  ),
-                ],
-              ),
-            ),
+            
             const SizedBox(height: 16),
+            
             Expanded(
               child: _loading
                   ? const Center(child: CircularProgressIndicator())
@@ -206,7 +223,7 @@ class _TagihanPageState extends State<TagihanPage> {
                               },
                               onEdit: () async {
                                 final updatedTagihan =
-                                    await showDialog<TagihanModel>(
+                                    await showDialog<TagihanModel>( 
                                   context: context,
                                   builder: (_) =>
                                       EditTagihanDialog(tagihan: row),
@@ -234,9 +251,12 @@ class _TagihanPageState extends State<TagihanPage> {
                           },
                         ),
             ),
+            
+            // Bottom buttons: Kembali dan Tagih Iuran
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton.icon(
                     onPressed: () {
@@ -248,26 +268,23 @@ class _TagihanPageState extends State<TagihanPage> {
                       style: TextStyle(color: Colors.white),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBlue,
+                      backgroundColor:  const Color(0xFF0C88C2),
                     ),
                   ),
                   const SizedBox(width: 20),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 20.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/pemasukan/tagihIuran');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryBlue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/pemasukan/tagihIuran');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:  const Color(0xFF0C88C2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text(
-                        "Tagih Iuran",
-                        style: TextStyle(color: Colors.white),
-                      ),
+                    ),
+                    child: const Text(
+                      "Tagih Iuran",
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ],

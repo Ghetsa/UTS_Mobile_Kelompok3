@@ -228,8 +228,7 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                               child: ElevatedButton(
                                 onPressed: _loadingSubmit ? null : _simpan,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme
-                                      .primaryBlue, // Ensure button has background color
+                                  backgroundColor:  const Color(0xFF0C88C2), // Ensure button has background color
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -292,7 +291,7 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                   style: TextStyle(color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
+                  backgroundColor:  const Color(0xFF0C88C2),
                 ),
               ),
             ),

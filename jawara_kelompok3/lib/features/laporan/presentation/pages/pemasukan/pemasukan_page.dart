@@ -26,7 +26,7 @@ class PemasukanPage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            _buildNavigationCard(context, "Iuran", "/pemasukan/pages/kategori"),
+            _buildNavigationCard(context, "Kategori Iuran", "/pemasukan/pages/kategori"),
             _buildNavigationCard(context, "Tagihan", "/pemasukan/tagihan"),
             _buildNavigationCard(context, "Pemasukan", "/pemasukan/pemasukanLain-daftar"),
 
