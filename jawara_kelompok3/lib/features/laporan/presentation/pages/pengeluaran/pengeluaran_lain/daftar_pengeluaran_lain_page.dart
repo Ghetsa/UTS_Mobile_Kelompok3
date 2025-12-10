@@ -4,7 +4,8 @@ import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../../controller/pengeluaran_lain_controller.dart';
 import '../../../../data/models/pengeluaran_lain_model.dart';
-import '../../../widgets/card/pengeluaran_card.dart';
+import '../../../../data/models/semua_pengeluaran_model.dart';
+import '../../../widgets/card/semua_pengeluaran_card.dart';
 import '../../../widgets/dialog/detail_pengeluaran_lain_dialog.dart';
 import '../../../widgets/dialog/edit_pengeluaran_lain_dialog.dart';
 import 'tambah_pengeluaran_lain_page.dart';
@@ -129,6 +130,13 @@ class _PengeluaranLainDaftarPageState extends State<PengeluaranLainDaftarPage> {
                       itemCount: data.length,
                       itemBuilder: (_, i) {
                         final item = data[i];
+                        final model = PengeluaranModel(
+                          id: item.docId,
+                          nama: item.nama,
+                          jenis: item.jenis,
+                          tanggal: item.tanggal,
+                          nominal: item.nominal,
+                        );
                         final dataMap = {
                           'id': item.docId,
                           'nama': item.nama,
@@ -137,7 +145,7 @@ class _PengeluaranLainDaftarPageState extends State<PengeluaranLainDaftarPage> {
                           'nominal': item.nominal,
                         };
                         return PengeluaranCard(
-                          data: dataMap,
+                          data: model,
                           onDetail: () {
                             showDialog(
                               context: context,
@@ -147,7 +155,9 @@ class _PengeluaranLainDaftarPageState extends State<PengeluaranLainDaftarPage> {
                             );
                           },
                           onEdit: () async {
-                            final updated = await showDialog<Map<String, dynamic>>(context: context,
+                            final updated =
+                                await showDialog<Map<String, dynamic>>(
+                              context: context,
                               barrierColor: Colors.black.withOpacity(0.5),
                               builder: (_) =>
                                   EditPengeluaranDialog(pengeluaran: dataMap),
