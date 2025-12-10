@@ -1,59 +1,68 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import '../../../../core/layout/header.dart';
 import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../data/models/pesan_warga_model.dart';
+import '../../data/services/pesan_warga_service.dart';
 
-class EditChannelPage extends StatefulWidget {
-  final Map<String, String>? channel;
+class EditAspirasi extends StatefulWidget {
+  final PesanWargaModel model;
 
-  const EditChannelPage({super.key, this.channel});
+  const EditAspirasi({super.key, required this.model});
 
   @override
-  State<EditChannelPage> createState() => _EditChannelPageState();
+  State<EditAspirasi> createState() => _EditAspirasiState();
 }
 
-class _EditChannelPageState extends State<EditChannelPage> {
-  late TextEditingController namaController;
-  late TextEditingController tipeController;
-  late TextEditingController nomorController;
-  late TextEditingController pemilikController;
-  late TextEditingController catatanController;
+class _EditAspirasiState extends State<EditAspirasi> {
+  late TextEditingController isiController;
+  late TextEditingController kategoriController;
+  String? selectedStatus;
 
-  File? newThumbnailFile;
-  File? newQRFile;
-
-  final List<String> tipeItems = ["Bank", "E-Wallet", "Qris"];
+  final PesanWargaService _service = PesanWargaService();
+  final List<String> statusList = ['Pending', 'Diterima', 'Ditolak'];
 
   @override
   void initState() {
     super.initState();
-    namaController = TextEditingController(text: widget.channel?['nama'] ?? '');
-    tipeController = TextEditingController(
-        text: tipeItems.firstWhere(
-            (e) =>
-                e.toLowerCase() ==
-                (widget.channel?['tipe'] ?? '').toLowerCase(),
-            orElse: () => 'Bank'));
-    nomorController = TextEditingController(text: widget.channel?['no'] ?? '');
-    pemilikController =
-        TextEditingController(text: widget.channel?['a/n'] ?? '');
-    catatanController =
-        TextEditingController(text: widget.channel?['catatan'] ?? '');
+    isiController = TextEditingController(text: widget.model.isiPesan);
+    kategoriController = TextEditingController(text: widget.model.kategori);
+    selectedStatus = widget.model.status.isNotEmpty ? widget.model.status : null;
   }
 
-  Future<void> _pickFile(bool isThumbnail) async {
-    final filePicker =
-        await FilePicker.platform.pickFiles(type: FileType.image);
-    if (filePicker != null && filePicker.files.single.path != null) {
-      setState(() {
-        if (isThumbnail) {
-          newThumbnailFile = File(filePicker.files.single.path!);
-        } else {
-          newQRFile = File(filePicker.files.single.path!);
-        }
-      });
+  @override
+  void dispose() {
+    isiController.dispose();
+    kategoriController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _updateAspirasi() async {
+    final success = await _service.updatePesan(widget.model.docId, {
+      "isi_pesan": isiController.text,
+      "kategori": kategoriController.text,
+      "status": selectedStatus,
+    });
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Aspirasi berhasil diperbarui!"),
+          backgroundColor: AppTheme.greenMediumDark,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Gagal memperbarui aspirasi."),
+          backgroundColor: AppTheme.redMedium,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -67,7 +76,7 @@ class _EditChannelPageState extends State<EditChannelPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MainHeader(
-              title: widget.channel == null ? "Tambah Channel" : "Edit Channel",
+              title: "Edit Aspirasi",
               showSearchBar: false,
               showFilterButton: false,
               onSearch: (_) {},
@@ -88,9 +97,7 @@ class _EditChannelPageState extends State<EditChannelPage> {
                       children: [
                         Center(
                           child: Text(
-                            widget.channel == null
-                                ? "Tambah Channel Transfer"
-                                : "Edit Channel Transfer",
+                            "Edit Informasi Aspirasi",
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 24,
@@ -98,49 +105,26 @@ class _EditChannelPageState extends State<EditChannelPage> {
                           ),
                         ),
                         const SizedBox(height: 30),
-                        _buildField("Nama Channel", namaController),
-                        _buildDropdownField(
-                            "Tipe Channel", tipeController.text, tipeItems),
-                        _buildField("Nomor Rekening / Akun", nomorController,
-                            keyboardType: TextInputType.number),
-                        _buildField("Atas Nama", pemilikController),
-                        _buildImagePickerField(
-                            "Thumbnail Channel",
-                            newThumbnailFile,
-                            widget.channel?['thumbnail'],
-                            true),
-                        _buildImagePickerField(
-                            "QR Code", newQRFile, widget.channel?['qr'], false),
-                        _buildField("Catatan", catatanController, maxLines: 3),
+                        _buildTextField("Isi Aspirasi", isiController, maxLines: 4),
+                        _buildTextField("Kategori", kategoriController),
+                        _buildDropdownField("Status", selectedStatus, statusList),
                         const SizedBox(height: 24),
                         Row(
                           children: [
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context, {
-                                    "nama": namaController.text,
-                                    "tipe": tipeController.text,
-                                    "no": nomorController.text,
-                                    "a/n": pemilikController.text,
-                                    "catatan": catatanController.text,
-                                    "thumbnailFile": newThumbnailFile,
-                                    "qrFile": newQRFile,
-                                  });
-                                },
+                                onPressed: _updateAspirasi,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF48B0E0),
                                   foregroundColor: Colors.white,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 16),
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(50)),
                                 ),
                                 child: const Text(
-                                  "Simpan",
+                                  "Update",
                                   style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold),
+                                      fontSize: 16, fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
@@ -151,16 +135,14 @@ class _EditChannelPageState extends State<EditChannelPage> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.grey.shade400,
                                   foregroundColor: Colors.white,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 16),
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(50)),
                                 ),
                                 child: const Text(
                                   "Kembali",
                                   style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold),
+                                      fontSize: 16, fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
@@ -179,8 +161,8 @@ class _EditChannelPageState extends State<EditChannelPage> {
     );
   }
 
-  Widget _buildField(String label, TextEditingController controller,
-      {TextInputType keyboardType = TextInputType.text, int maxLines = 1}) {
+  Widget _buildTextField(String label, TextEditingController controller,
+      {int maxLines = 1}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: Column(
@@ -192,7 +174,6 @@ class _EditChannelPageState extends State<EditChannelPage> {
           const SizedBox(height: 8),
           TextFormField(
             controller: controller,
-            keyboardType: keyboardType,
             maxLines: maxLines,
             decoration: InputDecoration(
               filled: true,
@@ -213,7 +194,7 @@ class _EditChannelPageState extends State<EditChannelPage> {
     );
   }
 
-  Widget _buildDropdownField(String label, String value, List<String> items) {
+  Widget _buildDropdownField(String label, String? value, List<String> items) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: Column(
@@ -231,7 +212,8 @@ class _EditChannelPageState extends State<EditChannelPage> {
               border: Border.all(color: Colors.grey.shade300),
             ),
             child: DropdownButtonFormField<String>(
-              value: value,
+              value: value != null && items.contains(value) ? value : null,
+              hint: const Text("Pilih status"),
               items: items
                   .map((item) => DropdownMenuItem(
                         value: item,
@@ -239,46 +221,11 @@ class _EditChannelPageState extends State<EditChannelPage> {
                       ))
                   .toList(),
               onChanged: (val) {
-                if (val != null) {
-                  setState(() {
-                    tipeController.text = val;
-                  });
-                }
+                setState(() {
+                  selectedStatus = val;
+                });
               },
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImagePickerField(
-      String label, File? file, String? oldPath, bool isThumbnail) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label,
-              style:
-                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-          const SizedBox(height: 8),
-          GestureDetector(
-            onTap: () => _pickFile(isThumbnail),
-            child: Container(
-              height: 120,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: file != null
-                  ? Image.file(file, fit: BoxFit.cover)
-                  : Image.asset(oldPath ?? "assets/images/default.jpg",
-                      fit: BoxFit.cover),
+              decoration: const InputDecoration(border: InputBorder.none),
             ),
           ),
         ],

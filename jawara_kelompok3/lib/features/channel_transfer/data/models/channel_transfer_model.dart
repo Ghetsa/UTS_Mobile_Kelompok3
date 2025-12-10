@@ -6,9 +6,11 @@ class ChannelTransfer {
   final String kodeBank;
   final String nomorRekening;
   final String namaPemilik;
-  final String statusAktif; 
+  final String statusAktif;
   final String jenis;
-
+  final String? catatan;
+  final String? thumbnail;
+  final String? qr;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -19,20 +21,27 @@ class ChannelTransfer {
     required this.nomorRekening,
     required this.namaPemilik,
     required this.statusAktif,
-    required this.jenis,  
+    required this.jenis,
+    this.catatan,
+    this.thumbnail,
+    this.qr,
     this.createdAt,
     this.updatedAt,
   });
 
-  factory ChannelTransfer.fromFirestore(String docId, Map<String, dynamic> data) {
+  factory ChannelTransfer.fromFirestore(
+      String docId, Map<String, dynamic> data) {
     return ChannelTransfer(
       docId: docId,
-      namaChannel: data['namaChannel'] ?? '',
-      kodeBank: data['kodeBank'] ?? '',
-      nomorRekening: data['nomorRekening'] ?? '',
-      namaPemilik: data['namaPemilik'] ?? '',
-      statusAktif: data['statusAktif'] ?? 'Nonaktif',
-      jenis: data['jenis'] ?? 'manual',  
+      namaChannel: data['nama_channel'] ?? '',
+      kodeBank: data['kode_bank'] ?? '', // jika tidak ada bisa pakai ''
+      nomorRekening: data['no_rekening'] ?? '',
+      namaPemilik: data['nama_pemilik'] ?? '',
+      statusAktif: data['status_aktif'] ?? 'Nonaktif', // kalau tidak ada
+      jenis: data['tipe'] ?? 'manual',
+      catatan: data['catatan'],
+      thumbnail: data['thumbnail_url'],
+      qr: data['qr_url'],
       createdAt: data['created_at'] != null
           ? (data['created_at'] as Timestamp).toDate()
           : null,
@@ -44,12 +53,15 @@ class ChannelTransfer {
 
   Map<String, dynamic> toMap() {
     return {
-      'namaChannel': namaChannel,
-      'kodeBank': kodeBank,
-      'nomorRekening': nomorRekening,
-      'namaPemilik': namaPemilik,
-      'statusAktif': statusAktif,
-      'jenis': jenis,  // <-- disimpan ke database
+      'nama_channel': namaChannel,
+      'kode_bank': kodeBank,
+      'no_rekening': nomorRekening,
+      'nama_pemilik': namaPemilik,
+      'status_aktif': statusAktif,
+      'tipe': jenis,
+      'catatan': catatan ?? '',
+      'thumbnail_url': thumbnail ?? '',
+      'qr_url': qr ?? '',
       'created_at': createdAt != null
           ? Timestamp.fromDate(createdAt!)
           : FieldValue.serverTimestamp(),

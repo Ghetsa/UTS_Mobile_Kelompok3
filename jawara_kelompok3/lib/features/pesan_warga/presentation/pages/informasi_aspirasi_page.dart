@@ -1,314 +1,256 @@
 import 'package:flutter/material.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 
 import '../../../../core/layout/header.dart';
 import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
-
-// Model & Service Firebase
 import '../../data/models/pesan_warga_model.dart';
 import '../../data/services/pesan_warga_service.dart';
-
-// widgets
-import '../widgets/card/aspirasi_mobile_list.dart';
-import '../widgets/card/aspirasi_desktop_table.dart';
-import '../widgets/chip/aspirasi_pagination.dart';
+import '../widgets/card/aspirasi_card.dart';
 import '../widgets/filter/aspirasi_filter_dialog.dart';
+import 'detail_aspirasi_page.dart';
+import 'edit_aspirasi_page.dart';
+import 'tambah_aspirasi_page.dart';
 
-import 'detail_pesan_page.dart';
-import 'edit_pesan_page.dart';
-
-class SemuaAspirasi extends StatefulWidget {
-  const SemuaAspirasi({super.key});
+class InformasiAspirasi extends StatefulWidget {
+  const InformasiAspirasi({super.key});
 
   @override
-  State<SemuaAspirasi> createState() => _SemuaAspirasiState();
+  State<InformasiAspirasi> createState() => _InformasiAspirasiState();
 }
 
-class _SemuaAspirasiState extends State<SemuaAspirasi> {
+class _InformasiAspirasiState extends State<InformasiAspirasi> {
   final PesanWargaService _service = PesanWargaService();
-
-  // 🔵 Data dari Firebase
   List<PesanWargaModel> _data = [];
-
-  // 🟦 Filter & search states
   String _searchQuery = '';
-  String? _selectedStatusFilter;
-
-  // 🔶 Breakpoint mobile / desktop
-  static const double mobileBreakpoint = 600.0;
-
-  // 🔻 Pagination
-  int _currentPage = 0;
-  final int _rowsPerPage = 10;
-
-  List<PesanWargaModel> _filteredData = [];
 
   @override
   void initState() {
     super.initState();
-    loadData();
+    _loadData();
   }
 
-  // ============================================================
-  // 🔥 LOAD DATA DARI FIRESTORE
-  // ============================================================
-  Future<void> loadData() async {
+  Future<void> _loadData() async {
     _data = await _service.getSemuaPesan();
-    _applyFilter();
+    setState(() {});
   }
 
-  // ============================================================
-  // 🔍 FILTER DATA
-  // ============================================================
-  void _applyFilter({
-    String? searchQuery,
-    String? statusFilter,
-  }) {
-    _searchQuery = searchQuery ?? _searchQuery;
-    _selectedStatusFilter = statusFilter ?? _selectedStatusFilter;
+  void _confirmDelete(PesanWargaModel model) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Hapus Aspirasi"),
+        content: Text('Yakin ingin menghapus "${model.isiPesan}"?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text("Batal")),
+          ElevatedButton(
+            style:
+                ElevatedButton.styleFrom(backgroundColor: AppTheme.redMedium),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              "Hapus",
+              style: TextStyle(color: AppTheme.putihFull),
+            ),
+          ),
+        ],
+      ),
+    );
 
-    setState(() {
-      _filteredData = _data.where((p) {
-        final matchesSearch = _searchQuery.isEmpty
-            ? true
-            : p.isiPesan.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                p.idPesan.toLowerCase().contains(_searchQuery.toLowerCase());
-
-        final matchesStatus = _selectedStatusFilter == null ||
-                _selectedStatusFilter == 'Semua'
-            ? true
-            : p.status == _selectedStatusFilter;
-
-        return matchesSearch && matchesStatus;
-      }).toList();
-
-      _currentPage = 0;
-    });
+    if (confirmed == true) {
+      final success = await _service.deletePesan(model.docId);
+      if (success) {
+        _loadData();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Aspirasi berhasil dihapus."),
+            backgroundColor: AppTheme.greenMedium,
+          ),
+        );
+      }
+    }
   }
 
-  // ============================================================
-  // 🔄 RESET FILTER
-  // ============================================================
-  void _resetFilter() {
-    setState(() {
-      _searchQuery = '';
-      _selectedStatusFilter = null;
-      _filteredData = _data;
-      _currentPage = 0;
-    });
-  }
-
-  // ============================================================
-  // 🟪 OPEN FILTER DIALOG
-  // ============================================================
   Future<void> _openFilterDialog() async {
     await showDialog(
       context: context,
       builder: (_) => AspirasiFilterDialog(
         initialSearch: _searchQuery,
-        initialStatus: _selectedStatusFilter,
-        onApply: (search, status) {
-          _applyFilter(searchQuery: search, statusFilter: status);
+        initialStatus: null,
+        onApply: (filterData) {
+          setState(() {
+            _searchQuery = filterData['search'] ?? '';
+          });
         },
-        onReset: _resetFilter,
+        onReset: () {
+          setState(() {
+            _searchQuery = '';
+          });
+        },
       ),
     );
   }
 
-  // ============================================================
-  // ⚙️ BOTTOM SHEET ACTION MENU
-  // ============================================================
-  void _showPopupActionMenu(BuildContext context, PesanWargaModel data) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Wrap(
-          children: [
-            // DETAIL
-            ListTile(
-              leading: const Icon(Icons.info, color: AppTheme.blueMedium),
-              title: const Text('Lihat Detail'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => DetailAspirasi(model: data),
-                  ),
-                );
-              },
+  // ==========================
+  // CETAK PDF
+  // ==========================
+  Future<void> _cetakPdf(List<PesanWargaModel> list) async {
+    if (list.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Tidak ada data aspirasi untuk dicetak."),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final pdf = pw.Document();
+
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.all(24),
+          build: (context) => [
+            pw.Text(
+              "Laporan Data Aspirasi Warga",
+              style: pw.TextStyle(
+                fontSize: 18,
+                fontWeight: pw.FontWeight.bold,
+              ),
             ),
-
-            // EDIT
-            ListTile(
-              leading: const Icon(Icons.edit, color: AppTheme.yellowMedium),
-              title: const Text('Edit'),
-              onTap: () async {
-                Navigator.pop(context);
-                final updated = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => EditAspirasi(model: data),
-                  ),
-                );
-
-                if (updated == true) {
-                  await loadData();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Aspirasi berhasil diperbarui!"),
-                      backgroundColor: AppTheme.blueMedium,
-                    ),
-                  );
-                }
-              },
+            pw.SizedBox(height: 8),
+            pw.Text(
+              "Dicetak: ${DateTime.now()}",
+              style: const pw.TextStyle(fontSize: 10),
             ),
-
-            // DELETE
-            ListTile(
-              leading: const Icon(Icons.delete, color: AppTheme.redMedium),
-              title: const Text('Hapus'),
-              onTap: () {
-                Navigator.pop(context);
-                _confirmDelete(data);
-              },
+            pw.SizedBox(height: 16),
+            pw.Table.fromTextArray(
+              headerStyle:
+                  pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10),
+              cellStyle: const pw.TextStyle(fontSize: 9),
+              headerDecoration: const pw.BoxDecoration(
+                color: PdfColors.grey300,
+              ),
+              headers: const [
+                'No',
+                'ID Pesan',
+                'Isi Pesan',
+                'Kategori',
+                'Status',
+                'Created At',
+                'Updated At'
+              ],
+              data: List.generate(list.length, (i) {
+                final p = list[i];
+                return [
+                  (i + 1).toString(),
+                  p.idPesan,
+                  p.isiPesan,
+                  p.kategori,
+                  p.status,
+                  p.createdAt?.toString() ?? "-",
+                  p.updatedAt?.toString() ?? "-",
+                ];
+              }),
             ),
           ],
-        );
-      },
-    );
+        ),
+      );
+
+      await Printing.layoutPdf(
+        onLayout: (format) async => pdf.save(),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal mencetak PDF: $e')),
+      );
+    }
   }
 
-  // ============================================================
-  // 🗑 KONFIRMASI DELETE
-  // ============================================================
-  void _confirmDelete(PesanWargaModel model) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Konfirmasi Hapus"),
-        content: Text(
-            'Hapus pesan / aspirasi dengan ID "${model.idPesan}"?'),
-        actions: [
-          TextButton(
-            child:
-                const Text("Batal", style: TextStyle(color: AppTheme.hitam)),
-            onPressed: () => Navigator.pop(context),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.redMedium,
-            ),
-            child: const Text(
-              "Hapus",
-              style: TextStyle(color: AppTheme.putihFull),
-            ),
-            onPressed: () async {
-              Navigator.pop(context);
+  @override
+  Widget build(BuildContext context) {
+    final filteredList = _searchQuery.isEmpty
+        ? _data
+        : _data
+            .where((p) =>
+                p.isiPesan.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                p.idPesan.toLowerCase().contains(_searchQuery.toLowerCase()))
+            .toList();
 
-              final success = await _service.deletePesan(model.docId);
-              if (success) {
-                await loadData();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Aspirasi berhasil dihapus."),
-                    backgroundColor: AppTheme.redMedium,
-                  ),
-                );
-              }
+    return Scaffold(
+      backgroundColor: const Color(0xFFE9F2F9),
+      drawer: const AppSidebar(),
+
+      // Dua FAB: cetak PDF + tambah aspirasi
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: 'printAspirasi',
+            backgroundColor: Colors.red,
+            elevation: 4,
+            onPressed: () => _cetakPdf(filteredList),
+            child:
+                const Icon(Icons.picture_as_pdf, size: 26, color: Colors.white),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'addAspirasi',
+            backgroundColor: const Color(0xFF0C88C2),
+            elevation: 4,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TambahAspirasiPage()),
+              ).then((_) => _loadData());
             },
+            child: const Icon(Icons.add, size: 32, color: Colors.white),
           ),
         ],
       ),
-    );
-  }
 
-  // ============================================================
-  // 🧱 UI BUILD
-  // ============================================================
-  @override
-  Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < mobileBreakpoint;
-
-    // Pagination slicing
-    final startIndex = _currentPage * _rowsPerPage;
-    final endIndex = (_currentPage + 1) * _rowsPerPage > _filteredData.length
-        ? _filteredData.length
-        : (_currentPage + 1) * _rowsPerPage;
-
-    final paginated = _filteredData.sublist(startIndex, endIndex);
-
-    final totalPages =
-        (_filteredData.length / _rowsPerPage).ceil().clamp(1, 99);
-
-    return Scaffold(
-      drawer: const AppSidebar(),
-      backgroundColor: AppTheme.backgroundBlueWhite,
       body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MainHeader(
               title: "Semua Aspirasi",
               searchHint: "Cari isi pesan / ID pesan...",
               showSearchBar: true,
               showFilterButton: true,
-              onSearch: (value) => _applyFilter(searchQuery: value.trim()),
+              onSearch: (value) => setState(() => _searchQuery = value.trim()),
               onFilter: _openFilterDialog,
             ),
-
             const SizedBox(height: 16),
-
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1100),
-                    child: _filteredData.isEmpty
-                        ? const Padding(
-                            padding: EdgeInsets.all(40.0),
-                            child: Center(
-                              child: Text(
-                                "Tidak ada aspirasi ditemukan.",
-                                style: TextStyle(
-                                  color: AppTheme.abu,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          )
-                        : Column(
-                            children: [
-                              if (isMobile)
-                                AspirasiMobileList(
-                                  data: paginated,
-                                  onMorePressed: (m) =>
-                                      _showPopupActionMenu(context, m),
-                                )
-                              else
-                                AspirasiDesktopTable(
-                                  data: paginated,
-                                  onMorePressed: (m) =>
-                                      _showPopupActionMenu(context, m),
-                                ),
-
-                              const SizedBox(height: 20),
-
-                              AspirasiPagination(
-                                currentPage: _currentPage,
-                                totalPages: totalPages,
-                                onPageChanged: (p) {
-                                  setState(() => _currentPage = p);
-                                },
-                              ),
-                            ],
-                          ),
-                  ),
-                ),
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                itemCount: filteredList.length,
+                itemBuilder: (_, i) {
+                  final p = filteredList[i];
+                  return AspirasiCard(
+                    data: p,
+                    onDetail: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => DetailAspirasi(model: p),
+                      );
+                    },
+                    onEdit: () async {
+                      final updated = await showDialog(
+                        context: context,
+                        builder: (_) => EditAspirasi(model: p),
+                      );
+                      if (updated == true) _loadData();
+                    },
+                    onDelete: () => _confirmDelete(p),
+                  );
+                },
               ),
             ),
           ],

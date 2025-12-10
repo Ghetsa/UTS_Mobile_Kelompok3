@@ -3,6 +3,7 @@ import 'package:jawara_kelompok3/features/laporan/presentation/pages/pemasukan/p
 
 // === Login ===
 import '../../features/auth/presentation/pages/login/login.dart';
+import '../../features/auth/presentation/pages/login/login_wrapper.dart';
 
 // === Register ===
 import '../../features/auth/presentation/pages/register/register_screen.dart';
@@ -58,15 +59,23 @@ import '../../features/channel_transfer/presentation/pages/tambah_channel_page.d
 
 //  === Aspirasi Warga ===
 import '../../features/pesan_warga/presentation/pages/informasi_aspirasi_page.dart';
+import '../../features/pesan_warga/presentation/pages/tambah_aspirasi_page.dart';
 
 class AppRoutes {
   static final Map<String, WidgetBuilder> routes = {
     // === Default Route ===
-    '/': (context) => const LoginScreen(),
+    '/': (context) => const LoginScreenWrapper(),
 
     // === Login ===
     '/login': (context) => const LoginScreen(),
     '/register': (context) => const RegisterScreen(),
+
+    // Dashboard role-based
+    '/dashboard/admin': (context) => const DashboardKegiatanPage(),
+    '/dashboard/rt': (context) => const DashboardKegiatanPage(),
+    '/dashboard/rw': (context) => const DashboardKegiatanPage(),
+    '/dashboard/bendahara': (context) => const DashboardKegiatanPage(),
+    '/dashboard/sekretaris': (context) => const DashboardKegiatanPage(),
 
     // === Dashboard ===
     '/dashboard/kegiatan': (context) => const DashboardKegiatanPage(),
@@ -143,6 +152,8 @@ class AppRoutes {
     // ============================================================
     // PESAN WARGA → INFORMASI & ASPIRASI
     // ============================================================
-    '/informasiAspirasi': (context) => const SemuaAspirasi(),
+    '/aspirasi/informasiAspirasi': (context) => const InformasiAspirasi(),
+    '/aspirasi/tambahAspirasi': (context) => const TambahAspirasiPage(),
   };
 }
+

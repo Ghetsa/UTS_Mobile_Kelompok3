@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../core/layout/header.dart';
+import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/pengguna_model.dart';
 import '../../data/services/pengguna_service.dart';
@@ -12,15 +14,16 @@ class EditPenggunaPage extends StatefulWidget {
 }
 
 class _EditPenggunaPageState extends State<EditPenggunaPage> {
-  // Controller untuk setiap input field
   late TextEditingController namaController;
   late TextEditingController emailController;
   late TextEditingController noHpController;
   late TextEditingController passwordController;
   late TextEditingController confirmPasswordController;
-  late String selectedRole; // Untuk dropdown role
+  late String selectedRole;
 
-  // Daftar role yang tersedia
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+
   final List<String> roleList = [
     'Warga',
     'Bendahara',
@@ -32,7 +35,6 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
   @override
   void initState() {
     super.initState();
-    // Inisialisasi controller dengan data user
     namaController = TextEditingController(text: widget.user.nama);
     emailController = TextEditingController(text: widget.user.email);
     noHpController = TextEditingController(
@@ -52,7 +54,6 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
     super.dispose();
   }
 
-  // Fungsi untuk mengeksekusi update data pengguna ke Firebase
   void _updatePengguna() async {
     if (passwordController.text.isNotEmpty &&
         passwordController.text != confirmPasswordController.text) {
@@ -66,13 +67,12 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
       return;
     }
 
-    // Prepare data baru
     final Map<String, dynamic> newData = {
       'nama': namaController.text,
       'email': emailController.text,
       'noHp': noHpController.text,
-      // Hanya update password jika diisi
-      if (passwordController.text.isNotEmpty) 'password': passwordController.text,
+      if (passwordController.text.isNotEmpty)
+        'password': passwordController.text,
       'role': selectedRole,
     };
 
@@ -101,155 +101,233 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundBlueWhite,
-      appBar: AppBar(
-        title: const Text(
-          "Edit Akun Pengguna",
-          style: TextStyle(
-              fontWeight: FontWeight.bold, color: AppTheme.putihFull),
-        ),
-        centerTitle: true,
-        backgroundColor: AppTheme.primaryBlue,
-        elevation: 2,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Card(
-              elevation: 8,
-              shadowColor: AppTheme.blueExtraLight,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Text(
-                        "Edit Informasi Akun Pengguna",
-                        style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.primaryBlue),
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-
-                    _buildLabel("Nama Lengkap"),
-                    _buildTextField(namaController, "Masukkan nama lengkap"),
-                    const SizedBox(height: 16),
-
-                    _buildLabel("Email"),
-                    _buildTextField(emailController, "Masukkan email",
-                        keyboardType: TextInputType.emailAddress),
-                    const SizedBox(height: 16),
-
-                    _buildLabel("Nomor HP"),
-                    _buildTextField(noHpController, "Masukkan nomor HP",
-                        keyboardType: TextInputType.phone),
-                    const SizedBox(height: 16),
-
-                    _buildLabel(
-                        "Password Baru (kosongkan jika tidak diganti)"),
-                    _buildTextField(passwordController, "Masukkan password baru",
-                        isPassword: true),
-                    const SizedBox(height: 16),
-
-                    _buildLabel("Konfirmasi Password Baru"),
-                    _buildTextField(confirmPasswordController,
-                        "Masukkan kembali password",
-                        isPassword: true),
-                    const SizedBox(height: 16),
-
-                    _buildLabel("Role (tidak dapat diubah)"),
-                    _buildDropdown(selectedRole, roleList),
-                    const SizedBox(height: 32),
-
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.update_rounded),
-                        label: const Text(
-                          "Update",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600),
+      backgroundColor: const Color(0xFFE9F2F9),
+      drawer: const AppSidebar(),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MainHeader(
+              title: "Edit Pengguna",
+              showSearchBar: false,
+              showFilterButton: false,
+              onSearch: (_) {},
+              onFilter: () {},
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Card(
+                  elevation: 6,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Text(
+                            "Edit Informasi Pengguna",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24,
+                                color: Color(0xFF48B0E0)),
+                          ),
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.greenDark,
-                          foregroundColor: AppTheme.putihFull,
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(100)),
+                        const SizedBox(height: 30),
+                        _buildReadOnlyField("Nama Lengkap", namaController),
+                        _buildReadOnlyField("Email", emailController),
+                        _buildReadOnlyField("Nomor HP", noHpController),
+                        _buildPasswordField("Password Baru", passwordController,
+                            _obscurePassword, () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        }, hint: "Kosongkan jika tidak diganti"),
+
+                        _buildPasswordField(
+                            "Konfirmasi Password",
+                            confirmPasswordController,
+                            _obscureConfirmPassword, () {
+                          setState(() {
+                            _obscureConfirmPassword = !_obscureConfirmPassword;
+                          });
+                        }, hint: "Masukkan kembali password"),
+                        _buildDropdownField("Role", selectedRole, roleList),
+                        const SizedBox(height: 24),
+
+                        // Tombol bersampingan
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: _updatePengguna,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF48B0E0),
+                                  foregroundColor: Colors.white,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50)),
+                                ),
+                                child: const Text(
+                                  "Update",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.grey.shade400,
+                                  foregroundColor: Colors.white,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50)),
+                                ),
+                                child: const Text(
+                                  "Kembali",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        onPressed: _updatePengguna,
-                      ),
+                        const SizedBox(height: 12),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildReadOnlyField(String label, TextEditingController controller,
+      {String? hint}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Text(
-        text,
-        style: TextStyle(
-            fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.primaryBlue),
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: controller,
+            readOnly: false,
+            decoration: InputDecoration(
+              hintText: hint,
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      const BorderSide(color: Color(0xFF48B0E0), width: 2)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint,
-      {bool isPassword = false,
-      bool readOnly = false,
-      TextInputType keyboardType = TextInputType.text}) {
-    return TextField(
-      controller: controller,
-      obscureText: isPassword,
-      readOnly: readOnly,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        hintText: hint,
-        filled: true,
-        fillColor: readOnly ? AppTheme.abu : AppTheme.abu.withOpacity(0.2),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide:
-              BorderSide(color: AppTheme.abu.withOpacity(0.2), width: 1),
-        ),
+  Widget _buildPasswordField(String label, TextEditingController controller,
+      bool obscureText, VoidCallback toggleVisibility,
+      {String? hint}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: controller,
+            obscureText: obscureText,
+            decoration: InputDecoration(
+              hintText: hint,
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      const BorderSide(color: Color(0xFF48B0E0), width: 2)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              suffixIcon: IconButton(
+                icon: Icon(
+                    obscureText ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.grey),
+                onPressed: toggleVisibility,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildDropdown(String value, List<String> items) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.abu.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.abu.withOpacity(0.2), width: 1),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: DropdownButton<String>(
-        value: value,
-        isExpanded: true,
-        underline: const SizedBox(),
-        borderRadius: BorderRadius.circular(14),
-        onChanged: null, // Tetap read-only
-        items: items.map((String item) {
-          return DropdownMenuItem(
-            value: item,
-            child: Text(item, style: TextStyle(color: AppTheme.hitam)),
-          );
-        }).toList(),
+  Widget _buildDropdownField(String label, String value, List<String> items) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: DropdownButtonFormField<String>(
+              value: value,
+              items: items
+                  .map((item) => DropdownMenuItem(
+                        value: item,
+                        child: Text(item),
+                      ))
+                  .toList(),
+              onChanged: (val) {
+                setState(() {
+                  selectedRole = val!;
+                });
+              },
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

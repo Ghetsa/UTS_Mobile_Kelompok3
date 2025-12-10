@@ -13,7 +13,6 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  // Controllers input
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -23,27 +22,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController manualAddressController = TextEditingController();
 
-  // Dropdown / pilihan
   String? _selectedGender;
   String? _selectedAddressOption;
   String? _selectedOwnershipStatus;
 
-  // Upload foto KK/KTP
   Uint8List? _profilePhotoBytes;
   String? _profilePhotoName;
 
   final RegisterController _controller = RegisterController();
-
   static const String manualAddressOption =
       'Alamat Rumah (Jika Tidak Ada di List)';
 
-  // Toggle password
   bool _showPassword = false;
   bool _showConfirmPassword = false;
 
   void _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
+      allowedExtensions: ['png', 'jpg', 'jpeg'],
     );
 
     if (result != null) {
@@ -54,7 +50,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  // Modifikasi _buildInputField agar bisa menambahkan suffix icon
+  String? _computeAddressToSend() {
+    if (_selectedAddressOption == null) return null;
+    if (_selectedAddressOption == manualAddressOption) {
+      final manual = manualAddressController.text.trim();
+      return manual.isEmpty ? null : manual;
+    }
+    return _selectedAddressOption;
+  }
+
   Widget _buildInputField({
     required String label,
     required String hint,
@@ -182,9 +186,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       children: [
         Text(label,
             style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-                color: AppTheme.primaryBlue)),
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: AppTheme.primaryBlue,
+            )),
         const SizedBox(height: 6),
         InkWell(
           onTap: _pickFile,
@@ -217,7 +222,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   size: 22,
                 ),
                 const SizedBox(width: 10),
-                Expanded(
+                Flexible(
                   child: Text(
                     _profilePhotoName ?? 'Upload foto KK/KTP (.png/.jpg)',
                     textAlign: TextAlign.center,
@@ -272,6 +277,60 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  Future<void> _onRegisterPressed() async {
+    final addressToSend = _computeAddressToSend();
+    String nik = nikController.text.trim();
+    if (nik.length != 16 || int.tryParse(nik) == null) {
+      await showMessageDialog(
+        context: context,
+        title: 'Gagal!',
+        message: 'NIK harus berisi tepat 16 angka.',
+        success: false,
+      );
+      return;
+    }
+
+    String password = passwordController.text.trim();
+    String confirmPassword = confirmPasswordController.text.trim();
+    List<String> pwErrors = [];
+
+    if (password.length < 8) pwErrors.add("• Minimal 8 karakter");
+    if (!RegExp(r'[A-Z]').hasMatch(password))
+      pwErrors.add("• Harus ada huruf besar (A-Z)");
+    if (!RegExp(r'[a-z]').hasMatch(password))
+      pwErrors.add("• Harus ada huruf kecil (a-z)");
+    if (!RegExp(r'[0-9]').hasMatch(password))
+      pwErrors.add("• Harus ada angka (0-9)");
+    if (!RegExp(r'[!@#\$%^&*(),.?\":{}|<>]').hasMatch(password))
+      pwErrors.add("• Harus ada karakter khusus (!,@,#,...)");
+
+    if (pwErrors.isNotEmpty) {
+      await showMessageDialog(
+        context: context,
+        title: 'Password Lemah!',
+        message: "Password kamu kurang:\n\n${pwErrors.join('\n')}",
+        success: false,
+      );
+      return;
+    }
+
+    await _controller.registerUser(
+      context: context,
+      email: emailController.text.trim(),
+      password: password,
+      confirmPassword: confirmPassword,
+      nama: nameController.text.trim(),
+      nik: nik,
+      noHp: phoneController.text.trim(),
+      role: 'warga',
+      jenis_kelamin: _selectedGender,
+      alamat: addressToSend,
+      ownershipStatus: _selectedOwnershipStatus,
+      fotoIdentitas: _profilePhotoBytes,
+      profilePhotoName: _profilePhotoName,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -287,7 +346,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Logo dan judul
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -308,8 +366,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
                 const SizedBox(height: 30),
-
-                // Card Form
                 ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: cardMaxWidth),
                   child: Container(
@@ -344,8 +400,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           style: TextStyle(fontSize: 14, color: AppTheme.hitam),
                         ),
                         const SizedBox(height: 30),
-
-                        // Dua kolom input
                         LayoutBuilder(builder: (context, constraints) {
                           return Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -361,7 +415,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         label: 'Email',
                                         hint: 'Masukkan email aktif',
                                         controller: emailController),
-                                    // Password dengan toggle mata
                                     _buildInputField(
                                       label: 'Password',
                                       hint: 'Masukkan password',
@@ -369,11 +422,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       obscureText: !_showPassword,
                                       suffixIcon: IconButton(
                                         icon: Icon(
-                                          _showPassword
-                                              ? Icons.visibility
-                                              : Icons.visibility_off,
-                                          color: AppTheme.abu,
-                                        ),
+                                            _showPassword
+                                                ? Icons.visibility
+                                                : Icons.visibility_off,
+                                            color: AppTheme.abu),
                                         onPressed: () {
                                           setState(() {
                                             _showPassword = !_showPassword;
@@ -388,28 +440,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               Expanded(
                                 child: Column(
                                   children: [
-                                    // NIK dengan validasi 16 digit
                                     _buildInputField(
-                                      label: 'NIK',
-                                      hint: 'Masukkan NIK',
-                                      controller: nikController,
-                                      keyboardType: TextInputType.number,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty)
-                                          return 'NIK wajib diisi.';
-                                        if (value.length != 16)
-                                          return 'NIK harus 16 digit.';
-                                        if (!RegExp(r'^[0-9]+$')
-                                            .hasMatch(value))
-                                          return 'NIK hanya angka.';
-                                        return null;
-                                      },
-                                    ),
+                                        label: 'NIK',
+                                        hint: 'Masukkan NIK',
+                                        controller: nikController,
+                                        keyboardType: TextInputType.number),
                                     _buildInputField(
                                         label: 'No Telepon',
                                         hint: 'Masukkan nomor telepon',
                                         controller: phoneController),
-                                    // Konfirmasi password dengan toggle mata
                                     _buildInputField(
                                       label: 'Konfirmasi Password',
                                       hint: 'Masukkan ulang password',
@@ -417,11 +456,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       obscureText: !_showConfirmPassword,
                                       suffixIcon: IconButton(
                                         icon: Icon(
-                                          _showConfirmPassword
-                                              ? Icons.visibility
-                                              : Icons.visibility_off,
-                                          color: AppTheme.abu,
-                                        ),
+                                            _showConfirmPassword
+                                                ? Icons.visibility
+                                                : Icons.visibility_off,
+                                            color: AppTheme.abu),
                                         onPressed: () {
                                           setState(() {
                                             _showConfirmPassword =
@@ -429,13 +467,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           });
                                         },
                                       ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty)
-                                          return 'Konfirmasi password wajib diisi.';
-                                        if (value != passwordController.text)
-                                          return 'Password tidak cocok.';
-                                        return null;
-                                      },
                                     ),
                                   ],
                                 ),
@@ -443,18 +474,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ],
                           );
                         }),
-
                         _buildDropdownField(
                           label: 'Jenis Kelamin',
-                          items: const ['Laki-laki', 'Perempuan'],
+                          items: const ['L', 'P'],
                           hint: '--- Pilih Jenis Kelamin ---',
                           selectedValue: _selectedGender,
                           onChanged: (val) =>
                               setState(() => _selectedGender = val),
                         ),
-
                         _buildAddressSelectionField(),
-
                         _buildDropdownField(
                           label: 'Status Kepemilikan Rumah',
                           items: const ['Pemilik', 'Penyewa'],
@@ -463,32 +491,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           onChanged: (val) =>
                               setState(() => _selectedOwnershipStatus = val),
                         ),
-
                         _buildFileUploadField(label: 'Foto Identitas'),
-
                         SizedBox(
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: () async {
-                              await _controller.registerUser(
-                                context: context,
-                                email: emailController.text.trim(),
-                                password: passwordController.text.trim(),
-                                confirmPassword:
-                                    confirmPasswordController.text.trim(),
-                                name: nameController.text.trim(),
-                                nik: nikController.text.trim(),
-                                phone: phoneController.text.trim(),
-                                role: 'warga',
-                                gender: _selectedGender,
-                                address: _selectedAddressOption ??
-                                    manualAddressController.text.trim(),
-                                ownershipStatus: _selectedOwnershipStatus,
-                                profilePhotoBytes: _profilePhotoBytes,
-                                profilePhotoName: _profilePhotoName,
-                              );
-                            },
+                            onPressed: _onRegisterPressed,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.primaryBlue,
                               shape: RoundedRectangleBorder(
@@ -504,9 +512,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 20),
-
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

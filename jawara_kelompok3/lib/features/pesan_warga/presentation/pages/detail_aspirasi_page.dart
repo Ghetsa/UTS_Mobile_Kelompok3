@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import '../../../../core/layout/header.dart';
 import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../data/models/pesan_warga_model.dart';
 
-class DetailChannelPage extends StatelessWidget {
-  final Map<String, String?> channel;
+class DetailAspirasi extends StatelessWidget {
+  final PesanWargaModel model;
 
-  const DetailChannelPage({super.key, required this.channel});
+  const DetailAspirasi({super.key, required this.model});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +19,7 @@ class DetailChannelPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MainHeader(
-              title: "Detail Channel",
+              title: "Detail Aspirasi",
               showSearchBar: false,
               showFilterButton: false,
               onSearch: (_) {},
@@ -39,50 +40,36 @@ class DetailChannelPage extends StatelessWidget {
                       children: [
                         Center(
                           child: Text(
-                            "Detail Channel Transfer",
+                            "Detail Aspirasi",
                             style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                              color: Color(0xFF48B0E0),
-                            ),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24,
+                                color: Color(0xFF48B0E0)),
                           ),
                         ),
                         const SizedBox(height: 30),
+                        // Detail field
+                        _buildReadOnlyField("ID Pesan", model.idPesan),
+                        _buildReadOnlyField("Nama", model.nama),
+                        _buildReadOnlyField("Isi Pesan", model.isiPesan),
+                        _buildReadOnlyField("Kategori", model.kategori),
+                        _buildReadOnlyField("Status", model.status),
                         _buildReadOnlyField(
-                            "Nama Channel", channel['namaChannel'] ?? "-"),
+                            "Tanggal Dibuat",
+                            model.createdAt != null
+                                ? model.createdAt.toString()
+                                : "-"),
                         _buildReadOnlyField(
-                            "Tipe Channel", channel['tipe'] ?? "-"),
-                        _buildReadOnlyField(
-                            "Nama Pemilik", channel['pemilik'] ?? "-"),
-                        _buildReadOnlyField(
-                            "Catatan", channel['catatan'] ?? "-"),
+                            "Terakhir Update",
+                            model.updatedAt != null
+                                ? model.updatedAt.toString()
+                                : "-"),
                         const SizedBox(height: 24),
-                        const Text(
-                          "Thumbnail Channel:",
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: Colors.black87),
-                        ),
-                        const SizedBox(height: 8),
-                        _imageBox(channel['thumbnail']),
-                        const SizedBox(height: 24),
-                        const Text(
-                          "QR Code:",
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: Colors.black87),
-                        ),
-                        const SizedBox(height: 8),
-                        _imageBox(channel['qr']),
-                        const SizedBox(height: 24),
+                        // Tombol Kembali
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
+                            onPressed: () => Navigator.pop(context),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF48B0E0),
                               foregroundColor: Colors.white,
@@ -133,29 +120,6 @@ class DetailChannelPage extends StatelessWidget {
           ),
         ),
       ]),
-    );
-  }
-
-  Widget _imageBox(String? path) {
-    return Center(
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          width: double.infinity,
-          height: 250,
-          color: Colors.grey.shade200,
-          child: path == null
-              ? const Center(child: Text("Tidak ada gambar"))
-              : Image.network(
-                  path,
-                  width: double.infinity,
-                  height: 250,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Center(child: Text("Gagal memuat gambar")),
-                ),
-        ),
-      ),
     );
   }
 }

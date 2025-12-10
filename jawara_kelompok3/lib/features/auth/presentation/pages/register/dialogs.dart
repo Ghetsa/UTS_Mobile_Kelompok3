@@ -11,7 +11,8 @@ Future<void> showMessageDialog({
     context: context,
     builder: (context) => AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: success ? AppTheme.greenExtraLight : AppTheme.redExtraLight,
+      backgroundColor:
+          success ? AppTheme.greenExtraLight : AppTheme.redExtraLight,
       title: Row(
         children: [
           Icon(

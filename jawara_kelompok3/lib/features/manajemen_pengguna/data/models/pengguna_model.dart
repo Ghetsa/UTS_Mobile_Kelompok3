@@ -6,7 +6,7 @@ class User {
 
   final String nama;
   final String email;
-  final String statusRegistrasi;
+  final String statusPengguna;
   final String role;
   final String nik;
   final String noHp;
@@ -20,7 +20,7 @@ class User {
     required this.docId,
     required this.nama,
     required this.email,
-    required this.statusRegistrasi,
+    required this.statusPengguna,
     required this.role,
     required this.nik,
     required this.noHp,
@@ -36,7 +36,7 @@ class User {
       docId: docId,
       nama: data['nama'] ?? '',
       email: data['email'] ?? '',
-      statusRegistrasi: data['statusRegistrasi'] ?? '',
+      statusPengguna: data['statusRegistrasi'] ?? '',
       role: data['role'] ?? '',
       nik: data['nik'] ?? '',
       noHp: data['noHp'] ?? '',
@@ -56,7 +56,7 @@ class User {
     return {
       'nama': nama,
       'email': email,
-      'statusRegistrasi': statusRegistrasi,
+      'statusRegistrasi': statusPengguna,
       'role': role,
       'nik': nik,
       'noHp': noHp,

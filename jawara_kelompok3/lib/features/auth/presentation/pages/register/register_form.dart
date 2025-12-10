@@ -66,7 +66,16 @@ class _RegisterFormState extends State<RegisterForm> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // ... buat input fields sesuai kebutuhan
+        TextField(
+          controller: nameController,
+          decoration: const InputDecoration(hintText: 'Nama'),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: emailController,
+          decoration: const InputDecoration(hintText: 'Email'),
+        ),
+        const SizedBox(height: 8),
         ElevatedButton(
           onPressed: _pickFile,
           child: Text(_profilePhotoName ?? "Pilih Foto"),

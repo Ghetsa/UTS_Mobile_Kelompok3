@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:printing/printing.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+
 import '../../../../core/layout/header.dart';
 import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/channel_transfer_model.dart';
+import '../widgets/card/channel_transfer_card.dart';
 import 'detail_channel_page.dart';
 import 'edit_channel_page.dart';
+import 'tambah_channel_page.dart';
 
 class DaftarChannelPage extends StatefulWidget {
   const DaftarChannelPage({super.key});
@@ -16,9 +22,10 @@ class DaftarChannelPage extends StatefulWidget {
 
 class _DaftarChannelPageState extends State<DaftarChannelPage> {
   List<ChannelTransfer> channelData = [];
-
   String search = "";
-  String? selectedFilter;
+  String selectedFilter = 'Semua';
+
+  final List<String> filterOptions = ['Semua', 'manual', 'otomatis'];
 
   @override
   void initState() {
@@ -26,24 +33,21 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
     _loadChannels();
   }
 
-  // Ambil data Firestore
-  void _loadChannels() async {
+  Future<void> _loadChannels() async {
     final snapshot = await FirebaseFirestore.instance
         .collection('channel_transfer')
         .orderBy('created_at', descending: true)
         .get();
 
     setState(() {
-      channelData = snapshot.docs.map((doc) {
-        return ChannelTransfer.fromFirestore(doc.id, doc.data());
-      }).toList();
+      channelData = snapshot.docs
+          .map((doc) => ChannelTransfer.fromFirestore(doc.id, doc.data()))
+          .toList();
     });
   }
 
-  // FILTER DIALOG
   void _showFilterDialog() {
-    String? tempValue = selectedFilter;
-
+    String tempValue = selectedFilter;
     showDialog(
       context: context,
       builder: (_) => StatefulBuilder(
@@ -52,29 +56,26 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
             title: const Text("Filter Tipe Channel"),
             content: Column(
               mainAxisSize: MainAxisSize.min,
-              children: ['Semua', 'manual', 'otomatis'].map((tipe) {
+              children: filterOptions.map((tipe) {
                 return RadioListTile<String>(
                   value: tipe,
                   title: Text(tipe.toUpperCase()),
                   groupValue: tempValue,
-                  onChanged: (v) {
-                    setStateDialog(() => tempValue = v);
-                  },
+                  onChanged: (v) => setStateDialog(() => tempValue = v!),
                 );
               }).toList(),
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Batal"),
-              ),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Batal")),
               ElevatedButton(
                 onPressed: () {
                   setState(() => selectedFilter = tempValue);
                   Navigator.pop(context);
                 },
                 child: const Text("Terapkan"),
-              )
+              ),
             ],
           );
         },
@@ -82,7 +83,6 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
     );
   }
 
-  // DELETE CONFIRMATION
   void _confirmDelete(ChannelTransfer item) {
     showDialog(
       context: context,
@@ -91,9 +91,8 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
         content: Text("Yakin ingin menghapus '${item.namaChannel}' ?"),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Batal"),
-          ),
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Batal")),
           ElevatedButton(
             style:
                 ElevatedButton.styleFrom(backgroundColor: AppTheme.redMedium),
@@ -102,11 +101,8 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
                   .collection('channel_transfer')
                   .doc(item.docId)
                   .delete();
-
               _loadChannels();
-
               Navigator.pop(context);
-
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text("Channel berhasil dihapus."),
@@ -121,203 +117,190 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
     );
   }
 
+  // CETAK PDF DATA CHANNEL
+  Future<void> _cetakPdf(List<ChannelTransfer> list) async {
+    if (list.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Tidak ada data channel untuk dicetak."),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final pdf = pw.Document();
+
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.all(24),
+          build: (context) => [
+            pw.Text(
+              "Laporan Daftar Channel Transfer",
+              style: pw.TextStyle(
+                fontSize: 18,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+            pw.SizedBox(height: 8),
+            pw.Text(
+              "Dicetak: ${DateTime.now()}",
+              style: const pw.TextStyle(fontSize: 10),
+            ),
+            pw.SizedBox(height: 16),
+            pw.Table.fromTextArray(
+              headerStyle: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+                fontSize: 10,
+              ),
+              cellStyle: const pw.TextStyle(fontSize: 9),
+              headerDecoration: const pw.BoxDecoration(
+                color: PdfColors.grey300,
+              ),
+              headers: const [
+                'No',
+                'Nama Channel',
+                'Tipe',
+                'Pemilik',
+                'Catatan',
+              ],
+              data: List.generate(list.length, (i) {
+                final c = list[i];
+                return [
+                  (i + 1).toString(),
+                  c.namaChannel,
+                  c.jenis,
+                  c.namaPemilik,
+                  c.catatan ?? '-',
+                ];
+              }),
+            ),
+          ],
+        ),
+      );
+
+      await Printing.layoutPdf(
+        onLayout: (format) async => pdf.save(),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal mencetak PDF: $e'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Filter search + filter tipe
+    final filteredList = channelData.where((item) {
+      if (search.isNotEmpty &&
+          !item.namaChannel.toLowerCase().contains(search.toLowerCase())) {
+        return false;
+      }
+      if (selectedFilter != 'Semua' && item.jenis != selectedFilter) {
+        return false;
+      }
+      return true;
+    }).toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFE9F2F9),
       drawer: const AppSidebar(),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF0C88C2),
-        elevation: 4,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const EditChannelPage()),
-          );
-        },
-        child: const Icon(Icons.add, size: 32, color: Colors.white),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: 'printChannel',
+            backgroundColor: Colors.red,
+            elevation: 4,
+            onPressed: () => _cetakPdf(filteredList),
+            child:
+                const Icon(Icons.picture_as_pdf, size: 26, color: Colors.white),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'addChannel',
+            backgroundColor: const Color(0xFF0C88C2),
+            elevation: 4,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TambahChannelPage()),
+              ).then((_) => _loadChannels());
+            },
+            child: const Icon(Icons.add, size: 32, color: Colors.white),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // HEADER
             MainHeader(
               title: "Daftar Channel Transfer",
               searchHint: "Cari channel...",
               showSearchBar: true,
               showFilterButton: true,
-              onSearch: (value) {
-                setState(() => search = value.trim());
-              },
-              onFilter: () => _showFilterDialog(),
+              onSearch: (value) => setState(() => search = value.trim()),
+              onFilter: _showFilterDialog,
             ),
-
-            const SizedBox(height: 12),
-
-            // LIST CHANNEL DARI FIRESTORE
+            const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: channelData.length,
+                itemCount: filteredList.length,
                 itemBuilder: (_, i) {
-                  final item = channelData[i];
+                  final item = filteredList[i];
 
-                  // FILTER SEARCH
-                  if (search.isNotEmpty &&
-                      !item.namaChannel
-                          .toLowerCase()
-                          .contains(search.toLowerCase())) {
-                    return const SizedBox();
-                  }
-
-                  // FILTER JENIS
-                  if (selectedFilter != null &&
-                      selectedFilter != "Semua" &&
-                      item.jenis != selectedFilter) {
-                    return const SizedBox();
-                  }
-
-                  return _buildChannelCard(item);
+                  return ChannelTransferCard(
+                    index: i + 1,
+                    data: item,
+                    onDetail: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DetailChannelPage(
+                            channel: {
+                              'namaChannel': item.namaChannel,
+                              'tipe': item.jenis,
+                              'pemilik': item.namaPemilik,
+                              'catatan': item.catatan ?? '-',
+                              'thumbnail': item.thumbnail ?? '',
+                              'qr': item.qr ?? '',
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                    onEdit: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EditChannelPage(
+                            channel: {
+                              'docId': item.docId,
+                              'nama': item.namaChannel,
+                              'tipe': item.jenis,
+                              'pemilik': item.namaPemilik,
+                              'catatan': item.catatan ?? '',
+                              'thumbnail': item.thumbnail ?? '',
+                              'qr': item.qr ?? '',
+                            },
+                          ),
+                        ),
+                      ).then((_) => _loadChannels());
+                    },
+                    onDelete: () => _confirmDelete(item),
+                  );
                 },
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  // CARD
-  Widget _buildChannelCard(ChannelTransfer item) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Thumbnail
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.asset(
-              'assets/images/gambar1.jpg',
-              width: 60,
-              height: 60,
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          const SizedBox(width: 14),
-
-          // TEXT CHANNEL
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.namaChannel,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  item.jenis.toUpperCase(),
-                  style: const TextStyle(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                ),
-                Text(
-                  "A/N : ${item.namaPemilik}",
-                  style: const TextStyle(
-                    color: Colors.black54,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // TOMBOL AKSI
-          PopupMenuButton(
-            onSelected: (value) {
-              if (value == 'detail') {
-                showDialog(
-                  context: context,
-                  builder: (_) => DetailChannelPage(
-                    channel: {
-                      'nama': item.namaChannel,
-                      'tipe': item.jenis,
-                      'a/n': item.namaPemilik,
-                      'thumbnail': "",
-                      'qr': "",
-                    },
-                  ),
-                );
-              } else if (value == 'edit') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => EditChannelPage(
-                      channel: {
-                        'docId': item.docId,
-                        'nama': item.namaChannel,
-                        'tipe': item.jenis,
-                        'a/n': item.namaPemilik,
-                      },
-                    ),
-                  ),
-                );
-              } else if (value == 'delete') {
-                _confirmDelete(item);
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'detail',
-                child: Row(
-                  children: [
-                    Icon(Icons.info),
-                    SizedBox(width: 10),
-                    Text("Detail"),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Icons.edit),
-                    SizedBox(width: 10),
-                    Text("Edit"),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, color: Colors.red),
-                    SizedBox(width: 10),
-                    Text("Hapus", style: TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
