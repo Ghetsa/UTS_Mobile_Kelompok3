@@ -5,26 +5,57 @@ import 'package:pdf/pdf.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import '../../warga/data/models/keluarga_model.dart';
+import '../../warga/data/services/keluarga_service.dart';
+import '../presentation/pages/pemasukan/tagih_iuran/tagih_iuran_page.dart';
+import '../data/services/pemasukan_lain_service.dart';
 
 class TagihanController {
   final TagihanService _service = TagihanService();
+  final PemasukanLainService _pemasukanService = PemasukanLainService();
 
   // =============================================================
   // 🔵 READ
   // =============================================================
-  Future<List<TagihanModel>> fetchAll() => _service.getAll();
-  Future<TagihanModel?> fetchById(String id) => _service.getById(id);
+  Future<List<TagihanModel>> fetchAll() async {
+    return await _service.getAllTagihan();
+  }
 
   // =============================================================
   // 🟡 UPDATE
   // =============================================================
-  Future<bool> update(String id, Map<String, dynamic> data) =>
-      _service.update(id, data);
+  Future<bool> updateTagihan(String id, Map<String, dynamic> data) async {
+    try {
+      // Update the Tagihan status
+      final result = await _service.update(id, data);
+      
+      // Check if the status was updated to "Sudah Dibayar"
+      if (result && data['tagihanStatus'] == 'Sudah Dibayar') {
+        // Create an entry in Pemasukan Lain
+        final tagihan = await _service.getById(id);
+        if (tagihan != null) {
+          final pemasukanData = {
+            'nama': tagihan.keluarga, // Name of the family
+            'jenis': 'Tagihan Dibayar', // Description for Pemasukan
+            'tanggal': DateTime.now().toString(),
+            'nominal': tagihan.nominal, // Amount paid
+          };
+          // Add to Pemasukan Lain
+          await _pemasukanService.add(pemasukanData);
+        }
+      }
+
+      return result;
+    } catch (e) {
+      print('Error updating Tagihan: $e');
+      return false;
+    }
+  }
 
   // =============================================================
   // 🔴 DELETE
   // =============================================================
-  Future<bool> delete(String id) => _service.delete(id);
+  Future<bool> deleteTagihan(String id) => _service.delete(id);
 
   // =============================================================
   // 📄 EXPORT / CETAK PDF
@@ -34,8 +65,6 @@ class TagihanController {
     final pdf = pw.Document();
 
     // Pastikan font sudah di-declare di pubspec.yaml
-    // assets:
-    //   - assets/fonts/Roboto-Regular.ttf
     final fontData = await rootBundle.load('assets/fonts/Roboto-Regular.ttf');
     final ttf = pw.Font.ttf(fontData);
 
@@ -157,22 +186,18 @@ class TagihanController {
 
     // ====== SIMPAN FILE PDF KE STORAGE ======
     final bytes = await pdf.save();
-
     Directory? dir;
 
     if (Platform.isAndroid) {
-      // Coba pakai folder Download bawaan
       final downloads = Directory('/storage/emulated/0/Download');
       if (await downloads.exists()) {
         dir = downloads;
       } else {
-        // fallback ke external storage app
         dir = await getExternalStorageDirectory();
       }
     } else if (Platform.isIOS) {
       dir = await getApplicationDocumentsDirectory();
     } else {
-      // Web / desktop → sementara pakai temporary
       dir = await getTemporaryDirectory();
     }
 

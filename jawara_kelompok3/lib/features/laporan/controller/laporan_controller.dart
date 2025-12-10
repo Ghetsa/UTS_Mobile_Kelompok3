@@ -31,50 +31,44 @@ class LaporanController {
     doc.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(24),
         build: (pw.Context context) {
           return [
-            pw.Center(
-              child: pw.Column(
-                children: [
-                  pw.Text(
-                    "LAPORAN KEUANGAN",
-                    style: pw.TextStyle(
-                      fontSize: 16,
-                      fontWeight: pw.FontWeight.bold,
-                    ),
-                  ),
-                  pw.SizedBox(height: 4),
-                  pw.Text(
-                    "Jenis: $jenisLaporan",
-                    style: const pw.TextStyle(fontSize: 11),
-                  ),
-                  pw.Text(
-                    "Periode: $periodeText",
-                    style: const pw.TextStyle(fontSize: 11),
-                  ),
-                  pw.SizedBox(height: 16),
-                ],
-              ),
-            ),
-            pw.Table.fromTextArray(
-              headers: const [
-                "No",
-                "Tanggal",
-                "Keterangan",
-                "Jenis",
-                "Nominal",
-              ],
-              headerStyle: pw.TextStyle(
+            pw.Text(
+              "Laporan Keuangan",
+              style: pw.TextStyle(
+                fontSize: 18,
                 fontWeight: pw.FontWeight.bold,
               ),
-              headerDecoration: const pw.BoxDecoration(
-                color: PdfColor.fromInt(0xFFE0E0E0),
+            ),
+            pw.SizedBox(height: 8),
+            pw.Text(
+              "Periode: $periodeText",
+              style: const pw.TextStyle(fontSize: 12),
+            ),
+            pw.SizedBox(height: 16),
+
+            // Tabel Laporan Keuangan
+            pw.Table.fromTextArray(
+              headerStyle: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+                fontSize: 10,
               ),
-              cellAlignment: pw.Alignment.centerLeft,
-              data: List<List<String>>.generate(data.length, (index) {
-                final item = data[index];
+              cellStyle: const pw.TextStyle(fontSize: 9),
+              headerDecoration: const pw.BoxDecoration(
+                color: PdfColors.grey300,
+              ),
+              headers: const [
+                'No',
+                'Tanggal',
+                'Keterangan',
+                'Jenis',
+                'Nominal',
+              ],
+              data: List.generate(data.length, (i) {
+                final item = data[i];
                 return [
-                  (index + 1).toString(),
+                  (i + 1).toString(),
                   _formatDate(item.tanggal),
                   item.keterangan,
                   item.jenis,

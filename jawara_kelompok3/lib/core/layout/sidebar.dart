@@ -30,8 +30,7 @@ class _AppSidebarState extends State<AppSidebar> {
     _expanded.addAll({
       'dashboard': false,
       'data_warga': false,
-      'pemasukan': false,
-      'laporan_keuangan': false,
+      'keuangan': false,
       'manajemen_pengguna': false,
       'channel_transfer': false,
       'log_aktifitas': false,
@@ -56,13 +55,10 @@ class _AppSidebarState extends State<AppSidebar> {
             route.startsWith('/data-rumah') ||
             route.startsWith('/data-keluarga') ||
             route.startsWith('/mutasi');
-
-      case 'pemasukan':
-        // menu pemasukan dan yang masih kamu taruh di bawah /pemasukan
-        return route.startsWith('/pemasukan');
-
-      case 'laporan_keuangan':
-        return route.startsWith('/laporan');
+      case 'keuangan':
+        return route.startsWith('/keuangan') ||
+            route.startsWith('/pemasukan') ||
+            route.startsWith('/pengeluaran');
 
       case 'manajemen_pengguna':
         return route.startsWith('/pengguna');
@@ -295,47 +291,18 @@ class _AppSidebarState extends State<AppSidebar> {
                     ],
                   ),
 
-                  /// PEMASUKAN
-                  _buildMenuSection(
-                    icon: Icons.payments_rounded,
-                    title: "Pemasukan",
-                    keyValue: "pemasukan",
-                    context: context,
-                    currentRoute: currentRoute,
-                    children: [
-                      _buildSubMenuItem("Kategori Iuran",
-                          "/pemasukan/pages/kategori", context, currentRoute),
-                      _buildSubMenuItem("Tagih Iuran", "/pemasukan/tagihIuran",
-                          context, currentRoute),
-                      _buildSubMenuItem("Tagihan", "/pemasukan/tagihan",
-                          context, currentRoute),
-                      _buildSubMenuItem(
-                          "Pemasukan Lain - Daftar",
-                          "/pemasukan/pemasukanLain-daftar",
-                          context,
-                          currentRoute),
-                      _buildSubMenuItem(
-                          "Pemasukan Lain - Tambah",
-                          "/pemasukan/pemasukanLain-tambah",
-                          context,
-                          currentRoute),
-                    ],
-                  ),
-
-                  /// LAPORAN
+                  /// Keuangan
                   _buildMenuSection(
                     icon: Icons.bar_chart_rounded,
-                    title: "Laporan Keuangan",
-                    keyValue: "laporan_keuangan",
+                    title: "Keuangan",
+                    keyValue: "keuangan",
                     context: context,
                     currentRoute: currentRoute,
                     children: [
-                      _buildSubMenuItem("Semua Pemasukan",
-                          "/laporan/semua-pemasukan", context, currentRoute),
-                      _buildSubMenuItem("Semua Pengeluaran",
+                      _buildSubMenuItem("Pemasukan",
+                          "/pemasukan", context, currentRoute),
+                      _buildSubMenuItem("Pengeluaran",
                           "/laporan/semua-pengeluaran", context, currentRoute),
-                      _buildSubMenuItem("Cetak Laporan", "/laporan/cetak",
-                          context, currentRoute),
                     ],
                   ),
 
