@@ -121,4 +121,16 @@ class KeluargaService {
       return null;
     }
   }
+
+  Future<List<KeluargaModel>> getActiveFamilies() async {
+    try {
+      final querySnapshot = await _ref.where("status_keluarga", isEqualTo: "aktif").get();
+      return querySnapshot.docs
+          .map((doc) => KeluargaModel.fromFirestore(doc.id, doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print("ERROR getActiveFamilies: $e");
+      return [];
+    }
+  }
 }

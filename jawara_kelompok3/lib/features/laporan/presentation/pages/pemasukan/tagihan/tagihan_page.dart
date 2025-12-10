@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../widgets/filter/tagihan_filter.dart';
-import '../../../widgets/dialog/detail_tagihan_dialog.dart';
-import '../../../widgets/dialog/edit_tagihan_dialog.dart';
 import '../../../widgets/card/tagihan_card.dart';
 import '../../../../data/models/tagihan_model.dart';
-import '../../../../data/services/tagihan_service.dart';
 import '../../../../controller/tagihan_controller.dart';
 import '../../../../../../core/layout/header.dart';
-import '../../../../../../core/layout/sidebar.dart';
-import 'package:open_file/open_file.dart';
+import '../../../widgets/dialog/edit_tagihan_dialog.dart';
+import '../../../widgets/dialog/detail_tagihan_dialog.dart';
+import 'package:flutter/services.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 
 class TagihanPage extends StatefulWidget {
   const TagihanPage({super.key});
@@ -19,77 +20,46 @@ class TagihanPage extends StatefulWidget {
 }
 
 class _TagihanPageState extends State<TagihanPage> {
-  final TagihanService _service = TagihanService();
   final TagihanController _controller = TagihanController();
   List<TagihanModel> dataTagihan = [];
   bool _loading = true;
+  String search = ""; // Define search variable
+
+  // Filter variables
+  Map<String, dynamic> _activeFilter = {};
 
   @override
   void initState() {
     super.initState();
-    _load();
+    _loadTagihan();
   }
 
-  Future<void> _load() async {
+  Future<void> _loadTagihan() async {
     setState(() => _loading = true);
-    final list = await _service.getAll();
+    final tagihanList = await _controller.fetchAll();
     setState(() {
-      dataTagihan = list;
+      dataTagihan = tagihanList;
       _loading = false;
     });
   }
 
-  void _showDetailDialog(TagihanModel tagihan) {
-    showDialog(
-      context: context,
-      builder: (context) => DetailTagihanDialog(tagihan: tagihan),
-    );
-  }
-
-  void _showEditDialog(TagihanModel tagihan) async {
-    final updatedTagihan = await showDialog<TagihanModel>(
-      context: context,
-      builder: (context) => EditTagihanDialog(tagihan: tagihan),
-    );
-
-    if (updatedTagihan != null) {
-      final success =
-          await _service.update(updatedTagihan.id, updatedTagihan.toMap());
-      if (success) {
-        setState(() {
-          final index =
-              dataTagihan.indexWhere((item) => item.id == updatedTagihan.id);
-          if (index != -1) {
-            dataTagihan[index] = updatedTagihan;
-          }
-        });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Gagal memperbarui data')),
-        );
-      }
-    }
-  }
-
-  void _deleteTagihan(String id) async {
-    final result = await _service.delete(id);
-    if (result) {
-      setState(() {
-        dataTagihan.removeWhere((item) => item.id == id);
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Data berhasil dihapus")),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Gagal menghapus data"), backgroundColor: Colors.red),
-      );
-    }
-  }
-
+  // Function to generate PDF
   void _generatePdf() async {
-    if (dataTagihan.isEmpty) {
+    final filteredList = dataTagihan.where((item) {
+      if (search.isNotEmpty &&
+          !item.keluarga.toLowerCase().contains(search.toLowerCase())) {
+        return false;
+      }
+      if (_activeFilter.isNotEmpty) {
+        if (_activeFilter['periode'] != null &&
+            !item.periode.contains(_activeFilter['periode'])) {
+          return false;
+        }
+      }
+      return true;
+    }).toList();
+
+    if (filteredList.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Tidak ada data tagihan untuk dicetak')),
       );
@@ -97,20 +67,81 @@ class _TagihanPageState extends State<TagihanPage> {
     }
 
     try {
-      final path = await _controller.generatePdf(dataTagihan);
-      await OpenFile.open(path);
+      final pdf = pw.Document();
 
+      final fontData = await rootBundle.load('assets/fonts/Roboto-Regular.ttf');
+      final ttf = pw.Font.ttf(fontData);
+
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.all(24),
+          build: (pw.Context context) => [
+            pw.Text(
+              "Laporan Data Tagihan",
+              style: pw.TextStyle(
+                fontSize: 18,
+                fontWeight: pw.FontWeight.bold,
+                font: ttf,
+              ),
+            ),
+            pw.SizedBox(height: 8),
+            pw.Text(
+              "Dicetak: ${DateTime.now()}",
+              style: const pw.TextStyle(fontSize: 10),
+            ),
+            pw.SizedBox(height: 16),
+
+            // Table for tagihan data
+            pw.Table.fromTextArray(
+              headerStyle: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+                fontSize: 10,
+              ),
+              cellStyle: const pw.TextStyle(fontSize: 9),
+              headerDecoration: const pw.BoxDecoration(
+                color: PdfColors.grey300,
+              ),
+              headers: const [
+                'No',
+                'Nama KK',
+                'Periode',
+                'Nominal',
+                'Status Tagihan',
+              ],
+              data: List.generate(filteredList.length, (i) {
+                final tagihan = filteredList[i];
+                return [
+                  (i + 1).toString(),
+                  tagihan.keluarga,
+                  tagihan.periode,
+                  tagihan.nominal,
+                  tagihan.tagihanStatus,
+                ];
+              }),
+            ),
+          ],
+        ),
+      );
+
+      await Printing.layoutPdf(
+        onLayout: (format) async => pdf.save(),
+      );
+    } on MissingPluginException {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('PDF berhasil disimpan di:\n$path'),
-          duration: const Duration(seconds: 4),
+        const SnackBar(
+          content: Text(
+            'Fitur cetak PDF belum tersedia di platform ini.\n'
+            'Coba jalankan di emulator/device Android atau iOS.',
+          ),
         ),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Gagal membuat PDF: $e'),
-          backgroundColor: Colors.red,
+          content: Text('Gagal mencetak PDF: $e'),
         ),
       );
     }
@@ -118,66 +149,146 @@ class _TagihanPageState extends State<TagihanPage> {
 
   @override
   Widget build(BuildContext context) {
+    final filteredList = dataTagihan.where((item) {
+      if (search.isNotEmpty &&
+          !item.keluarga.toLowerCase().contains(search.toLowerCase())) {
+        return false;
+      }
+      if (_activeFilter.isNotEmpty) {
+        if (_activeFilter['periode'] != null &&
+            !item.periode.contains(_activeFilter['periode'])) {
+          return false;
+        }
+
+      }
+      return true;
+    }).toList();
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
-      drawer: const AppSidebar(),
+      
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 40.0), 
+        child: FloatingActionButton(
+          heroTag: 'printTagihan',
+          backgroundColor: Colors.red,
+          elevation: 4,
+          onPressed: _generatePdf,
+          child: const Icon(
+            Icons.picture_as_pdf,
+            size: 26,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MainHeader(
-                title: "Tagihan",
-                showSearchBar: false,
-                showFilterButton: false),
-            const SizedBox(height: 18),
+              title: "Tagihan",
+              searchHint: "Cari tagihan...",
+              showSearchBar: true,
+              showFilterButton: true,
+              onSearch: (v) =>
+                  setState(() => search = v.trim()), // Set the search
+              onFilter: () => showDialog(
+                context: context,
+                builder: (_) => const FilterTagihanDialog(),
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            Expanded(
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : filteredList.isEmpty
+                      ? const Center(child: Text("Belum ada tagihan"))
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          itemCount: filteredList.length,
+                          itemBuilder: (context, index) {
+                            final row = filteredList[index];
+                            return TagihanCard(
+                              data: row,
+                              onDetail: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) =>
+                                      DetailTagihanDialog(tagihan: row),
+                                );
+                              },
+                              onEdit: () async {
+                                final updatedTagihan =
+                                    await showDialog<TagihanModel>( 
+                                  context: context,
+                                  builder: (_) =>
+                                      EditTagihanDialog(tagihan: row),
+                                );
+                                if (updatedTagihan != null) {
+                                  await _controller.updateTagihan(
+                                      updatedTagihan.id,
+                                      updatedTagihan.toMap());
+                                  setState(() {
+                                    final index = dataTagihan.indexWhere(
+                                        (item) => item.id == updatedTagihan.id);
+                                    if (index != -1) {
+                                      dataTagihan[index] = updatedTagihan;
+                                    }
+                                  });
+                                }
+                              },
+                              onDelete: () {
+                                _controller.deleteTagihan(row.id);
+                                setState(() {
+                                  dataTagihan.removeAt(index);
+                                });
+                              },
+                            );
+                          },
+                        ),
+            ),
+            
+            // Bottom buttons: Kembali dan Tagih Iuran
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton.icon(
-                    onPressed: () async {
-                      final result = await showDialog(
-                        context: context,
-                        builder: (_) => const FilterTagihanDialog(),
-                      );
-                      if (result != null) debugPrint("Filter dipilih: $result");
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/pemasukan');
                     },
-                    icon: const Icon(Icons.filter_alt, color: Colors.white),
-                    label: const Text("Filter"),
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    label: const Text(
+                      "Kembali",
+                      style: TextStyle(color: Colors.white),
+                    ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.yellowMediumDark,
+                      backgroundColor:  const Color(0xFF0C88C2),
                     ),
                   ),
-                  ElevatedButton.icon(
-                    onPressed: _generatePdf,
-                    icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
-                    label: const Text("Cetak PDF"),
+                  const SizedBox(width: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/pemasukan/tagihIuran');
+                    },
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.redDark),
+                      backgroundColor:  const Color(0xFF0C88C2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      "Tagih Iuran",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: _loading
-                  ? const Center(child: CircularProgressIndicator())
-                  : dataTagihan.isEmpty
-                      ? const Center(child: Text("Belum ada tagihan"))
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          itemCount: dataTagihan.length,
-                          itemBuilder: (context, index) {
-                            final row = dataTagihan[index];
-                            return TagihanCard(
-                              data: row,
-                              onDetail: () => _showDetailDialog(row),
-                              onEdit: () => _showEditDialog(row),
-                              onDelete: () => _deleteTagihan(row.id),
-                            );
-                          },
-                        ),
             ),
           ],
         ),

@@ -228,8 +228,9 @@ class _MutasiDaftarPageState extends State<MutasiDaftarPage> {
                   context: context,
                   builder: (_) => FilterMutasiDialog(
                     onApply: (filterData) {
-                      // TODO: integrasikan ke MutasiController kalau mau pakai filter
-                      print("HASIL FILTER: $filterData");
+                      final jenis = filterData['jenis'] as String? ?? "Semua";
+                      _controller.setFilterJenis(jenis);
+                      setState(() {});
                     },
                   ),
                 );

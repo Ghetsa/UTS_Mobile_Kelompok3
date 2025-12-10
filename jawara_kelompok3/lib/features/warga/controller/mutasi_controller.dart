@@ -11,8 +11,11 @@ class MutasiController {
   /// Data yang sudah difilter (dipakai di UI)
   List<MutasiModel> filteredData = [];
 
-  /// Query pencarian
+  /// Query pencarian (search)
   String searchQuery = '';
+
+  /// Filter jenis mutasi ("Semua", "Pindah Masuk", "Pindah Keluar", dll)
+  String jenisFilter = 'Semua';
 
   /// Flag loading
   bool isLoading = false;
@@ -55,10 +58,25 @@ class MutasiController {
     _applyFilterInternal();
   }
 
+  /// set filter jenis mutasi dari dialog
+  void setFilterJenis(String value) {
+    jenisFilter = value; // "Semua" / "Pindah Masuk" / "Pindah Keluar" / ...
+    _applyFilterInternal();
+  }
+
   void _applyFilterInternal() {
     final q = searchQuery.toLowerCase();
+    final jenis = jenisFilter.toLowerCase();
 
     filteredData = allData.where((m) {
+      // 🎯 1) Filter berdasarkan jenis mutasi lebih dulu
+      if (jenis != 'semua') {
+        if (m.jenisMutasi.toLowerCase() != jenis) {
+          return false;
+        }
+      }
+
+      // 🔍 2) Filter search (idWarga / jenis / keterangan / uid)
       if (q.isEmpty) return true;
 
       return m.idWarga.toLowerCase().contains(q) ||

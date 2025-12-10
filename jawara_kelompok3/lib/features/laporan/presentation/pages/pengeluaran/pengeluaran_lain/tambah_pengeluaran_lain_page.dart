@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
-
+import '../../../../controller/pengeluaran_lain_controller.dart';
+import '../../../../data/models/pengeluaran_lain_model.dart';
 import '../../../../../../core/layout/header.dart';
 import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
-import '../../../../data/services/pemasukan_lain_service.dart';
 
-class PemasukanLainTambahPage extends StatefulWidget {
-  const PemasukanLainTambahPage({super.key});
+class PengeluaranLainTambahPage extends StatefulWidget {
+  const PengeluaranLainTambahPage({super.key});
 
   @override
-  State<PemasukanLainTambahPage> createState() =>
-      _PemasukanLainTambahPageState();
+  State<PengeluaranLainTambahPage> createState() =>
+      _PengeluaranLainTambahPageState();
 }
 
-class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
+class _PengeluaranLainTambahPageState extends State<PengeluaranLainTambahPage> {
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _nominalController = TextEditingController();
   DateTime? _selectedDate;
   String? _kategori;
   bool _loadingSubmit = false;
 
-  final PemasukanLainService _service = PemasukanLainService();
+  final PengeluaranLainController controller = PengeluaranLainController();
 
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
@@ -36,7 +36,6 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
   }
 
   Future<void> _simpan() async {
-    // Validasi form teks
     if (_namaController.text.trim().isEmpty ||
         _nominalController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -46,46 +45,29 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
     }
 
     setState(() => _loadingSubmit = true);
-    print('[_simpan] Mulai simpan pemasukan lain TANPA foto...');
 
-    try {
-      // Data yang akan disimpan ke Firestore
-      final data = {
-        'nama': _namaController.text.trim(),
-        'jenis': _kategori ?? 'Pendapatan Lainnya',
-        'tanggal': _selectedDate != null
-            ? "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}"
-            : '--/--/----',
-        'nominal': _nominalController.text.trim(),
-        // tidak ada bukti_url
-      };
+    final tanggalFormatted = _selectedDate != null
+        ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
+        : '';
 
-      print('[_simpan] Kirim ke Firestore...');
-      final bool success = await _service.add(data);
-      print('[_simpan] Firestore selesai: success = $success');
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
 
-      if (!mounted) return;
+    final pengeluaran = PengeluaranLainModel(
+      docId: "",
+      id: id,
+      nama: _namaController.text.trim(),
+      jenis: _kategori ?? 'Pengeluaran Lainnya',
+      tanggal: tanggalFormatted,
+      nominal: _nominalController.text.trim(),
+      buktiUrl: null,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
 
-      if (success) {
-        Navigator.pop(context, true);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Gagal menambahkan data")),
-        );
-      }
-    } catch (e) {
-      print('[_simpan] ERROR: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Terjadi kesalahan: $e")),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _loadingSubmit = false);
-      }
-      print('[_simpan] Selesai (finally).');
-    }
+    await controller.add(pengeluaran);
+
+    setState(() => _loadingSubmit = false);
+    if (mounted) Navigator.pop(context, true);
   }
 
   void _resetForm() {
@@ -107,7 +89,7 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MainHeader(
-              title: "Tambah Pemasukan",
+              title: "Pengeluaran Lain - Tambah",
               showSearchBar: false,
               showFilterButton: false,
             ),
@@ -131,39 +113,30 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Buat Pemasukan Baru",
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
+                      Text("Buat Pengeluaran Baru",
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  )),
                       const SizedBox(height: 16),
-
-                      // Nama
                       TextField(
                         controller: _namaController,
-                        decoration: _inputDecoration("Nama Pemasukan"),
+                        decoration: _inputDecoration("Nama Pengeluaran"),
                       ),
                       const SizedBox(height: 12),
-
-                      // Tanggal (picker)
-                      const Text(
-                        "Tanggal Pemasukan",
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
+                      const Text("Tanggal Pengeluaran",
+                          style: TextStyle(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 6),
                       GestureDetector(
                         onTap: () async {
-                          final DateTime? picked = await showDatePicker(
+                          DateTime? picked = await showDatePicker(
                             context: context,
                             initialDate: DateTime.now(),
                             firstDate: DateTime(2000),
                             lastDate: DateTime(2100),
                           );
-                          if (picked != null) {
+                          if (picked != null)
                             setState(() => _selectedDate = picked);
-                          }
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -180,9 +153,8 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                                       ? "--/--/----"
                                       : "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}",
                                   style: TextStyle(
-                                    color: Colors.grey.shade800,
-                                    fontSize: 14,
-                                  ),
+                                      color: Colors.grey.shade800,
+                                      fontSize: 14),
                                 ),
                               ),
                               const Icon(Icons.calendar_today, size: 18),
@@ -190,36 +162,60 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 12),
-
-                      // Kategori
                       DropdownButtonFormField<String>(
                         value: _kategori,
-                        decoration: _inputDecoration("Kategori Pemasukan"),
-                        items: ["Pendapatan Lainnya", "Donasi", "Sumbangan"]
-                            .map(
-                              (e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(e),
-                              ),
-                            )
+                        decoration: _inputDecoration("Kategori Pengeluaran"),
+                        items: [
+                          "Pengeluaran Lainnya",
+                          "Operasional",
+                          "Perbaikan"
+                        ]
+                            .map((e) =>
+                                DropdownMenuItem(value: e, child: Text(e)))
                             .toList(),
                         onChanged: (v) => setState(() => _kategori = v),
                       ),
-
                       const SizedBox(height: 12),
-
-                      // Nominal
                       TextField(
                         controller: _nominalController,
                         keyboardType: TextInputType.number,
                         decoration: _inputDecoration("Nominal"),
                       ),
-
+                      const SizedBox(height: 12),
+                      // Placeholder upload bukti
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                          color: const Color(0xFFF9FBFE),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.upload_file),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                "Upload bukti pengeluaran (.png/.jpg)",
+                                style: TextStyle(color: Colors.grey.shade800),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.primaryBlue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text("Pilih"),
+                            ),
+                          ],
+                        ),
+                      ),
                       const SizedBox(height: 20),
-
-                      // Tombol: Simpan + Reset
                       Row(
                         children: [
                           Expanded(
@@ -228,22 +224,15 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                               child: ElevatedButton(
                                 onPressed: _loadingSubmit ? null : _simpan,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor:  const Color(0xFF0C88C2), // Ensure button has background color
+                                  backgroundColor: AppTheme.primaryBlue,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
                                 child: _loadingSubmit
                                     ? const CircularProgressIndicator(
-                                        color: Colors
-                                            .white, // CircularProgressIndicator color
-                                      )
-                                    : const Text(
-                                        "Simpan",
-                                        style: TextStyle(
-                                            color: Colors
-                                                .white), // Make text color white
-                                      ),
+                                        color: Colors.white)
+                                    : const Text("Submit"),
                               ),
                             ),
                           ),
@@ -254,19 +243,12 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                               child: OutlinedButton(
                                 onPressed: _resetForm,
                                 style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                      color: Colors.grey
-                                          .shade300), // Color of the button's border
+                                  side: BorderSide(color: Colors.grey.shade300),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Text(
-                                  "Reset",
-                                  style: TextStyle(
-                                      color: AppTheme
-                                          .primaryBlue), // Change text color to primary blue for visibility
-                                ),
+                                child: const Text("Reset"),
                               ),
                             ),
                           ),
@@ -274,24 +256,6 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                       ),
                     ],
                   ),
-                ),
-              ),
-            ),
-            // Tombol Kembali ke PemasukanPage
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(
-                      context, '/pemasukan/pemasukanLain-daftar');
-                },
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                label: const Text(
-                  "Kembali",
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:  const Color(0xFF0C88C2),
                 ),
               ),
             ),

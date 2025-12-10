@@ -5,12 +5,14 @@ class PemasukanCard extends StatelessWidget {
   final PemasukanLainModel data;
   final VoidCallback? onDetail;
   final VoidCallback? onEdit;
+  final VoidCallback? onDelete;  
 
   const PemasukanCard({
     super.key,
     required this.data,
     this.onDetail,
     this.onEdit,
+    this.onDelete,  
   });
 
   @override
@@ -28,7 +30,6 @@ class PemasukanCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icon kiri
           Container(
             width: 46,
             height: 46,
@@ -52,15 +53,14 @@ class PemasukanCard extends StatelessWidget {
               ],
             ),
           ),
-          // Popup menu
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'detail' && onDetail != null) onDetail!();
-              if (value == 'edit' && onEdit != null) onEdit!();
+              if (value == 'delete' && onDelete != null) onDelete!();  
             },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'detail', child: Row(children: [Icon(Icons.visibility, color: Colors.blue), SizedBox(width: 8), Text("Lihat Detail")])),
-              PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit, color: Colors.orange), SizedBox(width: 8), Text("Edit")])),
+            itemBuilder: (context) => [
+              const PopupMenuItem(value: 'detail', child: Row(children: [Icon(Icons.visibility, color: Colors.blue), SizedBox(width: 8), Text("Lihat Detail")])),
+              const PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete, color: Colors.red), SizedBox(width: 8), Text("Hapus")])),  // Added delete option
             ],
           ),
         ],

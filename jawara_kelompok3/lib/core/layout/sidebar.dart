@@ -32,13 +32,13 @@ class _AppSidebarState extends State<AppSidebar> {
     _expanded.addAll({
       'dashboard': false,
       'data_warga': false,
-      'pemasukan': false,
-      'laporan_keuangan': false,
+      'keuangan': false,
       'manajemen_pengguna': false,
       'channel_transfer': false,
       'log_aktifitas': false,
       'pesan_warga': false,
       'pengeluaran': false,
+      'pengeluaran_lain': false,
       'mutasi_keluarga': false,
     });
   }
@@ -49,42 +49,32 @@ class _AppSidebarState extends State<AppSidebar> {
 
     switch (menuKey) {
       case 'dashboard':
-        // semua dashboard
         return route.startsWith('/dashboard');
-
       case 'data_warga':
-        // semua data kependudukan
         return route.startsWith('/data-warga') ||
             route.startsWith('/data-rumah') ||
             route.startsWith('/data-keluarga') ||
             route.startsWith('/mutasi');
-
-      case 'pemasukan':
-        // menu pemasukan dan yang masih kamu taruh di bawah /pemasukan
-        return route.startsWith('/pemasukan');
-
-      case 'laporan_keuangan':
-        return route.startsWith('/laporan');
-
+      case 'keuangan':
+        return route.startsWith('/keuangan') ||
+            route.startsWith('/pemasukan') ||
+            route.startsWith('/pengeluaran') ||
+            route.startsWith('/laporan');
+      case 'pengeluaran_lain':
+        return route.startsWith('/pengeluaranLain');
       case 'manajemen_pengguna':
         return route.startsWith('/pengguna');
-
       case 'channel_transfer':
         return route.startsWith('/channel');
-
       case 'log_aktifitas':
         return route.startsWith('/semuaAktifitas');
-
       case 'pesan_warga':
         return route.startsWith('/aspirasi');
 
       case 'pengeluaran':
-        // kalau ada route khusus pengeluaran di luar laporan
         return route.startsWith('/pengeluaran');
-
       case 'mutasi_keluarga':
         return route.startsWith('/mutasi');
-
       default:
         return false;
     }
@@ -92,61 +82,24 @@ class _AppSidebarState extends State<AppSidebar> {
 
   void _ensureInitialExpansion(String currentRoute) {
     if (_lastRoute == currentRoute) return;
+    _lastRoute = currentRoute;
 
     _expanded.forEach((k, _) {
       _expanded[k] = _routeMatches(k, currentRoute);
     });
-
-    _lastRoute = currentRoute;
   }
 
-  Future<void> _expandOnlyAnimated(String key, bool expand) async {
+  void _expandOnlyAnimated(String key, bool expanded) {
     if (_isAnimating) return;
 
-    if (!expand) {
-      setState(() => _expanded[key] = false);
-      return;
-    }
-
-    final current = _expanded.entries
-        .firstWhere((e) => e.value, orElse: () => const MapEntry('', false));
-
-    if (current.key == '' || current.key == key) {
-      setState(() {
-        _expanded.forEach((k, _) => _expanded[k] = (k == key));
-      });
-      return;
-    }
-
     _isAnimating = true;
-
-    setState(() => _expanded[current.key] = false);
-    await Future.delayed(_animationDuration);
-
     setState(() {
-      _expanded.forEach((k, _) => _expanded[k] = (k == key));
+      _expanded[key] = expanded;
     });
 
-    await Future.delayed(const Duration(milliseconds: 40));
-    _isAnimating = false;
-  }
-
-  // ==========================================
-  // TEXT GRADIENT
-  // ==========================================
-  Widget gradientText(String text,
-      {double fontSize = 15, FontWeight weight = FontWeight.w600}) {
-    return ShaderMask(
-      shaderCallback: (bounds) => mainGradient.createShader(bounds),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: fontSize,
-          fontWeight: weight,
-        ),
-      ),
-    );
+    Future.delayed(_animationDuration, () {
+      _isAnimating = false;
+    });
   }
 
   Widget _buildSubMenuItem(
@@ -179,10 +132,13 @@ class _AppSidebarState extends State<AppSidebar> {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: gradientText(
+              child: Text(
                 label,
-                fontSize: 14,
-                weight: selected ? FontWeight.bold : FontWeight.w500,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                  color: const Color(0xFF0C88C2),
+                ),
               ),
             ),
           ],
@@ -191,9 +147,6 @@ class _AppSidebarState extends State<AppSidebar> {
     );
   }
 
-  // ==========================================
-  // BUILD
-  // ==========================================
   @override
   Widget build(BuildContext context) {
     final currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
@@ -330,20 +283,33 @@ class _AppSidebarState extends State<AppSidebar> {
                     ],
                   ),
 
-                  /// LAPORAN
+                  /// PENGELUARAN LAIN
                   _buildMenuSection(
-                    icon: Icons.bar_chart_rounded,
-                    title: "Laporan Keuangan",
-                    keyValue: "laporan_keuangan",
+                    icon: Icons.money_off_rounded,
+                    title: "Pengeluaran",
+                    keyValue: "pengeluaran_lain",
                     context: context,
                     currentRoute: currentRoute,
                     children: [
-                      _buildSubMenuItem("Semua Pemasukan",
-                          "/laporan/semua-pemasukan", context, currentRoute),
-                      _buildSubMenuItem("Semua Pengeluaran",
+                      _buildSubMenuItem("Pengeluaran Lain - Daftar",
+                          "/pengeluaranLain/daftar", context, currentRoute),
+                      _buildSubMenuItem("Pengeluaran Lain - Tambah",
+                          "/pengeluaranLain/tambah", context, currentRoute),
+                    ],
+                  ),
+
+                  /// KEUANGAN (LAPORAN)
+                  _buildMenuSection(
+                    icon: Icons.bar_chart_rounded,
+                    title: "Keuangan",
+                    keyValue: "keuangan",
+                    context: context,
+                    currentRoute: currentRoute,
+                    children: [
+                      _buildSubMenuItem(
+                          "Pemasukan", "/pemasukan", context, currentRoute),
+                      _buildSubMenuItem("Pengeluaran",
                           "/laporan/semua-pengeluaran", context, currentRoute),
-                      _buildSubMenuItem("Cetak Laporan", "/laporan/cetak",
-                          context, currentRoute),
                     ],
                   ),
 
@@ -428,7 +394,14 @@ class _AppSidebarState extends State<AppSidebar> {
           shaderCallback: (bounds) => mainGradient.createShader(bounds),
           child: Icon(icon, color: Colors.white, size: 24),
         ),
-        title: gradientText(title),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF0C88C2),
+          ),
+        ),
         children: children,
       ),
     );

@@ -133,7 +133,6 @@ class _CetakLaporanPageState extends State<CetakLaporanPage> {
               showFilterButton: false,
             ),
             const SizedBox(height: 8),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Align(
@@ -145,9 +144,7 @@ class _CetakLaporanPageState extends State<CetakLaporanPage> {
                 ),
               ),
             ),
-
             const SizedBox(height: 8),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -175,7 +172,6 @@ class _CetakLaporanPageState extends State<CetakLaporanPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-
                       Row(
                         children: [
                           Expanded(
@@ -184,8 +180,7 @@ class _CetakLaporanPageState extends State<CetakLaporanPage> {
                               children: [
                                 const Text(
                                   "Tanggal Mulai",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600),
+                                  style: TextStyle(fontWeight: FontWeight.w600),
                                 ),
                                 const SizedBox(height: 8),
                                 InkWell(
@@ -211,8 +206,7 @@ class _CetakLaporanPageState extends State<CetakLaporanPage> {
                               children: [
                                 const Text(
                                   "Tanggal Akhir",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600),
+                                  style: TextStyle(fontWeight: FontWeight.w600),
                                 ),
                                 const SizedBox(height: 8),
                                 InkWell(
@@ -233,9 +227,7 @@ class _CetakLaporanPageState extends State<CetakLaporanPage> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 20),
-
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -261,17 +253,14 @@ class _CetakLaporanPageState extends State<CetakLaporanPage> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 30),
-
                       Row(
                         children: [
                           Expanded(
                             child: SizedBox(
                               height: 48,
                               child: ElevatedButton.icon(
-                                onPressed:
-                                    _loadingPdf ? null : _downloadPdf,
+                                onPressed: _loadingPdf ? null : _downloadPdf,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.redDark,
                                   shape: RoundedRectangleBorder(
@@ -304,8 +293,8 @@ class _CetakLaporanPageState extends State<CetakLaporanPage> {
                                 foregroundColor: AppTheme.blueSuperDark,
                                 side: const BorderSide(
                                     color: AppTheme.blueSuperDark),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 20),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
