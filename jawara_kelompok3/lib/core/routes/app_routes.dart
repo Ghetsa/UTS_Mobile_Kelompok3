@@ -28,6 +28,8 @@ import '../../features/warga/presentation/pages/mutasi/tambah_mutasi_page.dart';
 // === Pengeluaran ===
 import '../../features/laporan/presentation/pages/pengeluaran/semua_pengeluaran_page.dart';
 import '../../features/laporan/presentation/pages/pengeluaran/tambah_pengeluaran_page.dart';
+import '../../features/laporan/presentation/pages/pengeluaran/pengeluaran_lain/daftar_pengeluaran_lain_page.dart';
+import '../../features/laporan/presentation/pages/pengeluaran/pengeluaran_lain/tambah_pengeluaran_lain_page.dart';
 
 // === Laporan Keuangan ===
 import '../../features/laporan/presentation/pages/pemasukan/cetak_laporan_page.dart';
@@ -100,12 +102,20 @@ class AppRoutes {
     '/pemasukan/pages/kategori': (context) => const KategoriIuranPage(),
     '/pemasukan/tagihIuran': (context) => const TagihIuranPage(),
     '/pemasukan/tagihan': (context) => const TagihanPage(),
-    '/pemasukan/pemasukanLain-daftar': (context) => const PemasukanLainDaftarPage(),
-    '/pemasukan/pemasukanLain-tambah': (context) => const PemasukanLainTambahPage(),
+    '/pemasukan/pemasukanLain-daftar': (context) =>
+        const PemasukanLainDaftarPage(),
+    '/pemasukan/pemasukanLain-tambah': (context) =>
+        const PemasukanLainTambahPage(),
     '/pemasukan': (context) => const PemasukanPage(),
 
+    // ============================================================
+    // PENGELUARAN LAIN
+    // ============================================================
+    '/pengeluaranLain/daftar': (context) => const PengeluaranLainDaftarPage(),
+    '/pengeluaranLain/tambah': (context) => const PengeluaranLainTambahPage(),
+
     // === Pengeluaran ===
-    // '/pengeluaran/daftar': (context) => const PengeluaranDaftarPage(),
+    '/pengeluaran/semua': (context) => const SemuaPengeluaranPage(),
     '/pengeluaran/tambah': (context) => const TambahPengeluaranPage(),
 
     // === Laporan Keuangan ===

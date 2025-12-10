@@ -69,9 +69,26 @@ class PengeluaranCard extends StatelessWidget {
               if (value == 'delete' && onDelete != null) onDelete!();
             },
             itemBuilder: (context) => const [
-              PopupMenuItem(value: 'detail', child: Row(children: [Icon(Icons.visibility, color: Colors.blue), SizedBox(width: 8), Text("Detail")])),
-              PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit, color: Colors.orange), SizedBox(width: 8), Text("Edit")])),
-              PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete, color: Colors.red), SizedBox(width: 8), Text("Hapus")])),
+              PopupMenuItem(
+                value: 'detail',
+                child: Row(
+                  children: [
+                    Icon(Icons.visibility, color: Colors.blue),
+                    SizedBox(width: 8),
+                    Text("Lihat Detail"),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, color: Colors.orange),
+                    SizedBox(width: 8),
+                    Text("Edit"),
+                  ],
+                ),
+              ),
             ],
           ),
         ],
