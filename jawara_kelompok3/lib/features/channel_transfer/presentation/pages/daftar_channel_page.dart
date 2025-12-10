@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:printing/printing.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+
 import '../../../../core/layout/header.dart';
 import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -113,20 +117,124 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
     );
   }
 
+  // CETAK PDF DATA CHANNEL
+  Future<void> _cetakPdf(List<ChannelTransfer> list) async {
+    if (list.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Tidak ada data channel untuk dicetak."),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final pdf = pw.Document();
+
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.all(24),
+          build: (context) => [
+            pw.Text(
+              "Laporan Daftar Channel Transfer",
+              style: pw.TextStyle(
+                fontSize: 18,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+            pw.SizedBox(height: 8),
+            pw.Text(
+              "Dicetak: ${DateTime.now()}",
+              style: const pw.TextStyle(fontSize: 10),
+            ),
+            pw.SizedBox(height: 16),
+            pw.Table.fromTextArray(
+              headerStyle: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+                fontSize: 10,
+              ),
+              cellStyle: const pw.TextStyle(fontSize: 9),
+              headerDecoration: const pw.BoxDecoration(
+                color: PdfColors.grey300,
+              ),
+              headers: const [
+                'No',
+                'Nama Channel',
+                'Tipe',
+                'Pemilik',
+                'Catatan',
+              ],
+              data: List.generate(list.length, (i) {
+                final c = list[i];
+                return [
+                  (i + 1).toString(),
+                  c.namaChannel,
+                  c.jenis,
+                  c.namaPemilik,
+                  c.catatan ?? '-',
+                ];
+              }),
+            ),
+          ],
+        ),
+      );
+
+      await Printing.layoutPdf(
+        onLayout: (format) async => pdf.save(),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal mencetak PDF: $e'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Filter search + filter tipe
+    final filteredList = channelData.where((item) {
+      if (search.isNotEmpty &&
+          !item.namaChannel.toLowerCase().contains(search.toLowerCase())) {
+        return false;
+      }
+      if (selectedFilter != 'Semua' && item.jenis != selectedFilter) {
+        return false;
+      }
+      return true;
+    }).toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFE9F2F9),
       drawer: const AppSidebar(),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF0C88C2),
-        elevation: 4,
-        onPressed: () {
-          Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const TambahChannelPage()))
-              .then((_) => _loadChannels());
-        },
-        child: const Icon(Icons.add, size: 32, color: Colors.white),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: 'printChannel',
+            backgroundColor: Colors.red,
+            elevation: 4,
+            onPressed: () => _cetakPdf(filteredList),
+            child:
+                const Icon(Icons.picture_as_pdf, size: 26, color: Colors.white),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'addChannel',
+            backgroundColor: const Color(0xFF0C88C2),
+            elevation: 4,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TambahChannelPage()),
+              ).then((_) => _loadChannels());
+            },
+            child: const Icon(Icons.add, size: 32, color: Colors.white),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(
@@ -144,23 +252,9 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: channelData.length,
+                itemCount: filteredList.length,
                 itemBuilder: (_, i) {
-                  final item = channelData[i];
-
-                  // Filter search
-                  if (search.isNotEmpty &&
-                      !item.namaChannel
-                          .toLowerCase()
-                          .contains(search.toLowerCase())) {
-                    return const SizedBox();
-                  }
-
-                  // Filter tipe
-                  if (selectedFilter != 'Semua' &&
-                      item.jenis != selectedFilter) {
-                    return const SizedBox();
-                  }
+                  final item = filteredList[i];
 
                   return ChannelTransferCard(
                     index: i + 1,

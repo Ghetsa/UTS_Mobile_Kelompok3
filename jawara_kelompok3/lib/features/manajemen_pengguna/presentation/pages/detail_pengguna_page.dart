@@ -102,11 +102,11 @@ class DetailPenggunaPage extends StatelessWidget {
                         // Detail field (read-only)
                         _buildReadOnlyField("Nama Lengkap", user.nama),
                         _buildReadOnlyField("Email", user.email),
-                        _buildReadOnlyField("NIK / Nomor Identitas", user.nik),
+                        _buildReadOnlyField("NIK", user.nik),
                         _buildReadOnlyField("Nomor HP", user.noHp),
                         _buildReadOnlyField("Jenis Kelamin", user.jenisKelamin),
                         _buildReadOnlyField(
-                            "Status Registrasi", user.statusRegistrasi),
+                            "Status Registrasi", user.statusPengguna),
                         _buildReadOnlyField("Role", user.role),
                         const SizedBox(height: 24),
                         // Foto identitas

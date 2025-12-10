@@ -44,6 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
+      allowedExtensions: ['png', 'jpg', 'jpeg'],
     );
 
     if (result != null) {
@@ -54,7 +55,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  // Modifikasi _buildInputField agar bisa menambahkan suffix icon
+  // Helper untuk menentukan address yang benar sebelum dikirimkan
+  String? _computeAddressToSend() {
+    if (_selectedAddressOption == null) return null;
+    if (_selectedAddressOption == manualAddressOption) {
+      final manual = manualAddressController.text.trim();
+      return manual.isEmpty ? null : manual;
+    }
+    return _selectedAddressOption;
+  }
+
   Widget _buildInputField({
     required String label,
     required String hint,
@@ -272,6 +282,65 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  // fungsi utama pemanggilan register -> panggil controller
+  Future<void> _onRegisterPressed() async {
+    final addressToSend = _computeAddressToSend();
+    // VALIDASI NIK 16 DIGIT
+    String nik = nikController.text.trim();
+    if (nik.length != 16 || int.tryParse(nik) == null) {
+      await showMessageDialog(
+        context: context,
+        title: 'Gagal!',
+        message: 'NIK harus berisi tepat 16 angka.',
+        success: false,
+      );
+      return;
+    }
+
+    // VALIDASI PASSWORD LEMAH
+    String password = passwordController.text.trim();
+    String confirmPassword = confirmPasswordController.text.trim();
+
+    List<String> pwErrors = [];
+
+    if (password.length < 8) pwErrors.add("• Minimal 8 karakter");
+    if (!RegExp(r'[A-Z]').hasMatch(password))
+      pwErrors.add("• Harus ada huruf besar (A-Z)");
+    if (!RegExp(r'[a-z]').hasMatch(password))
+      pwErrors.add("• Harus ada huruf kecil (a-z)");
+    if (!RegExp(r'[0-9]').hasMatch(password))
+      pwErrors.add("• Harus ada angka (0-9)");
+    if (!RegExp(r'[!@#\$%^&*(),.?\":{}|<>]').hasMatch(password))
+      pwErrors.add("• Harus ada karakter khusus (!,@,#,...)");
+
+    if (pwErrors.isNotEmpty) {
+      await showMessageDialog(
+        context: context,
+        title: 'Password Lemah!',
+        message: "Password kamu kurang:\n\n${pwErrors.join('\n')}",
+        success: false,
+      );
+      return;
+    }
+
+    // LANJUTKAN REGISTER
+    await _controller.registerUser(
+      context: context,
+      email: emailController.text.trim(),
+      password: password,
+      confirmPassword: confirmPassword,
+      nama: nameController.text.trim(),
+      nik: nik,
+      noHp: phoneController.text.trim(),
+      role: 'warga',
+      jenis_kelamin: _selectedGender,
+      alamat: addressToSend,
+      ownershipStatus: _selectedOwnershipStatus,
+      fotoIdentitas: _profilePhotoBytes,
+      profilePhotoName: _profilePhotoName,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -388,28 +457,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               Expanded(
                                 child: Column(
                                   children: [
-                                    // NIK dengan validasi 16 digit
+                                    // NIK dengan validasi 16 digit (UI-level)
                                     _buildInputField(
                                       label: 'NIK',
                                       hint: 'Masukkan NIK',
                                       controller: nikController,
                                       keyboardType: TextInputType.number,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty)
-                                          return 'NIK wajib diisi.';
-                                        if (value.length != 16)
-                                          return 'NIK harus 16 digit.';
-                                        if (!RegExp(r'^[0-9]+$')
-                                            .hasMatch(value))
-                                          return 'NIK hanya angka.';
-                                        return null;
-                                      },
                                     ),
                                     _buildInputField(
                                         label: 'No Telepon',
                                         hint: 'Masukkan nomor telepon',
                                         controller: phoneController),
-                                    // Konfirmasi password dengan toggle mata
+                                    // Konfirmasi password
                                     _buildInputField(
                                       label: 'Konfirmasi Password',
                                       hint: 'Masukkan ulang password',
@@ -429,13 +488,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           });
                                         },
                                       ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty)
-                                          return 'Konfirmasi password wajib diisi.';
-                                        if (value != passwordController.text)
-                                          return 'Password tidak cocok.';
-                                        return null;
-                                      },
                                     ),
                                   ],
                                 ),
@@ -446,7 +498,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                         _buildDropdownField(
                           label: 'Jenis Kelamin',
-                          items: const ['Laki-laki', 'Perempuan'],
+                          items: const ['L', 'P'],
                           hint: '--- Pilih Jenis Kelamin ---',
                           selectedValue: _selectedGender,
                           onChanged: (val) =>
@@ -470,25 +522,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: () async {
-                              await _controller.registerUser(
-                                context: context,
-                                email: emailController.text.trim(),
-                                password: passwordController.text.trim(),
-                                confirmPassword:
-                                    confirmPasswordController.text.trim(),
-                                name: nameController.text.trim(),
-                                nik: nikController.text.trim(),
-                                phone: phoneController.text.trim(),
-                                role: 'warga',
-                                gender: _selectedGender,
-                                address: _selectedAddressOption ??
-                                    manualAddressController.text.trim(),
-                                ownershipStatus: _selectedOwnershipStatus,
-                                profilePhotoBytes: _profilePhotoBytes,
-                                profilePhotoName: _profilePhotoName,
-                              );
-                            },
+                            onPressed: _onRegisterPressed,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.primaryBlue,
                               shape: RoundedRectangleBorder(

@@ -4,7 +4,6 @@ import '../../../../../core/theme/app_theme.dart';
 
 class PenggunaCard extends StatelessWidget {
   final User data;
-  final int index; // nomor urut
   final VoidCallback? onDetail;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
@@ -12,7 +11,6 @@ class PenggunaCard extends StatelessWidget {
   const PenggunaCard({
     super.key,
     required this.data,
-    required this.index,
     this.onDetail,
     this.onEdit,
     this.onDelete,
@@ -35,7 +33,7 @@ class PenggunaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rawStatus =
-        (data.statusRegistrasi.isEmpty ? "aktif" : data.statusRegistrasi);
+        (data.statusPengguna.isEmpty ? "aktif" : data.statusPengguna);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -54,24 +52,10 @@ class PenggunaCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Nomor urut + Icon
+          // HANYA ICON PENGGUNA (nomor urut dihapus)
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              // Nomor urut
-              CircleAvatar(
-                radius: 22,
-                backgroundColor: const Color(0xFF48B0E0),
-                child: Text(
-                  "${index + 1}",
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                ),
-              ),
-              const SizedBox(height: 8),
-              // Icon pengguna
               Container(
                 width: 48,
                 height: 48,

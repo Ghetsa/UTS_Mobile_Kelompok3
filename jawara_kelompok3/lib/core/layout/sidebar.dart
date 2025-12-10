@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppSidebar extends StatefulWidget {
   const AppSidebar({super.key});
@@ -74,7 +76,7 @@ class _AppSidebarState extends State<AppSidebar> {
         return route.startsWith('/semuaAktifitas');
 
       case 'pesan_warga':
-        return route.startsWith('/informasiAspirasi');
+        return route.startsWith('/aspirasi');
 
       case 'pengeluaran':
         // kalau ada route khusus pengeluaran di luar laporan
@@ -288,7 +290,13 @@ class _AppSidebarState extends State<AppSidebar> {
                     children: [
                       _buildSubMenuItem(
                         "Informasi & Aspirasi",
-                        "/informasiAspirasi",
+                        "/aspirasi/informasiAspirasi",
+                        context,
+                        currentRoute,
+                      ),
+                      _buildSubMenuItem(
+                        "Tambah Aspirasi",
+                        "/aspirasi/tambahAspirasi",
                         context,
                         currentRoute,
                       ),
@@ -377,8 +385,19 @@ class _AppSidebarState extends State<AppSidebar> {
                       style: TextStyle(
                           color: AppTheme.redDark, fontWeight: FontWeight.bold),
                     ),
-                    onTap: () {
-                      Navigator.pushNamed(context, '/login');
+                    onTap: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool(
+                          'logged_out', true); // tandai sudah logout
+                      await FirebaseAuth.instance
+                          .signOut(); // logout dari Firebase
+
+                      // Navigasi ke login dan hapus semua route sebelumnya
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        '/login',
+                        (route) => false,
+                      );
                     },
                   ),
                 ],

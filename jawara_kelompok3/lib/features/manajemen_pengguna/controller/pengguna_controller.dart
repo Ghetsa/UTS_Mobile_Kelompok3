@@ -8,15 +8,15 @@ class PenggunaController {
     return await _service.getAllUsers();
   }
 
-  Future<bool> addUser(User user) async {
-    return await _service.addUser(user);
+  Future<bool> addUser(User user, String password) async {
+    return await _service.addUser(user, password);
   }
 
   Future<bool> updateUser(String docId, Map<String, dynamic> data) async {
     return await _service.updateUser(docId, data);
   }
 
-  Future<bool> deleteUser(String docId) async {
-    return await _service.deleteUser(docId);
+  Future<bool> deleteUser(String uid) async {
+    return await _service.deleteUser(uid);
   }
 }

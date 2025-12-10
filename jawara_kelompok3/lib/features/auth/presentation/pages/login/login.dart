@@ -7,6 +7,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../../firebase_options.dart';
 
+// tambahan untuk session & biometric
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:local_auth/local_auth.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -23,23 +28,149 @@ class _LoginScreenState extends State<LoginScreen> {
 
   late FirebaseAuth _auth;
 
+  // session & security
+  final LocalAuthentication authLocal = LocalAuthentication();
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+  SharedPreferences? _prefs;
+
   @override
   void initState() {
     super.initState();
-    initializeFirebase();
+    initializeFirebaseAndSession();
   }
 
-  Future<void> initializeFirebase() async {
+  Future<void> initializeFirebaseAndSession() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
     _auth = FirebaseAuth.instance;
+
+    // init SharedPreferences
+    _prefs = await SharedPreferences.getInstance();
+
+    // Coba restore session yang masih aktif (Firebase tetap simpan session secara default)
+    await tryRestoreSession();
+
+    // Coba biometric auto-login jika ada kredensial tersimpan
+    await tryBiometricAutoLoginIfAvailable();
   }
 
-  // LOGIN
-  Future<void> login() async {
+  // -------- Session Management ----------
+  Future<void> saveSession({
+    required String uid,
+    required String email,
+    required String role,
+  }) async {
+    await _prefs?.setString('uid', uid);
+    await _prefs?.setString('email', email);
+    await _prefs?.setString('role', role);
+    // Simpan waktu login sebagai referensi
+    await _prefs?.setString('last_login', DateTime.now().toIso8601String());
+  }
+
+  Future<void> clearSession() async {
+    await _prefs?.remove('uid');
+    await _prefs?.remove('email');
+    await _prefs?.remove('role');
+    await _prefs?.remove('last_login');
+    // juga hapus kredensial tersimpan (opsional)
+    await secureStorage.delete(key: 'saved_email');
+    await secureStorage.delete(key: 'saved_password');
+  }
+
+  Future<void> tryRestoreSession() async {
+    final isLoggedOut = _prefs?.getBool('logged_out') ?? false;
+
+    if (isLoggedOut) return; // user baru saja logout, jangan auto-redirect
+
+    final user = _auth.currentUser;
+    if (user != null) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        final role = (doc.exists &&
+                doc.data() != null &&
+                doc.data()!.containsKey('role'))
+            ? doc.data()!['role'].toString()
+            : 'warga';
+        await saveSession(uid: user.uid, email: user.email ?? '', role: role);
+        _navigateByRole(role, user);
+      } catch (_) {
+        await saveSession(
+            uid: user.uid, email: user.email ?? '', role: 'warga');
+        _navigateByRole('warga', user);
+      }
+    }
+  }
+
+  // -------- Biometric helpers ----------
+  Future<bool> deviceSupportsBiometrics() async {
+    try {
+      return await authLocal.canCheckBiometrics ||
+          await authLocal.isDeviceSupported();
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Jika ada kredensial tersimpan di secure storage, minta biometric dan login otomatis.
+  Future<void> tryBiometricAutoLoginIfAvailable() async {
+    final savedEmail = await secureStorage.read(key: 'saved_email');
+    final savedPassword = await secureStorage.read(key: 'saved_password');
+
+    if (savedEmail != null && savedPassword != null) {
+      // minta biometric
+      try {
+        final didAuthenticate = await authLocal.authenticate(
+          localizedReason: 'Autentikasi untuk masuk secara cepat',
+          options: const AuthenticationOptions(
+              biometricOnly: true, stickyAuth: true),
+        );
+        if (didAuthenticate) {
+          // gunakan kredensial yang tersimpan untuk login
+          emailController.text = savedEmail;
+          passwordController.text = savedPassword;
+          await login(useSavedCredentials: true);
+        }
+      } catch (e) {
+        // jangan tampilkan dialog agar UI tetap sama; cukup log error di console
+        // print('Biometric / auto-login failed: $e');
+      }
+    }
+  }
+
+  /// Memungkinkan penyimpanan kredensial secara aman untuk biometric auto-login
+  /// Panggil fungsi ini dari bagian pengaturan / profil setelah user setuju.
+  Future<void> enableBiometricForCurrentUser(
+      String email, String password) async {
+    final supports = await deviceSupportsBiometrics();
+    if (!supports) return;
+    await secureStorage.write(key: 'saved_email', value: email);
+    await secureStorage.write(key: 'saved_password', value: password);
+  }
+
+  /// Matikan biometric auto-login (hapus kredensial)
+  Future<void> disableBiometricForCurrentUser() async {
+    await secureStorage.delete(key: 'saved_email');
+    await secureStorage.delete(key: 'saved_password');
+  }
+
+  // -------- LOGIN ----------
+  /// parameter useSavedCredentials true -> gunakan isi controller (yang sudah diisi) seperti biasa.
+  Future<void> login({bool useSavedCredentials = false}) async {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      await showMessageDialog(
+        title: 'Gagal!',
+        message: 'Email dan password wajib diisi.',
+        success: false,
+      );
+      return;
+    }
 
     setState(() {
       isLoading = true;
@@ -54,6 +185,35 @@ class _LoginScreenState extends State<LoginScreen> {
       final user = userCredential.user;
 
       if (user != null) {
+        // ambil role dari Firestore (collection 'users', field 'role')
+        String role = 'warga';
+        try {
+          final doc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
+          if (doc.exists &&
+              doc.data() != null &&
+              doc.data()!.containsKey('role')) {
+            role = doc.data()!['role'].toString();
+          } else {
+            // jika belum ada, set default role di Firestore (opsional)
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .set({
+              'email': user.email ?? '',
+              'role': role,
+              'updated_at': FieldValue.serverTimestamp(),
+            }, SetOptions(merge: true));
+          }
+        } catch (e) {
+          // jika gagal ambil role, biarkan role default 'warga'
+        }
+
+        // simpan session
+        await saveSession(uid: user.uid, email: user.email ?? '', role: role);
+
         // Tampilkan dialog sukses
         await showMessageDialog(
           title: 'Berhasil!',
@@ -65,12 +225,8 @@ class _LoginScreenState extends State<LoginScreen> {
           isLoading = false;
         });
 
-        // Arahkan langsung ke dashboard TAMPA ROLE
-        Navigator.pushReplacementNamed(
-          context,
-          '/dashboard/kegiatan',
-          arguments: {'user': user},
-        );
+        // Arahkan berdasarkan role
+        _navigateByRole(role, user);
       }
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -83,6 +239,8 @@ class _LoginScreenState extends State<LoginScreen> {
         message = 'Email tidak ditemukan';
       } else if (e.code == 'wrong-password') {
         message = 'Password salah';
+      } else if (e.code == 'invalid-email') {
+        message = 'Format email tidak valid';
       }
 
       await showMessageDialog(
@@ -101,6 +259,48 @@ class _LoginScreenState extends State<LoginScreen> {
         success: false,
       );
     }
+  }
+
+  // routing per role; sesuaikan route names dengan route yang Anda definisikan di app
+  void _navigateByRole(String role, User user) {
+    // Simpan role di SharedPreferences
+    _prefs?.setString('role', role);
+
+    // Anda bisa menyesuaikan route yang sesuai. Saya menambahkan mapping standar:
+    String route =
+        '/dashboard/kegiatan'; // fallback (preserve existing behavior)
+    switch (role.toLowerCase()) {
+      case 'admin':
+        route = '/dashboard/admin';
+        break;
+      case 'ketua_rt':
+      case 'ketuart':
+      case 'ketua-rt':
+        route = '/dashboard/rt';
+        break;
+      case 'ketua_rw':
+      case 'ketuarw':
+      case 'ketua-rw':
+        route = '/dashboard/rw';
+        break;
+      case 'bendahara':
+        route = '/dashboard/bendahara';
+        break;
+      case 'sekretaris':
+        route = '/dashboard/sekretaris';
+        break;
+      case 'warga':
+      default:
+        // jika Anda ingin tetap ke '/dashboard/kegiatan' untuk warga, biarkan.
+        route = '/dashboard/kegiatan';
+    }
+
+    // Jika Anda ingin mengoper arguments:
+    Navigator.pushReplacementNamed(
+      context,
+      route,
+      arguments: {'user': user, 'role': role},
+    );
   }
 
   Future<void> showMessageDialog({
@@ -135,6 +335,16 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // Anda bisa memanggil fungsi logout di menu lain; disediakan helper
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('logged_out', true); // tandai sudah logout
+    await FirebaseAuth.instance.signOut(); // logout Firebase
+
+    // redirect ke login
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -157,8 +367,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Logo dan Judul Aplikasi
                 Column(
                   children: [
-                    Image.asset('assets/images/Logo_jawara.png',
-                        height: 60), // Logo aplikasi
+                    Image.asset('assets/images/Logo_jawara.png', height: 60),
                     const SizedBox(height: 8),
                     const Text(
                       'Jawara',
@@ -172,7 +381,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
 
-                // Teks Selamat Datang
                 const Text(
                   'Selamat Datang',
                   style: TextStyle(
@@ -188,7 +396,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // Card Form Login
                 ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: cardMaxWidth),
                   child: Container(
@@ -208,7 +415,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        // Judul Card
                         const Center(
                           child: Text(
                             'Masuk ke akun anda',
@@ -220,8 +426,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 24),
-
-                        // Input Email
                         const Text(
                           'Email',
                           style: TextStyle(
@@ -268,8 +472,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           keyboardType: TextInputType.emailAddress,
                         ),
                         const SizedBox(height: 20),
-
-                        // Input Email
                         const Text(
                           'Password',
                           style: TextStyle(
@@ -330,8 +532,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           keyboardType: TextInputType.visiblePassword,
                         ),
                         const SizedBox(height: 20),
-
-                        // Tombol Login
                         SizedBox(
                           width: double.infinity,
                           height: 50,
@@ -358,8 +558,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
-
-                        // Tombol Register / Daftar
                         Center(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -373,7 +571,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Navigator.pushNamed(context, '/register');
                                 },
                                 child: const Text(
-                                  'Daftar', // Teks link register
+                                  'Daftar',
                                   style: TextStyle(
                                     color: AppTheme.primaryBlue,
                                     fontWeight: FontWeight.bold,
