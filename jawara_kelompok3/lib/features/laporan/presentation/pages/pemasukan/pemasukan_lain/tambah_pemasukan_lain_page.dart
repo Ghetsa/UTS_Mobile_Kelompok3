@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../../../main.dart';
+
 import '../../../../../../core/layout/header.dart';
 import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
+import '../../../../data/services/pemasukan_lain_service.dart';
 
 class PemasukanLainTambahPage extends StatefulWidget {
   const PemasukanLainTambahPage({super.key});
@@ -19,6 +20,8 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
   String? _kategori;
   bool _loadingSubmit = false;
 
+  final PemasukanLainService _service = PemasukanLainService();
+
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       filled: true,
@@ -33,7 +36,7 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
   }
 
   Future<void> _simpan() async {
-    // validasi sederhana
+    // Validasi form teks
     if (_namaController.text.trim().isEmpty ||
         _nominalController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -43,10 +46,46 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
     }
 
     setState(() => _loadingSubmit = true);
-    await Future.delayed(const Duration(milliseconds: 400));
-    if (!mounted) return;
-    setState(() => _loadingSubmit = false);
-    Navigator.pop(context, true);
+    print('[_simpan] Mulai simpan pemasukan lain TANPA foto...');
+
+    try {
+      // Data yang akan disimpan ke Firestore
+      final data = {
+        'nama': _namaController.text.trim(),
+        'jenis': _kategori ?? 'Pendapatan Lainnya',
+        'tanggal': _selectedDate != null
+            ? "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}"
+            : '--/--/----',
+        'nominal': _nominalController.text.trim(),
+        // tidak ada bukti_url
+      };
+
+      print('[_simpan] Kirim ke Firestore...');
+      final bool success = await _service.add(data);
+      print('[_simpan] Firestore selesai: success = $success');
+
+      if (!mounted) return;
+
+      if (success) {
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Gagal menambahkan data")),
+        );
+      }
+    } catch (e) {
+      print('[_simpan] ERROR: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Terjadi kesalahan: $e")),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _loadingSubmit = false);
+      }
+      print('[_simpan] Selesai (finally).');
+    }
   }
 
   void _resetForm() {
@@ -68,13 +107,11 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MainHeader(
-              title: "Pemasukan Lain - Tambah",
+              title: "Tambah Pemasukan",
               showSearchBar: false,
               showFilterButton: false,
             ),
-
             const SizedBox(height: 18),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -95,10 +132,11 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Buat Pemasukan Non Iuran Baru",
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        "Buat Pemasukan Baru",
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 16),
 
@@ -117,7 +155,7 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                       const SizedBox(height: 6),
                       GestureDetector(
                         onTap: () async {
-                          DateTime? picked = await showDatePicker(
+                          final DateTime? picked = await showDatePicker(
                             context: context,
                             initialDate: DateTime.now(),
                             firstDate: DateTime(2000),
@@ -142,7 +180,9 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                                       ? "--/--/----"
                                       : "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}",
                                   style: TextStyle(
-                                      color: Colors.grey.shade800, fontSize: 14),
+                                    color: Colors.grey.shade800,
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ),
                               const Icon(Icons.calendar_today, size: 18),
@@ -158,8 +198,12 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                         value: _kategori,
                         decoration: _inputDecoration("Kategori Pemasukan"),
                         items: ["Pendapatan Lainnya", "Donasi", "Sumbangan"]
-                            .map((e) =>
-                                DropdownMenuItem(value: e, child: Text(e)))
+                            .map(
+                              (e) => DropdownMenuItem(
+                                value: e,
+                                child: Text(e),
+                              ),
+                            )
                             .toList(),
                         onChanged: (v) => setState(() => _kategori = v),
                       ),
@@ -173,43 +217,6 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                         decoration: _inputDecoration("Nominal"),
                       ),
 
-                      const SizedBox(height: 12),
-
-                      // Upload bukti (placeholder)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade300),
-                          color: const Color(0xFFF9FBFE),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.upload_file),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                "Upload bukti pemasukan (.png/.jpg)",
-                                style: TextStyle(color: Colors.grey.shade800),
-                              ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                // placeholder: tidak ada logic upload (tetap sesuai permintaan)
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.primaryBlue,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: const Text("Pilih"),
-                            ),
-                          ],
-                        ),
-                      ),
-
                       const SizedBox(height: 20),
 
                       // Tombol: Simpan + Reset
@@ -221,16 +228,22 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                               child: ElevatedButton(
                                 onPressed: _loadingSubmit ? null : _simpan,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.primaryBlue,
+                                  backgroundColor:  const Color(0xFF0C88C2), // Ensure button has background color
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
                                 child: _loadingSubmit
                                     ? const CircularProgressIndicator(
-                                        color: Colors.white,
+                                        color: Colors
+                                            .white, // CircularProgressIndicator color
                                       )
-                                    : const Text("Submit"),
+                                    : const Text(
+                                        "Simpan",
+                                        style: TextStyle(
+                                            color: Colors
+                                                .white), // Make text color white
+                                      ),
                               ),
                             ),
                           ),
@@ -241,12 +254,19 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                               child: OutlinedButton(
                                 onPressed: _resetForm,
                                 style: OutlinedButton.styleFrom(
-                                  side: BorderSide(color: Colors.grey.shade300),
+                                  side: BorderSide(
+                                      color: Colors.grey
+                                          .shade300), // Color of the button's border
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Text("Reset"),
+                                child: const Text(
+                                  "Reset",
+                                  style: TextStyle(
+                                      color: AppTheme
+                                          .primaryBlue), // Change text color to primary blue for visibility
+                                ),
                               ),
                             ),
                           ),
@@ -254,6 +274,24 @@ class _PemasukanLainTambahPageState extends State<PemasukanLainTambahPage> {
                       ),
                     ],
                   ),
+                ),
+              ),
+            ),
+            // Tombol Kembali ke PemasukanPage
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pushNamed(
+                      context, '/pemasukan/pemasukanLain-daftar');
+                },
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                label: const Text(
+                  "Kembali",
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:  const Color(0xFF0C88C2),
                 ),
               ),
             ),

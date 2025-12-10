@@ -4,12 +4,14 @@ import '../../../../../core/theme/app_theme.dart';
 
 class KependudukanPieCard extends StatelessWidget {
   final String title;
-  final Map<String, double> data;
+  final Map<String, double> data; // persen
+  final int totalCount; // 🔥 jumlah data asli (bukan persen)
 
   const KependudukanPieCard({
     super.key,
     required this.title,
     required this.data,
+    required this.totalCount,
   });
 
   @override
@@ -24,8 +26,6 @@ class KependudukanPieCard extends StatelessWidget {
       AppTheme.yellowMediumDark,
       AppTheme.pinkPinky,
     ];
-
-    final total = data.values.fold(0.0, (a, b) => a + b);
 
     return Container(
       width: 300,
@@ -80,8 +80,9 @@ class KependudukanPieCard extends StatelessWidget {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // 🔥 TAMPILKAN JUMLAH DATA DI TENGAH
                     Text(
-                      total.toStringAsFixed(0),
+                      totalCount.toString(),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 22,
@@ -104,7 +105,7 @@ class KependudukanPieCard extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          // LEGEND CENTER
+          // LEGEND
           Wrap(
             spacing: 16,
             runSpacing: 8,

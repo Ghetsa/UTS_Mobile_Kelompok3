@@ -6,6 +6,7 @@ import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../widgets/card/kependudukan_stat_card.dart';
 import '../widgets/card/kependudukan_pie_card.dart';
+import '../widgets/card/kependudukan_bar_card.dart';
 
 class DashboardKependudukanPage extends StatelessWidget {
   const DashboardKependudukanPage({super.key});
@@ -23,6 +24,10 @@ class DashboardKependudukanPage extends StatelessWidget {
   void _incrementCount(Map<String, int> map, String? rawKey) {
     final key = (rawKey == null || rawKey.isEmpty) ? 'Lainnya' : rawKey;
     map[key] = (map[key] ?? 0) + 1;
+  }
+
+  int _sumCounts(Map<String, int> map) {
+    return map.values.fold<int>(0, (a, b) => a + b);
   }
 
   @override
@@ -69,7 +74,6 @@ class DashboardKependudukanPage extends StatelessWidget {
                   final statusCounts = <String, int>{};
                   final jkCounts = <String, int>{};
                   final pekerjaanCounts = <String, int>{};
-                  final peranCounts = <String, int>{};
                   final agamaCounts = <String, int>{};
                   final pendidikanCounts = <String, int>{};
 
@@ -91,11 +95,6 @@ class DashboardKependudukanPage extends StatelessWidget {
                           as String?, // ex: "PNS", "Wiraswasta", ...
                     );
                     _incrementCount(
-                      peranCounts,
-                      data['peranDalamKeluarga']
-                          as String?, // ex: "Kepala Keluarga"
-                    );
-                    _incrementCount(
                       agamaCounts,
                       data['agama'] as String?,
                     );
@@ -110,9 +109,8 @@ class DashboardKependudukanPage extends StatelessWidget {
                   final statusPie = _toPercent(statusCounts);
                   final jkPie = _toPercent(jkCounts);
                   final pekerjaanPie = _toPercent(pekerjaanCounts);
-                  final peranPie = _toPercent(peranCounts);
                   final agamaPie = _toPercent(agamaCounts);
-                  final pendidikanPie = _toPercent(pendidikanCounts);
+// final pendidikanPie = _toPercent(pendidikanCounts);
 
                   return SingleChildScrollView(
                     padding: const EdgeInsets.all(16),
@@ -133,7 +131,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                                       title: "Total Keluarga",
                                       value: "-",
                                       background: Colors.white,
-                                      textColor: Colors.black,
+                                      textColor: AppTheme.greenDark,
                                       centered: false,
                                     );
                                   }
@@ -145,7 +143,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                                     title: "Total Keluarga",
                                     value: totalKeluarga.toString(),
                                     background: Colors.white,
-                                    textColor: Colors.black,
+                                    textColor: AppTheme.greenDark,
                                     centered: false,
                                   );
                                 },
@@ -159,7 +157,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                                 title: "Total Penduduk",
                                 value: totalPenduduk.toString(),
                                 background: Colors.white,
-                                textColor: Colors.black,
+                                textColor: AppTheme.redDark,
                                 centered: false,
                               ),
                             ),
@@ -178,6 +176,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                                 data: statusPie.isEmpty
                                     ? {"Belum ada data": 100}
                                     : statusPie,
+                                totalCount: _sumCounts(statusCounts), // 🔥
                               ),
                               const SizedBox(width: 16),
                               KependudukanPieCard(
@@ -185,6 +184,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                                 data: jkPie.isEmpty
                                     ? {"Belum ada data": 100}
                                     : jkPie,
+                                totalCount: _sumCounts(jkCounts), // 🔥
                               ),
                               const SizedBox(width: 16),
                               KependudukanPieCard(
@@ -192,13 +192,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                                 data: pekerjaanPie.isEmpty
                                     ? {"Belum ada data": 100}
                                     : pekerjaanPie,
-                              ),
-                              const SizedBox(width: 16),
-                              KependudukanPieCard(
-                                title: "Peran dalam Keluarga",
-                                data: peranPie.isEmpty
-                                    ? {"Belum ada data": 100}
-                                    : peranPie,
+                                totalCount: _sumCounts(pekerjaanCounts), // 🔥
                               ),
                               const SizedBox(width: 16),
                               KependudukanPieCard(
@@ -206,18 +200,21 @@ class DashboardKependudukanPage extends StatelessWidget {
                                 data: agamaPie.isEmpty
                                     ? {"Belum ada data": 100}
                                     : agamaPie,
-                              ),
-                              const SizedBox(width: 16),
-                              KependudukanPieCard(
-                                title: "Pendidikan",
-                                data: pendidikanPie.isEmpty
-                                    ? {"Belum ada data": 100}
-                                    : pendidikanPie,
+                                totalCount: _sumCounts(agamaCounts), // 🔥
                               ),
                               const SizedBox(width: 16),
                             ],
                           ),
                         ),
+
+                        const SizedBox(height: 16),
+
+                        KependudukanBarCard(
+                          title: "Pendidikan Penduduk",
+                          data: pendidikanCounts,
+                        ),
+
+                        const SizedBox(height: 30),
 
                         const SizedBox(height: 30),
                       ],

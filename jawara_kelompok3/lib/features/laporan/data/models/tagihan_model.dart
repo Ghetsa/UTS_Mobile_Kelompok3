@@ -8,9 +8,8 @@ class TagihanModel {
   final String kode;
   final String nominal;
   final String periode;
-  final String tagihanStatus; // contoh: "Belum Dibayar" / "Lunas"
+  final String tagihanStatus;
   final DateTime? createdAt;
-  final DateTime? updatedAt;
 
   TagihanModel({
     required this.id,
@@ -22,7 +21,6 @@ class TagihanModel {
     required this.periode,
     required this.tagihanStatus,
     this.createdAt,
-    this.updatedAt,
   });
 
   factory TagihanModel.fromFirestore(String id, Map<String, dynamic> data) {
@@ -32,11 +30,10 @@ class TagihanModel {
       status: data['status'] ?? '',
       iuran: data['iuran'] ?? '',
       kode: data['kode'] ?? '',
-      nominal: data['nominal']?.toString() ?? '',
+      nominal: data['nominal'] ?? '',
       periode: data['periode'] ?? '',
       tagihanStatus: data['tagihanStatus'] ?? '',
       createdAt: data['created_at'] != null ? (data['created_at'] as Timestamp).toDate() : null,
-      updatedAt: data['updated_at'] != null ? (data['updated_at'] as Timestamp).toDate() : null,
     );
   }
 
@@ -50,7 +47,6 @@ class TagihanModel {
       'periode': periode,
       'tagihanStatus': tagihanStatus,
       'created_at': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
-      'updated_at': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
     };
   }
 }

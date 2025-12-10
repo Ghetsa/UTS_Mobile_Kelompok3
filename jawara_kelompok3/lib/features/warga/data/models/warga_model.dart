@@ -34,7 +34,7 @@ class WargaModel {
     required this.idRumah,
     required this.idKeluarga,   // ✅
     required this.noHp,
-    this.tanggalLahir,
+    this.tanggalLahir, 
     this.createdAt,
     this.updatedAt,
   });

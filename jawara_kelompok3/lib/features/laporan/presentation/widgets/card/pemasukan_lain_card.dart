@@ -5,12 +5,14 @@ class PemasukanCard extends StatelessWidget {
   final PemasukanLainModel data;
   final VoidCallback? onDetail;
   final VoidCallback? onEdit;
+  final VoidCallback? onDelete;  
 
   const PemasukanCard({
     super.key,
     required this.data,
     this.onDetail,
     this.onEdit,
+    this.onDelete,  
   });
 
   @override
@@ -22,17 +24,12 @@ class PemasukanCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black12.withOpacity(.05),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
-          )
+          BoxShadow(color: Colors.black12.withOpacity(.05), blurRadius: 18, offset: const Offset(0, 6)),
         ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icon kiri
           Container(
             width: 46,
             height: 46,
@@ -42,60 +39,28 @@ class PemasukanCard extends StatelessWidget {
             ),
             child: const Icon(Icons.attach_money, color: Colors.green),
           ),
-
           const SizedBox(width: 16),
-
           // Teks
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  data.nama,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 17),
-                ),
+                Text(data.nama, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
                 const SizedBox(height: 4),
-                Text("Jenis: ${data.jenis}",
-                    style:
-                        TextStyle(color: Colors.grey.shade700, fontSize: 13)),
-                Text("Tanggal: ${data.tanggal}",
-                    style:
-                        TextStyle(color: Colors.grey.shade700, fontSize: 13)),
-                Text("Nominal: ${data.nominal}",
-                    style:
-                        TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                Text("Jenis: ${data.jenis}", style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                Text("Tanggal: ${data.tanggal}", style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                Text("Nominal: ${data.nominal}", style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
               ],
             ),
           ),
-
-          // Popup menu
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'detail' && onDetail != null) onDetail!();
-              if (value == 'edit' && onEdit != null) onEdit!();
+              if (value == 'delete' && onDelete != null) onDelete!();  
             },
-            itemBuilder: (context) => const [
-              PopupMenuItem(
-                value: 'detail',
-                child: Row(
-                  children: [
-                    Icon(Icons.visibility, color: Colors.blue),
-                    SizedBox(width: 8),
-                    Text("Lihat Detail"),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Icons.edit, color: Colors.orange),
-                    SizedBox(width: 8),
-                    Text("Edit"),
-                  ],
-                ),
-              ),
+            itemBuilder: (context) => [
+              const PopupMenuItem(value: 'detail', child: Row(children: [Icon(Icons.visibility, color: Colors.blue), SizedBox(width: 8), Text("Lihat Detail")])),
+              const PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete, color: Colors.red), SizedBox(width: 8), Text("Hapus")])),  // Added delete option
             ],
           ),
         ],

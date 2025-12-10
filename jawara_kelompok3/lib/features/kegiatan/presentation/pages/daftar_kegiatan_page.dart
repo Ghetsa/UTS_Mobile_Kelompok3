@@ -12,6 +12,11 @@ import 'tambah_kegiatan_page.dart';
 import 'edit_kegiatan_page.dart';
 import 'detail_kegiatan_page.dart';
 
+// ===== IMPORT UNTUK PDF =====
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
+
 class DaftarKegiatanPage extends StatefulWidget {
   const DaftarKegiatanPage({super.key});
 
@@ -67,8 +72,7 @@ class _DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text("Hapus Kegiatan?"),
-        content:
-            Text("Yakin ingin menghapus kegiatan '${item.nama}' ?"),
+        content: Text("Yakin ingin menghapus kegiatan '${item.nama}' ?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -116,9 +120,7 @@ class _DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
     }
 
     if (_filterPJ.isNotEmpty &&
-        !item.penanggungJawab
-            .toLowerCase()
-            .contains(_filterPJ.toLowerCase())) {
+        !item.penanggungJawab.toLowerCase().contains(_filterPJ.toLowerCase())) {
       return false;
     }
 
@@ -137,6 +139,79 @@ class _DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
     return true;
   }
 
+  /// 🔹 CETAK PDF DATA KEGIATAN (sesuai data yang lagi tampil / terfilter)
+  Future<void> _cetakPdf() async {
+    final list = data.where(_matchFilter).toList();
+
+    if (list.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Tidak ada data kegiatan untuk dicetak."),
+        ),
+      );
+      return;
+    }
+
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(24),
+        build: (context) => [
+          pw.Text(
+            "Laporan Data Kegiatan",
+            style: pw.TextStyle(
+              fontSize: 18,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+          pw.SizedBox(height: 8),
+          pw.Text(
+            "Dicetak: ${DateTime.now()}",
+            style: const pw.TextStyle(fontSize: 10),
+          ),
+          pw.SizedBox(height: 16),
+
+          // Tabel data
+          pw.Table.fromTextArray(
+            headerStyle: pw.TextStyle(
+              fontWeight: pw.FontWeight.bold,
+              fontSize: 10,
+            ),
+            cellStyle: const pw.TextStyle(fontSize: 9),
+            headerDecoration: const pw.BoxDecoration(
+              color: PdfColors.grey300,
+            ),
+            headers: [
+              'No',
+              'Nama',
+              'Kategori',
+              'Lokasi',
+              'Penanggung Jawab',
+              'Status',
+            ],
+            data: List.generate(list.length, (i) {
+              final k = list[i];
+              return [
+                (i + 1).toString(),
+                k.nama,
+                k.kategori,
+                k.lokasi,
+                k.penanggungJawab,
+                k.status,
+              ];
+            }),
+          ),
+        ],
+      ),
+    );
+
+    await Printing.layoutPdf(
+      onLayout: (format) async => pdf.save(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final list = data.where(_matchFilter).toList();
@@ -144,22 +219,40 @@ class _DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
       drawer: const AppSidebar(),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppTheme.primaryBlue,
-        elevation: 4,
-        onPressed: () async {
-          final res = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const TambahKegiatanPage(),
-            ),
-          );
-          if (res == true) {
-            await _load();
-          }
-        },
-        child: const Icon(Icons.add, size: 32, color: Colors.white),
+
+      // 🔹 DUA FAB: CETAK PDF (atas) + TAMBAH (bawah)
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: "fab_pdf",
+            backgroundColor: Colors.red,
+            elevation: 4,
+            onPressed: _cetakPdf,
+            child:
+                const Icon(Icons.picture_as_pdf, size: 26, color: Colors.white),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: "fab_add",
+            backgroundColor: const Color(0xFF0C88C2),
+            elevation: 4,
+            onPressed: () async {
+              final res = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const TambahKegiatanPage(),
+                ),
+              );
+              if (res == true) {
+                await _load();
+              }
+            },
+            child: const Icon(Icons.add, size: 32, color: Colors.white),
+          ),
+        ],
       ),
+
       body: SafeArea(
         child: Column(
           children: [
@@ -178,8 +271,7 @@ class _DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                   : RefreshIndicator(
                       onRefresh: _load,
                       child: ListView.builder(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         itemCount: list.length,
                         itemBuilder: (_, i) {
                           final item = list[i];
@@ -188,14 +280,12 @@ class _DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                             data: item,
                             onDetail: () => showDialog(
                               context: context,
-                              builder: (_) =>
-                                  DetailKegiatanDialog(data: item),
+                              builder: (_) => DetailKegiatanDialog(data: item),
                             ),
                             onEdit: () async {
                               final updated = await showDialog(
                                 context: context,
-                                builder: (_) =>
-                                    EditKegiatanDialog(data: item),
+                                builder: (_) => EditKegiatanDialog(data: item),
                               );
                               if (updated == true) {
                                 await _load();

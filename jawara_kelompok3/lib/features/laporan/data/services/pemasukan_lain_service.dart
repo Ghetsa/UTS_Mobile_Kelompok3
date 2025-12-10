@@ -2,13 +2,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/pemasukan_lain_model.dart';
 
 class PemasukanLainService {
-  final CollectionReference _ref = FirebaseFirestore.instance.collection('pemasukan_lain');
+  final CollectionReference _ref =
+      FirebaseFirestore.instance.collection('pemasukan');
 
   Future<List<PemasukanLainModel>> getAll() async {
     try {
       final snap = await _ref.orderBy('created_at', descending: true).get();
       return snap.docs
-          .map((d) => PemasukanLainModel.fromFirestore(d.id, d.data() as Map<String, dynamic>))
+          .map(
+            (d) => PemasukanLainModel.fromFirestore(
+              d.id,
+              d.data() as Map<String, dynamic>,
+            ),
+          )
           .toList();
     } catch (e) {
       print('ERROR getAll PemasukanLain: $e');
@@ -21,6 +27,7 @@ class PemasukanLainService {
       await _ref.add({
         ...data,
         'created_at': FieldValue.serverTimestamp(),
+        'updated_at': FieldValue.serverTimestamp(),
       });
       return true;
     } catch (e) {
@@ -56,7 +63,10 @@ class PemasukanLainService {
     try {
       final doc = await _ref.doc(id).get();
       if (!doc.exists) return null;
-      return PemasukanLainModel.fromFirestore(doc.id, doc.data() as Map<String, dynamic>);
+      return PemasukanLainModel.fromFirestore(
+        doc.id,
+        doc.data() as Map<String, dynamic>,
+      );
     } catch (e) {
       print('ERROR getById PemasukanLain: $e');
       return null;

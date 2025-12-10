@@ -8,7 +8,7 @@ class EditTagihanDialog extends StatefulWidget {
   const EditTagihanDialog({super.key, required this.tagihan});
 
   @override
-  State<EditTagihanDialog> createState() => _EditTagihanDialogState();
+  _EditTagihanDialogState createState() => _EditTagihanDialogState();
 }
 
 class _EditTagihanDialogState extends State<EditTagihanDialog> {
@@ -16,16 +16,17 @@ class _EditTagihanDialogState extends State<EditTagihanDialog> {
   late TextEditingController _keluargaController;
   late TextEditingController _iuranController;
   late TextEditingController _nominalController;
+  String? _selectedStatus; // To handle status selection
+
+  final List<String> _statusList = ["Belum Dibayar", "Sudah Dibayar"];
 
   @override
   void initState() {
     super.initState();
-    _keluargaController =
-        TextEditingController(text: widget.tagihan.keluarga);
-    _iuranController =
-        TextEditingController(text: widget.tagihan.iuran);
-    _nominalController =
-        TextEditingController(text: widget.tagihan.nominal);
+    _keluargaController = TextEditingController(text: widget.tagihan.keluarga);
+    _iuranController = TextEditingController(text: widget.tagihan.iuran);
+    _nominalController = TextEditingController(text: widget.tagihan.nominal);
+    _selectedStatus = widget.tagihan.tagihanStatus; // Default to current status
   }
 
   @override
@@ -38,12 +39,18 @@ class _EditTagihanDialogState extends State<EditTagihanDialog> {
 
   void _simpan() {
     if (_formKey.currentState!.validate()) {
-      // Tetap return Map biar Page bisa update UI
-      Navigator.pop(context, {
-        "keluarga": _keluargaController.text,
-        "iuran": _iuranController.text,
-        "nominal": _nominalController.text,
-      });
+      final updatedTagihan = TagihanModel(
+        id: widget.tagihan.id,
+        keluarga: widget.tagihan.keluarga, // No change to this
+        status: widget.tagihan.status, // No change to this
+        iuran: widget.tagihan.iuran, // No change to this
+        kode: widget.tagihan.kode, // No change to this
+        nominal: widget.tagihan.nominal, // No change to this
+        periode: widget.tagihan.periode, // No change to this
+        tagihanStatus: _selectedStatus!, // Only status changes
+      );
+
+      Navigator.pop(context, updatedTagihan); // Send back updated data
     }
   }
 
@@ -64,40 +71,61 @@ class _EditTagihanDialogState extends State<EditTagihanDialog> {
               const Text("Edit Tagihan",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
-              const Text("Ubah data tagihan yang diperlukan.",
+              const Text("Ubah status tagihan yang diperlukan.",
                   style: TextStyle(color: Colors.black54)),
               const SizedBox(height: 24),
 
+              // Nama Keluarga - Read only, non-editable
               TextFormField(
                 controller: _keluargaController,
-                decoration: const InputDecoration(
-                    labelText: "Nama Keluarga",
-                    border: OutlineInputBorder()),
-                validator: (val) =>
-                    val == null || val.isEmpty ? "Wajib diisi" : null,
+                decoration: const InputDecoration(labelText: "Nama Keluarga"),
+                readOnly: true,
               ),
               const SizedBox(height: 16),
 
+              // Iuran - Read only, non-editable
               TextFormField(
                 controller: _iuranController,
-                decoration: const InputDecoration(
-                    labelText: "Iuran", border: OutlineInputBorder()),
-                validator: (val) =>
-                    val == null || val.isEmpty ? "Wajib diisi" : null,
+                decoration: const InputDecoration(labelText: "Iuran"),
+                readOnly: true,
               ),
               const SizedBox(height: 16),
 
+              // Nominal - Read only, non-editable
               TextFormField(
                 controller: _nominalController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                    labelText: "Nominal (Rp)",
-                    border: OutlineInputBorder()),
-                validator: (val) =>
-                    val == null || val.isEmpty ? "Wajib diisi" : null,
+                decoration: const InputDecoration(labelText: "Nominal (Rp)"),
+                readOnly: true,
+              ),
+              const SizedBox(height: 16),
+
+              // Status - Dropdown (Editable)
+              DropdownButtonFormField<String>(
+                value: _selectedStatus,
+                decoration: const InputDecoration(labelText: "Status Tagihan"),
+                items: _statusList.map((status) {
+                  return DropdownMenuItem(
+                    value: status,
+                    child: Text(
+                      status,
+                      style: TextStyle(
+                        color: status == "Sudah Dibayar"
+                            ? Colors.green
+                            : Colors.red,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedStatus = value;
+                  });
+                },
               ),
               const SizedBox(height: 24),
 
+              // Action buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -114,8 +142,7 @@ class _EditTagihanDialogState extends State<EditTagihanDialog> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 12),
                     ),
-                    child: const Text("Simpan",
-                        style: TextStyle(color: Colors.white)),
+                    child: const Text("Simpan", style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
