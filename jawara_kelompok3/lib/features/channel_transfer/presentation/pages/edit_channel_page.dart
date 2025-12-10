@@ -24,7 +24,7 @@ class _EditChannelPageState extends State<EditChannelPage> {
   File? newThumbnailFile;
   File? newQRFile;
 
-  final List<String> tipeItems = ["Bank", "E-Wallet", "Crypto"];
+  final List<String> tipeItems = ["Bank", "E-Wallet", "Qris"];
 
   @override
   void initState() {

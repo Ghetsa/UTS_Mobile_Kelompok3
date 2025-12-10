@@ -10,7 +10,6 @@ class RegisterController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  /// Registrasi user ke Firebase Auth + Firestore (users & warga)
   Future<void> registerUser({
     required BuildContext context,
     required String email,
@@ -26,9 +25,6 @@ class RegisterController {
     String? alamat,
     String? ownershipStatus,
   }) async {
-    // =========================================================
-    // VALIDATION
-    // =========================================================
     if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
       await showMessageDialog(
         context: context,
@@ -50,9 +46,6 @@ class RegisterController {
     }
 
     try {
-      // =========================================================
-      // REGISTER AUTH
-      // =========================================================
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -62,9 +55,6 @@ class RegisterController {
       String uid = userCredential.user!.uid;
       String? photoUrl;
 
-      // =========================================================
-      // UPLOAD FOTO (Optional)
-      // =========================================================
       if (fotoIdentitas != null && profilePhotoName != null) {
         try {
           final storageRef =
@@ -73,7 +63,6 @@ class RegisterController {
           await storageRef.putData(fotoIdentitas);
           photoUrl = await storageRef.getDownloadURL();
         } catch (e) {
-          // rollback auth jika upload gagal
           try {
             await userCredential.user!.delete();
           } catch (_) {}
@@ -88,9 +77,6 @@ class RegisterController {
         }
       }
 
-      // =========================================================
-      // SIMPAN DATA KE FIRESTORE (USERS)
-      // =========================================================
       await _firestore.collection('users').doc(uid).set({
         'email': email,
         'nama': nama,
@@ -105,9 +91,6 @@ class RegisterController {
         'updated_at': FieldValue.serverTimestamp(),
       });
 
-      // =========================================================
-      // SIMPAN DATA KE FIRESTORE (WARGA)
-      // =========================================================
       await _firestore.collection('warga').doc(uid).set({
         'user_id': uid,
         'nik': nik,
@@ -119,9 +102,6 @@ class RegisterController {
         'created_at': FieldValue.serverTimestamp(),
       });
 
-      // =========================================================
-      // SUCCESS
-      // =========================================================
       await showMessageDialog(
         context: context,
         title: 'Berhasil!',
@@ -130,14 +110,8 @@ class RegisterController {
       );
 
       Navigator.pushReplacementNamed(context, '/login');
-    }
-
-    // =========================================================
-    // ERROR HANDLING
-    // =========================================================
-    on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e) {
       String message = 'Terjadi kesalahan, coba lagi.';
-
       if (e.code == 'email-already-in-use') message = 'Email sudah terdaftar.';
       if (e.code == 'invalid-email') message = 'Email tidak valid.';
       if (e.code == 'weak-password') message = 'Password terlalu lemah.';

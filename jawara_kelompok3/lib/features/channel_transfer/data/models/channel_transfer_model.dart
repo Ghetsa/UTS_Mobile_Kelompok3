@@ -33,15 +33,15 @@ class ChannelTransfer {
       String docId, Map<String, dynamic> data) {
     return ChannelTransfer(
       docId: docId,
-      namaChannel: data['namaChannel'] ?? '',
-      kodeBank: data['kodeBank'] ?? '',
-      nomorRekening: data['nomorRekening'] ?? '',
-      namaPemilik: data['namaPemilik'] ?? '',
-      statusAktif: data['statusAktif'] ?? 'Nonaktif',
-      jenis: data['jenis'] ?? 'manual',
+      namaChannel: data['nama_channel'] ?? '',
+      kodeBank: data['kode_bank'] ?? '', // jika tidak ada bisa pakai ''
+      nomorRekening: data['no_rekening'] ?? '',
+      namaPemilik: data['nama_pemilik'] ?? '',
+      statusAktif: data['status_aktif'] ?? 'Nonaktif', // kalau tidak ada
+      jenis: data['tipe'] ?? 'manual',
       catatan: data['catatan'],
-      thumbnail: data['thumbnail'],
-      qr: data['qr'],
+      thumbnail: data['thumbnail_url'],
+      qr: data['qr_url'],
       createdAt: data['created_at'] != null
           ? (data['created_at'] as Timestamp).toDate()
           : null,
@@ -53,15 +53,15 @@ class ChannelTransfer {
 
   Map<String, dynamic> toMap() {
     return {
-      'namaChannel': namaChannel,
-      'kodeBank': kodeBank,
-      'nomorRekening': nomorRekening,
-      'namaPemilik': namaPemilik,
-      'statusAktif': statusAktif,
-      'jenis': jenis,
+      'nama_channel': namaChannel,
+      'kode_bank': kodeBank,
+      'no_rekening': nomorRekening,
+      'nama_pemilik': namaPemilik,
+      'status_aktif': statusAktif,
+      'tipe': jenis,
       'catatan': catatan ?? '',
-      'thumbnail': thumbnail ?? '',
-      'qr': qr ?? '',
+      'thumbnail_url': thumbnail ?? '',
+      'qr_url': qr ?? '',
       'created_at': createdAt != null
           ? Timestamp.fromDate(createdAt!)
           : FieldValue.serverTimestamp(),

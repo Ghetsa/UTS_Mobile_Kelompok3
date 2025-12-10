@@ -4,7 +4,7 @@ import '../badge/channel_badge.dart';
 
 class ChannelTransferCard extends StatelessWidget {
   final ChannelTransfer data;
-  final int index; // nomor urut
+  final int index; // nomor urut, tetap ada tapi tidak ditampilkan
   final VoidCallback? onDetail;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
@@ -51,22 +51,10 @@ class ChannelTransferCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Nomor urut + Icon
+          // Hanya icon jenis channel, nomor urut dihilangkan
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 22,
-                backgroundColor: const Color(0xFF48B0E0),
-                child: Text(
-                  "${index + 1}",
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                ),
-              ),
-              const SizedBox(height: 8),
               Container(
                 width: 48,
                 height: 48,

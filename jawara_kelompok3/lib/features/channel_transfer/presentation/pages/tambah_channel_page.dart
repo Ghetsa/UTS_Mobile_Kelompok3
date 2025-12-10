@@ -84,16 +84,29 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
       String? qrUrl;
       String? thumbUrl;
 
+      // Upload QR wajib
+      // if (_qrBytes != null || _qrFile != null) {
+      //   qrUrl = await _uploadFile(
+      //       bytes: _qrBytes, file: _qrFile, folder: "qr_images");
+      //   if (qrUrl == null) throw "Gagal upload QR";
+      // }
+
+      // if (_thumbBytes != null || _thumbFile != null) {
+      //   thumbUrl = await _uploadFile(
+      //       bytes: _thumbBytes, file: _thumbFile, folder: "thumbnails");
+      //   if (thumbUrl == null) throw "Gagal upload Thumbnail";
+      // }
+
+      // Upload QR opsional
       if (_qrBytes != null || _qrFile != null) {
         qrUrl = await _uploadFile(
             bytes: _qrBytes, file: _qrFile, folder: "qr_images");
-        if (qrUrl == null) throw "Gagal upload QR";
       }
 
+      // Upload Thumbnail opsional
       if (_thumbBytes != null || _thumbFile != null) {
         thumbUrl = await _uploadFile(
             bytes: _thumbBytes, file: _thumbFile, folder: "thumbnails");
-        if (thumbUrl == null) throw "Gagal upload Thumbnail";
       }
 
       await FirebaseFirestore.instance.collection("channel_transfer").add({
@@ -181,7 +194,8 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
 
   Widget _buildTextFormField(String label, String hint,
       {required TextEditingController controller,
-      TextInputType keyboardType = TextInputType.text}) {
+      TextInputType keyboardType = TextInputType.text,
+      bool isOptional = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -206,9 +220,11 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
-          validator: (v) =>
-              v == null || v.isEmpty ? "$label wajib diisi" : null,
-        ),
+          validator: (v) {
+            if (isOptional) return null; // biarkan kosong
+            return v == null || v.isEmpty ? "$label wajib diisi" : null;
+          },
+        )
       ]),
     );
   }
@@ -370,7 +386,7 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
                           ),
                           _buildTextFormField(
                               "Catatan (Opsional)", "Masukkan catatan",
-                              controller: _catatanController),
+                              controller: _catatanController, isOptional: true),
                           const SizedBox(height: 30),
                           Row(
                             children: [
