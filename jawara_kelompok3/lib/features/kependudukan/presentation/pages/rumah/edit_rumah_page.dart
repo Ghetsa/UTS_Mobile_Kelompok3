@@ -12,6 +12,7 @@ class EditRumahDialog extends StatefulWidget {
 
 class _EditRumahDialogState extends State<EditRumahDialog> {
   final _alamatC = TextEditingController();
+  final _nomorC = TextEditingController(); // ✅ TAMBAH
   final _rtC = TextEditingController();
   final _rwC = TextEditingController();
 
@@ -26,6 +27,7 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
     super.initState();
 
     _alamatC.text = widget.rumah.alamat;
+    _nomorC.text = widget.rumah.nomor; // ✅ TAMBAH
     _rtC.text = widget.rumah.rt;
     _rwC.text = widget.rumah.rw;
 
@@ -33,7 +35,30 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
     _kepemilikan = widget.rumah.kepemilikan;
   }
 
+  @override
+  void dispose() {
+    _alamatC.dispose();
+    _nomorC.dispose(); // ✅ TAMBAH
+    _rtC.dispose();
+    _rwC.dispose();
+    super.dispose();
+  }
+
   Future<void> _save() async {
+    if (_alamatC.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Alamat wajib diisi")),
+      );
+      return;
+    }
+
+    if (_nomorC.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Nomor rumah wajib diisi")),
+      );
+      return;
+    }
+
     if (_statusRumah == null || _kepemilikan == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -46,16 +71,18 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
     setState(() => _loading = true);
 
     final data = {
-      "alamat": _alamatC.text,
+      "alamat": _alamatC.text.trim(),
+      "nomor": _nomorC.text.trim(), // ✅ TAMBAH
       "status_rumah": _statusRumah,
       "kepemilikan": _kepemilikan,
-      "rt": _rtC.text,
-      "rw": _rwC.text,
+      "rt": _rtC.text.trim(),
+      "rw": _rwC.text.trim(),
       // updated_at di-set di service (serverTimestamp)
     };
 
     final ok = await _service.updateRumah(widget.rumah.docId, data);
 
+    if (!mounted) return;
     setState(() => _loading = false);
 
     if (ok) {
@@ -77,6 +104,13 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
             TextField(
               controller: _alamatC,
               decoration: const InputDecoration(labelText: 'Alamat'),
+            ),
+            const SizedBox(height: 8),
+
+            // ✅ TAMBAH: Nomor Rumah
+            TextField(
+              controller: _nomorC,
+              decoration: const InputDecoration(labelText: 'Nomor Rumah'),
             ),
             const SizedBox(height: 8),
 
@@ -126,7 +160,7 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: _loading ? null : () => Navigator.pop(context),
           child: const Text('Batal'),
         ),
         ElevatedButton(

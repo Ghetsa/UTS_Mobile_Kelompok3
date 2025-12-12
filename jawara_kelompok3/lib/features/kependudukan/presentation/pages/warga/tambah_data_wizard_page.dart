@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/layout/header.dart';
-import '../../../../../core/theme/app_theme.dart';
 
 // PAGES (sesuai struktur kamu)
-import '../warga/tambah_warga_page.dart';
+import 'tambah_warga_page.dart';
 import '../keluarga/tambah_keluarga_page.dart';
 import '../mutasi/tambah_mutasi_page.dart';
 
@@ -29,14 +28,12 @@ class TambahDataWizardPage extends StatelessWidget {
                 children: [
                   _MenuCard(
                     title: "👶 Bayi baru lahir (anggota keluarga)",
-                    subtitle: "Tambah warga baru lalu langsung masuk ke keluarga",
+                    subtitle: "Tambah warga baru (mode bayi).",
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const TambahWargaPage(
-                            modeBayi: true,
-                          ),
+                          builder: (_) => const TambahWargaPage(modeBayi: true),
                         ),
                       );
                     },
@@ -55,7 +52,7 @@ class TambahDataWizardPage extends StatelessWidget {
                   ),
                   _MenuCard(
                     title: "🚚 Mutasi pindah keluar/masuk/dalam",
-                    subtitle: "Catat mutasi dan (opsional) update status warga",
+                    subtitle: "Catat mutasi warga.",
                     onTap: () {
                       Navigator.push(
                         context,

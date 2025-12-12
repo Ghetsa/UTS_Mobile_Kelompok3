@@ -11,7 +11,7 @@ import '../../../../../core/layout/header.dart';
 import '../../../../../core/layout/sidebar.dart';
 import '../../widgets/card/keluarga_card.dart';
 import '../../widgets/filter/keluarga_filter.dart';
-import '../keluarga/tambah_keluarga_page.dart';
+import 'tambah_keluarga_page.dart';
 
 import 'detail_keluarga_page.dart';
 import 'edit_keluarga_page.dart';

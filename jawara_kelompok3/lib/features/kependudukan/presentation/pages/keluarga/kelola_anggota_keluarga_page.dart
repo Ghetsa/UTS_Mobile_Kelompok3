@@ -82,8 +82,7 @@ class _KelolaAnggotaKeluargaPageState extends State<KelolaAnggotaKeluargaPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-              "Tidak ada warga serumah yang belum punya keluarga (id_keluarga kosong)."),
+          content: Text("Tidak ada warga serumah yang belum punya keluarga."),
         ),
       );
       return;
@@ -149,9 +148,12 @@ class _KelolaAnggotaKeluargaPageState extends State<KelolaAnggotaKeluargaPage> {
                   orElse: () => calon.first);
 
               // Update id_keluarga warga tersebut
-              final ok = await _wargaService.updateWarga(warga.docId, {
-                'id_keluarga': widget.keluarga.uid,
-              });
+              final ok = await _wargaService.assignToKeluargaAtomic(
+                wargaDocId: warga.docId,
+                keluargaId: widget.keluarga.uid,
+                rumahId: widget.keluarga.idRumah,
+                noKk: widget.keluarga.noKk,
+              );
 
               if (!ok) {
                 if (!mounted) return;
@@ -164,6 +166,14 @@ class _KelolaAnggotaKeluargaPageState extends State<KelolaAnggotaKeluargaPage> {
               }
 
               if (!mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("✅ Anggota berhasil ditambahkan ke keluarga"),
+                  backgroundColor: Colors.green,
+                ),
+              );
+
               Navigator.pop(context, true);
             },
             child: const Text("Tambah"),
@@ -185,15 +195,17 @@ class _KelolaAnggotaKeluargaPageState extends State<KelolaAnggotaKeluargaPage> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text("Hapus Anggota?"),
-        content: Text(
-            "Warga '${warga.nama}' akan dilepas dari keluarga ini (id_keluarga dikosongkan)."),
+        content: Text("Warga '${warga.nama}' akan dilepas dari keluarga ini ."),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: const Text("Batal"),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () => Navigator.pop(context, true),
             child: const Text("Hapus"),
           ),
@@ -215,6 +227,13 @@ class _KelolaAnggotaKeluargaPageState extends State<KelolaAnggotaKeluargaPage> {
         ),
       );
       return;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("✅ Anggota berhasil dihapus dari keluarga"),
+          backgroundColor: Colors.green,
+        ),
+      );
     }
 
     await _loadAnggota();
@@ -225,7 +244,7 @@ class _KelolaAnggotaKeluargaPageState extends State<KelolaAnggotaKeluargaPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFE9F2F9),
       appBar: AppBar(
-        backgroundColor: AppTheme.primaryBlue,
+        backgroundColor: Color(0xFF0C88C2),
         foregroundColor: Colors.white,
         title: Text("Anggota - ${widget.keluarga.kepalaKeluarga}"),
       ),

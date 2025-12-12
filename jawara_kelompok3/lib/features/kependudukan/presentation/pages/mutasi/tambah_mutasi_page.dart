@@ -110,6 +110,15 @@ class _MutasiTambahPageState extends State<MutasiTambahPage> {
     if (!mounted) return;
 
     if (ok) {
+      final jenis = (_jenisMutasi ?? "").toLowerCase().trim();
+      if (jenis == "Pindah Keluar") {
+        await _wargaService.updateWarga(_selectedWargaId!, {
+          "status_warga": "Nonaktif",
+        });
+      }
+
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Data mutasi berhasil disimpan."),

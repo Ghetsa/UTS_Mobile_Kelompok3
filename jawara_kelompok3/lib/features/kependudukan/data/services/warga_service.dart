@@ -177,4 +177,76 @@ class WargaService {
       return null;
     }
   }
+
+  Future<bool> assignToKeluargaAtomic({
+    required String wargaDocId,
+    required String keluargaId,
+    required String rumahId,
+    String? noKk,
+  }) async {
+    try {
+      final wargaRef = _col.doc(wargaDocId);
+
+      await FirebaseFirestore.instance.runTransaction((tx) async {
+        final snap = await tx.get(wargaRef);
+        if (!snap.exists) {
+          throw Exception("Warga tidak ditemukan");
+        }
+
+        final data = snap.data() as Map<String, dynamic>;
+        final String currentKeluarga = (data['id_keluarga'] ?? '').toString();
+
+        // ✅ KUNCI: kalau sudah punya keluarga -> STOP
+        if (currentKeluarga.isNotEmpty && currentKeluarga != keluargaId) {
+          throw Exception("Warga sudah menjadi anggota keluarga lain.");
+        }
+
+        tx.update(wargaRef, {
+          'id_keluarga': keluargaId,
+          'id_rumah': rumahId,
+          if (noKk != null) 'no_kk': noKk,
+          'updated_at': FieldValue.serverTimestamp(),
+        });
+      });
+
+      return true;
+    } catch (e) {
+      // ignore: avoid_print
+      print("assignToKeluargaAtomic ERROR: $e");
+      return false;
+    }
+  }
+
+  Future<bool> removeFromKeluargaAtomic({
+    required String wargaDocId,
+    required String keluargaId,
+  }) async {
+    try {
+      final wargaRef = _col.doc(wargaDocId);
+
+      await FirebaseFirestore.instance.runTransaction((tx) async {
+        final snap = await tx.get(wargaRef);
+        if (!snap.exists) throw Exception("Warga tidak ditemukan");
+
+        final data = snap.data() as Map<String, dynamic>;
+        final String currentKeluarga = (data['id_keluarga'] ?? '').toString();
+
+        // cuma boleh lepas kalau dia memang anggota keluarga itu
+        if (currentKeluarga != keluargaId) {
+          throw Exception("Warga bukan anggota keluarga ini.");
+        }
+
+        tx.update(wargaRef, {
+          'id_keluarga': '',
+          'no_kk': '',
+          'updated_at': FieldValue.serverTimestamp(),
+        });
+      });
+
+      return true;
+    } catch (e) {
+      print("removeFromKeluargaAtomic ERROR: $e");
+      return false;
+    }
+  }
 }

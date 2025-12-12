@@ -14,17 +14,17 @@ import '../../features/dashboard/presentation/pages/kependudukan_dashboard_page.
 import '../../features/dashboard/presentation/pages/keuangan_dashboard_page.dart';
 
 // === Data Warga & Rumah ===
-import '../../features/warga/presentation/pages/warga/daftar_warga_page.dart';
-import '../../features/warga/presentation/pages/warga/tambah_warga_page.dart';
+import '../../features/kependudukan/presentation/pages/warga/daftar_warga_page.dart';
+import '../../features/kependudukan/presentation/pages/warga/tambah_warga_page.dart';
 
-import '../../features/warga/presentation/pages/rumah/daftar_rumah_page.dart';
-import '../../features/warga/presentation/pages/rumah/tambah_rumah_page.dart';
+import '../../features/kependudukan/presentation/pages/rumah/daftar_rumah_page.dart';
+import '../../features/kependudukan/presentation/pages/rumah/tambah_rumah_page.dart';
 
-import '../../features/warga/presentation/pages/keluarga/keluarga_page.dart';
+import '../../features/kependudukan/presentation/pages/keluarga/keluarga_page.dart';
 
 // === Mutasi Keluarga ===
-import '../../features/warga/presentation/pages/mutasi/daftar_mutasi_page.dart';
-import '../../features/warga/presentation/pages/mutasi/tambah_mutasi_page.dart';
+import '../../features/kependudukan/presentation/pages/mutasi/daftar_mutasi_page.dart';
+import '../../features/kependudukan/presentation/pages/mutasi/tambah_mutasi_page.dart';
 
 // === Pengeluaran ===
 import '../../features/laporan/presentation/pages/pengeluaran/semua_pengeluaran_page.dart';
