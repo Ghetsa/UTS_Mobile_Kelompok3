@@ -47,7 +47,7 @@ class _MutasiDaftarPageState extends State<MutasiDaftarPage> {
       builder: (_) => AlertDialog(
         title: const Text("Hapus Mutasi?"),
         content: Text(
-          "Yakin ingin menghapus mutasi dengan ID dokumen '${item.uid}' ?",
+          "Yakin ingin menghapus mutasi ini?",
         ),
         actions: [
           TextButton(
@@ -55,7 +55,10 @@ class _MutasiDaftarPageState extends State<MutasiDaftarPage> {
             child: const Text("Batal"),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () async {
               Navigator.pop(context);
               final ok = await _controller.deleteMutasi(item);

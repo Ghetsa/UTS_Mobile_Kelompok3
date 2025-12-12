@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../../../../core/layout/header.dart';
 import '../../../../../core/theme/app_theme.dart';
 
 import '../../data/models/kegiatan_model.dart';
 import '../../data/services/kegiatan_service.dart';
-import '../../presentation/widgets/kegiatan_card.dart';
-import '../../presentation/widgets/kegiatan_filter.dart';
 
 class TambahKegiatanPage extends StatefulWidget {
   const TambahKegiatanPage({super.key});
@@ -19,8 +19,10 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
 
   final TextEditingController _namaC = TextEditingController();
   final TextEditingController _lokasiC = TextEditingController();
-  final TextEditingController _pjC = TextEditingController();
   final TextEditingController _ketC = TextEditingController();
+
+  // ❌ hapus TextField PJ -> ganti dropdown
+  String? _selectedPjNama; // nilai dropdown (nama warga)
 
   String? _kategori = "Komunitas & Sosial";
   String _status = "rencana";
@@ -39,6 +41,39 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
     "Pendidikan",
     "Olahraga",
   ];
+
+  // ========= LOAD WARGA =========
+  bool _loadingWarga = true;
+  List<String> _wargaNamaList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWarga();
+  }
+
+  Future<void> _loadWarga() async {
+    try {
+      final snap = await FirebaseFirestore.instance
+          .collection('warga')
+          .orderBy('nama')
+          .get();
+
+      final names = snap.docs
+          .map((d) => (d.data()['nama'] ?? '').toString().trim())
+          .where((n) => n.isNotEmpty)
+          .toSet()
+          .toList()
+        ..sort();
+
+      setState(() {
+        _wargaNamaList = names;
+        _loadingWarga = false;
+      });
+    } catch (e) {
+      setState(() => _loadingWarga = false);
+    }
+  }
 
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
@@ -62,9 +97,7 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
       firstDate: DateTime(now.year - 5),
       lastDate: DateTime(now.year + 5),
     );
-    if (picked != null) {
-      setState(() => _tglMulai = picked);
-    }
+    if (picked != null) setState(() => _tglMulai = picked);
   }
 
   Future<void> _pickTanggalSelesai() async {
@@ -75,9 +108,14 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
       firstDate: base,
       lastDate: DateTime(base.year + 5),
     );
-    if (picked != null) {
-      setState(() => _tglSelesai = picked);
-    }
+    if (picked != null) setState(() => _tglSelesai = picked);
+  }
+
+  String _formatDate(DateTime? d) {
+    if (d == null) return '--/--/----';
+    return "${d.day.toString().padLeft(2, '0')}-"
+        "${d.month.toString().padLeft(2, '0')}-"
+        "${d.year}";
   }
 
   Future<void> _submit() async {
@@ -92,7 +130,7 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
       nama: _namaC.text.trim(),
       kategori: _kategori ?? "",
       lokasi: _lokasiC.text.trim(),
-      penanggungJawab: _pjC.text.trim(),
+      penanggungJawab: (_selectedPjNama ?? "").trim(), // ✅ dari dropdown
       status: _status,
       keterangan: _ketC.text.trim(),
       tanggalMulai: _tglMulai ?? now,
@@ -125,18 +163,10 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
     }
   }
 
-  String _formatDate(DateTime? d) {
-    if (d == null) return '--/--/----';
-    return "${d.day.toString().padLeft(2, '0')}-"
-        "${d.month.toString().padLeft(2, '0')}-"
-        "${d.year}";
-  }
-
   @override
   void dispose() {
     _namaC.dispose();
     _lokasiC.dispose();
-    _pjC.dispose();
     _ketC.dispose();
     super.dispose();
   }
@@ -211,11 +241,26 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        TextFormField(
-                          controller: _pjC,
-                          decoration:
-                              _inputDecoration("Penanggung Jawab"),
-                        ),
+                        // ✅ PENANGGUNG JAWAB (DROPDOWN DARI WARGA)
+                        _loadingWarga
+                            ? const LinearProgressIndicator()
+                            : DropdownButtonFormField<String>(
+                                value: _selectedPjNama,
+                                isExpanded: true,
+                                decoration: _inputDecoration("Penanggung Jawab")
+                                    .copyWith(labelText: "Penanggung Jawab"),
+                                items: _wargaNamaList
+                                    .map((n) => DropdownMenuItem(
+                                          value: n,
+                                          child: Text(n),
+                                        ))
+                                    .toList(),
+                                onChanged: (v) =>
+                                    setState(() => _selectedPjNama = v),
+                                validator: (v) => (v == null || v.isEmpty)
+                                    ? "Penanggung jawab wajib dipilih"
+                                    : null,
+                              ),
                         const SizedBox(height: 16),
 
                         DropdownButtonFormField<String>(
@@ -237,15 +282,12 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Tanggal mulai
                         InputDecorator(
                           decoration: _inputDecoration("Tanggal Mulai")
                               .copyWith(labelText: "Tanggal Mulai"),
                           child: Row(
                             children: [
-                              Expanded(
-                                child: Text(_formatDate(_tglMulai)),
-                              ),
+                              Expanded(child: Text(_formatDate(_tglMulai))),
                               IconButton(
                                 icon: const Icon(Icons.calendar_today),
                                 onPressed: _pickTanggalMulai,
@@ -255,16 +297,12 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Tanggal selesai
                         InputDecorator(
-                          decoration: _inputDecoration("Tanggal Selesai")
-                              .copyWith(
-                                  labelText: "Tanggal Selesai (opsional)"),
+                          decoration: _inputDecoration("Tanggal Selesai").copyWith(
+                              labelText: "Tanggal Selesai (opsional)"),
                           child: Row(
                             children: [
-                              Expanded(
-                                child: Text(_formatDate(_tglSelesai)),
-                              ),
+                              Expanded(child: Text(_formatDate(_tglSelesai))),
                               IconButton(
                                 icon: const Icon(Icons.calendar_today),
                                 onPressed: _pickTanggalSelesai,
@@ -293,8 +331,7 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
                             Expanded(
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      AppTheme.blueMediumLight,
+                                  backgroundColor: AppTheme.blueMediumLight,
                                   foregroundColor: Colors.black,
                                 ),
                                 onPressed: _loadingSubmit ? null : _submit,

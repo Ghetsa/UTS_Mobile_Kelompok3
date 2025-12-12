@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../data/models/tagih_iuran_mode.dart';
 import '../data/services/tagih_iuran_service.dart';
-import '../../warga/data/services/keluarga_service.dart';
-import '../../warga/data/models/keluarga_model.dart';
+import '../../kependudukan/data/services/keluarga_service.dart';
+import '../../kependudukan/data/models/keluarga_model.dart';
 
 class TagihanController {
   final TagihIuranService _tagihanService = TagihIuranService();

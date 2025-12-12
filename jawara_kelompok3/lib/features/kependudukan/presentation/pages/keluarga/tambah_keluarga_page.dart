@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../../../core/layout/header.dart';
 import '../../../../../core/theme/app_theme.dart';
 
+// Controller
+import '../../../controller/keluarga_controller.dart';
+
 // Service & Model
 import '../../../data/services/keluarga_service.dart';
 import '../../../data/services/rumah_service.dart';
@@ -21,28 +24,23 @@ class TambahKeluargaPage extends StatefulWidget {
 class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
   final _formKey = GlobalKey<FormState>();
 
+  final KeluargaController _keluargaController = KeluargaController();
+
   final TextEditingController _noKkC = TextEditingController();
   final TextEditingController _jumlahAnggotaC = TextEditingController();
 
-  // STATUS KELUARGA
   String _statusKeluarga = "aktif"; // aktif / pindah / sementara
 
-  // ==========================
-  // RUMAH dropdown
-  // ==========================
   final RumahService _rumahService = RumahService();
   final KeluargaService _keluargaService = KeluargaService();
 
   List<RumahModel> _listRumah = [];
-  String? _selectedRumahDocId; // simpan docId rumah
+  String? _selectedRumahDocId;
   bool _loadingRumah = true;
 
-  // ==========================
-  // WARGA (Kepala Keluarga) dropdown
-  // ==========================
   final WargaService _wargaService = WargaService();
   List<WargaModel> _listWarga = [];
-  String? _selectedKepalaWargaId; // docId warga yg jadi kepala
+  String? _selectedKepalaWargaId;
   bool _loadingWarga = true;
 
   bool _loadingSubmit = false;
@@ -56,6 +54,7 @@ class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
 
   Future<void> _loadRumah() async {
     final result = await _rumahService.getAllRumah();
+    if (!mounted) return;
     setState(() {
       _listRumah = result;
       _loadingRumah = false;
@@ -64,10 +63,24 @@ class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
 
   Future<void> _loadWarga() async {
     final result = await _wargaService.getAllWarga();
+    if (!mounted) return;
     setState(() {
       _listWarga = result;
       _loadingWarga = false;
     });
+  }
+
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      filled: true,
+      fillColor: const Color(0xFFF4F8FB),
+      hintText: hint,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
   }
 
   Future<void> _simpan() async {
@@ -89,67 +102,131 @@ class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
 
     setState(() => _loadingSubmit = true);
 
-    // cari nama kepala dari list warga
-    final kepala = _listWarga.firstWhere(
-      (w) => w.docId == _selectedKepalaWargaId,
-      orElse: () => _listWarga.first,
-    );
+    try {
+      final kepala = _listWarga.firstWhere(
+        (w) => w.docId == _selectedKepalaWargaId,
+        orElse: () => _listWarga.first,
+      );
 
-    final payload = {
-      "kepala_keluarga": kepala.nama, // nama untuk tampilan
-      "id_kepala_warga": _selectedKepalaWargaId, // docId warga
-      "no_kk": _noKkC.text.trim(),
-      "id_rumah": _selectedRumahDocId, // docId rumah
-      "jumlah_anggota": _jumlahAnggotaC.text.trim(),
-      "status_keluarga": _statusKeluarga, // aktif / pindah / sementara
-    };
+      final payload = {
+        "kepala_keluarga": kepala.nama,
+        "id_kepala_warga": _selectedKepalaWargaId,
+        "no_kk": _noKkC.text.trim(),
+        "id_rumah": _selectedRumahDocId,
+        "jumlah_anggota": _jumlahAnggotaC.text.trim(),
+        "status_keluarga": _statusKeluarga,
+      };
 
-    final ok = await _keluargaService.addKeluarga(payload);
+      // ✅ simpan keluarga + ambil docId keluarga baru
+      final keluargaId =
+          await _keluargaController.addWithRumahAutomationReturnId(payload);
 
-    // ✅ JIKA BERHASIL, SET KEPEMILIKAN RUMAH MENJADI "Pemilik" (kalau masih kosong / Kosong)
-    if (ok && _selectedRumahDocId != null) {
-      final rumah = await _rumahService.getAllRumah().then(
-            (list) => list.firstWhere(
-              (r) => r.docId == _selectedRumahDocId,
-              orElse: () => list.isNotEmpty ? list.first : throw Exception(),
+      if (keluargaId == null) {
+        if (!mounted) return;
+        setState(() => _loadingSubmit = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Gagal menyimpan data keluarga."),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // ✅ update rumah: kepemilikan + status rumah
+      // await _updateRumahSaatDitempati(_selectedRumahDocId!);
+
+      // ✅ tanya apakah kepala keluarga langsung jadi anggota
+      final addAsAnggota = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Tambahkan Kepala Keluarga sebagai anggota?"),
+          content: Text(
+              "Jadikan '${kepala.nama}' sebagai anggota keluarga ini sekarang?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text("Nanti"),
             ),
-          );
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text("Ya"),
+            ),
+          ],
+        ),
+      );
 
-      if (rumah.kepemilikan.isEmpty ||
-          rumah.kepemilikan.toLowerCase() == 'kosong') {
-        await _rumahService.updateRumah(rumah.docId, {
-          'kepemilikan': 'Pemilik',
+      if (addAsAnggota == true) {
+        await _wargaService.updateWarga(kepala.docId, {
+          "id_keluarga": keluargaId,
+          "id_rumah": _selectedRumahDocId,
+          "no_kk": _noKkC.text.trim(),
+        });
+
+        final count = await _wargaService.countWargaByKeluarga(keluargaId);
+        await _keluargaService.updateKeluarga(keluargaId, {
+          "jumlah_anggota": count.toString(),
         });
       }
-    }
 
-    setState(() => _loadingSubmit = false);
+      if (!mounted) return;
+      setState(() => _loadingSubmit = false);
 
-    if (!mounted) return;
-
-    if (ok) {
-      Navigator.pop(context, true);
-    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Gagal menyimpan data"),
+          content: Text("✅ Keluarga berhasil ditambahkan"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loadingSubmit = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Terjadi error: $e"),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
 
-  InputDecoration _inputDecoration(String hint) {
-    return InputDecoration(
-      filled: true,
-      fillColor: const Color(0xFFF4F8FB),
-      hintText: hint,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    );
+  /// ✅ Update rumah saat sudah ditempati keluarga:
+  /// - kepemilikan: kalau kosong/kosong → Pemilik
+  /// - status_rumah: selalu jadi Dihuni
+  Future<void> _updateRumahSaatDitempati(String rumahDocId) async {
+    try {
+      final rumahList = await _rumahService.getAllRumah();
+      final rumah = rumahList.firstWhere(
+        (r) => r.docId == rumahDocId,
+        orElse: () => throw Exception("Rumah tidak ditemukan"),
+      );
+
+      final Map<String, dynamic> update = {
+        // ✅ status rumah jadi dihuni
+        "status_rumah": "Dihuni",
+      };
+
+      // ✅ kepemilikan kalau masih kosong
+      final kep = rumah.kepemilikan.trim().toLowerCase();
+      if (kep.isEmpty || kep == "kosong") {
+        update["kepemilikan"] = "Pemilik";
+      }
+
+      await _rumahService.updateRumah(rumah.docId, update);
+    } catch (e) {
+      // tidak perlu gagalkan proses keluarga, tapi log biar ketahuan
+      // ignore: avoid_print
+      print("ERROR update rumah saat ditempati: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _noKkC.dispose();
+    _jumlahAnggotaC.dispose();
+    super.dispose();
   }
 
   @override
@@ -160,7 +237,7 @@ class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MainHeader(
+            const MainHeader(
               title: "Tambah Keluarga",
               showSearchBar: false,
               showFilterButton: false,
@@ -195,14 +272,10 @@ class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-
-                        // ================= KEPALA KELUARGA (WARGA) =================
                         const Text(
                           "Pilih Kepala Keluarga (Warga)",
                           style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
+                              fontSize: 15, fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 6),
                         _loadingWarga
@@ -210,9 +283,8 @@ class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
                             : DropdownButtonFormField<String>(
                                 value: _selectedKepalaWargaId,
                                 isExpanded: true,
-                                decoration: _inputDecoration(
-                                  "Pilih Kepala Keluarga (berdasarkan warga)",
-                                ),
+                                decoration:
+                                    _inputDecoration("Pilih Kepala Keluarga"),
                                 items: _listWarga.map((w) {
                                   return DropdownMenuItem(
                                     value: w.docId,
@@ -225,9 +297,7 @@ class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
                                     ? "Kepala Keluarga wajib dipilih"
                                     : null,
                               ),
-
                         const SizedBox(height: 16),
-
                         TextFormField(
                           controller: _noKkC,
                           decoration: _inputDecoration("Nomor KK"),
@@ -235,7 +305,6 @@ class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
                               v == null || v.isEmpty ? "Wajib diisi" : null,
                         ),
                         const SizedBox(height: 16),
-
                         TextFormField(
                           controller: _jumlahAnggotaC,
                           decoration: _inputDecoration("Jumlah Anggota"),
@@ -244,13 +313,10 @@ class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
                               v == null || v.isEmpty ? "Wajib diisi" : null,
                         ),
                         const SizedBox(height: 16),
-
                         const Text(
                           "Status Keluarga",
                           style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
+                              fontSize: 15, fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
@@ -264,19 +330,14 @@ class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
                             DropdownMenuItem(
                                 value: "sementara", child: Text("Sementara")),
                           ],
-                          onChanged: (v) {
-                            if (v == null) return;
-                            setState(() => _statusKeluarga = v);
-                          },
+                          onChanged: (v) =>
+                              setState(() => _statusKeluarga = v ?? "aktif"),
                         ),
                         const SizedBox(height: 16),
-
                         const Text(
                           "Pilih Rumah",
                           style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
+                              fontSize: 15, fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 6),
                         _loadingRumah
@@ -287,7 +348,7 @@ class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
                                 decoration: _inputDecoration("Pilih rumah"),
                                 items: _listRumah.map((r) {
                                   return DropdownMenuItem(
-                                    value: r.docId, // simpan docId rumah
+                                    value: r.docId,
                                     child: Text("No. ${r.nomor} • ${r.alamat}"),
                                   );
                                 }).toList(),
@@ -296,7 +357,6 @@ class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
                                 validator: (v) =>
                                     v == null ? "Pilih rumah" : null,
                               ),
-
                         const SizedBox(height: 30),
                         Row(
                           children: [
@@ -327,7 +387,7 @@ class _TambahKeluargaPageState extends State<TambahKeluargaPage> {
                               ),
                             ),
                           ],
-                        ),
+                        )
                       ],
                     ),
                   ),

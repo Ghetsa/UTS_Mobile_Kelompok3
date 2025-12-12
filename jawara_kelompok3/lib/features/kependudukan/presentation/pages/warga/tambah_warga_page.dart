@@ -10,7 +10,18 @@ import '../../../data/models/rumah_model.dart';
 import '../../../data/services/rumah_service.dart';
 
 class TambahWargaPage extends StatefulWidget {
-  const TambahWargaPage({super.key});
+  const TambahWargaPage({
+    super.key,
+    this.presetRumahDocId,
+    this.presetKeluargaDocId,
+    this.presetNoKk,
+    this.modeBayi = false,
+  });
+
+  final String? presetRumahDocId;
+  final String? presetKeluargaDocId;
+  final String? presetNoKk;
+  final bool modeBayi;
 
   @override
   State<TambahWargaPage> createState() => _TambahWargaPageState();
@@ -27,8 +38,8 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
   final TextEditingController pendidikanC = TextEditingController();
   final TextEditingController pekerjaanC = TextEditingController();
 
-  String jenisKelamin = "p";
-  String statusWarga = "aktif";
+  String jenisKelamin = "P";
+  String statusWarga = "Aktif";
   DateTime? tanggalLahir;
 
   final wargaController = WargaController();
@@ -36,17 +47,34 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
   // 🔹 Data Rumah untuk dropdown
   final RumahService _rumahService = RumahService();
   List<RumahModel> _listRumah = [];
-  String? _selectedRumahDocId; // simpan docId rumah
+  String? _selectedRumahDocId;
   bool _loadingRumah = true;
 
   @override
   void initState() {
     super.initState();
     _loadRumah();
+
+    // preset dari luar (misal dari keluarga)
+    if (widget.presetRumahDocId != null) {
+      _selectedRumahDocId = widget.presetRumahDocId;
+    }
+    if (widget.presetNoKk != null && widget.presetNoKk!.isNotEmpty) {
+      noKkC.text = widget.presetNoKk!;
+    }
+
+    // mode bayi
+    if (widget.modeBayi) {
+      pendidikanC.text = "Belum sekolah";
+      pekerjaanC.text = "";
+      noHpC.text = "";
+      nikC.text = ""; // kalau belum ada NIK, user bisa isi nanti
+    }
   }
 
   Future<void> _loadRumah() async {
     final result = await _rumahService.getAllRumah();
+    if (!mounted) return;
     setState(() {
       _listRumah = result;
       _loadingRumah = false;
@@ -75,9 +103,9 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
       agama: agamaC.text.trim(),
       jenisKelamin: jenisKelamin,
       pekerjaan: pekerjaanC.text.trim(),
-      pendidikan: pendidikanC.text.trim(), // ⬅️ dari dropdown
+      pendidikan: pendidikanC.text.trim(),
       idRumah: _selectedRumahDocId!,
-      idKeluarga: "",
+      idKeluarga: widget.presetKeluargaDocId ?? "",
       statusWarga: statusWarga,
       tanggalLahir: tanggalLahir ?? now,
       createdAt: now,
@@ -92,7 +120,7 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Warga berhasil ditambahkan")),
       );
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -110,9 +138,7 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
       firstDate: DateTime(1950),
       lastDate: DateTime.now(),
     );
-    if (picked != null) {
-      setState(() => tanggalLahir = picked);
-    }
+    if (picked != null) setState(() => tanggalLahir = picked);
   }
 
   InputDecoration _inputDecoration(String hint) {
@@ -148,8 +174,8 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const MainHeader(
-              title: "Tambah Warga",
+            MainHeader(
+              title: widget.modeBayi ? "Tambah Bayi" : "Tambah Warga",
               showSearchBar: false,
               showFilterButton: false,
             ),
@@ -183,8 +209,6 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-
-                        // NAMA
                         TextFormField(
                           controller: namaC,
                           decoration: _inputDecoration("Nama"),
@@ -193,32 +217,28 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                               : null,
                         ),
                         const SizedBox(height: 16),
-
-                        // NIK
                         TextFormField(
                           controller: nikC,
                           decoration: _inputDecoration("NIK"),
-                          validator: (v) => v == null || v.trim().isEmpty
-                              ? "NIK wajib diisi"
-                              : null,
+                          validator: (v) {
+                            // kalau mode bayi, NIK boleh kosong
+                            if (widget.modeBayi) return null;
+                            return v == null || v.trim().isEmpty
+                                ? "NIK wajib diisi"
+                                : null;
+                          },
                         ),
                         const SizedBox(height: 16),
-
-                        // NO KK
                         TextFormField(
                           controller: noKkC,
                           decoration: _inputDecoration("No KK"),
                         ),
                         const SizedBox(height: 16),
-
-                        // NO HP
                         TextFormField(
                           controller: noHpC,
                           decoration: _inputDecoration("No HP"),
                         ),
                         const SizedBox(height: 16),
-
-                        // AGAMA
                         DropdownButtonFormField<String>(
                           value: agamaC.text.isEmpty ? null : agamaC.text,
                           decoration: _inputDecoration("Agama")
@@ -236,19 +256,19 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                                 value: "Buddha", child: Text("Buddha")),
                             DropdownMenuItem(
                                 value: "Konghucu", child: Text("Konghucu")),
+                            DropdownMenuItem(
+                              value: "Kepercayaan YME",
+                              child: Text("Kepercayaan YME"),
+                            ),
                           ],
                           onChanged: (v) {
-                            if (v != null) {
-                              setState(() => agamaC.text = v);
-                            }
+                            if (v != null) setState(() => agamaC.text = v);
                           },
                           validator: (v) => v == null || v.isEmpty
                               ? "Agama wajib dipilih"
                               : null,
                         ),
                         const SizedBox(height: 16),
-
-                        // 🔽 PENDIDIKAN (DROPDOWN SD–S3)
                         DropdownButtonFormField<String>(
                           value: pendidikanC.text.isEmpty
                               ? null
@@ -256,6 +276,9 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                           decoration: _inputDecoration("Pendidikan")
                               .copyWith(labelText: "Pendidikan"),
                           items: const [
+                            DropdownMenuItem(
+                                value: "Belum sekolah",
+                                child: Text("Belum sekolah")),
                             DropdownMenuItem(value: "SD", child: Text("SD")),
                             DropdownMenuItem(value: "SMP", child: Text("SMP")),
                             DropdownMenuItem(
@@ -267,30 +290,22 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                             DropdownMenuItem(value: "S3", child: Text("S3")),
                           ],
                           onChanged: (v) {
-                            if (v != null) {
-                              setState(() => pendidikanC.text = v);
-                            }
+                            if (v != null) setState(() => pendidikanC.text = v);
                           },
                           validator: (v) => v == null || v.isEmpty
                               ? "Pendidikan wajib dipilih"
                               : null,
                         ),
                         const SizedBox(height: 16),
-
-                        // PEKERJAAN
                         TextFormField(
                           controller: pekerjaanC,
                           decoration: _inputDecoration("Pekerjaan"),
                         ),
                         const SizedBox(height: 16),
-
-                        // 🔹 DROPDOWN PILIH RUMAH
                         const Text(
                           "Pilih Rumah",
                           style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
+                              fontSize: 15, fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 6),
                         _loadingRumah
@@ -298,61 +313,51 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                             : DropdownButtonFormField<String>(
                                 value: _selectedRumahDocId,
                                 isExpanded: true,
-                                decoration:
-                                    _inputDecoration("Pilih Rumah (ID Rumah)"),
+                                decoration: _inputDecoration("Pilih Rumah"),
                                 items: _listRumah.map((r) {
                                   return DropdownMenuItem(
                                     value: r.docId,
                                     child: Text("No. ${r.nomor} • ${r.alamat}"),
                                   );
                                 }).toList(),
-                                onChanged: (v) =>
-                                    setState(() => _selectedRumahDocId = v),
+                                onChanged: widget.presetRumahDocId != null
+                                    ? null
+                                    : (v) =>
+                                        setState(() => _selectedRumahDocId = v),
                                 validator: (v) =>
                                     v == null ? "Rumah wajib dipilih" : null,
                               ),
-
                         const SizedBox(height: 16),
-
-                        // JENIS KELAMIN
                         DropdownButtonFormField<String>(
                           value: jenisKelamin,
                           decoration: _inputDecoration("Jenis Kelamin")
                               .copyWith(labelText: "Jenis Kelamin"),
                           items: const [
                             DropdownMenuItem(
-                                value: "l", child: Text("Laki-laki")),
+                                value: "L", child: Text("Laki-laki")),
                             DropdownMenuItem(
-                                value: "p", child: Text("Perempuan")),
+                                value: "P", child: Text("Perempuan")),
                           ],
                           onChanged: (v) {
-                            if (v != null) {
-                              setState(() => jenisKelamin = v);
-                            }
+                            if (v != null) setState(() => jenisKelamin = v);
                           },
                         ),
                         const SizedBox(height: 16),
-
-                        // STATUS WARGA
                         DropdownButtonFormField<String>(
                           value: statusWarga,
                           decoration: _inputDecoration("Status Warga")
                               .copyWith(labelText: "Status Warga"),
                           items: const [
                             DropdownMenuItem(
-                                value: "aktif", child: Text("Aktif")),
+                                value: "Aktif", child: Text("Aktif")),
                             DropdownMenuItem(
-                                value: "nonaktif", child: Text("Nonaktif")),
+                                value: "Nonaktif", child: Text("Nonaktif")),
                           ],
                           onChanged: (v) {
-                            if (v != null) {
-                              setState(() => statusWarga = v);
-                            }
+                            if (v != null) setState(() => statusWarga = v);
                           },
                         ),
                         const SizedBox(height: 16),
-
-                        // TANGGAL LAHIR
                         InputDecorator(
                           decoration: _inputDecoration("Tanggal Lahir")
                               .copyWith(labelText: "Tanggal Lahir"),
@@ -374,14 +379,12 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                             ],
                           ),
                         ),
-
                         const SizedBox(height: 28),
-
                         Row(
                           children: [
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () => Navigator.pop(context),
+                                onPressed: () => Navigator.pop(context, false),
                                 child: const Text("Kembali"),
                               ),
                             ),
