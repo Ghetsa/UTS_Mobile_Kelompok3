@@ -3,11 +3,13 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../../../../core/theme/app_theme.dart';
 
 class KegiatanPieCard extends StatelessWidget {
-  final Map<String, double> data; // kategori → persen (%)
+  final Map<String, double> data;
+  final int totalKegiatan;
 
   const KegiatanPieCard({
     super.key,
     required this.data,
+    required this.totalKegiatan,
   });
 
   @override
@@ -20,9 +22,6 @@ class KegiatanPieCard extends StatelessWidget {
       AppTheme.redMediumLight,
       // kalau kategori > 5, nanti diputar lagi
     ];
-
-    final total =
-        data.values.isEmpty ? 0.0 : data.values.reduce((a, b) => a + b);
 
     return SizedBox(
       width: double.infinity,
@@ -47,7 +46,6 @@ class KegiatanPieCard extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 20),
-
             if (data.isEmpty)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12),
@@ -70,8 +68,7 @@ class KegiatanPieCard extends StatelessWidget {
                           centerSpaceRadius: 55,
                           sectionsSpace: 2,
                           sections: List.generate(data.length, (i) {
-                            final value =
-                                data.values.elementAt(i).abs();
+                            final value = data.values.elementAt(i).abs();
                             return PieChartSectionData(
                               value: value <= 0 ? 0.01 : value,
                               color: colors[i % colors.length],
@@ -87,14 +84,14 @@ class KegiatanPieCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          total.toInt().toString(),
+                          totalKegiatan.toString(),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
                           ),
                         ),
                         const Text(
-                          "Total %",
+                          "Kegiatan",
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey,

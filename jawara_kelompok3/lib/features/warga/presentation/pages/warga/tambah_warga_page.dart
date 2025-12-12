@@ -27,8 +27,8 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
   final TextEditingController pendidikanC = TextEditingController();
   final TextEditingController pekerjaanC = TextEditingController();
 
-  String jenisKelamin = "p";
-  String statusWarga = "aktif";
+  String jenisKelamin = "P";
+  String statusWarga = "Aktif";
   DateTime? tanggalLahir;
 
   final wargaController = WargaController();
@@ -74,8 +74,8 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
       noHp: noHpC.text.trim(),
       agama: agamaC.text.trim(),
       jenisKelamin: jenisKelamin,
-      pekerjaan: pekerjaanC.text.trim(),
-      pendidikan: pendidikanC.text.trim(), // ⬅️ dari dropdown
+      pekerjaan: pekerjaanC.text.trim(), // boleh kosong (bayi)
+      pendidikan: pendidikanC.text.trim(), // dari dropdown
       idRumah: _selectedRumahDocId!,
       idKeluarga: "",
       statusWarga: statusWarga,
@@ -218,7 +218,7 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // AGAMA
+                        // AGAMA (tambah Kepercayaan YME)
                         DropdownButtonFormField<String>(
                           value: agamaC.text.isEmpty ? null : agamaC.text,
                           decoration: _inputDecoration("Agama")
@@ -236,6 +236,9 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                                 value: "Buddha", child: Text("Buddha")),
                             DropdownMenuItem(
                                 value: "Konghucu", child: Text("Konghucu")),
+                            DropdownMenuItem(
+                                value: "Kepercayaan YME",
+                                child: Text("Kepercayaan YME")), // ⬅️ TAMBAHAN
                           ],
                           onChanged: (v) {
                             if (v != null) {
@@ -248,7 +251,7 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // 🔽 PENDIDIKAN (DROPDOWN SD–S3)
+                        // 🔽 PENDIDIKAN (DROPDOWN + Belum Sekolah)
                         DropdownButtonFormField<String>(
                           value: pendidikanC.text.isEmpty
                               ? null
@@ -256,6 +259,9 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                           decoration: _inputDecoration("Pendidikan")
                               .copyWith(labelText: "Pendidikan"),
                           items: const [
+                            DropdownMenuItem(
+                                value: "Belum sekolah",
+                                child: Text("Belum sekolah")),
                             DropdownMenuItem(value: "SD", child: Text("SD")),
                             DropdownMenuItem(value: "SMP", child: Text("SMP")),
                             DropdownMenuItem(
@@ -277,7 +283,7 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // PEKERJAAN
+                        // PEKERJAAN (boleh kosong)
                         TextFormField(
                           controller: pekerjaanC,
                           decoration: _inputDecoration("Pekerjaan"),
@@ -298,8 +304,7 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                             : DropdownButtonFormField<String>(
                                 value: _selectedRumahDocId,
                                 isExpanded: true,
-                                decoration:
-                                    _inputDecoration("Pilih Rumah (ID Rumah)"),
+                                decoration: _inputDecoration("Pilih Rumah"),
                                 items: _listRumah.map((r) {
                                   return DropdownMenuItem(
                                     value: r.docId,
@@ -321,9 +326,9 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                               .copyWith(labelText: "Jenis Kelamin"),
                           items: const [
                             DropdownMenuItem(
-                                value: "l", child: Text("Laki-laki")),
+                                value: "L", child: Text("Laki-laki")),
                             DropdownMenuItem(
-                                value: "p", child: Text("Perempuan")),
+                                value: "P", child: Text("Perempuan")),
                           ],
                           onChanged: (v) {
                             if (v != null) {
@@ -340,9 +345,9 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                               .copyWith(labelText: "Status Warga"),
                           items: const [
                             DropdownMenuItem(
-                                value: "aktif", child: Text("Aktif")),
+                                value: "Aktif", child: Text("Aktif")),
                             DropdownMenuItem(
-                                value: "nonaktif", child: Text("Nonaktif")),
+                                value: "Nonaktif", child: Text("Nonaktif")),
                           ],
                           onChanged: (v) {
                             if (v != null) {

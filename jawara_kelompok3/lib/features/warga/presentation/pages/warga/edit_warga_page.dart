@@ -36,6 +36,7 @@ class _EditWargaPageState extends State<EditWargaPage> {
     "Hindu",
     "Buddha",
     "Konghucu",
+    "Kepercayaan YME", // ⬅️ TAMBAHAN
   ];
 
   // 🔹 Data rumah untuk dropdown
@@ -119,19 +120,23 @@ class _EditWargaPageState extends State<EditWargaPage> {
                 onChanged: (v) => setState(() => agama = v),
               ),
 
+              // PEKERJAAN (boleh dikosongi)
               TextField(
                 controller: pekerjaanC,
                 decoration: const InputDecoration(labelText: "Pekerjaan"),
               ),
 
-              // 🔽 PENDIDIKAN — Dropdown SD–S3
+              // 🔽 PENDIDIKAN — Dropdown (tambah "Belum sekolah")
               DropdownButtonFormField<String>(
                 value: pendidikanC.text.isEmpty ? null : pendidikanC.text,
                 decoration: const InputDecoration(labelText: "Pendidikan"),
                 items: const [
+                  DropdownMenuItem(
+                      value: "Belum sekolah", child: Text("Belum sekolah")),
                   DropdownMenuItem(value: "SD", child: Text("SD")),
                   DropdownMenuItem(value: "SMP", child: Text("SMP")),
-                  DropdownMenuItem(value: "SMA", child: Text("SMA / SMK")),
+                  DropdownMenuItem(
+                      value: "SMA", child: Text("SMA / SMK")),
                   DropdownMenuItem(value: "D3", child: Text("D3")),
                   DropdownMenuItem(value: "D4", child: Text("D4")),
                   DropdownMenuItem(value: "S1", child: Text("S1")),
@@ -165,7 +170,7 @@ class _EditWargaPageState extends State<EditWargaPage> {
                       value: _selectedRumahDocId,
                       isExpanded: true,
                       decoration: const InputDecoration(
-                        labelText: "Rumah (ID Rumah)",
+                        labelText: "Pilih Rumah", // ⬅️ HAPUS 'ID RUMAH'
                       ),
                       items: _listRumah.map((r) {
                         return DropdownMenuItem(
@@ -183,8 +188,8 @@ class _EditWargaPageState extends State<EditWargaPage> {
               DropdownButtonFormField(
                 value: jenisKelamin,
                 items: const [
-                  DropdownMenuItem(value: "l", child: Text("Laki-laki")),
-                  DropdownMenuItem(value: "p", child: Text("Perempuan")),
+                  DropdownMenuItem(value: "L", child: Text("Laki-laki")),
+                  DropdownMenuItem(value: "P", child: Text("Perempuan")),
                 ],
                 decoration: const InputDecoration(labelText: "Jenis Kelamin"),
                 onChanged: (v) => setState(() => jenisKelamin = v!),
@@ -193,9 +198,9 @@ class _EditWargaPageState extends State<EditWargaPage> {
               DropdownButtonFormField(
                 value: statusWarga,
                 items: const [
-                  DropdownMenuItem(value: "aktif", child: Text("Aktif")),
+                  DropdownMenuItem(value: "Aktif", child: Text("Aktif")),
                   DropdownMenuItem(
-                    value: "nonaktif",
+                    value: "Nonaktif",
                     child: Text("Tidak Aktif"),
                   ),
                 ],

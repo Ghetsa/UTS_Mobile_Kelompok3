@@ -22,8 +22,6 @@ class DashboardKegiatanPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
       drawer: const AppSidebar(),
-
-      // 🔹 FAB di pojok kanan bawah menuju halaman Data Kegiatan
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppTheme.primaryBlue,
         elevation: 4,
@@ -41,7 +39,6 @@ class DashboardKegiatanPage extends StatelessWidget {
           );
         },
       ),
-
       body: SafeArea(
         child: Column(
           children: [
@@ -79,7 +76,7 @@ class DashboardKegiatanPage extends StatelessWidget {
 
                   int total = docs.length;
                   int lewat = 0;
-                  int hariIni = 0;
+                  int sedangBerlangsung = 0; // ⬅️ BUKAN lagi "hari ini"
                   int akanDatang = 0;
 
                   final List<int> perBulan = List.filled(12, 0);
@@ -89,28 +86,53 @@ class DashboardKegiatanPage extends StatelessWidget {
                   for (final d in docs) {
                     final data = d.data();
 
-                    // 🔹 pakai field 'tanggal_mulai' (bukan 'tanggal')
                     DateTime? tglMulai;
+                    DateTime? tglSelesai;
+
+                    // tanggal_mulai
                     if (data['tanggal_mulai'] != null &&
                         data['tanggal_mulai'] is Timestamp) {
                       tglMulai = (data['tanggal_mulai'] as Timestamp).toDate();
                     }
 
-                    // Klasifikasi lewat / hari ini / akan datang
-                    if (tglMulai != null) {
-                      final onlyDate =
-                          DateTime(tglMulai.year, tglMulai.month, tglMulai.day);
+                    // tanggal_selesai (opsional)
+                    if (data['tanggal_selesai'] != null &&
+                        data['tanggal_selesai'] is Timestamp) {
+                      tglSelesai =
+                          (data['tanggal_selesai'] as Timestamp).toDate();
+                    }
 
-                      if (onlyDate.isBefore(today)) {
+                    if (tglMulai != null) {
+                      final mulaiDate = DateTime(
+                        tglMulai.year,
+                        tglMulai.month,
+                        tglMulai.day,
+                      );
+
+                      // kalau tidak ada tanggal_selesai → anggap 1 hari
+                      final selesaiDate = tglSelesai != null
+                          ? DateTime(
+                              tglSelesai.year,
+                              tglSelesai.month,
+                              tglSelesai.day,
+                            )
+                          : mulaiDate;
+
+                      // 🔹 KLASIFIKASI:
+                      // lewat      : selesai < hari ini
+                      // akan datang: mulai  > hari ini
+                      // berlangsung: today berada di interval [mulai, selesai]
+                      if (selesaiDate.isBefore(today)) {
                         lewat++;
-                      } else if (onlyDate.isAtSameMomentAs(today)) {
-                        hariIni++;
-                      } else {
+                      } else if (mulaiDate.isAfter(today)) {
                         akanDatang++;
+                      } else {
+                        // today di antara mulai–selesai
+                        sedangBerlangsung++;
                       }
 
-                      // Hitung per bulan (0 = Jan, 11 = Des)
-                      final monthIndex = tglMulai.month - 1;
+                      // Hitung per bulan pakai bulan MULAI (0 = Jan, 11 = Des)
+                      final monthIndex = mulaiDate.month - 1;
                       if (monthIndex >= 0 && monthIndex < 12) {
                         perBulan[monthIndex]++;
                       }
@@ -125,10 +147,6 @@ class DashboardKegiatanPage extends StatelessWidget {
                         .toString();
                     pjMap[pj] = (pjMap[pj] ?? 0) + 1;
                   }
-
-                  final totalWaktu = lewat + hariIni + akanDatang;
-                  final subtitleWaktu =
-                      "Lewat: $lewat • Hari Ini: $hariIni • Akan Datang: $akanDatang";
 
                   final Map<String, double> kategoriPersen = {};
                   if (total > 0) {
@@ -150,27 +168,26 @@ class DashboardKegiatanPage extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
+                        // ⬇️ hariIni diganti sedangBerlangsung
                         KegiatanWaktuCard(
                           lewat: lewat,
-                          hariIni: hariIni,
+                          hariIni: sedangBerlangsung,
                           akanDatang: akanDatang,
                         ),
 
                         const SizedBox(height: 16),
 
-                        // 🔹 PIE KATEGORI
                         KegiatanPieCard(
                           data: kategoriPersen,
+                          totalKegiatan: total,
                         ),
                         const SizedBox(height: 16),
 
-                        // 🔹 BAR PER BULAN
                         KegiatanBarChartCard(
                           monthlyData: perBulan,
                         ),
                         const SizedBox(height: 16),
 
-                        // 🔹 PENANGGUNG JAWAB TERBANYAK
                         KegiatanListCard(
                           nama: topPj,
                           jumlah: topCount,
