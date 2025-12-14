@@ -23,6 +23,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController nikController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController manualAddressController = TextEditingController();
+  final TextEditingController agamaController = TextEditingController();
+  final TextEditingController pekerjaanController = TextEditingController();
 
   // ===== STATE VARIABLES =====
   String? _selectedGender;
@@ -61,15 +63,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // ===== HELPERS =====
   void _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      allowedExtensions: ['png', 'jpg', 'jpeg'],
-    );
-    if (result != null) {
-      setState(() {
-        _profilePhotoBytes = result.files.first.bytes;
-        _profilePhotoName = result.files.first.name;
-      });
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+        withData: true,
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        setState(() {
+          _profilePhotoBytes = result.files.first.bytes;
+          _profilePhotoName = result.files.first.name;
+        });
+      }
+    } catch (e) {
+      print("Error picking file: $e");
     }
   }
 
@@ -320,6 +328,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       nama: nameController.text.trim(),
       nik: nik,
       noHp: phoneController.text.trim(),
+      agama: agamaController.text.trim(),
+      pekerjaan: pekerjaanController.text.trim(),
       role: 'warga',
       jenis_kelamin: _selectedGender,
       alamat: addressToSend,
@@ -446,6 +456,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     hint: 'Masukkan nama lengkap',
                     controller: nameController),
                 _buildInputField(
+                    label: 'Agama',
+                    hint: 'Masukkan agama',
+                    controller: agamaController),
+                _buildInputField(
                     label: 'Email',
                     hint: 'Masukkan email aktif',
                     controller: emailController),
@@ -474,6 +488,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     hint: 'Masukkan NIK',
                     controller: nikController,
                     keyboardType: TextInputType.number),
+                _buildInputField(
+                    label: 'Pekerjaan',
+                    hint: 'Masukkan pekerjaan',
+                    controller: pekerjaanController),
                 _buildInputField(
                     label: 'No Telepon',
                     hint: 'Masukkan nomor telepon',
