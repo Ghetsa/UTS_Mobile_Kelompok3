@@ -56,12 +56,12 @@ class User {
     return {
       'nama': nama,
       'email': email,
-      'statusRegistrasi': statusPengguna,
+      'status_warga': statusPengguna,
       'role': role,
       'nik': nik,
-      'noHp': noHp,
-      'jenisKelamin': jenisKelamin,
-      'fotoIdentitas': fotoIdentitas,
+      'no_hp': noHp,
+      'jenis_kelamin': jenisKelamin,
+      'foto_identitas': fotoIdentitas,
       'created_at': createdAt != null
           ? Timestamp.fromDate(createdAt!)
           : FieldValue.serverTimestamp(),
