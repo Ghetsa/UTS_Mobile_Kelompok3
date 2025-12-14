@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../../../../../../core/layout/header.dart';
 import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../data/models/semua_pengeluaran_model.dart';
+import '../../../data/services/semua_pengeluaran_service.dart';
 import '../../widgets/card/semua_pengeluaran_card.dart';
 
 class PengeluaranDaftarPage extends StatefulWidget {
@@ -12,27 +15,47 @@ class PengeluaranDaftarPage extends StatefulWidget {
 }
 
 class _PengeluaranDaftarPageState extends State<PengeluaranDaftarPage> {
-  late List<PengeluaranModel> pengeluaran;
+  // ...existing code...
+  List<PengeluaranModel> pengeluaran = [];
+  bool _loading = true;
+  String search = "";
 
-  @override
-  void initState() {
-    super.initState();
-    pengeluaran = [
-      PengeluaranModel(
-        id: '1',
-        nama: 'Pembelian ATK',
-        jenis: 'Operasional',
-        tanggal: '13 Oktober 2025',
-        nominal: 'Rp 500.000,00',
-      ),
-      PengeluaranModel(
-        id: '2',
-        nama: 'Perawatan Kantor',
-        jenis: 'Perawatan',
-        tanggal: '12 Agustus 2025',
-        nominal: 'Rp 1.000.000,00',
-      ),
-    ];
+  final PengeluaranService _service = PengeluaranService();
+
+  // Stream realtime dari Firestore
+  Stream<List<PengeluaranModel>> _pengeluaranStream() {
+    return FirebaseFirestore.instance
+        .collection('pengeluaran')
+        .orderBy('created_at', descending: true)
+        .snapshots()
+        .map((qs) => qs.docs.map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              return PengeluaranModel(
+                id: doc.id,
+                nama: data['nama'] ?? '',
+                jenis: data['jenis'] ?? '',
+                tanggal: data['tanggal'] ?? '',
+                nominal: data['nominal']?.toString() ?? '',
+              );
+            }).toList());
+  }
+
+  Future<void> _deleteData(String id) async {
+    final ok = await _service.delete(id);
+    if (ok) {
+      setState(() {
+        pengeluaran.removeWhere((e) => e.id == id);
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Data berhasil dihapus')));
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Gagal menghapus data')));
+      }
+    }
   }
 
   @override
@@ -40,131 +63,93 @@ class _PengeluaranDaftarPageState extends State<PengeluaranDaftarPage> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
       drawer: const AppSidebar(),
-      appBar: AppBar(
-        title: const Text("Daftar Pengeluaran"),
-        backgroundColor: AppTheme.primaryBlue,
-        foregroundColor: Colors.white,
+      floatingActionButton: GestureDetector(
+        onLongPress: () async {
+          // Hidden: seed two dummy docs for quick testing
+          await _service.seedDummy();
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Dummy pengeluaran ditambahkan')),
+          );
+        },
+        child: FloatingActionButton(
+          backgroundColor: const Color(0xFF0C88C2),
+          onPressed: () async {
+            await Navigator.pushNamed(context, '/pengeluaran/tambah');
+            // Dengan StreamBuilder, data akan otomatis muncul saat dokumen baru ditambahkan.
+          },
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 16),
+      body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.yellowDark,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                  ),
-                  onPressed: () {},
-                  icon: const Icon(Icons.filter_alt),
-                  label: const Text("Filter"),
-                ),
-              ),
+            MainHeader(
+              title: "Daftar Pengeluaran",
+              searchHint: "Cari pengeluaran...",
+              showSearchBar: true,
+              showFilterButton: false,
+              onSearch: (v) => setState(() => search = v.trim()),
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: pengeluaran.length,
-                itemBuilder: (context, index) {
-                  final item = pengeluaran[index];
-                  return PengeluaranCard(
-                    data: item,
-                    onDetail: () {
-                      showDialog<void>(
-                        context: context,
-                        barrierColor: Colors.black.withOpacity(0.5),
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('Detail Pengeluaran'),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Nama: ${item.nama}'),
-                              Text('Jenis: ${item.jenis}'),
-                              Text('Tanggal: ${item.tanggal}'),
-                              Text('Nominal: ${item.nominal}'),
-                            ],
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(ctx).pop(),
-                              child: const Text('Tutup'),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    onEdit: () async {
-                      final updated = await showDialog<PengeluaranModel?>(
-                        context: context,
-                        barrierColor: Colors.black.withOpacity(0.5),
-                        builder: (ctx) {
-                          final namaC = TextEditingController(text: item.nama);
-                          final jenisC =
-                              TextEditingController(text: item.jenis);
-                          final tanggalC =
-                              TextEditingController(text: item.tanggal);
-                          final nominalC =
-                              TextEditingController(text: item.nominal);
+              child: StreamBuilder<List<PengeluaranModel>>(
+                stream: _pengeluaranStream(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return const Center(child: Text('Gagal memuat data'));
+                  }
 
-                          return AlertDialog(
-                            title: const Text('Edit Pengeluaran'),
-                            content: SingleChildScrollView(
-                              child: Column(
+                  final list = (snapshot.data ?? [])
+                      .where((item) => search.isEmpty
+                          ? true
+                          : item.nama
+                              .toLowerCase()
+                              .contains(search.toLowerCase()))
+                      .toList();
+
+                  if (list.isEmpty) {
+                    return const Center(child: Text('Belum ada data'));
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: list.length,
+                    itemBuilder: (context, index) {
+                      final item = list[index];
+                      return PengeluaranCard(
+                        data: item,
+                        onDetail: () {
+                          showDialog<void>(
+                            context: context,
+                            barrierColor: Colors.black.withOpacity(0.5),
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Detail Pengeluaran'),
+                              content: Column(
                                 mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  TextField(
-                                      controller: namaC,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Nama')),
-                                  TextField(
-                                      controller: jenisC,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Jenis')),
-                                  TextField(
-                                      controller: tanggalC,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Tanggal')),
-                                  TextField(
-                                      controller: nominalC,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Nominal')),
+                                  Text('Nama: ${item.nama}'),
+                                  Text('Jenis: ${item.jenis}'),
+                                  Text('Tanggal: ${item.tanggal}'),
+                                  Text('Nominal: ${item.nominal}'),
                                 ],
                               ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(),
+                                  child: const Text('Tutup'),
+                                ),
+                              ],
                             ),
-                            actions: [
-                              TextButton(
-                                  onPressed: () => Navigator.of(ctx).pop(null),
-                                  child: const Text('Batal')),
-                              TextButton(
-                                onPressed: () {
-                                  final newModel = PengeluaranModel(
-                                    id: item.id,
-                                    nama: namaC.text,
-                                    jenis: jenisC.text,
-                                    tanggal: tanggalC.text,
-                                    nominal: nominalC.text,
-                                  );
-                                  Navigator.of(ctx).pop(newModel);
-                                },
-                                child: const Text('Simpan'),
-                              ),
-                            ],
                           );
                         },
+                        onDelete: () => _deleteData(item.id),
                       );
-                      if (updated != null) {
-                        setState(() {
-                          final i = pengeluaran.indexOf(item);
-                          pengeluaran[i] = updated;
-                        });
-                      }
                     },
                   );
                 },
@@ -174,5 +159,65 @@ class _PengeluaranDaftarPageState extends State<PengeluaranDaftarPage> {
         ),
       ),
     );
+  }
+}
+
+class PengeluaranService {
+  final CollectionReference _pengeluaranCollection =
+      FirebaseFirestore.instance.collection('pengeluaran');
+
+  Future<List<PengeluaranModel>> getAll() async {
+    try {
+      final snapshot = await _pengeluaranCollection.get();
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return PengeluaranModel(
+          id: doc.id,
+          nama: data['nama'] ?? '',
+          jenis: data['jenis'] ?? '',
+          tanggal: data['tanggal'] ?? '',
+          nominal: data['nominal'] ?? '',
+        );
+      }).toList();
+    } catch (e) {
+      print('Error fetching pengeluaran data: $e');
+      return [];
+    }
+  }
+
+  Future<bool> delete(String id) async {
+    try {
+      await _pengeluaranCollection.doc(id).delete();
+      return true;
+    } catch (e) {
+      print('Error deleting pengeluaran: $e');
+      return false;
+    }
+  }
+
+  // Seed two dummy pengeluaran docs for testing
+  Future<void> seedDummy() async {
+    final batch = FirebaseFirestore.instance.batch();
+    final now = FieldValue.serverTimestamp();
+
+    final d1 = _pengeluaranCollection.doc();
+    batch.set(d1, {
+      'nama': 'Perawatan Taman',
+      'jenis': 'Perawatan',
+      'tanggal': '14/12/2025',
+      'nominal': '75000',
+      'created_at': now,
+    });
+
+    final d2 = _pengeluaranCollection.doc();
+    batch.set(d2, {
+      'nama': 'Konsumsi Rapat',
+      'jenis': 'Konsumsi',
+      'tanggal': '15/12/2025',
+      'nominal': '50000',
+      'created_at': now,
+    });
+
+    await batch.commit();
   }
 }

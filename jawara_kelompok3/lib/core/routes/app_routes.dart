@@ -27,10 +27,9 @@ import '../../features/kependudukan/presentation/pages/mutasi/daftar_mutasi_page
 import '../../features/kependudukan/presentation/pages/mutasi/tambah_mutasi_page.dart';
 
 // === Pengeluaran ===
+import '../../features/laporan/presentation/pages/pengeluaran/daftar_pengeluaran_page.dart';
 import '../../features/laporan/presentation/pages/pengeluaran/semua_pengeluaran_page.dart';
 import '../../features/laporan/presentation/pages/pengeluaran/tambah_pengeluaran_page.dart';
-import '../../features/laporan/presentation/pages/pengeluaran/pengeluaran_lain/daftar_pengeluaran_lain_page.dart';
-import '../../features/laporan/presentation/pages/pengeluaran/pengeluaran_lain/tambah_pengeluaran_lain_page.dart';
 
 // === Laporan Keuangan ===
 import '../../features/laporan/presentation/pages/pemasukan/cetak_laporan_page.dart';
@@ -126,18 +125,14 @@ class AppRoutes {
         const PemasukanLainTambahPage(),
     '/pemasukan': (context) => const PemasukanPage(),
 
-    // ============================================================
-    // PENGELUARAN LAIN
-    // ============================================================
-    '/pengeluaranLain/daftar': (context) => const PengeluaranLainDaftarPage(),
-    '/pengeluaranLain/tambah': (context) => const PengeluaranLainTambahPage(),
-
     // === Pengeluaran ===
+    '/pengeluaran': (context) => const PengeluaranDaftarPage(),
+    '/pengeluaran/daftar': (context) => const PengeluaranDaftarPage(),
     '/pengeluaran/semua': (context) => const SemuaPengeluaranPage(),
     '/pengeluaran/tambah': (context) => const TambahPengeluaranPage(),
 
     // === Laporan Keuangan ===
-    '/laporan/semua-pengeluaran': (context) => const SemuaPengeluaranPage(),
+    '/laporan/semua-pengeluaran': (context) => const PengeluaranDaftarPage(),
     '/laporan/cetak': (context) => const CetakLaporanPage(),
 
     // === Kegiatan ===
