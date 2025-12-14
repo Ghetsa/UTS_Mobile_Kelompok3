@@ -325,7 +325,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       role: 'warga',
       jenis_kelamin: _selectedGender,
       alamat: addressToSend,
-      ownershipStatus: _selectedOwnershipStatus,
+      kepemilikan: _selectedOwnershipStatus,
       fotoIdentitas: _profilePhotoBytes,
       profilePhotoName: _profilePhotoName,
     );
