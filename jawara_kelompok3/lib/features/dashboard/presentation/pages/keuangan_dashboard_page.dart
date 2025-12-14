@@ -13,6 +13,7 @@ import '../widgets/card/keuangan_stat_card_row.dart';
 import '../widgets/card/keuangan_bar_chart_card.dart';
 import '../widgets/card/keuangan_pie_card.dart';
 import '../widgets/card/keuangan_summary_card.dart';
+import '../widgets/card/keuangan_kas_card.dart';
 
 class DashboardKeuanganPage extends StatelessWidget {
   DashboardKeuanganPage({super.key});
@@ -21,12 +22,16 @@ class DashboardKeuanganPage extends StatelessWidget {
 
   /// Format angka pendek: 1.2 jt / 2.1 rb / 950
   String _formatShortNominal(double value) {
-    if (value >= 1000000) {
-      return '${(value / 1000000).toStringAsFixed(1)} jt';
-    } else if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)} rb';
+    final v = value.abs(); // biar -1.2jt tetap tampil rapi
+    if (v >= 1000000) {
+      final s = (v / 1000000).toStringAsFixed(1);
+      return value < 0 ? '-$s jt' : '$s jt';
+    } else if (v >= 1000) {
+      final s = (v / 1000).toStringAsFixed(1);
+      return value < 0 ? '-$s rb' : '$s rb';
     } else {
-      return value.toStringAsFixed(0);
+      final s = v.toStringAsFixed(0);
+      return value < 0 ? '-$s' : s;
     }
   }
 
@@ -170,6 +175,9 @@ class DashboardKeuanganPage extends StatelessWidget {
                     }
                   }
 
+                  // ✅ TOTAL KAS
+                  final double totalKas = totalPemasukan - totalPengeluaran;
+
                   final screenWidth = MediaQuery.of(context).size.width;
                   final cardWidth = screenWidth * 0.85;
 
@@ -177,7 +185,7 @@ class DashboardKeuanganPage extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        // ====== TOTAL PEMASUKAN / PENGELUARAN (NOMINAL) ======
+                        // ====== TOTAL PEMASUKAN / PENGELUARAN ======
                         StatCardRow(
                           cards: [
                             StatCard(
@@ -197,6 +205,14 @@ class DashboardKeuanganPage extends StatelessWidget {
                           ],
                         ),
 
+                        const SizedBox(height: 12),
+
+                        // ====== TOTAL KAS SAAT INI (CARD KHUSUS) ======
+                        KeuanganKasCard(
+                          value: _formatShortNominal(totalKas),
+                          isNegative: totalKas < 0,
+                        ),
+
                         const SizedBox(height: 16),
 
                         // ====== TOTAL TRANSAKSI ala 'Total Kegiatan' ======
@@ -208,9 +224,9 @@ class DashboardKeuanganPage extends StatelessWidget {
 
                         const SizedBox(height: 16),
 
-// ===== PIE CHART (1 BARIS, SCROLL HORIZONTAL) =====
+                        // ===== PIE CHART (1 BARIS, SCROLL HORIZONTAL) =====
                         SizedBox(
-                          height: 320, // tinggi lebih besar karena pie chart
+                          height: 320,
                           child: ListView(
                             scrollDirection: Axis.horizontal,
                             children: [
@@ -243,7 +259,7 @@ class DashboardKeuanganPage extends StatelessWidget {
 
                         // ===== BAR CHART (1 BARIS, SCROLL HORIZONTAL) =====
                         SizedBox(
-                          height: 450, // atur tinggi sesuai BarChartCard kamu
+                          height: 450,
                           child: ListView(
                             scrollDirection: Axis.horizontal,
                             children: [
