@@ -2,32 +2,43 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/semua_pengeluaran_model.dart';
 
 class PengeluaranService {
-  final CollectionReference _ref = FirebaseFirestore.instance.collection("pengeluaran");
+  final CollectionReference _ref =
+      FirebaseFirestore.instance.collection("pengeluaran");
 
-  // GET all data
+  // === GET ALL (WITH SORTING) ===
   Future<List<PengeluaranModel>> getAll() async {
     try {
-      final snap = await _ref.orderBy("tanggal").get();
-      return snap.docs.map((d) => PengeluaranModel.fromFirestore(d.id, d.data() as Map<String, dynamic>)).toList();
+      final snap = await _ref.orderBy("created_at", descending: true).get();
+
+      return snap.docs
+          .map((d) => PengeluaranModel.fromFirestore(
+                d.id,
+                d.data() as Map<String, dynamic>,
+              ))
+          .toList();
     } catch (e) {
       print("ERROR getAll pengeluaran: $e");
       return [];
     }
   }
 
-  // GET by ID
+  // === GET BY ID ===
   Future<PengeluaranModel?> getById(String id) async {
     try {
       final doc = await _ref.doc(id).get();
       if (!doc.exists) return null;
-      return PengeluaranModel.fromFirestore(doc.id, doc.data() as Map<String, dynamic>);
+
+      return PengeluaranModel.fromFirestore(
+        doc.id,
+        doc.data() as Map<String, dynamic>,
+      );
     } catch (e) {
       print("ERROR getById pengeluaran: $e");
       return null;
     }
   }
 
-  // CREATE
+  // === CREATE ===
   Future<bool> add(Map<String, dynamic> data) async {
     try {
       await _ref.add({
@@ -41,13 +52,10 @@ class PengeluaranService {
     }
   }
 
-  // UPDATE
+  // === UPDATE ===
   Future<bool> update(String id, Map<String, dynamic> data) async {
     try {
-      await _ref.doc(id).update({
-        ...data,
-        'updated_at': FieldValue.serverTimestamp(),
-      });
+      await _ref.doc(id).update(data);
       return true;
     } catch (e) {
       print("ERROR update pengeluaran: $e");
@@ -55,7 +63,7 @@ class PengeluaranService {
     }
   }
 
-  // DELETE
+  // === DELETE ===
   Future<bool> delete(String id) async {
     try {
       await _ref.doc(id).delete();
