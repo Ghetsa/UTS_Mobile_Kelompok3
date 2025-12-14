@@ -23,53 +23,105 @@ class _EditWargaPageState extends State<EditWargaPage> {
   late TextEditingController nikC;
   late TextEditingController noHpC;
   late TextEditingController pekerjaanC;
-  late TextEditingController pendidikanC;
 
-  String jenisKelamin = "p";
-  String statusWarga = "aktif";
-  String? agama; // dropdown agama
+  // dropdown values
+  String? agama; // nullable supaya aman jika kosong / tidak ada di list
+  String? pendidikan; // nullable supaya aman jika kosong / tidak ada di list
+  String? jenisKelamin; // nullable supaya aman
+  String? statusWarga; // nullable supaya aman
 
-  final List<String> agamaList = [
+  final List<String> agamaList = const [
     "Islam",
     "Kristen",
     "Katolik",
     "Hindu",
     "Buddha",
     "Konghucu",
-    "Kepercayaan YME", // ⬅️ TAMBAHAN
+    "Kepercayaan YME",
   ];
+
+  final List<String> pendidikanList = const [
+    "Belum sekolah",
+    "SD",
+    "SMP",
+    "SMA",
+    "D3",
+    "D4",
+    "S1",
+    "S2",
+    "S3",
+  ];
+
+  final List<String> jenisKelaminList = const [
+    "L",
+    "P"
+  ]; // simpan value konsisten
+  final List<String> statusWargaList = const ["Aktif", "Nonaktif"];
 
   // 🔹 Data rumah untuk dropdown
   List<RumahModel> _listRumah = [];
-  String? _selectedRumahDocId; // simpan docId rumah
+  String? _selectedRumahDocId;
   bool _loadingRumah = true;
+
+  // ---------- helper: amanin value dropdown ----------
+  String? _safeValue(String? value, List<String> allowed) {
+    if (value == null) return null;
+    final v = value.trim();
+    if (v.isEmpty) return null;
+
+    // coba match exact
+    if (allowed.contains(v)) return v;
+
+    // coba match lower-case (biar kasus "aktif" vs "Aktif" aman)
+    final idx = allowed.indexWhere((e) => e.toLowerCase() == v.toLowerCase());
+    if (idx != -1) return allowed[idx];
+
+    return null; // tidak ada di items -> null supaya tidak assert
+  }
+
+  String? _safeRumah(String? rumahDocId) {
+    if (rumahDocId == null) return null;
+    final v = rumahDocId.trim();
+    if (v.isEmpty) return null;
+
+    final exists = _listRumah.any((r) => r.docId == v);
+    return exists ? v : null;
+  }
 
   @override
   void initState() {
     super.initState();
     final w = widget.data;
 
-    namaC = TextEditingController(text: w.nama);
-    nikC = TextEditingController(text: w.nik);
-    noHpC = TextEditingController(text: w.noHp);
-    pekerjaanC = TextEditingController(text: w.pekerjaan);
-    pendidikanC = TextEditingController(text: w.pendidikan);
+    namaC = TextEditingController(text: (w.nama).trim());
+    nikC = TextEditingController(text: (w.nik).trim());
+    noHpC = TextEditingController(text: (w.noHp).trim());
+    pekerjaanC = TextEditingController(text: (w.pekerjaan).trim());
 
-    jenisKelamin = w.jenisKelamin;
-    statusWarga = w.statusWarga;
-    agama = w.agama;
+    // set awal value dropdown dengan safeValue
+    agama = _safeValue(w.agama, agamaList);
+    pendidikan = _safeValue(w.pendidikan, pendidikanList);
 
-    // 🔹 set awal docId rumah dari data lama
-    _selectedRumahDocId = w.idRumah;
+    // jenis kelamin / status sering beda kapital → amankan
+    jenisKelamin = _safeValue(w.jenisKelamin, jenisKelaminList);
+    statusWarga = _safeValue(w.statusWarga, statusWargaList);
+
+    // rumah: set dulu, nanti divalidasi setelah list rumah kebaca
+    _selectedRumahDocId = (w.idRumah).trim().isEmpty ? null : w.idRumah.trim();
 
     _loadRumah();
   }
 
   Future<void> _loadRumah() async {
     final result = await _rumahService.getAllRumah();
+    if (!mounted) return;
+
     setState(() {
       _listRumah = result;
       _loadingRumah = false;
+
+      // setelah rumah ter-load, amankan value rumah biar tidak crash
+      _selectedRumahDocId = _safeRumah(_selectedRumahDocId);
     });
   }
 
@@ -79,7 +131,6 @@ class _EditWargaPageState extends State<EditWargaPage> {
     nikC.dispose();
     noHpC.dispose();
     pekerjaanC.dispose();
-    pendidikanC.dispose();
     super.dispose();
   }
 
@@ -105,54 +156,35 @@ class _EditWargaPageState extends State<EditWargaPage> {
                 decoration: const InputDecoration(labelText: "No HP"),
               ),
 
-              // 🔵 AGAMA — Dropdown
+              // ✅ AGAMA — Dropdown aman
               DropdownButtonFormField<String>(
-                value: agama,
+                value: agama, // bisa null
                 decoration: const InputDecoration(labelText: "Agama"),
                 items: agamaList
-                    .map(
-                      (a) => DropdownMenuItem(
-                        value: a,
-                        child: Text(a),
-                      ),
-                    )
+                    .map((a) => DropdownMenuItem(value: a, child: Text(a)))
                     .toList(),
                 onChanged: (v) => setState(() => agama = v),
               ),
 
-              // PEKERJAAN (boleh dikosongi)
+              // PEKERJAAN (boleh kosong)
               TextField(
                 controller: pekerjaanC,
                 decoration: const InputDecoration(labelText: "Pekerjaan"),
               ),
 
-              // 🔽 PENDIDIKAN — Dropdown (tambah "Belum sekolah")
+              // ✅ PENDIDIKAN — Dropdown aman
               DropdownButtonFormField<String>(
-                value: pendidikanC.text.isEmpty ? null : pendidikanC.text,
+                value: pendidikan, // bisa null
                 decoration: const InputDecoration(labelText: "Pendidikan"),
-                items: const [
-                  DropdownMenuItem(
-                      value: "Belum sekolah", child: Text("Belum sekolah")),
-                  DropdownMenuItem(value: "SD", child: Text("SD")),
-                  DropdownMenuItem(value: "SMP", child: Text("SMP")),
-                  DropdownMenuItem(
-                      value: "SMA", child: Text("SMA / SMK")),
-                  DropdownMenuItem(value: "D3", child: Text("D3")),
-                  DropdownMenuItem(value: "D4", child: Text("D4")),
-                  DropdownMenuItem(value: "S1", child: Text("S1")),
-                  DropdownMenuItem(value: "S2", child: Text("S2")),
-                  DropdownMenuItem(value: "S3", child: Text("S3")),
-                ],
-                onChanged: (v) {
-                  if (v != null) {
-                    setState(() => pendidikanC.text = v);
-                  }
-                },
+                items: pendidikanList
+                    .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                    .toList(),
+                onChanged: (v) => setState(() => pendidikan = v),
               ),
 
               const SizedBox(height: 10),
 
-              // 🔹 DROPDOWN PILIH RUMAH
+              // ✅ DROPDOWN PILIH RUMAH — aman walau id_rumah kosong / tidak ada
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -167,45 +199,42 @@ class _EditWargaPageState extends State<EditWargaPage> {
               _loadingRumah
                   ? const LinearProgressIndicator()
                   : DropdownButtonFormField<String>(
-                      value: _selectedRumahDocId,
+                      value: _selectedRumahDocId, // bisa null
                       isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: "Pilih Rumah", // ⬅️ HAPUS 'ID RUMAH'
-                      ),
+                      decoration:
+                          const InputDecoration(labelText: "Pilih Rumah"),
                       items: _listRumah.map((r) {
                         return DropdownMenuItem(
-                          value: r.docId, // simpan docId rumah
+                          value: r.docId,
                           child: Text("No. ${r.nomor} • ${r.alamat}"),
                         );
                       }).toList(),
-                      onChanged: (v) => setState(() {
-                        _selectedRumahDocId = v;
-                      }),
+                      onChanged: (v) => setState(() => _selectedRumahDocId = v),
                     ),
 
               const SizedBox(height: 10),
 
-              DropdownButtonFormField(
+              // ✅ Jenis kelamin aman
+              DropdownButtonFormField<String>(
                 value: jenisKelamin,
                 items: const [
                   DropdownMenuItem(value: "L", child: Text("Laki-laki")),
                   DropdownMenuItem(value: "P", child: Text("Perempuan")),
                 ],
                 decoration: const InputDecoration(labelText: "Jenis Kelamin"),
-                onChanged: (v) => setState(() => jenisKelamin = v!),
+                onChanged: (v) => setState(() => jenisKelamin = v),
               ),
 
-              DropdownButtonFormField(
+              // ✅ Status warga aman
+              DropdownButtonFormField<String>(
                 value: statusWarga,
                 items: const [
                   DropdownMenuItem(value: "Aktif", child: Text("Aktif")),
                   DropdownMenuItem(
-                    value: "Nonaktif",
-                    child: Text("Tidak Aktif"),
-                  ),
+                      value: "Nonaktif", child: Text("Tidak Aktif")),
                 ],
                 decoration: const InputDecoration(labelText: "Status Warga"),
-                onChanged: (v) => setState(() => statusWarga = v!),
+                onChanged: (v) => setState(() => statusWarga = v),
               ),
             ],
           ),
@@ -218,16 +247,16 @@ class _EditWargaPageState extends State<EditWargaPage> {
         ),
         ElevatedButton(
           onPressed: () async {
-            final updated = {
-              "nama": namaC.text,
-              "nik": nikC.text,
-              "no_hp": noHpC.text,
-              "agama": agama,
-              "pekerjaan": pekerjaanC.text,
-              "pendidikan": pendidikanC.text, // dari dropdown
-              "id_rumah": _selectedRumahDocId ?? widget.data.idRumah,
-              "jenis_kelamin": jenisKelamin,
-              "status_warga": statusWarga,
+            final updated = <String, dynamic>{
+              "nama": namaC.text.trim(),
+              "nik": nikC.text.trim(),
+              "no_hp": noHpC.text.trim(),
+              "agama": (agama ?? "").trim(), // kalau null -> simpan ""
+              "pekerjaan": pekerjaanC.text.trim(),
+              "pendidikan": (pendidikan ?? "").trim(),
+              "id_rumah": (_selectedRumahDocId ?? "").trim(),
+              "jenis_kelamin": (jenisKelamin ?? "").trim(),
+              "status_warga": (statusWarga ?? "").trim(),
               "updated_at": DateTime.now(),
             };
 
