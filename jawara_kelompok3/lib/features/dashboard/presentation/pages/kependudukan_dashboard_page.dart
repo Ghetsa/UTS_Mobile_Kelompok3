@@ -4,7 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/layout/header.dart';
 import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../widgets/card/kependudukan_stat_card.dart';
+
+// ✅ pakai card baru
+import '../widgets/card/kependudukan_stat_warga_card.dart';
+import '../widgets/card/kependudukan_stat_keluarga_card.dart';
+
 import '../widgets/card/kependudukan_pie_card.dart';
 import '../widgets/card/kependudukan_bar_card.dart';
 
@@ -15,12 +19,10 @@ class DashboardKependudukanPage extends StatelessWidget {
   Map<String, double> _toPercent(Map<String, int> counts) {
     final total = counts.values.fold<int>(0, (a, b) => a + b);
     if (total == 0) return {};
-    return counts.map(
-      (k, v) => MapEntry(k, v * 100.0 / total),
-    );
+    return counts.map((k, v) => MapEntry(k, v * 100.0 / total));
   }
 
-  /// Helper: tambah 1 ke map count
+  /// Helper: tambah 1 ke map count (untuk pie/bar)
   void _incrementCount(Map<String, int> map, String? rawKey) {
     final key = (rawKey == null || rawKey.isEmpty) ? 'Lainnya' : rawKey;
     map[key] = (map[key] ?? 0) + 1;
@@ -29,6 +31,9 @@ class DashboardKependudukanPage extends StatelessWidget {
   int _sumCounts(Map<String, int> map) {
     return map.values.fold<int>(0, (a, b) => a + b);
   }
+
+  /// Helper: normalisasi string status (biar aman)
+  String _norm(String? s) => (s ?? '').toString().trim().toLowerCase();
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +52,6 @@ class DashboardKependudukanPage extends StatelessWidget {
               showSearchBar: false,
               showFilterButton: false,
             ),
-
-            /// ====== KONTEN DINAMIS DARI FIRESTORE (warga) ======
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: wargaStream,
@@ -68,105 +71,105 @@ class DashboardKependudukanPage extends StatelessWidget {
                   }
 
                   final wargaDocs = wargaSnapshot.data?.docs ?? [];
-                  final totalPenduduk = wargaDocs.length;
 
-                  // ====== Hitung distribusi berdasarkan field di koleksi `warga` ======
+                  // ====== Untuk Pie/Bar ======
                   final statusCounts = <String, int>{};
                   final jkCounts = <String, int>{};
                   final pekerjaanCounts = <String, int>{};
                   final agamaCounts = <String, int>{};
                   final pendidikanCounts = <String, int>{};
 
+                  // ====== Untuk Card Warga ======
+                  int wargaAktif = 0;
+                  int wargaNonaktif = 0;
+
                   for (final doc in wargaDocs) {
                     final data = doc.data() as Map<String, dynamic>;
 
+                    // pie/bar
                     _incrementCount(
-                      statusCounts,
-                      data['status_warga'] as String?, // <-- ganti sesuai field
-                    );
+                        statusCounts, data['status_warga'] as String?);
+                    _incrementCount(jkCounts, data['jenis_kelamin'] as String?);
                     _incrementCount(
-                      jkCounts,
-                      data['jenis_kelamin']
-                          as String?, // ex: "Laki-laki"/"Perempuan"
-                    );
+                        pekerjaanCounts, data['pekerjaan'] as String?);
+                    _incrementCount(agamaCounts, data['agama'] as String?);
                     _incrementCount(
-                      pekerjaanCounts,
-                      data['pekerjaan']
-                          as String?, // ex: "PNS", "Wiraswasta", ...
-                    );
-                    _incrementCount(
-                      agamaCounts,
-                      data['agama'] as String?,
-                    );
-                    _incrementCount(
-                      pendidikanCounts,
-                      data['pendidikan']
-                          as String?, // ex: "SD", "SMP", "SMA", "S1"
-                    );
+                        pendidikanCounts, data['pendidikan'] as String?);
+
+                    // card warga (hanya aktif/nonaktif)
+                    final st = _norm(data['status_warga'] as String?);
+                    if (st == 'aktif') wargaAktif++;
+                    if (st == 'nonaktif') wargaNonaktif++;
                   }
 
-                  // Konversi ke persentase
+                  // Konversi ke persentase (pie)
                   final statusPie = _toPercent(statusCounts);
                   final jkPie = _toPercent(jkCounts);
                   final pekerjaanPie = _toPercent(pekerjaanCounts);
                   final agamaPie = _toPercent(agamaCounts);
-// final pendidikanPie = _toPercent(pendidikanCounts);
 
                   return SingleChildScrollView(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        /// ==== STAT CARDS (Total Keluarga, Total Penduduk) ====
-                        Row(
+                        Column(
                           children: [
-                            /// Total Keluarga dari koleksi `keluarga`
-                            Expanded(
-                              child: StreamBuilder<QuerySnapshot>(
-                                stream: FirebaseFirestore.instance
-                                    .collection('keluarga')
-                                    .snapshots(),
-                                builder: (context, keluargaSnapshot) {
-                                  if (!keluargaSnapshot.hasData) {
-                                    return const KependudukanStatCard(
-                                      title: "Total Keluarga",
-                                      value: "-",
-                                      background: Colors.white,
-                                      textColor: AppTheme.greenDark,
-                                      centered: false,
-                                    );
-                                  }
-
-                                  final totalKeluarga =
-                                      keluargaSnapshot.data!.docs.length;
-
-                                  return KependudukanStatCard(
-                                    title: "Total Keluarga",
-                                    value: totalKeluarga.toString(),
-                                    background: Colors.white,
-                                    textColor: AppTheme.greenDark,
-                                    centered: false,
+                            /// KELUARGA CARD (ambil dari koleksi keluarga)
+                            StreamBuilder<QuerySnapshot>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('keluarga')
+                                  .snapshots(),
+                              builder: (context, keluargaSnapshot) {
+                                if (!keluargaSnapshot.hasData) {
+                                  return const KeluargaStatCard(
+                                    aktif: 0,
+                                    pindah: 0,
+                                    sementara: 0,
                                   );
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 16),
+                                }
 
-                            /// Total Penduduk dari jumlah dokumen `warga`
-                            Expanded(
-                              child: KependudukanStatCard(
-                                title: "Total Penduduk",
-                                value: totalPenduduk.toString(),
-                                background: Colors.white,
-                                textColor: AppTheme.redDark,
-                                centered: false,
-                              ),
+                                final keluargaDocs =
+                                    keluargaSnapshot.data!.docs;
+
+                                int keluargaAktif = 0;
+                                int keluargaPindah = 0;
+                                int keluargaSementara = 0;
+
+                                for (final doc in keluargaDocs) {
+                                  final data =
+                                      doc.data() as Map<String, dynamic>;
+                                  final st =
+                                      _norm(data['status_keluarga'] as String?);
+
+                                  if (st == 'aktif')
+                                    keluargaAktif++;
+                                  else if (st == 'pindah')
+                                    keluargaPindah++;
+                                  else if (st == 'sementara')
+                                    keluargaSementara++;
+                                }
+
+                                return KeluargaStatCard(
+                                  aktif: keluargaAktif,
+                                  pindah: keluargaPindah,
+                                  sementara: keluargaSementara,
+                                );
+                              },
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            /// WARGA CARD (dari stream warga yang sudah dihitung di atas)
+                            WargaStatCard(
+                              aktif: wargaAktif,
+                              nonaktif: wargaNonaktif,
                             ),
                           ],
                         ),
 
                         const SizedBox(height: 16),
 
-                        /// ==== PIE CHARTS SCROLL HORIZONTAL (DINAMIS) ====
+                        /// PIE CHARTS
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
@@ -176,7 +179,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                                 data: statusPie.isEmpty
                                     ? {"Belum ada data": 100}
                                     : statusPie,
-                                totalCount: _sumCounts(statusCounts), // 🔥
+                                totalCount: _sumCounts(statusCounts),
                               ),
                               const SizedBox(width: 16),
                               KependudukanPieCard(
@@ -184,7 +187,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                                 data: jkPie.isEmpty
                                     ? {"Belum ada data": 100}
                                     : jkPie,
-                                totalCount: _sumCounts(jkCounts), // 🔥
+                                totalCount: _sumCounts(jkCounts),
                               ),
                               const SizedBox(width: 16),
                               KependudukanPieCard(
@@ -192,7 +195,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                                 data: pekerjaanPie.isEmpty
                                     ? {"Belum ada data": 100}
                                     : pekerjaanPie,
-                                totalCount: _sumCounts(pekerjaanCounts), // 🔥
+                                totalCount: _sumCounts(pekerjaanCounts),
                               ),
                               const SizedBox(width: 16),
                               KependudukanPieCard(
@@ -200,7 +203,7 @@ class DashboardKependudukanPage extends StatelessWidget {
                                 data: agamaPie.isEmpty
                                     ? {"Belum ada data": 100}
                                     : agamaPie,
-                                totalCount: _sumCounts(agamaCounts), // 🔥
+                                totalCount: _sumCounts(agamaCounts),
                               ),
                               const SizedBox(width: 16),
                             ],
@@ -213,8 +216,6 @@ class DashboardKependudukanPage extends StatelessWidget {
                           title: "Pendidikan Penduduk",
                           data: pendidikanCounts,
                         ),
-
-                        const SizedBox(height: 30),
 
                         const SizedBox(height: 30),
                       ],

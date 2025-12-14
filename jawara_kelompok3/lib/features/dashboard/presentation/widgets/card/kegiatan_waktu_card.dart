@@ -3,7 +3,7 @@ import '../../../../../core/theme/app_theme.dart';
 
 class KegiatanWaktuCard extends StatelessWidget {
   final int lewat;
-  final int hariIni;
+  final int hariIni; // diisi jumlah "sedang berlangsung"
   final int akanDatang;
 
   const KegiatanWaktuCard({
@@ -33,92 +33,108 @@ class KegiatanWaktuCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ===== TITLE =====
           const Text(
             "Total Kegiatan",
             style: TextStyle(
-              fontWeight: FontWeight.bold,
               fontSize: 18,
+              fontWeight: FontWeight.w700,
             ),
           ),
-
           const SizedBox(height: 4),
-
-          // ===== SUBTITLE TOTAL =====
           Text(
             "Total: $total Kegiatan",
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey.shade600,
-              fontWeight: FontWeight.w500,
             ),
           ),
-
-          const SizedBox(height: 12),
-
-          // ===== ANGKA BESAR =====
+          const SizedBox(height: 16),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _angka(lewat),
-              _divider(),
-              _angka(hariIni),
-              _divider(),
-              _angka(akanDatang),
+              // Lewat
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(
+                      "$lewat",
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryBlue,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Lewat",
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Container(
+                width: 1,
+                height: 40,
+                color: Colors.grey.shade300,
+              ),
+
+             
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(
+                      "$hariIni",
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryBlue,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Berlangsung", 
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+
+              Container(
+                width: 1,
+                height: 40,
+                color: Colors.grey.shade300,
+              ),
+
+              // Akan Datang
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(
+                      "$akanDatang",
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryBlue,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Akan Datang",
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
-
-          const SizedBox(height: 6),
-
-          // ===== LABEL DI BAWAH ANGKA =====
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: const [
-              _label("    Lewat"),
-              SizedBox(width: 1),
-              _label("       Hari Ini"),
-              SizedBox(width: 1),
-              _label("  Akan Datang"),
-            ],
-          ),
-
-          const SizedBox(height: 12),
         ],
-      ),
-    );
-  }
-
-  Widget _angka(int value) {
-    return Text(
-      value.toString(),
-      style: const TextStyle(
-        fontSize: 32,
-        fontWeight: FontWeight.bold,
-        color: AppTheme.blueDark,
-      ),
-    );
-  }
-
-  Widget _divider() {
-    return Container(
-      width: 1.5,
-      height: 34,
-      color: AppTheme.primaryBlue,
-    );
-  }
-}
-
-class _label extends StatelessWidget {
-  final String text;
-  const _label(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: 13,
-        color: Colors.grey.shade700,
       ),
     );
   }
