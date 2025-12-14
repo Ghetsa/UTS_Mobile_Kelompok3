@@ -61,6 +61,15 @@ import '../../features/channel_transfer/presentation/pages/tambah_channel_page.d
 import '../../features/pesan_warga/presentation/pages/informasi_aspirasi_page.dart';
 import '../../features/pesan_warga/presentation/pages/tambah_aspirasi_page.dart';
 
+// Gate route (auto pilih dashboard sesuai role)
+import '../../features/dashboard/presentation/pages/dashboard_gate_page.dart';
+
+// Halaman warga yang kamu buat
+import '../../features/WARGA/presentation/pages/warga_dashboard_page.dart';
+import '../../features/WARGA/presentation/pages/warga_kegiatan_page.dart';
+import '../../features/WARGA/presentation/pages/warga_aspirasi_page.dart';
+import '../../features/WARGA/presentation/pages/warga_profile_page.dart';
+
 class AppRoutes {
   static final Map<String, WidgetBuilder> routes = {
     // === Default Route ===
@@ -78,7 +87,7 @@ class AppRoutes {
     '/dashboard/sekretaris': (context) => const DashboardKegiatanPage(),
 
     // === Dashboard ===
-    '/dashboard/kegiatan': (context) => const DashboardKegiatanPage(),
+    '/dashboard/kegiatan': (context) => const DashboardGatePage(),
     '/dashboard/keuangan': (context) => DashboardKeuanganPage(),
     '/dashboard/kependudukan': (context) => const DashboardKependudukanPage(),
 
@@ -154,6 +163,13 @@ class AppRoutes {
     // ============================================================
     '/aspirasi/informasiAspirasi': (context) => const InformasiAspirasi(),
     '/aspirasi/tambahAspirasi': (context) => const TambahAspirasiPage(),
+
+    // =====================
+// WARGA ROUTES
+// =====================
+    '/warga/dashboard': (context) => const WargaDashboardPage(),
+    '/warga/kegiatan': (context) => const WargaKegiatanPage(),
+    '/warga/aspirasi': (context) => const WargaAspirasiPage(),
+    '/warga/profil': (context) => const WargaProfilePage(),
   };
 }
-
