@@ -38,7 +38,6 @@ class _AppSidebarState extends State<AppSidebar> {
       'log_aktifitas': false,
       'pesan_warga': false,
       'pengeluaran': false,
-      'pengeluaran_lain': false,
       'mutasi_keluarga': false,
     });
   }
@@ -60,8 +59,8 @@ class _AppSidebarState extends State<AppSidebar> {
             route.startsWith('/pemasukan') ||
             route.startsWith('/pengeluaran') ||
             route.startsWith('/laporan');
-      case 'pengeluaran_lain':
-        return route.startsWith('/pengeluaranLain');
+      case 'pengeluaran':
+        return route.startsWith('/pengeluaran');
       case 'manajemen_pengguna':
         return route.startsWith('/pengguna');
       case 'channel_transfer':
@@ -70,7 +69,6 @@ class _AppSidebarState extends State<AppSidebar> {
         return route.startsWith('/semuaAktifitas');
       case 'pesan_warga':
         return route.startsWith('/aspirasi');
-
       case 'pengeluaran':
         return route.startsWith('/pengeluaran');
       case 'mutasi_keluarga':
@@ -291,10 +289,10 @@ class _AppSidebarState extends State<AppSidebar> {
                     context: context,
                     currentRoute: currentRoute,
                     children: [
-                      _buildSubMenuItem("Pengeluaran Lain - Daftar",
-                          "/pengeluaranLain/daftar", context, currentRoute),
-                      _buildSubMenuItem("Pengeluaran Lain - Tambah",
-                          "/pengeluaranLain/tambah", context, currentRoute),
+                      _buildSubMenuItem("Pengeluaran - Daftar",
+                          "/pengeluaran/daftar", context, currentRoute),
+                      _buildSubMenuItem("Pengeluaran - Tambah",
+                          "/pengeluaran/tambah", context, currentRoute),
                     ],
                   ),
 
@@ -308,8 +306,8 @@ class _AppSidebarState extends State<AppSidebar> {
                     children: [
                       _buildSubMenuItem(
                           "Pemasukan", "/pemasukan", context, currentRoute),
-                      _buildSubMenuItem("Pengeluaran",
-                          "/laporan/semua-pengeluaran", context, currentRoute),
+                      _buildSubMenuItem(
+                          "Pengeluaran", "/pengeluaran", context, currentRoute),
                     ],
                   ),
 
