@@ -26,7 +26,9 @@ class RegisterController {
     String? jenis_kelamin,
     String? alamat,
     String? kepemilikan,
+    String? rumahId,
   }) async {
+    // Validasi input dasar
     if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
       await showMessageDialog(
         context: context,
@@ -48,66 +50,69 @@ class RegisterController {
     }
 
     try {
-      // Buat user disimpan di Firebase Auth
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
+      // BUAT USER DI FIREBASE AUTH
+      final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      String uid = userCredential.user!.uid;
+      final String uid = userCredential.user!.uid;
       String? photoUrl;
 
-      // Upload foto simpan ke Storage
+      // UPLOAD FOTO IDENTITAS (JIKA ADA)
       if (fotoIdentitas != null && profilePhotoName != null) {
         try {
           final storageRef =
               _storage.ref().child('user_photos/$uid/$profilePhotoName');
 
-          await storageRef.putData(fotoIdentitas);
+          final metadata = SettableMetadata(
+            contentType: 'image/jpeg',
+          );
+
+          await storageRef.putData(fotoIdentitas, metadata);
           photoUrl = await storageRef.getDownloadURL();
         } catch (e) {
-          // Rollback Auth jika upload gagal
-          try {
-            await userCredential.user!.delete();
-          } catch (_) {}
-          await showMessageDialog(
-            context: context,
-            title: 'Gagal!',
-            message: 'Gagal upload foto.\nError: $e',
-            success: false,
-          );
-          return;
+          debugPrint('Upload foto gagal: $e');
+          photoUrl = null; // lanjutkan tanpa foto
         }
       }
 
-      // Simpan data rumah
-      DocumentReference rumahRef = _firestore.collection('rumah').doc();
-      await rumahRef.set({
-        'id': rumahRef.id,
-        'alamat': alamat ?? '',
-        'kepemilikan': kepemilikan ?? '',
-        'created_at': FieldValue.serverTimestamp(),
-        'updated_at': FieldValue.serverTimestamp(),
-      });
+      // TENTUKAN RUMAH
+      if (rumahId == null && alamat != null && alamat.isNotEmpty) {
+        final rumahRef = _firestore.collection('rumah').doc();
+        await rumahRef.set({
+          'id': rumahRef.id,
+          'alamat': alamat,
+          'status_rumah': 'Dihuni',
+          'kepemilikan': kepemilikan ?? '',
+          'created_at': FieldValue.serverTimestamp(),
+          'updated_at': FieldValue.serverTimestamp(),
+        });
+        rumahId = rumahRef.id;
+      }
 
-      // Simpan data warga
+      // Validasi terakhir: rumah HARUS ada
+      if (rumahId == null) {
+        throw Exception('Data rumah tidak valid');
+      }
+
+      // SIMPAN DATA WARGA
       await _firestore.collection('warga').doc(uid).set({
         'uid': uid,
         'nik': nik,
         'nama': nama,
         'jenis_kelamin': jenis_kelamin ?? '',
         'no_hp': noHp,
-        'id_rumah': rumahRef.id,
-        'agama': agama,   
-        'pekerjaan': pekerjaan,       
-        'status_warga': 'aktif', 
-        'photoUrl': photoUrl, 
+        'id_rumah': rumahId,
+        'agama': agama,
+        'pekerjaan': pekerjaan,
+        'status_warga': 'aktif',
+        'photoUrl': photoUrl,
         'created_at': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),
       });
 
-      // Simpan data user
+      // SIMPAN DATA USER
       await _firestore.collection('users').doc(uid).set({
         'email': email,
         'role': role,
@@ -115,7 +120,7 @@ class RegisterController {
         'updated_at': FieldValue.serverTimestamp(),
       });
 
-      // Dialog sukses & redirect
+      // NOTIFIKASI SUKSES
       await showMessageDialog(
         context: context,
         title: 'Berhasil!',
@@ -123,12 +128,11 @@ class RegisterController {
         success: true,
       );
 
-      // Tambahan: logout user
+      // Logout & redirect ke login
       await _auth.signOut();
-
-      // Navigasi ke login
       Navigator.pushReplacementNamed(context, '/login');
     } on FirebaseAuthException catch (e) {
+      // Error khusus Auth
       String message = 'Terjadi kesalahan, coba lagi.';
       if (e.code == 'email-already-in-use') message = 'Email sudah terdaftar.';
       if (e.code == 'invalid-email') message = 'Email tidak valid.';
@@ -141,10 +145,11 @@ class RegisterController {
         success: false,
       );
     } catch (e) {
+      // Error umum (Firestore, logic, dll)
       await showMessageDialog(
         context: context,
         title: 'Gagal!',
-        message: 'Terjadi kesalahan.\nError: $e',
+        message: 'Terjadi kesalahan.\n$e',
         success: false,
       );
     }
