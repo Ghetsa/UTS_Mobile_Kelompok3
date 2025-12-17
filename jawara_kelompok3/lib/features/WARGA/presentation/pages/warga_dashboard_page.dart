@@ -210,9 +210,9 @@ class WargaDashboardPage extends StatelessWidget {
                           final nominal = t.nominal; // dari model admin
                           if (nominal == 0) continue;
 
-                          final tipeLower = t.tipe.toLowerCase();
-                          final isPemasukan = tipeLower == 'pemasukan';
-                          final isPengeluaran = tipeLower == 'pengeluaran';
+                          final jenisLower = t.jenis.toLowerCase();
+                          final isPemasukan = jenisLower == 'pemasukan';
+                          final isPengeluaran = jenisLower == 'pengeluaran';
 
                           if (isPemasukan) {
                             totalPemasukan += nominal;

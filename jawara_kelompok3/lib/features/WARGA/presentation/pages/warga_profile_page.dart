@@ -14,7 +14,6 @@ class WargaProfilePage extends StatefulWidget {
 }
 
 class _WargaProfilePageState extends State<WargaProfilePage> {
-  // Theme warga (samakan dengan UI kamu)
   static const Color _green = Color(0xFF2F6F4E);
   static const Color _brown = Color(0xFF8B6B3E);
   static const Color _bg = Color(0xFFF4F7F3);
@@ -22,7 +21,6 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
   bool _loading = true;
   bool _saving = false;
 
-  // auth data
   String _uid = "";
   String _role = "warga";
 
@@ -30,16 +28,20 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
   String _nama = "-";
   String _nik = "-";
   String _noHp = "-";
-  String _jenisKelamin = "-";
+  String _jenisKelamin = "-"; // ✅ akan jadi "Laki-laki" / "Perempuan"
   String _statusWarga = "-";
   String _agama = "-";
-  String _pendidikan = "-";
-  String _pekerjaan = "-";
-  String _alamatWarga = "-";
+
+  // ✅ editable by user (dropdown)
+  String? _pendidikan;
+  String? _pekerjaan;
 
   // rumah data (read-only)
   String _rumahLabel = "-";
   String _rumahDocId = "";
+
+  // simpan docId warga biar bisa update pendidikan/pekerjaan
+  String _wargaDocId = "";
 
   // editable (email & password)
   final TextEditingController _emailC = TextEditingController();
@@ -50,6 +52,33 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
   bool _showCurrent = false;
   bool _showNew = false;
   bool _showConfirm = false;
+
+  // ===== Dropdown options =====
+  final List<String> _pendidikanList = const [
+    "Belum sekolah",
+    "SD",
+    "SMP",
+    "SMA / SMK",
+    "D3",
+    "D4",
+    "S1",
+    "S2",
+    "S3",
+  ];
+
+  // Sesuaikan daftar pekerjaan sesuai kebutuhanmu
+  final List<String> _pekerjaanList = const [
+    "Belum bekerja",
+    "Pelajar / Mahasiswa",
+    "PNS",
+    "TNI / POLRI",
+    "Karyawan Swasta",
+    "Wiraswasta",
+    "Petani",
+    "Buruh",
+    "Ibu Rumah Tangga",
+    "Lainnya",
+  ];
 
   @override
   void initState() {
@@ -75,19 +104,24 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
     return fallback;
   }
 
+  // ✅ mapping jenis kelamin
+  String _genderLabel(String raw) {
+    final v = raw.trim().toUpperCase();
+    if (v == 'P') return 'Perempuan';
+    if (v == 'L') return 'Laki-laki';
+    return raw.isEmpty ? '-' : raw;
+  }
+
   Future<DocumentSnapshot<Map<String, dynamic>>?> _getWargaDoc(
       String uid) async {
     final wargaCol = FirebaseFirestore.instance.collection('warga');
 
-    // 1) docId = uid (paling umum karena register kamu .doc(uid))
     final direct = await wargaCol.doc(uid).get();
     if (direct.exists) return direct;
 
-    // 2) query by user_id
     final q1 = await wargaCol.where('user_id', isEqualTo: uid).limit(1).get();
     if (q1.docs.isNotEmpty) return q1.docs.first;
 
-    // 3) query by uid
     final q2 = await wargaCol.where('uid', isEqualTo: uid).limit(1).get();
     if (q2.docs.isNotEmpty) return q2.docs.first;
 
@@ -100,11 +134,16 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
           .collection('rumah')
           .doc(rumahDocId)
           .get();
-      if (!rdoc.exists) return;
+
+      if (!rdoc.exists) {
+        if (!mounted) return;
+        setState(() => _rumahLabel = "-");
+        return;
+      }
 
       final r = rdoc.data() ?? {};
-      final nomor = _pick(r, ['nomor', 'no', 'no_rumah', 'nomer'], '');
-      final alamat = _pick(r, ['alamat', 'address', 'lokasi'], '');
+      final nomor = _pick(r, ['nomor'], '');
+      final alamat = _pick(r, ['alamat'], '');
 
       final label = [
         if (nomor.isNotEmpty) "No. $nomor",
@@ -112,11 +151,10 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
       ].join(" • ");
 
       if (!mounted) return;
-      setState(() {
-        _rumahLabel = label.isEmpty ? "-" : label;
-      });
+      setState(() => _rumahLabel = label.isEmpty ? "-" : label);
     } catch (_) {
-      // ignore
+      if (!mounted) return;
+      setState(() => _rumahLabel = "-");
     }
   }
 
@@ -141,7 +179,6 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
       _role = 'warga';
     }
 
-    // warga
     try {
       final wargaDoc = await _getWargaDoc(_uid);
       if (wargaDoc == null || !wargaDoc.exists) {
@@ -155,32 +192,37 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
       final nama = _pick(w, ['nama', 'name'], '-');
       final nik = _pick(w, ['nik'], '-');
       final noHp = _pick(w, ['no_hp', 'noHp', 'phone'], '-');
-      final jk = _pick(w, ['jenis_kelamin', 'jenisKelamin', 'gender'], '-');
+      final jkRaw = _pick(w, ['jenis_kelamin', 'jenisKelamin', 'gender'], '-');
       final statusWarga = _pick(w, ['status_warga', 'statusWarga'], '-');
       final agama = _pick(w, ['agama'], '-');
-      final pendidikan = _pick(w, ['pendidikan'], '-');
-      final pekerjaan = _pick(w, ['pekerjaan'], '-');
-      final alamatWarga = _pick(w, ['alamat', 'address'], '-');
 
-      final rumahDocId = _pick(w, ['id_rumah', 'idRumah', 'rumah_doc_id'], '');
+      // ✅ editable fields from firestore
+      final pendidikanRaw = _pick(w, ['pendidikan'], '');
+      final pekerjaanRaw = _pick(w, ['pekerjaan'], '');
+
+      // ✅ ambil docId rumah
+      final rumahDocId = _pick(w, ['id_rumah'], '');
 
       if (!mounted) return;
       setState(() {
+        _wargaDocId = wargaDoc.id;
+
         _nama = nama;
         _nik = nik;
         _noHp = noHp;
-        _jenisKelamin = jk;
+        _jenisKelamin = _genderLabel(jkRaw); // ✅ label fix
         _statusWarga = statusWarga;
         _agama = agama;
-        _pendidikan = pendidikan;
-        _pekerjaan = pekerjaan;
-        _alamatWarga = alamatWarga;
+
+        // set dropdown initial (kalau kosong -> null)
+        _pendidikan = pendidikanRaw.isEmpty ? null : pendidikanRaw;
+        _pekerjaan = pekerjaanRaw.isEmpty ? null : pekerjaanRaw;
 
         _rumahDocId = rumahDocId;
         _rumahLabel = "-";
       });
 
-      if (_rumahDocId.isNotEmpty) {
+      if (_rumahDocId.isNotEmpty && _rumahDocId != "-") {
         await _loadRumah(_rumahDocId);
       }
     } catch (_) {
@@ -191,7 +233,18 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
     setState(() => _loading = false);
   }
 
-  // ---------- Update Auth ----------
+  // ✅ update pendidikan & pekerjaan ke firestore warga
+  Future<void> _updatePendidikanPekerjaan() async {
+    if (_wargaDocId.isEmpty) return;
+
+    await FirebaseFirestore.instance.collection('warga').doc(_wargaDocId).set({
+      'pendidikan': _pendidikan ?? '',
+      'pekerjaan': _pekerjaan ?? '',
+      'updated_at': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  // ---------- Update Auth + Update Warga ----------
   Future<void> _updateEmailAndPassword() async {
     if (_saving) return;
 
@@ -205,13 +258,12 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
       return;
     }
 
-    // current password wajib supaya reauth
+    // current password wajib supaya reauth (tetap seperti kamu)
     if (currentPw.isEmpty) {
       _snack("Isi Password Saat Ini untuk menyimpan perubahan.", isError: true);
       return;
     }
 
-    // password baru opsional, tapi kalau diisi wajib match confirm
     if (newPw.isNotEmpty || confirmPw.isNotEmpty) {
       if (newPw.length < 8) {
         _snack("Password baru minimal 8 karakter.", isError: true);
@@ -240,7 +292,6 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
       if (newEmail != (user.email ?? "")) {
         await user.verifyBeforeUpdateEmail(newEmail);
 
-        // simpan pending dulu biar tidak mismatch
         await FirebaseFirestore.instance.collection('users').doc(_uid).set({
           'pending_email': newEmail,
           'updated_at': FieldValue.serverTimestamp(),
@@ -258,7 +309,10 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
         _snack("✅ Password berhasil diubah.");
       }
 
-      // clear fields
+      // ✅ UPDATE PENDIDIKAN & PEKERJAAN
+      await _updatePendidikanPekerjaan();
+      _snack("✅ Pendidikan & pekerjaan berhasil disimpan.");
+
       _currentPasswordC.clear();
       _newPasswordC.clear();
       _confirmNewPasswordC.clear();
@@ -294,9 +348,7 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(msg),
-        backgroundColor: isError ? Colors.red : _green,
-      ),
+          content: Text(msg), backgroundColor: isError ? Colors.red : _green),
     );
   }
 
@@ -377,10 +429,10 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
                           ),
                           const SizedBox(height: 14),
 
-                          // ===== READ ONLY: DATA WARGA & RUMAH =====
+                          // ===== READ ONLY: DATA WARGA & RUMAH (kecuali pendidikan & pekerjaan) =====
                           _SectionCard(
                             green: _green,
-                            title: "Data Warga (Read-only)",
+                            title: "Data Warga",
                             child: Column(
                               children: [
                                 TextFormField(
@@ -401,12 +453,15 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
                                   decoration: _roDec("No HP"),
                                 ),
                                 const SizedBox(height: 12),
+
+                                // ✅ jenis kelamin sudah jadi label
                                 TextFormField(
                                   initialValue: _jenisKelamin,
                                   enabled: false,
                                   decoration: _roDec("Jenis Kelamin"),
                                 ),
                                 const SizedBox(height: 12),
+
                                 TextFormField(
                                   initialValue: _statusWarga,
                                   enabled: false,
@@ -419,30 +474,49 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
                                   decoration: _roDec("Agama"),
                                 ),
                                 const SizedBox(height: 12),
-                                TextFormField(
-                                  initialValue: _pendidikan,
-                                  enabled: false,
-                                  decoration: _roDec("Pendidikan"),
+
+                                // ✅ PENDIDIKAN (EDITABLE DROPDOWN)
+                                DropdownButtonFormField<String>(
+                                  value: (_pendidikan != null &&
+                                          _pendidikanList.contains(_pendidikan))
+                                      ? _pendidikan
+                                      : null,
+                                  decoration: _editDec("Pendidikan"),
+                                  items: _pendidikanList
+                                      .map((e) => DropdownMenuItem(
+                                            value: e,
+                                            child: Text(e),
+                                          ))
+                                      .toList(),
+                                  onChanged: (v) =>
+                                      setState(() => _pendidikan = v),
                                 ),
+
                                 const SizedBox(height: 12),
-                                TextFormField(
-                                  initialValue: _pekerjaan,
-                                  enabled: false,
-                                  decoration: _roDec("Pekerjaan"),
+
+                                // ✅ PEKERJAAN (EDITABLE DROPDOWN)
+                                DropdownButtonFormField<String>(
+                                  value: (_pekerjaan != null &&
+                                          _pekerjaanList.contains(_pekerjaan))
+                                      ? _pekerjaan
+                                      : null,
+                                  decoration: _editDec("Pekerjaan"),
+                                  items: _pekerjaanList
+                                      .map((e) => DropdownMenuItem(
+                                            value: e,
+                                            child: Text(e),
+                                          ))
+                                      .toList(),
+                                  onChanged: (v) =>
+                                      setState(() => _pekerjaan = v),
                                 ),
+
                                 const SizedBox(height: 12),
-                                TextFormField(
-                                  initialValue: _alamatWarga,
-                                  enabled: false,
-                                  decoration: _roDec("Alamat (dari warga)"),
-                                  maxLines: 2,
-                                ),
-                                const SizedBox(height: 12),
+
                                 TextFormField(
                                   initialValue: _rumahLabel,
                                   enabled: false,
-                                  decoration:
-                                      _roDec("Alamat Rumah (dari rumah)"),
+                                  decoration: _roDec("Alamat Rumah"),
                                   maxLines: 2,
                                 ),
                               ],
@@ -518,8 +592,8 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
                                         color: _brown.withOpacity(0.18)),
                                   ),
                                   child: Text(
-                                    "Catatan: Ubah email memakai verifikasi (Firebase). "
-                                    "Setelah klik link verifikasi di email baru, biasanya user perlu login ulang.",
+                                    "Catatan: Klik Simpan akan menyimpan Pendidikan & Pekerjaan juga. "
+                                    "Ubah email memakai verifikasi (Firebase). Setelah klik link verifikasi di email baru, biasanya user perlu login ulang.",
                                     style: TextStyle(
                                         color: Colors.grey.shade800,
                                         height: 1.25),
@@ -551,8 +625,9 @@ class _WargaProfilePageState extends State<WargaProfilePage> {
                                           width: 18,
                                           height: 18,
                                           child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.white),
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
                                         )
                                       : const Icon(Icons.save),
                                   label:
@@ -646,11 +721,9 @@ class _ProfileHeader extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  email,
-                  style: TextStyle(color: Colors.grey.shade700),
-                  overflow: TextOverflow.ellipsis,
-                ),
+                Text(email,
+                    style: TextStyle(color: Colors.grey.shade700),
+                    overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 8),
                 Container(
                   padding:
