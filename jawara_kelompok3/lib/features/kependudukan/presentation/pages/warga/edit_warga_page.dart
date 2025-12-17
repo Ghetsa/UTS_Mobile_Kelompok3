@@ -18,6 +18,18 @@ class EditWargaPage extends StatefulWidget {
 class _EditWargaPageState extends State<EditWargaPage> {
   final WargaService _service = WargaService();
   final RumahService _rumahService = RumahService();
+  final List<String> pekerjaanList = const [
+    "Belum bekerja",
+    "Pelajar / Mahasiswa",
+    "PNS",
+    "TNI / POLRI",
+    "Karyawan Swasta",
+    "Wiraswasta",
+    "Petani",
+    "Buruh",
+    "Ibu Rumah Tangga",
+    "Lainnya",
+  ];
 
   late TextEditingController namaC;
   late TextEditingController nikC;
@@ -29,6 +41,7 @@ class _EditWargaPageState extends State<EditWargaPage> {
   String? pendidikan; // nullable supaya aman jika kosong / tidak ada di list
   String? jenisKelamin; // nullable supaya aman
   String? statusWarga; // nullable supaya aman
+  String? pekerjaan;
 
   final List<String> agamaList = const [
     "Islam",
@@ -101,6 +114,7 @@ class _EditWargaPageState extends State<EditWargaPage> {
     // set awal value dropdown dengan safeValue
     agama = _safeValue(w.agama, agamaList);
     pendidikan = _safeValue(w.pendidikan, pendidikanList);
+    pekerjaan = _safeValue(w.pekerjaan, pekerjaanList);
 
     // jenis kelamin / status sering beda kapital → amankan
     jenisKelamin = _safeValue(w.jenisKelamin, jenisKelaminList);
@@ -167,9 +181,16 @@ class _EditWargaPageState extends State<EditWargaPage> {
               ),
 
               // PEKERJAAN (boleh kosong)
-              TextField(
-                controller: pekerjaanC,
+              DropdownButtonFormField<String>(
+                value: pekerjaan,
                 decoration: const InputDecoration(labelText: "Pekerjaan"),
+                items: pekerjaanList
+                    .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                    .toList(),
+                onChanged: (v) => setState(() {
+                  pekerjaan = v;
+                  pekerjaanC.text = v ?? '';
+                }),
               ),
 
               // ✅ PENDIDIKAN — Dropdown aman
@@ -252,7 +273,7 @@ class _EditWargaPageState extends State<EditWargaPage> {
               "nik": nikC.text.trim(),
               "no_hp": noHpC.text.trim(),
               "agama": (agama ?? "").trim(), // kalau null -> simpan ""
-              "pekerjaan": pekerjaanC.text.trim(),
+              "pekerjaan": (pekerjaan ?? "").trim(),
               "pendidikan": (pendidikan ?? "").trim(),
               "id_rumah": (_selectedRumahDocId ?? "").trim(),
               "jenis_kelamin": (jenisKelamin ?? "").trim(),

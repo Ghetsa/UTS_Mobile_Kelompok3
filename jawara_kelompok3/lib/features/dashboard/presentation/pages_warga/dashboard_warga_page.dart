@@ -106,8 +106,10 @@ class DashboardWargaPage extends StatelessWidget {
     for (final d in keluargaDocs) {
       final data = d.data() as Map<String, dynamic>;
       final st = _norm(data['status_keluarga'] as String?);
-      if (st == 'aktif') aktif++;
-      else if (st == 'pindah') pindah++;
+      if (st == 'aktif')
+        aktif++;
+      else if (st == 'pindah')
+        pindah++;
       else if (st == 'sementara') sementara++;
     }
 
@@ -130,7 +132,8 @@ class DashboardWargaPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final kegiatanStream =
         FirebaseFirestore.instance.collection('kegiatan').snapshots();
-    final wargaStream = FirebaseFirestore.instance.collection('warga').snapshots();
+    final wargaStream =
+        FirebaseFirestore.instance.collection('warga').snapshots();
     final keluargaStream =
         FirebaseFirestore.instance.collection('keluarga').snapshots();
 
@@ -162,15 +165,18 @@ class DashboardWargaPage extends StatelessWidget {
                     accent: _brownDark,
                     onQuickKegiatan: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const DaftarKegiatanPage()),
+                      MaterialPageRoute(
+                          builder: (_) => const DaftarKegiatanPage()),
                     ),
                     onQuickKependudukan: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const DashboardKependudukanPage()),
+                      MaterialPageRoute(
+                          builder: (_) => const DashboardKependudukanPage()),
                     ),
                     onQuickKeuangan: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => DashboardKeuanganPage()),
+                      MaterialPageRoute(
+                          builder: (_) => DashboardKeuanganPage()),
                     ),
                   ),
 
@@ -219,7 +225,8 @@ class DashboardWargaPage extends StatelessWidget {
                             return _MiniStatBox(
                               title: "Keluarga",
                               big: "${c['total']}",
-                              sub: "Aktif ${c['aktif']} • Pindah ${c['pindah']} • Sementara ${c['sementara']}",
+                              sub:
+                                  "Aktif ${c['aktif']} • Pindah ${c['pindah']} • Sementara ${c['sementara']}",
                               topColor: _brownDark,
                               bottomColor: _brownSoft,
                               icon: Icons.home,
@@ -239,7 +246,8 @@ class DashboardWargaPage extends StatelessWidget {
                             return _MiniStatBox(
                               title: "Warga",
                               big: "${w['total']}",
-                              sub: "Aktif ${w['aktif']} • Nonaktif ${w['nonaktif']}",
+                              sub:
+                                  "Aktif ${w['aktif']} • Nonaktif ${w['nonaktif']}",
                               topColor: _greenDark,
                               bottomColor: _greenSoft,
                               icon: Icons.people,
@@ -265,9 +273,9 @@ class DashboardWargaPage extends StatelessWidget {
                       double pengeluaran = 0;
 
                       for (final t in list) {
-                        final tipe = (t.tipe).toLowerCase().trim();
-                        if (tipe == 'pemasukan') pemasukan += t.nominal;
-                        if (tipe == 'pengeluaran') pengeluaran += t.nominal;
+                        final jenis = (t.jenis).toLowerCase().trim();
+                        if (jenis == 'pemasukan') pemasukan += t.nominal;
+                        if (jenis == 'pengeluaran') pengeluaran += t.nominal;
                       }
 
                       final saldo = pemasukan - pengeluaran;
@@ -555,9 +563,14 @@ class _MiniTimelineDiagram extends StatelessWidget {
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _MiniKV(label: "Lewat", value: "$lewat", muted: muted)),
-            Expanded(child: _MiniKV(label: "Berlangsung", value: "$berlangsung", muted: muted)),
-            Expanded(child: _MiniKV(label: "Akan Datang", value: "$akanDatang", muted: muted)),
+            Expanded(
+                child: _MiniKV(label: "Lewat", value: "$lewat", muted: muted)),
+            Expanded(
+                child: _MiniKV(
+                    label: "Berlangsung", value: "$berlangsung", muted: muted)),
+            Expanded(
+                child: _MiniKV(
+                    label: "Akan Datang", value: "$akanDatang", muted: muted)),
           ],
         ),
       ],
@@ -580,7 +593,8 @@ class _MiniKV extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+        Text(value,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
         const SizedBox(height: 2),
         Text(label, style: TextStyle(color: muted)),
       ],
@@ -625,7 +639,9 @@ class _MiniStatBox extends StatelessWidget {
             children: [
               Icon(icon, color: topColor),
               const SizedBox(width: 8),
-              Text(title, style: TextStyle(fontWeight: FontWeight.w800, color: topColor)),
+              Text(title,
+                  style:
+                      TextStyle(fontWeight: FontWeight.w800, color: topColor)),
             ],
           ),
           const SizedBox(height: 10),
@@ -711,7 +727,9 @@ class _FinanceGauge extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text("Saldo", style: TextStyle(color: muted, fontWeight: FontWeight.w700)),
+                  Text("Saldo",
+                      style:
+                          TextStyle(color: muted, fontWeight: FontWeight.w700)),
                   const Spacer(),
                   Text(
                     format(saldo),
@@ -730,13 +748,17 @@ class _FinanceGauge extends StatelessWidget {
                   minHeight: 12,
                   backgroundColor: Colors.white,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    saldo >= 0 ? green.withOpacity(.75) : brown.withOpacity(.75),
+                    saldo >= 0
+                        ? green.withOpacity(.75)
+                        : brown.withOpacity(.75),
                   ),
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                saldo >= 0 ? "Kondisi aman (surplus)" : "Perlu perhatian (defisit)",
+                saldo >= 0
+                    ? "Kondisi aman (surplus)"
+                    : "Perlu perhatian (defisit)",
                 style: TextStyle(color: muted),
               ),
             ],

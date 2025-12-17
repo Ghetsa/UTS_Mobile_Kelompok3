@@ -63,19 +63,20 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
     // Get the nominal value from the selected Iuran
     final selectedKategori = kategoriIuranList.firstWhere(
       (kategori) => kategori.nama == selectedIuran,
-      orElse: () => KategoriIuranModel(id: '', nama: '', jenis: '', nominal: '0'),
+      orElse: () =>
+          KategoriIuranModel(id: '', nama: '', jenis: '', nominal: '0'),
     );
     final nominal = selectedKategori.nominal;
 
     // Prepare and add data for each active family
     for (var keluarga in activeFamilies) {
       final data = {
-        "keluarga": keluarga.kepalaKeluarga,  // Nama kepala keluarga
-        "status": keluarga.statusKeluarga,   // Status keluarga
-        "iuran": selectedIuran!,             // Jenis iuran dari dropdown
+        "keluarga": keluarga.kepalaKeluarga, // Nama kepala keluarga
+        "status": keluarga.statusKeluarga, // Status keluarga
+        "iuran": selectedIuran!, // Jenis iuran dari dropdown
         "kode": "IUR-${DateTime.now().millisecondsSinceEpoch}", // Kode tagihan
-        "nominal": nominal,                  // Nominal iuran sesuai kategori
-        "tagihanStatus": "Belum Dibayar",    // Status tagihan
+        "nominal": nominal, // Nominal iuran sesuai kategori
+        "tagihanStatus": "Belum Dibayar", // Status tagihan
       };
 
       final success = await _tagihanController.addTagihan(data);
@@ -85,7 +86,9 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Gagal menambahkan tagihan"), backgroundColor: Colors.red),
+          const SnackBar(
+              content: Text("Gagal menambahkan tagihan"),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -129,7 +132,8 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
                       children: [
                         const Text(
                           "Tagih Iuran ke Semua Keluarga Aktif",
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 20),
                         _loading
@@ -140,17 +144,19 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 10),
                                 ),
                                 value: selectedIuran,
                                 hint: const Text("-- Pilih Iuran --"),
                                 items: iuranList.map((iuran) {
-                                  return DropdownMenuItem(value: iuran, child: Text(iuran));
+                                  return DropdownMenuItem(
+                                    value: iuran,
+                                    child: Text(iuran),
+                                  );
                                 }).toList(),
                                 onChanged: (value) {
-                                  setState(() {
-                                    selectedIuran = value;
-                                  });
+                                  setState(() => selectedIuran = value);
                                 },
                               ),
                         const SizedBox(height: 20),
@@ -160,9 +166,10 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
                           children: [
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:  const Color(0xFF0C88C2),
+                                backgroundColor: const Color(0xFF0C88C2),
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
                               ),
                               onPressed: _tagihIuran,
                               child: const Text("Tagih Iuran"),
@@ -170,8 +177,10 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
                             OutlinedButton(
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppTheme.blueSuperDark,
-                                side: const BorderSide(color: AppTheme.blueSuperDark),
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                side: const BorderSide(
+                                    color: AppTheme.blueSuperDark),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
                               ),
                               onPressed: () {
                                 setState(() => selectedIuran = null);
@@ -183,22 +192,6 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
                       ],
                     ),
                   ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/pemasukan/tagihan');
-                },
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                label: const Text(
-                  "Kembali",
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:  const Color(0xFF0C88C2),
                 ),
               ),
             ),

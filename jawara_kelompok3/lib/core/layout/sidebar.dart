@@ -33,6 +33,10 @@ class _AppSidebarState extends State<AppSidebar> {
       'dashboard': false,
       'data_warga': false,
       'keuangan': false,
+
+      // ✅ nested
+      'keuangan_pemasukan': false,
+
       'manajemen_pengguna': false,
       'channel_transfer': false,
       'log_aktifitas': false,
@@ -49,26 +53,40 @@ class _AppSidebarState extends State<AppSidebar> {
     switch (menuKey) {
       case 'dashboard':
         return route.startsWith('/dashboard');
+
       case 'data_warga':
         return route.startsWith('/data-warga') ||
             route.startsWith('/data-rumah') ||
             route.startsWith('/data-keluarga') ||
             route.startsWith('/mutasi');
+
       case 'keuangan':
+        // ✅ parent: kebuka kalau ada halaman keuangan/pemasukan/pengeluaran/laporan
         return route.startsWith('/keuangan') ||
             route.startsWith('/pemasukan') ||
             route.startsWith('/pengeluaran') ||
-            route.startsWith('/laporan');
+            route.startsWith('/laporan') ||
+            route.startsWith('/dashboard/keuangan');
+
+      case 'keuangan_pemasukan':
+        // ✅ nested: kebuka kalau ada halaman pemasukan apapun
+        return route.startsWith('/pemasukan');
+
       case 'manajemen_pengguna':
         return route.startsWith('/pengguna');
+
       case 'channel_transfer':
         return route.startsWith('/channel');
+
       case 'log_aktifitas':
         return route.startsWith('/semuaAktifitas');
+
       case 'pesan_warga':
         return route.startsWith('/aspirasi');
+
       case 'mutasi_keluarga':
         return route.startsWith('/mutasi');
+
       default:
         return false;
     }
@@ -250,7 +268,7 @@ class _AppSidebarState extends State<AppSidebar> {
                     ],
                   ),
 
-                  /// KEUANGAN (LAPORAN)
+                  /// ✅ KEUANGAN (PARENT)
                   _buildMenuSection(
                     icon: Icons.bar_chart_rounded,
                     title: "Keuangan",
@@ -258,10 +276,41 @@ class _AppSidebarState extends State<AppSidebar> {
                     context: context,
                     currentRoute: currentRoute,
                     children: [
+                      // ✅ NESTED DROPDOWN: PEMASUKAN
+                      _buildNestedMenuSection(
+                        title: "Pemasukan",
+                        keyValue: "keuangan_pemasukan",
+                        context: context,
+                        currentRoute: currentRoute,
+                        children: [
+                          _buildSubMenuItem(
+                            "Kategori Iuran",
+                            "/pemasukan/pages/kategori",
+                            context,
+                            currentRoute,
+                          ),
+                          _buildSubMenuItem(
+                            "Tagihan",
+                            "/pemasukan/tagihan",
+                            context,
+                            currentRoute,
+                          ),
+                          _buildSubMenuItem(
+                            "Pemasukan (Lainnya)",
+                            "/pemasukan/pemasukanLain-daftar",
+                            context,
+                            currentRoute,
+                          ),
+                        ],
+                      ),
+
+                      // Pengeluaran tetap normal
                       _buildSubMenuItem(
-                          "Pemasukan", "/pemasukan", context, currentRoute),
-                      _buildSubMenuItem(
-                          "Pengeluaran", "/pengeluaran", context, currentRoute),
+                        "Pengeluaran",
+                        "/pengeluaran",
+                        context,
+                        currentRoute,
+                      ),
                     ],
                   ),
 
@@ -305,12 +354,9 @@ class _AppSidebarState extends State<AppSidebar> {
                     ),
                     onTap: () async {
                       final prefs = await SharedPreferences.getInstance();
-                      await prefs.setBool(
-                          'logged_out', true); // tandai sudah logout
-                      await FirebaseAuth.instance
-                          .signOut(); // logout dari Firebase
+                      await prefs.setBool('logged_out', true);
+                      await FirebaseAuth.instance.signOut();
 
-                      // Navigasi ke login dan hapus semua route sebelumnya
                       Navigator.pushNamedAndRemoveUntil(
                         context,
                         '/login',
@@ -327,6 +373,7 @@ class _AppSidebarState extends State<AppSidebar> {
     );
   }
 
+  /// SECTION UTAMA (pakai icon gradient)
   Widget _buildMenuSection({
     required IconData icon,
     required String title,
@@ -355,6 +402,41 @@ class _AppSidebarState extends State<AppSidebar> {
           ),
         ),
         children: children,
+      ),
+    );
+  }
+
+  /// ✅ SECTION NESTED (dropdown di dalam dropdown)
+  /// - tanpa icon besar (biar rapi)
+  /// - padding lebih masuk
+  Widget _buildNestedMenuSection({
+    required String title,
+    required String keyValue,
+    required BuildContext context,
+    required String currentRoute,
+    required List<Widget> children,
+  }) {
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 6),
+        child: ExpansionTile(
+          key: ValueKey('${keyValue}_${_expanded[keyValue]}'),
+          initiallyExpanded: _expanded[keyValue] ?? false,
+          onExpansionChanged: (expanded) =>
+              _expandOnlyAnimated(keyValue, expanded),
+          leading: const Icon(Icons.arrow_drop_down_circle_outlined,
+              size: 18, color: Color(0xFF0C88C2)),
+          title: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF0C88C2),
+            ),
+          ),
+          children: children,
+        ),
       ),
     );
   }

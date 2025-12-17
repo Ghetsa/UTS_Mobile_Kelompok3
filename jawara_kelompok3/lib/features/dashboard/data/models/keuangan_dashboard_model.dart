@@ -1,100 +1,83 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Model transaksi keuangan gabungan dari:
-/// - pemasukan
-/// - pengeluaran
-/// - tagihan (yang sudah dibayar)
 class KeuanganModel {
   final String docId;
-  final String sumber;   // "pemasukan" / "pengeluaran" / "tagihan"
-  final String tipe;     // "pemasukan" / "pengeluaran"
-  final String kategori;
+  final String sumber; // ✅ "pemasukan" / "pengeluaran" / "tagihan"
+  final String
+      jenis; // ✅ contoh: "Donasi", "Tagihan Dibayar", "Acara", "Perawatan"
+  final String nama; // ✅ contoh: "Eca", "Sewa Gedung"
   final double nominal;
   final DateTime tanggal;
 
   KeuanganModel({
     required this.docId,
     required this.sumber,
-    required this.tipe,
-    required this.kategori,
+    required this.jenis,
+    required this.nama,
     required this.nominal,
     required this.tanggal,
   });
 
-  // ---------- Helper parsing umum ----------
-
-  static DateTime _parseTanggal(dynamic raw) {
-    if (raw is Timestamp) {
-      return raw.toDate();
-    }
-    if (raw is String) {
-      // coba parse ISO dulu
-      final dt = DateTime.tryParse(raw);
-      if (dt != null) return dt;
-      // fallback: pakai now kalau gagal
-    }
-    return DateTime.now();
+  static String _s(dynamic v, [String fallback = ""]) {
+    if (v == null) return fallback;
+    final t = v.toString().trim();
+    return t.isEmpty ? fallback : t;
   }
 
   static double _parseNominal(dynamic raw) {
     if (raw is num) return raw.toDouble();
     if (raw is String) {
-      return double.tryParse(raw.replaceAll('.', '').replaceAll(',', '')) ?? 0;
+      final cleaned = raw.replaceAll('.', '').replaceAll(',', '').trim();
+      return double.tryParse(cleaned) ?? 0;
     }
     return 0;
   }
 
-  // ---------- Dari koleksi PEMASUKAN ----------
-  factory KeuanganModel.fromPemasukanDoc(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>? ?? {};
-    return KeuanganModel(
-      docId: doc.id,
-      sumber: 'pemasukan',
-      tipe: 'pemasukan',
-      kategori: (data['kategori'] ?? '') as String,
-      nominal: _parseNominal(data['jumlah'] ?? data['nominal']),
-      tanggal: _parseTanggal(data['tanggal']),
-    );
-  }
+  /// ✅ Parse tanggal aman:
+  /// - Timestamp
+  /// - ISO: "2025-12-10 12:19:00.753302"
+  /// - Format indo umum: "12/9/2025" atau "1/12/2025" => kita anggap d/M/yyyy (Indonesia)
+  static DateTime _parseTanggal(dynamic raw) {
+    if (raw is Timestamp) return raw.toDate();
+    if (raw is DateTime) return raw;
 
-  // ---------- Dari koleksi PENGELUARAN ----------
-  factory KeuanganModel.fromPengeluaranDoc(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>? ?? {};
-    return KeuanganModel(
-      docId: doc.id,
-      sumber: 'pengeluaran',
-      tipe: 'pengeluaran',
-      kategori: (data['kategori'] ?? '') as String,
-      nominal: _parseNominal(data['jumlah'] ?? data['nominal']),
-      tanggal: _parseTanggal(data['tanggal']),
-    );
-  }
+    if (raw is String) {
+      final s = raw.trim();
 
-  // ---------- Dari koleksi TAGIHAN ----------
-  /// Hanya mengembalikan `KeuanganModel` kalau tagihan SUDAH DIBAYAR.
-  /// Kalau belum dibayar → return null (di-skip).
-  static KeuanganModel? fromTagihanDoc(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>? ?? {};
+      // coba ISO dulu
+      final iso = DateTime.tryParse(s);
+      if (iso != null) return iso;
 
-    // Status tagihan
-    final statusRaw =
-        (data['tagihanStatus'] ?? data['status'] ?? '') as String;
-    final status = statusRaw.toLowerCase().trim();
-
-    final sudahDibayar =
-        status == 'lunas' || status == 'dibayar' || status.contains('lunas');
-
-    if (!sudahDibayar) {
-      // belum dibayar → tidak dihitung sebagai pemasukan
-      return null;
+      // coba d/M/yyyy atau dd/MM/yyyy
+      if (s.contains('/')) {
+        final parts = s.split('/');
+        if (parts.length == 3) {
+          final d = int.tryParse(parts[0].trim());
+          final m = int.tryParse(parts[1].trim());
+          final y = int.tryParse(parts[2].trim());
+          if (d != null && m != null && y != null) {
+            // d/M/yyyy (Indonesia)
+            return DateTime(y, m, d);
+          }
+        }
+      }
     }
 
+    return DateTime.now();
+  }
+
+  factory KeuanganModel.fromDoc({
+    required DocumentSnapshot doc,
+    required String sumber,
+  }) {
+    final data = doc.data() as Map<String, dynamic>? ?? {};
+
     return KeuanganModel(
       docId: doc.id,
-      sumber: 'tagihan',
-      tipe: 'pemasukan', // uang masuk ketika sudah dibayar
-      kategori: (data['kategori'] ?? 'Tagihan') as String,
-      nominal: _parseNominal(data['jumlah'] ?? data['nominal']),
+      sumber: sumber,
+      jenis: _s(data['jenis'], 'Lainnya'),
+      nama: _s(data['nama'], '-'),
+      nominal: _parseNominal(data['nominal'] ?? data['jumlah']),
       tanggal: _parseTanggal(data['tanggal']),
     );
   }

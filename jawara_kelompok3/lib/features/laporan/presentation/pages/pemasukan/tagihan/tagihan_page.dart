@@ -5,6 +5,7 @@ import '../../../widgets/card/tagihan_card.dart';
 import '../../../../data/models/tagihan_model.dart';
 import '../../../../controller/tagihan_controller.dart';
 import '../../../../../../core/layout/header.dart';
+import '../../../../../../core/layout/sidebar.dart';
 import '../../../widgets/dialog/edit_tagihan_dialog.dart';
 import '../../../widgets/dialog/detail_tagihan_dialog.dart';
 import 'package:flutter/services.dart';
@@ -159,16 +160,15 @@ class _TagihanPageState extends State<TagihanPage> {
             !item.periode.contains(_activeFilter['periode'])) {
           return false;
         }
-
       }
       return true;
     }).toList();
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
-      
+      drawer: const AppSidebar(),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 40.0), 
+        padding: const EdgeInsets.only(bottom: 40.0),
         child: FloatingActionButton(
           heroTag: 'printTagihan',
           backgroundColor: Colors.red,
@@ -182,7 +182,6 @@ class _TagihanPageState extends State<TagihanPage> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,9 +198,9 @@ class _TagihanPageState extends State<TagihanPage> {
                 builder: (_) => const FilterTagihanDialog(),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             Expanded(
               child: _loading
                   ? const Center(child: CircularProgressIndicator())
@@ -223,7 +222,7 @@ class _TagihanPageState extends State<TagihanPage> {
                               },
                               onEdit: () async {
                                 final updatedTagihan =
-                                    await showDialog<TagihanModel>( 
+                                    await showDialog<TagihanModel>(
                                   context: context,
                                   builder: (_) =>
                                       EditTagihanDialog(tagihan: row),
@@ -251,43 +250,29 @@ class _TagihanPageState extends State<TagihanPage> {
                           },
                         ),
             ),
-            
+
             // Bottom buttons: Kembali dan Tagih Iuran
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/pemasukan');
-                    },
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    label: const Text(
-                      "Kembali",
-                      style: TextStyle(color: Colors.white),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/pemasukan/tagihIuran');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0C88C2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:  const Color(0xFF0C88C2),
-                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
                   ),
-                  const SizedBox(width: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/pemasukan/tagihIuran');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:  const Color(0xFF0C88C2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      "Tagih Iuran",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                  child: const Text(
+                    "Tagih Iuran",
+                    style: TextStyle(color: Colors.white),
                   ),
-                ],
+                ),
               ),
             ),
           ],

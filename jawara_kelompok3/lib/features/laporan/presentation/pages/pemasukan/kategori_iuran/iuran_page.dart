@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import '../../../../../../core/layout/header.dart';
 import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
-import '../../../widgets/info_box.dart';
 import '../../../widgets/filter/kategori_iuran_filter.dart';
 import '../../../widgets/card/kategori_iuran_card.dart';
 import '../../../../data/models/kategori_iuran_model.dart';
 import '../../../widgets/dialog/detail_kategori_dialog.dart';
 import '../../../widgets/dialog/edit_kategori_dialog.dart';
-
 import '../../../../data/services/kategori_iuran_service.dart';
-
 import '../kategori_iuran/tambah_iuran_page.dart';
 
 class KategoriIuranPage extends StatefulWidget {
@@ -24,7 +21,7 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
   final KategoriIuranService _service = KategoriIuranService();
   List<KategoriIuranModel> dataIuran = [];
   bool _loading = true;
-  String search = "";  // Define the search variable
+  String search = "";
 
   @override
   void initState() {
@@ -68,20 +65,14 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
     );
 
     if (updatedKategori != null) {
-      final success = await _service.update(
-        updatedKategori.id,
-        updatedKategori.toMap(),
-      );
-
+      final success = await _service.update(updatedKategori.id, updatedKategori.toMap());
       if (success) {
         setState(() {
-          final index =
-              dataIuran.indexWhere((item) => item.id == updatedKategori.id);
-          if (index != -1) {
-            dataIuran[index] = updatedKategori;
-          }
+          final index = dataIuran.indexWhere((item) => item.id == updatedKategori.id);
+          if (index != -1) dataIuran[index] = updatedKategori;
         });
       } else {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Gagal memperbarui data')),
         );
@@ -95,20 +86,20 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
       setState(() {
         dataIuran.removeWhere((item) => item.id == id);
       });
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Data berhasil dihapus")),
       );
     } else {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Gagal menghapus data"), backgroundColor: Colors.red),
+        const SnackBar(content: Text("Gagal menghapus data"), backgroundColor: Colors.red),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Filter data based on search term
     final filteredList = dataIuran.where((item) {
       if (search.isNotEmpty &&
           !item.nama.toLowerCase().contains(search.toLowerCase())) {
@@ -120,6 +111,25 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
       drawer: const AppSidebar(),
+
+      // ✅ FAB nempel kanan bawah
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'addKategoriIuran',
+        backgroundColor: const Color(0xFF0C88C2),
+        elevation: 4,
+        onPressed: () async {
+          final result = await Navigator.push<bool?>(
+            context,
+            MaterialPageRoute(builder: (_) => const TambahKategoriPage()),
+          );
+          if (result == true) {
+            await _load();
+          }
+        },
+        child: const Icon(Icons.add, size: 32, color: Colors.white),
+      ),
+
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,57 +158,14 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
                             final item = filteredList[index];
                             return KategoriIuranCard(
                               row: item,
-                              onDetail: () {
-                                _showDetailDialog(item);
-                              },
-                              onEdit: () {
-                                _showEditDialog(item);
-                              },
-                              onDelete: () {
-                                _deleteKategori(item.id);
-                              },
+                              onDetail: () => _showDetailDialog(item),
+                              onEdit: () => _showEditDialog(item),
+                              onDelete: () => _deleteKategori(item.id),
                             );
                           },
                         ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,  
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/pemasukan');
-                    },
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    label: const Text(
-                      "Kembali",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:  const Color(0xFF0C88C2),
-                    ),
-                  ),
-                  FloatingActionButton(
-                    heroTag: 'addKategoriIuran',
-                    backgroundColor: const Color(0xFF0C88C2),
-                    elevation: 4,
-                    onPressed: () async {
-                      final result = await Navigator.push<bool?>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const TambahKategoriPage(),
-                        ),
-                      );
-                      if (result == true) {
-                        await _load();
-                      }
-                    },
-                    child: const Icon(Icons.add, size: 32, color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),

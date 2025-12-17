@@ -5,7 +5,7 @@ import '../../../laporan/data/models/tagihan_warga_model.dart';
 import '../../../laporan/presentation/widgets/card/tagihan_warga_card.dart';
 import '../../../laporan/presentation/widgets/dialog/detail_tagihan_warga_dialog.dart';
 import '../../../../core/layout/header.dart';
-import '../../../../core/layout/sidebar.dart';
+import '../../../../core/layout/sidebar_warga.dart';
 
 class TagihanWargaPage extends StatefulWidget {
   const TagihanWargaPage({super.key});
@@ -28,12 +28,12 @@ class _TagihanWargaPageState extends State<TagihanWargaPage> {
   // Load tagihan warga
   Future<void> _loadTagihanWarga() async {
     setState(() => _loading = true);
-    
+
     // TODO: Replace with actual keluargaId from Firebase Auth
     final keluargaId = "keluarga_id_example";
-    
+
     final tagihan = await _tagihanController.getTagihanWarga(keluargaId);
-    
+
     setState(() {
       tagihanList = tagihan;
       _loading = false;
@@ -44,7 +44,7 @@ class _TagihanWargaPageState extends State<TagihanWargaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
-      drawer: const AppSidebar(),
+      drawer: const SidebarWarga(),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,7 +105,8 @@ class _TagihanWargaPageState extends State<TagihanWargaPage> {
                                         // Show detail dialog
                                         showDialog(
                                           context: context,
-                                          builder: (_) => DetailTagihanWargaDialog(
+                                          builder: (_) =>
+                                              DetailTagihanWargaDialog(
                                             tagihan: tagihan,
                                           ),
                                         );
