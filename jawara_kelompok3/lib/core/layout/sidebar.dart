@@ -59,8 +59,6 @@ class _AppSidebarState extends State<AppSidebar> {
             route.startsWith('/pemasukan') ||
             route.startsWith('/pengeluaran') ||
             route.startsWith('/laporan');
-      case 'pengeluaran':
-        return route.startsWith('/pengeluaran');
       case 'manajemen_pengguna':
         return route.startsWith('/pengguna');
       case 'channel_transfer':
@@ -69,8 +67,6 @@ class _AppSidebarState extends State<AppSidebar> {
         return route.startsWith('/semuaAktifitas');
       case 'pesan_warga':
         return route.startsWith('/aspirasi');
-      case 'pengeluaran':
-        return route.startsWith('/pengeluaran');
       case 'mutasi_keluarga':
         return route.startsWith('/mutasi');
       default:
@@ -251,48 +247,6 @@ class _AppSidebarState extends State<AppSidebar> {
                         context,
                         currentRoute,
                       ),
-                    ],
-                  ),
-
-                  /// PEMASUKAN
-                  _buildMenuSection(
-                    icon: Icons.payments_rounded,
-                    title: "Pemasukan",
-                    keyValue: "pemasukan",
-                    context: context,
-                    currentRoute: currentRoute,
-                    children: [
-                      _buildSubMenuItem("Kategori Iuran",
-                          "/pemasukan/pages/kategori", context, currentRoute),
-                      _buildSubMenuItem("Tagih Iuran", "/pemasukan/tagihIuran",
-                          context, currentRoute),
-                      _buildSubMenuItem("Tagihan", "/pemasukan/tagihan",
-                          context, currentRoute),
-                      _buildSubMenuItem(
-                          "Pemasukan Lain - Daftar",
-                          "/pemasukan/pemasukanLain-daftar",
-                          context,
-                          currentRoute),
-                      _buildSubMenuItem(
-                          "Pemasukan Lain - Tambah",
-                          "/pemasukan/pemasukanLain-tambah",
-                          context,
-                          currentRoute),
-                    ],
-                  ),
-
-                  /// PENGELUARAN LAIN
-                  _buildMenuSection(
-                    icon: Icons.money_off_rounded,
-                    title: "Pengeluaran",
-                    keyValue: "pengeluaran_lain",
-                    context: context,
-                    currentRoute: currentRoute,
-                    children: [
-                      _buildSubMenuItem("Pengeluaran - Daftar",
-                          "/pengeluaran/daftar", context, currentRoute),
-                      _buildSubMenuItem("Pengeluaran - Tambah",
-                          "/pengeluaran/tambah", context, currentRoute),
                     ],
                   ),
 

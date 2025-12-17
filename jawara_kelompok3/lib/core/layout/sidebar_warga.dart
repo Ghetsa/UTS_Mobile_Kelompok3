@@ -10,9 +10,6 @@ class SidebarWarga extends StatefulWidget {
 }
 
 class _SidebarWargaState extends State<SidebarWarga> {
-  final Map<String, bool> _expanded = {};
-  String? _lastRoute;
-
   final Duration _animationDuration = const Duration(milliseconds: 280);
   bool _isAnimating = false;
 
@@ -26,132 +23,8 @@ class _SidebarWargaState extends State<SidebarWarga> {
   );
 
   @override
-  void initState() {
-    super.initState();
-    _expanded.addAll({
-      'warga_menu': true, // default kebuka biar gampang
-    });
-  }
-
-  bool _routeMatches(String menuKey, String route) {
-    if (route.isEmpty) return false;
-
-    switch (menuKey) {
-      case 'warga_menu':
-        return route.startsWith('/warga/dashboard') ||
-            route.startsWith('/warga/');
-      default:
-        return false;
-    }
-  }
-
-  void _ensureInitialExpansion(String currentRoute) {
-    if (_lastRoute == currentRoute) return;
-    _lastRoute = currentRoute;
-
-    _expanded.forEach((k, _) {
-      _expanded[k] = _routeMatches(k, currentRoute);
-    });
-
-    // kalau tidak match apa pun, tetep buka menu warga (biar UX enak)
-    _expanded['warga_menu'] ??= true;
-  }
-
-  void _expandOnlyAnimated(String key, bool expanded) {
-    if (_isAnimating) return;
-
-    _isAnimating = true;
-    setState(() {
-      _expanded[key] = expanded;
-    });
-
-    Future.delayed(_animationDuration, () {
-      _isAnimating = false;
-    });
-  }
-
-  Widget _buildSubMenuItem(
-    String label,
-    String route,
-    BuildContext context,
-    String currentRoute, {
-    IconData? leadingIcon,
-  }) {
-    final bool selected = currentRoute == route;
-
-    return GestureDetector(
-      onTap: () {
-        Navigator.pop(context);
-        if (selected) return;
-        Navigator.pushReplacementNamed(context, route);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        decoration: BoxDecoration(
-          color: selected ? const Color(0xFFE3EFE8) : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              leadingIcon ?? Icons.circle,
-              size: leadingIcon == null ? 8 : 18,
-              color: selected ? _green : Colors.grey.shade500,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                  color: selected ? _green : _brown,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMenuSection({
-    required IconData icon,
-    required String title,
-    required String keyValue,
-    required BuildContext context,
-    required String currentRoute,
-    required List<Widget> children,
-  }) {
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        key: ValueKey('${keyValue}_${_expanded[keyValue]}'),
-        initiallyExpanded: _expanded[keyValue] ?? false,
-        onExpansionChanged: (expanded) =>
-            _expandOnlyAnimated(keyValue, expanded),
-        leading: ShaderMask(
-          shaderCallback: (bounds) => mainGradient.createShader(bounds),
-          child: Icon(icon, color: Colors.white, size: 24),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: _green,
-          ),
-        ),
-        children: children,
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
     final currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
-    _ensureInitialExpansion(currentRoute);
 
     final user = FirebaseAuth.instance.currentUser;
     final email = user?.email ?? '-';
@@ -207,44 +80,46 @@ class _SidebarWargaState extends State<SidebarWarga> {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  _buildMenuSection(
-                    icon: Icons.home_rounded,
-                    title: "Menu Warga",
-                    keyValue: "warga_menu",
-                    context: context,
-                    currentRoute: currentRoute,
-                    children: [
-                      _buildSubMenuItem(
-                        "Dashboard",
-                        "/warga/dashboard",
-                        context,
-                        currentRoute,
-                        leadingIcon: Icons.dashboard_outlined,
-                      ),
-                      _buildSubMenuItem(
-                        "Kegiatan Warga",
-                        "/warga/kegiatan",
-                        context,
-                        currentRoute,
-                        leadingIcon: Icons.event_note_outlined,
-                      ),
-                      _buildSubMenuItem(
-                        "Informasi & Aspirasi",
-                        "/warga/aspirasi",
-                        context,
-                        currentRoute,
-                        leadingIcon: Icons.chat_outlined,
-                      ),
-                      _buildSubMenuItem(
-                        "Profil Saya",
-                        "/warga/profil",
-                        context,
-                        currentRoute,
-                        leadingIcon: Icons.account_circle_outlined,
-                      ),
-                    ],
+
+                  _buildSubMenuItem(
+                    "Dashboard",
+                    "/warga/dashboard",
+                    context,
+                    currentRoute,
+                    leadingIcon: Icons.dashboard_outlined,
                   ),
+                  _buildSubMenuItem(
+                    "Kegiatan Warga",
+                    "/warga/kegiatan",
+                    context,
+                    currentRoute,
+                    leadingIcon: Icons.event_note_outlined,
+                  ),
+                  _buildSubMenuItem(
+                    "Informasi & Aspirasi",
+                    "/warga/aspirasi",
+                    context,
+                    currentRoute,
+                    leadingIcon: Icons.chat_outlined,
+                  ),
+                  _buildSubMenuItem(
+                    "Profil Saya",
+                    "/warga/profil",
+                    context,
+                    currentRoute,
+                    leadingIcon: Icons.account_circle_outlined,
+                  ),
+                  _buildSubMenuItem(
+                    "Tagihan",
+                    "/warga/tagihan",
+                    context,
+                    currentRoute,
+                    leadingIcon: Icons.receipt_long_outlined,
+                  ),
+
                   const SizedBox(height: 8),
+
+                  // Logout
                   ListTile(
                     leading:
                         const Icon(Icons.logout_rounded, color: Colors.red),
@@ -273,6 +148,52 @@ class _SidebarWargaState extends State<SidebarWarga> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSubMenuItem(
+    String label,
+    String route,
+    BuildContext context,
+    String currentRoute, {
+    IconData? leadingIcon,
+  }) {
+    final bool selected = currentRoute == route;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.pop(context);
+        if (selected) return;
+        Navigator.pushReplacementNamed(context, route);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFFE3EFE8) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              leadingIcon ?? Icons.circle,
+              size: leadingIcon == null ? 8 : 18,
+              color: selected ? _green : Colors.grey.shade500,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                  color: selected ? _green : _brown,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
