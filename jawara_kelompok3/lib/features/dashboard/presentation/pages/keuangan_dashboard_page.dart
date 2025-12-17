@@ -91,25 +91,31 @@ class DashboardKeuanganPage extends StatelessWidget {
     Map<String, double> source, {
     int topN = 4,
   }) {
+    if (source.isEmpty) return {};
     if (source.length <= topN) return source;
 
     // urutkan dari nominal terbesar
     final entries = source.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    final Map<String, double> result = {};
-    double othersTotal = 0;
+    final top = entries.take(topN).toList();
+    final rest = entries.skip(topN);
 
-    for (int i = 0; i < entries.length; i++) {
-      if (i < topN) {
-        result[entries[i].key] = entries[i].value;
-      } else {
-        othersTotal += entries[i].value;
-      }
+    double othersTotal = 0;
+    for (final e in rest) {
+      othersTotal += e.value;
     }
 
-    if (othersTotal > 0) {
-      result['Lainnya'] = othersTotal;
+    final Map<String, double> result = {};
+    for (final e in top) {
+      result[e.key] = (result[e.key] ?? 0) + e.value;
+    }
+
+    // gabungkan sisa ke "Lainnya" (aman kalau "Lainnya" sudah ada)
+    result['Lainnya'] = (result['Lainnya'] ?? 0) + othersTotal;
+
+    if ((result['Lainnya'] ?? 0) == 0) {
+      result.remove('Lainnya');
     }
 
     return result;
@@ -240,7 +246,7 @@ class DashboardKeuanganPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         SizedBox(
-                          height: 350,
+                          height: 370,
                           child: ListView(
                             scrollDirection: Axis.horizontal,
                             children: [
