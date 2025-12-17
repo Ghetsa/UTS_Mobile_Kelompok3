@@ -33,6 +33,7 @@ class _AppSidebarState extends State<AppSidebar> {
 
       // nested
       'keuangan_pemasukan': false,
+      'keuangan_pengeluaran': false,
 
       'manajemen_pengguna': false,
       'channel_transfer': false,
@@ -66,6 +67,8 @@ class _AppSidebarState extends State<AppSidebar> {
 
       case 'keuangan_pemasukan':
         return route.startsWith('/pemasukan');
+      case 'keuangan_pengeluaran':
+        return route.startsWith('/pengeluaran');
 
       case 'manajemen_pengguna':
         return route.startsWith('/pengguna');
@@ -102,6 +105,13 @@ class _AppSidebarState extends State<AppSidebar> {
       return;
     }
 
+    // 1b) kalau sedang di /pengeluaran..., buka keuangan & nested pengeluaran
+    if (_routeMatches('keuangan_pengeluaran', currentRoute)) {
+      _expanded['keuangan'] = true;
+      _expanded['keuangan_pengeluaran'] = true;
+      return;
+    }
+
     // 2) kalau route match salah satu menu utama, buka itu
     for (final k in _expanded.keys) {
       if (_routeMatches(k, currentRoute)) {
@@ -121,6 +131,7 @@ class _AppSidebarState extends State<AppSidebar> {
         // kalau parent keuangan ditutup, nested harus ikut ketutup
         if (key == 'keuangan') {
           _expanded['keuangan_pemasukan'] = false;
+          _expanded['keuangan_pengeluaran'] = false;
         }
         return;
       }
@@ -133,6 +144,10 @@ class _AppSidebarState extends State<AppSidebar> {
 
       // kalau buka nested pemasukan, parent keuangan harus ikut terbuka
       if (key == 'keuangan_pemasukan') {
+        _expanded['keuangan'] = true;
+      }
+      // kalau buka nested pengeluaran, parent keuangan harus ikut terbuka
+      if (key == 'keuangan_pengeluaran') {
         _expanded['keuangan'] = true;
       }
     });
@@ -314,11 +329,26 @@ class _AppSidebarState extends State<AppSidebar> {
                         ],
                       ),
 
-                      _buildSubMenuItem(
-                        "Pengeluaran",
-                        "/pengeluaran",
-                        context,
-                        currentRoute,
+                      /// NESTED: PENGELUARAN
+                      _buildNestedMenuSection(
+                        title: "Pengeluaran",
+                        keyValue: "keuangan_pengeluaran",
+                        context: context,
+                        currentRoute: currentRoute,
+                        children: [
+                          _buildSubMenuItem(
+                            "Daftar Pengeluaran",
+                            "/pengeluaran/daftar",
+                            context,
+                            currentRoute,
+                          ),
+                          _buildSubMenuItem(
+                            "Tambah Pengeluaran",
+                            "/pengeluaran/tambah",
+                            context,
+                            currentRoute,
+                          ),
+                        ],
                       ),
                     ],
                   ),
