@@ -4,7 +4,7 @@ import '../../../laporan/controller/tagihan_warga_controller.dart';
 import '../../../laporan/data/models/tagihan_warga_model.dart';
 import '../../../laporan/presentation/widgets/card/tagihan_warga_card.dart';
 import '../../../laporan/presentation/widgets/dialog/detail_tagihan_warga_dialog.dart';
-import '../../../../core/layout/header.dart';
+import '../../../../core/layout/header_warga.dart';
 import '../../../../core/layout/sidebar_warga.dart';
 
 class TagihanWargaPage extends StatefulWidget {
@@ -49,7 +49,7 @@ class _TagihanWargaPageState extends State<TagihanWargaPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const MainHeader(
+            const MainHeaderWarga(
               title: "Tagihan Warga",
               showSearchBar: false,
               showFilterButton: false,

@@ -14,9 +14,6 @@ class _AppSidebarState extends State<AppSidebar> {
   final Map<String, bool> _expanded = {};
   String? _lastRoute;
 
-  final Duration _animationDuration = const Duration(milliseconds: 300);
-  bool _isAnimating = false;
-
   final Gradient mainGradient = const LinearGradient(
     colors: [
       Color(0xFF48B0E0),
@@ -34,7 +31,7 @@ class _AppSidebarState extends State<AppSidebar> {
       'data_warga': false,
       'keuangan': false,
 
-      // ✅ nested
+      // nested
       'keuangan_pemasukan': false,
 
       'manajemen_pengguna': false,
@@ -46,7 +43,7 @@ class _AppSidebarState extends State<AppSidebar> {
     });
   }
 
-  /// ✅ COCOKKAN DENGAN PREFIX ROUTE YANG KAMU PAKAI
+  /// ✅ cocokkan prefix route
   bool _routeMatches(String menuKey, String route) {
     if (route.isEmpty) return false;
 
@@ -61,7 +58,6 @@ class _AppSidebarState extends State<AppSidebar> {
             route.startsWith('/mutasi');
 
       case 'keuangan':
-        // ✅ parent: kebuka kalau ada halaman keuangan/pemasukan/pengeluaran/laporan
         return route.startsWith('/keuangan') ||
             route.startsWith('/pemasukan') ||
             route.startsWith('/pengeluaran') ||
@@ -69,7 +65,6 @@ class _AppSidebarState extends State<AppSidebar> {
             route.startsWith('/dashboard/keuangan');
 
       case 'keuangan_pemasukan':
-        // ✅ nested: kebuka kalau ada halaman pemasukan apapun
         return route.startsWith('/pemasukan');
 
       case 'manajemen_pengguna':
@@ -96,21 +91,50 @@ class _AppSidebarState extends State<AppSidebar> {
     if (_lastRoute == currentRoute) return;
     _lastRoute = currentRoute;
 
-    _expanded.forEach((k, _) {
-      _expanded[k] = _routeMatches(k, currentRoute);
-    });
+    // default: tutup semua dulu
+    _expanded.forEach((k, _) => _expanded[k] = false);
+
+    // buka yang match route (prioritas nested dulu)
+    // 1) kalau sedang di /pemasukan..., buka keuangan & nested pemasukan
+    if (_routeMatches('keuangan_pemasukan', currentRoute)) {
+      _expanded['keuangan'] = true;
+      _expanded['keuangan_pemasukan'] = true;
+      return;
+    }
+
+    // 2) kalau route match salah satu menu utama, buka itu
+    for (final k in _expanded.keys) {
+      if (_routeMatches(k, currentRoute)) {
+        _expanded[k] = true;
+        break;
+      }
+    }
   }
 
-  void _expandOnlyAnimated(String key, bool expanded) {
-    if (_isAnimating) return;
-
-    _isAnimating = true;
+  /// ✅ ACCORDION: buka 1, yang lain auto tutup
+  void _setExpandedExclusive(String key, bool expanded) {
     setState(() {
-      _expanded[key] = expanded;
-    });
+      // kalau ditutup, cukup tutup key itu (+ anaknya kalau parent)
+      if (!expanded) {
+        _expanded[key] = false;
 
-    Future.delayed(_animationDuration, () {
-      _isAnimating = false;
+        // kalau parent keuangan ditutup, nested harus ikut ketutup
+        if (key == 'keuangan') {
+          _expanded['keuangan_pemasukan'] = false;
+        }
+        return;
+      }
+
+      // kalau dibuka, tutup semua dulu
+      _expanded.forEach((k, _) => _expanded[k] = false);
+
+      // lalu buka key yang diminta
+      _expanded[key] = true;
+
+      // kalau buka nested pemasukan, parent keuangan harus ikut terbuka
+      if (key == 'keuangan_pemasukan') {
+        _expanded['keuangan'] = true;
+      }
     });
   }
 
@@ -253,22 +277,14 @@ class _AppSidebarState extends State<AppSidebar> {
                     context: context,
                     currentRoute: currentRoute,
                     children: [
-                      _buildSubMenuItem(
-                        "Informasi & Aspirasi",
-                        "/aspirasi/informasiAspirasi",
-                        context,
-                        currentRoute,
-                      ),
-                      _buildSubMenuItem(
-                        "Tambah Aspirasi",
-                        "/aspirasi/tambahAspirasi",
-                        context,
-                        currentRoute,
-                      ),
+                      _buildSubMenuItem("Informasi & Aspirasi",
+                          "/aspirasi/informasiAspirasi", context, currentRoute),
+                      _buildSubMenuItem("Tambah Aspirasi",
+                          "/aspirasi/tambahAspirasi", context, currentRoute),
                     ],
                   ),
 
-                  /// ✅ KEUANGAN (PARENT)
+                  /// KEUANGAN (PARENT)
                   _buildMenuSection(
                     icon: Icons.bar_chart_rounded,
                     title: "Keuangan",
@@ -276,7 +292,7 @@ class _AppSidebarState extends State<AppSidebar> {
                     context: context,
                     currentRoute: currentRoute,
                     children: [
-                      // ✅ NESTED DROPDOWN: PEMASUKAN
+                      /// NESTED: PEMASUKAN
                       _buildNestedMenuSection(
                         title: "Pemasukan",
                         keyValue: "keuangan_pemasukan",
@@ -284,27 +300,20 @@ class _AppSidebarState extends State<AppSidebar> {
                         currentRoute: currentRoute,
                         children: [
                           _buildSubMenuItem(
-                            "Kategori Iuran",
-                            "/pemasukan/pages/kategori",
-                            context,
-                            currentRoute,
-                          ),
+                              "Kategori Iuran",
+                              "/pemasukan/pages/kategori",
+                              context,
+                              currentRoute),
+                          _buildSubMenuItem("Tagihan", "/pemasukan/tagihan",
+                              context, currentRoute),
                           _buildSubMenuItem(
-                            "Tagihan",
-                            "/pemasukan/tagihan",
-                            context,
-                            currentRoute,
-                          ),
-                          _buildSubMenuItem(
-                            "Pemasukan (Lainnya)",
-                            "/pemasukan/pemasukanLain-daftar",
-                            context,
-                            currentRoute,
-                          ),
+                              "Pemasukan (Lainnya)",
+                              "/pemasukan/pemasukanLain-daftar",
+                              context,
+                              currentRoute),
                         ],
                       ),
 
-                      // Pengeluaran tetap normal
                       _buildSubMenuItem(
                         "Pengeluaran",
                         "/pengeluaran",
@@ -373,7 +382,7 @@ class _AppSidebarState extends State<AppSidebar> {
     );
   }
 
-  /// SECTION UTAMA (pakai icon gradient)
+  /// SECTION UTAMA
   Widget _buildMenuSection({
     required IconData icon,
     required String title,
@@ -388,7 +397,7 @@ class _AppSidebarState extends State<AppSidebar> {
         key: ValueKey('${keyValue}_${_expanded[keyValue]}'),
         initiallyExpanded: _expanded[keyValue] ?? false,
         onExpansionChanged: (expanded) =>
-            _expandOnlyAnimated(keyValue, expanded),
+            _setExpandedExclusive(keyValue, expanded),
         leading: ShaderMask(
           shaderCallback: (bounds) => mainGradient.createShader(bounds),
           child: Icon(icon, color: Colors.white, size: 24),
@@ -406,9 +415,7 @@ class _AppSidebarState extends State<AppSidebar> {
     );
   }
 
-  /// ✅ SECTION NESTED (dropdown di dalam dropdown)
-  /// - tanpa icon besar (biar rapi)
-  /// - padding lebih masuk
+  /// SECTION NESTED
   Widget _buildNestedMenuSection({
     required String title,
     required String keyValue,
@@ -424,9 +431,12 @@ class _AppSidebarState extends State<AppSidebar> {
           key: ValueKey('${keyValue}_${_expanded[keyValue]}'),
           initiallyExpanded: _expanded[keyValue] ?? false,
           onExpansionChanged: (expanded) =>
-              _expandOnlyAnimated(keyValue, expanded),
-          leading: const Icon(Icons.arrow_drop_down_circle_outlined,
-              size: 18, color: Color(0xFF0C88C2)),
+              _setExpandedExclusive(keyValue, expanded),
+          leading: const Icon(
+            Icons.arrow_drop_down_circle_outlined,
+            size: 18,
+            color: Color(0xFF0C88C2),
+          ),
           title: Text(
             title,
             style: const TextStyle(
