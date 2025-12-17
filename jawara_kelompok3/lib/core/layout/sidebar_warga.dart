@@ -107,33 +107,6 @@ class _SidebarWargaState extends State<SidebarWarga> {
                     icon: Icons.receipt_long_outlined,
                   ),
                   _buildLogoutItem(context),
-
-                  const SizedBox(height: 8),
-
-                  // Logout
-                  ListTile(
-                    leading:
-                        const Icon(Icons.logout_rounded, color: Colors.red),
-                    title: const Text(
-                      "Logout",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onTap: () async {
-                      final prefs = await SharedPreferences.getInstance();
-                      await prefs.setBool('logged_out', true);
-                      await FirebaseAuth.instance.signOut();
-
-                      if (!context.mounted) return;
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        '/login',
-                        (route) => false,
-                      );
-                    },
-                  ),
                 ],
               ),
             ),
