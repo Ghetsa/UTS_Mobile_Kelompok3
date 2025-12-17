@@ -14,7 +14,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  // ===== CONTROLLERS =====
+  // CONTROLLERS
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -23,15 +23,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController nikController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController manualAddressController = TextEditingController();
-  final TextEditingController agamaController = TextEditingController();
-  final TextEditingController pekerjaanController = TextEditingController();
+  final TextEditingController agamaLainnyaController = TextEditingController();
+  final TextEditingController pekerjaanLainnyaController =
+      TextEditingController();
 
-  // ===== STATE VARIABLES =====
+  // STATE VARIABLES
   String? _selectedGender;
   String? _selectedAddressOption;
   String? _selectedOwnershipStatus;
   Uint8List? _profilePhotoBytes;
   String? _profilePhotoName;
+  String? _selectedAgama;
+  String? _selectedPekerjaan;
   List<Map<String, dynamic>> _rumahList = [];
   bool _loadingRumah = true;
   bool _showPassword = false;
@@ -40,8 +43,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final RegisterController _controller = RegisterController();
   static const String manualAddressOption =
       'Alamat Rumah (Jika Tidak Ada di List)';
+  static const String agamaLainnyaValue = 'Lainnya';
+  static const String pekerjaanLainnyaValue = 'Lainnya';
 
-  // ===== INIT =====
+  static const List<String> agamaList = [
+    'Islam',
+    'Kristen Protestan',
+    'Kristen Katolik',
+    'Hindu',
+    'Buddha',
+    'Konghucu',
+    'Yahudi',
+    'Sikh',
+    'Taoisme',
+    'Shinto',
+    'Baháʼí',
+    'Jainisme',
+    'Zoroastrianisme',
+    'Kepercayaan Lokal',
+    'Ateis',
+    'Agnostik',
+    'Lainnya',
+  ];
+
+  static const List<String> pekerjaanList = [
+    "Belum bekerja",
+    "Pelajar / Mahasiswa",
+    "PNS",
+    "TNI / POLRI",
+    "Karyawan Swasta",
+    "Wiraswasta",
+    "Petani",
+    "Buruh",
+    "Ibu Rumah Tangga",
+    "Lainnya",
+  ];
+
+  // INIT
   @override
   void initState() {
     super.initState();
@@ -61,7 +99,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
   }
 
-  // ===== HELPERS =====
+  // HELPERS
   void _pickFile() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -81,19 +119,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  String? _computeAddressToSend() {
+  String? _computeSelectedRumahId() {
     if (_selectedAddressOption == null) return null;
+    if (_selectedAddressOption == manualAddressOption) return null;
+
+    final rumah = _rumahList.firstWhere(
+      (r) => r['alamat'] == _selectedAddressOption,
+      orElse: () => {},
+    );
+
+    return rumah['id'];
+  }
+
+  String? _computeAddressToSend() {
     if (_selectedAddressOption == manualAddressOption) {
       final manual = manualAddressController.text.trim();
       return manual.isEmpty ? null : manual;
     }
-    final rumah = _rumahList.firstWhere(
-        (r) => r['alamat'] == _selectedAddressOption,
-        orElse: () => {});
-    return rumah['id'];
+    return null;
   }
 
-  // ===== WIDGET BUILDERS =====
+  // WIDGET BUILDERS
   Widget _buildInputField({
     required String label,
     required String hint,
@@ -285,7 +331,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // ===== REGISTER =====
   Future<void> _onRegisterPressed() async {
-    final addressToSend = _computeAddressToSend();
+    String? rumahId;
+    String? alamatBaru;
+
+    // Tentukan nilai final agama dan pekerjaan
+    String agamaFinal = _selectedAgama == agamaLainnyaValue
+        ? agamaLainnyaController.text.trim()
+        : (_selectedAgama ?? '');
+
+    String pekerjaanFinal = _selectedPekerjaan == pekerjaanLainnyaValue
+        ? pekerjaanLainnyaController.text.trim()
+        : (_selectedPekerjaan ?? '');
+
+    // Jika pilih alamat manual
+    if (_selectedAddressOption == manualAddressOption) {
+      alamatBaru = manualAddressController.text.trim();
+
+      if (alamatBaru.isEmpty) {
+        await showMessageDialog(
+          context: context,
+          title: 'Gagal!',
+          message: 'Alamat rumah wajib diisi',
+          success: false,
+        );
+        return;
+      }
+    }
+    // Jika pilih rumah existing
+    else {
+      rumahId = _computeSelectedRumahId();
+
+      if (rumahId == null) {
+        await showMessageDialog(
+          context: context,
+          title: 'Gagal!',
+          message: 'Silakan pilih rumah',
+          success: false,
+        );
+        return;
+      }
+    }
+
     String nik = nikController.text.trim();
 
     if (nik.length != 16 || int.tryParse(nik) == null) {
@@ -328,11 +414,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       nama: nameController.text.trim(),
       nik: nik,
       noHp: phoneController.text.trim(),
-      agama: agamaController.text.trim(),
-      pekerjaan: pekerjaanController.text.trim(),
+      agama: agamaFinal,
+      pekerjaan: pekerjaanFinal,
       role: 'warga',
       jenis_kelamin: _selectedGender,
-      alamat: addressToSend,
+      rumahId: rumahId,
+      alamat: alamatBaru,
       kepemilikan: _selectedOwnershipStatus,
       fotoIdentitas: _profilePhotoBytes,
       profilePhotoName: _profilePhotoName,
@@ -424,6 +511,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 hint: '--- Pilih Jenis Kelamin ---',
                 selectedValue: _selectedGender,
                 onChanged: (val) => setState(() => _selectedGender = val)),
+            _buildDropdownField(
+                label: 'Agama',
+                items: agamaList,
+                hint: '--- Pilih Agama ---',
+                selectedValue: _selectedAgama,
+                onChanged: (val) {
+                  setState(() {
+                    _selectedAgama = val;
+                    if (val != agamaLainnyaValue) {
+                      agamaLainnyaController.clear();
+                    }
+                  });
+                }),
+            if (_selectedAgama == agamaLainnyaValue)
+              _buildInputField(
+                label: 'Agama Lainnya',
+                hint: 'Masukkan agama',
+                controller: agamaLainnyaController,
+              ),
+            _buildDropdownField(
+              label: 'Pekerjaan',
+              items: pekerjaanList,
+              hint: '--- Pilih Pekerjaan ---',
+              selectedValue: _selectedPekerjaan,
+              onChanged: (val) {
+                setState(() {
+                  _selectedPekerjaan = val;
+                  if (val != pekerjaanLainnyaValue) {
+                    pekerjaanLainnyaController.clear();
+                  }
+                });
+              },
+            ),
+            if (_selectedPekerjaan == pekerjaanLainnyaValue)
+              _buildInputField(
+                label: 'Pekerjaan Lainnya',
+                hint: 'Masukkan pekerjaan',
+                controller: pekerjaanLainnyaController,
+              ),
             _buildAddressSelectionField(),
             _buildDropdownField(
                 label: 'Status Kepemilikan Rumah',
@@ -456,10 +582,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     hint: 'Masukkan nama lengkap',
                     controller: nameController),
                 _buildInputField(
-                    label: 'Agama',
-                    hint: 'Masukkan agama',
-                    controller: agamaController),
-                _buildInputField(
                     label: 'Email',
                     hint: 'Masukkan email aktif',
                     controller: emailController),
@@ -488,10 +610,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     hint: 'Masukkan NIK',
                     controller: nikController,
                     keyboardType: TextInputType.number),
-                _buildInputField(
-                    label: 'Pekerjaan',
-                    hint: 'Masukkan pekerjaan',
-                    controller: pekerjaanController),
                 _buildInputField(
                     label: 'No Telepon',
                     hint: 'Masukkan nomor telepon',
