@@ -111,7 +111,9 @@ class _MutasiTambahPageState extends State<MutasiTambahPage> {
 
     if (ok) {
       final jenis = (_jenisMutasi ?? "").toLowerCase().trim();
-      if (jenis == "Pindah Keluar") {
+
+      // ✅ sama seperti Edit
+      if (jenis == "pindah keluar") {
         await _wargaService.updateWarga(_selectedWargaId!, {
           "status_warga": "Nonaktif",
         });

@@ -95,44 +95,62 @@ class _WargaAspirasiPageState extends State<WargaAspirasiPage> {
         title: const Text("Tambah Aspirasi"),
         content: StatefulBuilder(
           builder: (context, setLocal) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: judulC,
-                  decoration: const InputDecoration(
-                    labelText: "Judul / Ringkas",
-                    border: OutlineInputBorder(),
+            final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+            final maxH = MediaQuery.of(context).size.height * 0.55;
+
+            return AnimatedPadding(
+              padding: EdgeInsets.only(bottom: bottomInset),
+              duration: const Duration(milliseconds: 150),
+              curve: Curves.easeOut,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: maxH),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: judulC,
+                        decoration: const InputDecoration(
+                          labelText: "Judul / Ringkas",
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        value: kategori,
+                        decoration: const InputDecoration(
+                          labelText: "Kategori",
+                          border: OutlineInputBorder(),
+                        ),
+                        items: kategoriList
+                            .map((k) =>
+                                DropdownMenuItem(value: k, child: Text(k)))
+                            .toList(),
+                        onChanged: (v) =>
+                            setLocal(() => kategori = v ?? kategori),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: isiC,
+                        maxLines: 4,
+                        decoration: const InputDecoration(
+                          labelText: "Isi Pesan",
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  value: kategori,
-                  decoration: const InputDecoration(
-                    labelText: "Kategori",
-                    border: OutlineInputBorder(),
-                  ),
-                  items: kategoriList
-                      .map((k) => DropdownMenuItem(value: k, child: Text(k)))
-                      .toList(),
-                  onChanged: (v) => setLocal(() => kategori = v ?? kategori),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: isiC,
-                  maxLines: 4,
-                  decoration: const InputDecoration(
-                    labelText: "Isi Pesan",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
+              ),
             );
           },
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () {
+              FocusScope.of(context).unfocus();
+              Navigator.pop(context, false);
+            },
             child: const Text("Batal"),
           ),
           ElevatedButton(
@@ -140,7 +158,10 @@ class _WargaAspirasiPageState extends State<WargaAspirasiPage> {
               backgroundColor: _green,
               foregroundColor: Colors.white,
             ),
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () {
+              FocusScope.of(context).unfocus();
+              Navigator.pop(context, true);
+            },
             child: const Text("Kirim"),
           ),
         ],
