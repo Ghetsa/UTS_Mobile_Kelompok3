@@ -27,7 +27,8 @@ class _EditAspirasiState extends State<EditAspirasi> {
     super.initState();
     isiController = TextEditingController(text: widget.model.isiPesan);
     kategoriController = TextEditingController(text: widget.model.kategori);
-    selectedStatus = widget.model.status.isNotEmpty ? widget.model.status : null;
+    selectedStatus =
+        widget.model.status.isNotEmpty ? widget.model.status : null;
   }
 
   @override
@@ -38,31 +39,28 @@ class _EditAspirasiState extends State<EditAspirasi> {
   }
 
   Future<void> _updateAspirasi() async {
-    final success = await _service.updatePesan(widget.model.docId, {
-      "isi_pesan": isiController.text,
-      "kategori": kategoriController.text,
-      "status": selectedStatus,
-    });
+    try {
+      final success = await _service.updatePesan(widget.model.docId, {
+        "isi_pesan": isiController.text,
+        "kategori": kategoriController.text,
+        "status": selectedStatus,
+      });
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Aspirasi berhasil diperbarui!"),
-          backgroundColor: AppTheme.greenMediumDark,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      Navigator.pop(context, true);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Gagal memperbarui aspirasi."),
-          backgroundColor: AppTheme.redMedium,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      // Hanya kirim hasil ke halaman daftar
+      Navigator.pop(context, {
+        'status': success ? 'success' : 'error',
+        'message': success
+            ? 'Aspirasi berhasil diperbarui!'
+            : 'Gagal memperbarui aspirasi.',
+      });
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context, {
+        'status': 'error',
+        'message': 'Terjadi kesalahan: $e',
+      });
     }
   }
 
@@ -105,9 +103,11 @@ class _EditAspirasiState extends State<EditAspirasi> {
                           ),
                         ),
                         const SizedBox(height: 30),
-                        _buildTextField("Isi Aspirasi", isiController, maxLines: 4),
+                        _buildTextField("Isi Aspirasi", isiController,
+                            maxLines: 4),
                         _buildTextField("Kategori", kategoriController),
-                        _buildDropdownField("Status", selectedStatus, statusList),
+                        _buildDropdownField(
+                            "Status", selectedStatus, statusList),
                         const SizedBox(height: 24),
                         Row(
                           children: [
@@ -117,14 +117,16 @@ class _EditAspirasiState extends State<EditAspirasi> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF48B0E0),
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(50)),
                                 ),
                                 child: const Text(
                                   "Update",
                                   style: TextStyle(
-                                      fontSize: 16, fontWeight: FontWeight.bold),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
@@ -135,14 +137,16 @@ class _EditAspirasiState extends State<EditAspirasi> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.grey.shade400,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(50)),
                                 ),
                                 child: const Text(
                                   "Kembali",
                                   style: TextStyle(
-                                      fontSize: 16, fontWeight: FontWeight.bold),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
