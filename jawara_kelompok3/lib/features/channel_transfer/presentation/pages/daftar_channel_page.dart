@@ -159,9 +159,9 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
                 color: PdfColors.grey300,
               ),
               headers: const [
-                'No',
                 'Nama Channel',
                 'Tipe',
+                'Nomor Rekening',
                 'Pemilik',
                 'Catatan',
               ],
@@ -265,34 +265,56 @@ class _DaftarChannelPageState extends State<DaftarChannelPage> {
                         MaterialPageRoute(
                           builder: (_) => DetailChannelPage(
                             channel: {
-                              'namaChannel': item.namaChannel,
+                              'nama_channel': item.namaChannel,
                               'tipe': item.jenis,
-                              'pemilik': item.namaPemilik,
+                              'nama_pemilik': item.namaPemilik,
+                              'no_rekening': item.nomorRekening,
                               'catatan': item.catatan ?? '-',
-                              'thumbnail': item.thumbnail ?? '',
-                              'qr': item.qr ?? '',
+                              'thumbnail_url': item.thumbnail ?? '',
+                              'qr_url': item.qr ?? '',
                             },
                           ),
                         ),
                       );
                     },
-                    onEdit: () {
-                      Navigator.push(
+                    onEdit: () async {
+                      final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => EditChannelPage(
                             channel: {
                               'docId': item.docId,
-                              'nama': item.namaChannel,
+                              'nama_channel': item.namaChannel,
                               'tipe': item.jenis,
-                              'pemilik': item.namaPemilik,
+                              'nama_pemilik': item.namaPemilik,
+                              'no_rekening': item.nomorRekening,
                               'catatan': item.catatan ?? '',
-                              'thumbnail': item.thumbnail ?? '',
-                              'qr': item.qr ?? '',
+                              'thumbnail_url': item.thumbnail ?? '',
+                              'qr_url': item.qr ?? '',
                             },
                           ),
                         ),
-                      ).then((_) => _loadChannels());
+                      );
+
+                      // Refresh daftar
+                      _loadChannels();
+
+                      // Tampilkan feedback dari halaman edit jika ada
+                      if (result != null && result is Map<String, dynamic>) {
+                        final status = result['status'] as String?;
+                        final message = result['message'] as String?;
+                        if (status != null && message != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(message),
+                              backgroundColor: status == "success"
+                                  ? AppTheme.greenMedium
+                                  : AppTheme.redMedium,
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      }
                     },
                     onDelete: () => _confirmDelete(item),
                   );

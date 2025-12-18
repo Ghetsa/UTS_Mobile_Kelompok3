@@ -97,8 +97,6 @@ class ChannelTransferCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text("Rekening: ${data.nomorRekening}",
                     style: TextStyle(color: Colors.grey.shade700)),
-                Text("Bank: ${data.kodeBank}",
-                    style: TextStyle(color: Colors.grey.shade700)),
                 const SizedBox(height: 12),
                 // Badge jenis channel
                 Row(

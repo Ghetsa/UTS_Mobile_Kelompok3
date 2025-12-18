@@ -4,7 +4,7 @@ import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class DetailChannelPage extends StatelessWidget {
-  final Map<String, String?> channel;
+  final Map<String, dynamic> channel;
 
   const DetailChannelPage({super.key, required this.channel});
 
@@ -48,14 +48,16 @@ class DetailChannelPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 30),
+                        _buildReadOnlyField("Nama Channel",
+                            channel['nama_channel']?.toString() ?? "-"),
                         _buildReadOnlyField(
-                            "Nama Channel", channel['namaChannel'] ?? "-"),
+                            "Tipe Channel", channel['tipe']?.toString() ?? "-"),
+                        _buildReadOnlyField("Nomor Rekening / Akun",
+                            channel['no_rekening']?.toString() ?? "-"),
+                        _buildReadOnlyField("Nama Pemilik",
+                            channel['nama_pemilik']?.toString() ?? "-"),
                         _buildReadOnlyField(
-                            "Tipe Channel", channel['tipe'] ?? "-"),
-                        _buildReadOnlyField(
-                            "Nama Pemilik", channel['pemilik'] ?? "-"),
-                        _buildReadOnlyField(
-                            "Catatan", channel['catatan'] ?? "-"),
+                            "Catatan", channel['catatan']?.toString() ?? "-"),
                         const SizedBox(height: 24),
                         const Text(
                           "Thumbnail Channel:",
@@ -65,7 +67,7 @@ class DetailChannelPage extends StatelessWidget {
                               color: Colors.black87),
                         ),
                         const SizedBox(height: 8),
-                        _imageBox(channel['thumbnail']),
+                        _imageBox(channel['thumbnail_url']?.toString()),
                         const SizedBox(height: 24),
                         const Text(
                           "QR Code:",
@@ -75,7 +77,7 @@ class DetailChannelPage extends StatelessWidget {
                               color: Colors.black87),
                         ),
                         const SizedBox(height: 8),
-                        _imageBox(channel['qr']),
+                        _imageBox(channel['qr_url']?.toString()),
                         const SizedBox(height: 24),
                         SizedBox(
                           width: double.infinity,
@@ -144,7 +146,7 @@ class DetailChannelPage extends StatelessWidget {
           width: double.infinity,
           height: 250,
           color: Colors.grey.shade200,
-          child: path == null
+          child: path == null || path.isEmpty
               ? const Center(child: Text("Tidak ada gambar"))
               : Image.network(
                   path,
