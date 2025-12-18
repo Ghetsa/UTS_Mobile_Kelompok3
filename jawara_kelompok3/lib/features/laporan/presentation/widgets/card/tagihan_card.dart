@@ -50,15 +50,19 @@ class TagihanCard extends StatelessWidget {
               children: [
                 Text(
                   data.keluarga,
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 17, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 6),
                 Text("Iuran: ${data.iuran}",
-                    style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                    style:
+                        TextStyle(color: Colors.grey.shade700, fontSize: 13)),
                 Text("Periode: ${data.periode}",
-                    style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                    style:
+                        TextStyle(color: Colors.grey.shade700, fontSize: 13)),
                 Text("Nominal: ${data.nominal}",
-                    style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                    style:
+                        TextStyle(color: Colors.grey.shade700, fontSize: 13)),
                 Text("Status: ${data.tagihanStatus}",
                     style: TextStyle(
                         color: data.tagihanStatus == "Belum Dibayar"
@@ -72,7 +76,8 @@ class TagihanCard extends StatelessWidget {
             onSelected: (value) {
               if (value == 'detail' && onDetail != null) onDetail!();
               if (value == 'edit' && onEdit != null) onEdit!();
-              if (value == 'delete' && onDelete != null) onDelete!(); // Trigger delete if selected
+              if (value == 'delete' && onDelete != null)
+                onDelete!(); // Trigger delete if selected
             },
             itemBuilder: (context) => const [
               PopupMenuItem(
@@ -96,7 +101,7 @@ class TagihanCard extends StatelessWidget {
                 ),
               ),
               PopupMenuItem(
-                value: 'delete', 
+                value: 'delete',
                 child: Row(
                   children: [
                     Icon(Icons.delete, color: Colors.red),

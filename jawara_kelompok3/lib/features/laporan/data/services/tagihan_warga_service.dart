@@ -1,55 +1,67 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/tagihan_model.dart';
+import '../models/tagihan_warga_model.dart';
 
 class TagihanWargaService {
-  final CollectionReference _ref =
+  final CollectionReference<Map<String, dynamic>> _ref =
       FirebaseFirestore.instance.collection('tagihan');
 
-  // Get all tagihan by kepala keluarga id
-  Future<List<TagihanModel>> getByKepalaKeluargaId(String id) async {
+  Future<List<TagihanWargaModel>> getByKepalaKeluargaId(String idKepalaWarga) async {
     try {
-      final snap = await _ref.where('id_kepala_warga', isEqualTo: id).get();
-      return snap.docs
-          .map((d) => TagihanModel.fromFirestore(d.id, d.data() as Map<String, dynamic>))
+      final snap = await _ref
+          .where('id_kepala_warga', isEqualTo: idKepalaWarga)
+          .get();
+
+      final list = snap.docs
+          .map((d) => TagihanWargaModel.fromFirestore(d.id, d.data()))
           .toList();
+
+      // ✅ sorting client-side biar ga butuh index
+      list.sort((a, b) {
+        final ta = a.createdAt?.millisecondsSinceEpoch ?? 0;
+        final tb = b.createdAt?.millisecondsSinceEpoch ?? 0;
+        return tb.compareTo(ta);
+      });
+
+      return list;
     } catch (e) {
+      // ignore: avoid_print
       print('ERROR getByKepalaKeluargaId: $e');
       return [];
     }
   }
 
-  // Get a specific tagihan by its ID
-  Future<TagihanModel?> getById(String id) async {
+  Future<TagihanWargaModel?> getById(String id) async {
     try {
       final doc = await _ref.doc(id).get();
       if (!doc.exists) return null;
-      return TagihanModel.fromFirestore(doc.id, doc.data() as Map<String, dynamic>);
+      return TagihanWargaModel.fromFirestore(doc.id, doc.data() ?? {});
     } catch (e) {
+      // ignore: avoid_print
       print('ERROR getById Tagihan: $e');
       return null;
     }
   }
 
-  // Update tagihan based on its ID
   Future<bool> update(String id, Map<String, dynamic> data) async {
     try {
       await _ref.doc(id).update({
-        ...data, 
+        ...data,
         'updated_at': FieldValue.serverTimestamp(),
       });
       return true;
     } catch (e) {
+      // ignore: avoid_print
       print('ERROR update Tagihan: $e');
       return false;
     }
   }
 
-  // Delete a tagihan based on its ID
   Future<bool> delete(String id) async {
     try {
       await _ref.doc(id).delete();
       return true;
     } catch (e) {
+      // ignore: avoid_print
       print('ERROR delete Tagihan: $e');
       return false;
     }

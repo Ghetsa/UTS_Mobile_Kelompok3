@@ -77,6 +77,9 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
         "kode": "IUR-${DateTime.now().millisecondsSinceEpoch}", // Kode tagihan
         "nominal": nominal, // Nominal iuran sesuai kategori
         "tagihanStatus": "Belum Dibayar", // Status tagihan
+
+        "id_kepala_warga":
+            keluarga.idKepalaWarga, // docId warga kepala keluarga
       };
 
       final success = await _tagihanController.addTagihan(data);
