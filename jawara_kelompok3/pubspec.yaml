@@ -15,6 +15,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   fl_chart: ^0.69.0
 
+  # Cloudinary
+  cloudinary_public: ^0.23.1
+
   # Utilities
   http: ^1.1.0
   file_picker: ^8.1.3
