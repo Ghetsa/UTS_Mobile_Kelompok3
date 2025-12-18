@@ -6,7 +6,7 @@ import '../../data/models/pengguna_model.dart';
 import '../../data/services/pengguna_service.dart';
 
 class EditPenggunaPage extends StatefulWidget {
-  final User user; // Hanya untuk edit
+  final User user; // Data gabungan warga + users
   const EditPenggunaPage({super.key, required this.user});
 
   @override
@@ -19,18 +19,12 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
   late TextEditingController noHpController;
   late TextEditingController passwordController;
   late TextEditingController confirmPasswordController;
-  late String selectedRole;
+  String? selectedRole;
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
-  final List<String> roleList = [
-    'Warga',
-    'Bendahara',
-    'Ketua RT',
-    'Ketua RW',
-    'Admin',
-  ];
+  final List<String> roleList = ['Warga', 'Admin'];
 
   @override
   void initState() {
@@ -41,7 +35,9 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
         text: widget.user.noHp == "08XXXXXXXXXX" ? "" : widget.user.noHp);
     passwordController = TextEditingController();
     confirmPasswordController = TextEditingController();
-    selectedRole = widget.user.role;
+
+    selectedRole =
+        roleList.contains(widget.user.role) ? widget.user.role : null;
   }
 
   @override
@@ -57,44 +53,43 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
   void _updatePengguna() async {
     if (passwordController.text.isNotEmpty &&
         passwordController.text != confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Password baru dan konfirmasi tidak cocok!"),
-          backgroundColor: AppTheme.redMedium,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      Navigator.pop(context, {
+        'status': 'error',
+        'message': 'Password baru dan konfirmasi tidak cocok!',
+      });
+      return;
+    }
+
+    if (selectedRole == null) {
+      Navigator.pop(context, {
+        'status': 'error',
+        'message': 'Role pengguna harus dipilih!',
+      });
       return;
     }
 
     final Map<String, dynamic> newData = {
-      'nama': namaController.text,
-      'email': emailController.text,
-      'noHp': noHpController.text,
+      'role': selectedRole!,
       if (passwordController.text.isNotEmpty)
         'password': passwordController.text,
-      'role': selectedRole,
     };
 
     bool success = await UserService().updateUser(widget.user.docId, newData);
 
+    if (!mounted) return;
+
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Data ${namaController.text} berhasil diperbarui!"),
-          backgroundColor: AppTheme.greenMedium,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      Navigator.pop(context);
+      Navigator.pop(context, {
+        'status': 'success',
+        'message': 'Data ${widget.user.nama} berhasil diperbarui!',
+        'role': selectedRole,
+        'password_updated': passwordController.text.isNotEmpty,
+      });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("Gagal memperbarui data!"),
-          backgroundColor: AppTheme.redMedium,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      Navigator.pop(context, {
+        'status': 'error',
+        'message': 'Gagal memperbarui data!',
+      });
     }
   }
 
@@ -137,16 +132,16 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
                           ),
                         ),
                         const SizedBox(height: 30),
-                        _buildReadOnlyField("Nama Lengkap", namaController),
-                        _buildReadOnlyField("Email", emailController),
-                        _buildReadOnlyField("Nomor HP", noHpController),
+                        _buildField("Nama Lengkap", namaController,
+                            readOnly: true),
+                        _buildField("Email", emailController, readOnly: true),
+                        _buildField("Nomor HP", noHpController, readOnly: true),
                         _buildPasswordField("Password Baru", passwordController,
                             _obscurePassword, () {
                           setState(() {
                             _obscurePassword = !_obscurePassword;
                           });
                         }, hint: "Kosongkan jika tidak diganti"),
-
                         _buildPasswordField(
                             "Konfirmasi Password",
                             confirmPasswordController,
@@ -157,8 +152,6 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
                         }, hint: "Masukkan kembali password"),
                         _buildDropdownField("Role", selectedRole, roleList),
                         const SizedBox(height: 24),
-
-                        // Tombol bersampingan
                         Row(
                           children: [
                             Expanded(
@@ -184,7 +177,9 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  Navigator.pop(context);
+                                  Navigator.pop(context, {
+                                    'status': 'cancel',
+                                  });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.grey.shade400,
@@ -217,8 +212,8 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
     );
   }
 
-  Widget _buildReadOnlyField(String label, TextEditingController controller,
-      {String? hint}) {
+  Widget _buildField(String label, TextEditingController controller,
+      {String? hint, bool readOnly = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: Column(
@@ -230,7 +225,7 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
           const SizedBox(height: 8),
           TextFormField(
             controller: controller,
-            readOnly: false,
+            readOnly: readOnly,
             decoration: InputDecoration(
               hintText: hint,
               filled: true,
@@ -292,7 +287,8 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
     );
   }
 
-  Widget _buildDropdownField(String label, String value, List<String> items) {
+  Widget _buildDropdownField(String label, String? value, List<String> items) {
+    final safeValue = items.contains(value) ? value : null;
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: Column(
@@ -310,7 +306,7 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
               border: Border.all(color: Colors.grey.shade300),
             ),
             child: DropdownButtonFormField<String>(
-              value: value,
+              value: safeValue,
               items: items
                   .map((item) => DropdownMenuItem(
                         value: item,
@@ -322,9 +318,8 @@ class _EditPenggunaPageState extends State<EditPenggunaPage> {
                   selectedRole = val!;
                 });
               },
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-              ),
+              hint: const Text("Pilih role"),
+              decoration: const InputDecoration(border: InputBorder.none),
             ),
           ),
         ],

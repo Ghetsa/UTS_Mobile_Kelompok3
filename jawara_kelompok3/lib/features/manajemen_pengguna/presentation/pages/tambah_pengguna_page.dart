@@ -3,8 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/layout/header.dart';
 import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../data/models/pengguna_model.dart';
-import '../../data/services/pengguna_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TambahPenggunaPage extends StatefulWidget {
   const TambahPenggunaPage({super.key});
@@ -14,9 +13,8 @@ class TambahPenggunaPage extends StatefulWidget {
 }
 
 class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
-  final _formKey = GlobalKey<FormState>(); // Key untuk validasi form
+  final _formKey = GlobalKey<FormState>();
 
-  // Controller untuk masing-masing input form
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nikController = TextEditingController();
@@ -25,28 +23,17 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  // Untuk toggle visibility password
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
-  // Variabel untuk menyimpan pilihan dropdown
   String? _selectedRole;
   String? _selectedJenisKelamin;
 
-  // List pilihan role dan jenis kelamin
-  final List<String> _roleList = [
-    'Warga',
-    'Bendahara',
-    'Sekretaris',
-    'Ketua RT',
-    'Ketua RW',
-    'Admin'
-  ];
+  final List<String> _roleList = ['Warga', 'Admin'];
   final List<String> _jenisKelaminList = ['L', 'P'];
 
   @override
   void dispose() {
-    // Membersihkan semua controller saat widget dihapus
     _namaController.dispose();
     _emailController.dispose();
     _nikController.dispose();
@@ -56,88 +43,72 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
     super.dispose();
   }
 
-  // Fungsi untuk menangani submit form
   void _handleSubmit() async {
-    // Validasi form
     if (!_formKey.currentState!.validate()) return;
 
-    // Cek kesamaan password dan konfirmasi password
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Password dan konfirmasi tidak cocok!"),
-          backgroundColor: Colors.red,
-        ),
+            content: Text("Password dan konfirmasi tidak cocok!"),
+            backgroundColor: Colors.red),
       );
       return;
     }
 
-    // Membuat objek User dari input form
-    final newUser = User(
-      docId: '',
-      nama: _namaController.text,
-      email: _emailController.text,
-      statusPengguna: 'aktif',
-      role: _selectedRole ?? 'Warga',
-      nik: _nikController.text,
-      noHp: _noHpController.text,
-      jenisKelamin: _selectedJenisKelamin ?? 'L',
-      fotoIdentitas: null,
-    );
+    try {
+      // Buat user di Firebase Auth
+      final userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      final uid = userCredential.user!.uid;
 
-    // Tambah user ke Firebase Auth dan collection users
-    final success = await UserService().addUser(
-      newUser,
-      _passwordController.text,
-    );
+      // Simpan data warga
+      await FirebaseFirestore.instance.collection('warga').doc(uid).set({
+        'uid': uid,
+        'nik': _nikController.text.trim(),
+        'nama': _namaController.text.trim(),
+        'jenis_kelamin': _selectedJenisKelamin ?? 'L',
+        'no_hp': _noHpController.text.trim(),
+        'status_warga': 'aktif',
+        'created_at': FieldValue.serverTimestamp(),
+        'updated_at': FieldValue.serverTimestamp(),
+      });
 
-    if (success) {
-      try {
-        // Tambah data ke koleksi warga di Firestore
-        final wargaRef = FirebaseFirestore.instance.collection('warga');
-        await wargaRef.add({
-          'nama': _namaController.text,
-          'nik': _nikController.text,
-          'noHp': _noHpController.text,
-          'jenisKelamin': _selectedJenisKelamin ?? 'L',
-          'email': _emailController.text,
-          'role': _selectedRole ?? 'Warga',
-          'status': 'aktif',
-          'createdAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
+      // Simpan data user
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        'email': _emailController.text.trim(),
+        'role': _selectedRole ?? 'Warga',
+        'created_at': FieldValue.serverTimestamp(),
+        'updated_at': FieldValue.serverTimestamp(),
+      });
 
-        // Tampilkan notifikasi sukses
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                "Data ${_namaController.text} berhasil ditambahkan di Auth, users, dan warga!"),
-            backgroundColor: const Color(0xFF48B0E0),
-          ),
-        );
-        _handleReset(); // Reset form setelah sukses
-      } catch (e) {
-        // Menangani error saat menambahkan ke Firestore
-        print('ERROR TAMBAH DATA WARGA: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Gagal menambahkan data ke tabel warga!"),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } else {
-      // Tampilkan error jika gagal menambahkan user di Auth
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Gagal menambahkan pengguna!"),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: Text("Data ${_namaController.text} berhasil ditambahkan!"),
+          backgroundColor: const Color(0xFF48B0E0),
         ),
+      );
+
+      _handleReset();
+    } on FirebaseAuthException catch (e) {
+      String message = 'Terjadi kesalahan saat membuat user.';
+      if (e.code == 'email-already-in-use') message = 'Email sudah terdaftar.';
+      if (e.code == 'invalid-email') message = 'Email tidak valid.';
+      if (e.code == 'weak-password') message = 'Password terlalu lemah.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Terjadi kesalahan: $e'),
+            backgroundColor: Colors.red),
       );
     }
   }
 
-  // Fungsi untuk mereset semua form dan dropdown
   void _handleReset() {
     setState(() {
       _selectedRole = null;
@@ -151,7 +122,6 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
     _passwordController.clear();
     _confirmPasswordController.clear();
 
-    // Tampilkan notifikasi reset berhasil
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("Form berhasil di-reset!"),
@@ -161,21 +131,20 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
     );
   }
 
-  // Fungsi untuk membangun TextFormField dengan label dan hint
   Widget _buildTextFormField(
     String label,
     String hint, {
     required TextEditingController controller,
     bool isPassword = false,
     TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator, // <-- tambahkan ini
+    String? Function(String?)? validator,
   }) {
-    // Tentukan apakah field password tersembunyi
-    bool obscureText = isPassword
-        ? (controller == _passwordController
-            ? _obscurePassword
-            : _obscureConfirmPassword)
-        : false;
+    bool obscureText = false;
+    if (isPassword) {
+      obscureText = controller == _passwordController
+          ? _obscurePassword
+          : _obscureConfirmPassword;
+    }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
@@ -199,13 +168,11 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
                 borderSide: const BorderSide(color: Colors.white, width: 2)),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            // Tombol untuk menampilkan/menyembunyikan password
             suffixIcon: isPassword
                 ? IconButton(
                     icon: Icon(
-                      obscureText ? Icons.visibility_off : Icons.visibility,
-                      color: AppTheme.abu,
-                    ),
+                        obscureText ? Icons.visibility_off : Icons.visibility,
+                        color: AppTheme.abu),
                     onPressed: () {
                       setState(() {
                         if (controller == _passwordController) {
@@ -229,7 +196,6 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
     );
   }
 
-  // Fungsi untuk membangun dropdown field
   Widget _buildDropdownField(String label, String hint, String? value,
       List<String> items, void Function(String?) onChanged) {
     return Padding(
@@ -277,12 +243,11 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MainHeader(
-              title: "Tambah Pengguna",
-              showSearchBar: false,
-              showFilterButton: false,
-              onSearch: (_) {},
-              onFilter: () {},
-            ),
+                title: "Tambah Pengguna",
+                showSearchBar: false,
+                showFilterButton: false,
+                onSearch: (_) {},
+                onFilter: () {}),
             const SizedBox(height: 12),
             Expanded(
               child: SingleChildScrollView(
@@ -299,24 +264,19 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Center(
-                            child: Text(
-                              "Buat Akun Pengguna Baru",
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 24,
-                                  color: Color(0xFF48B0E0)),
-                            ),
+                            child: Text("Buat Akun Pengguna Baru",
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 24,
+                                    color: Color(0xFF48B0E0))),
                           ),
                           const SizedBox(height: 30),
-                          // Field nama
                           _buildTextFormField(
                               "Nama Lengkap", "Masukkan nama lengkap",
                               controller: _namaController),
-                          // Field email
                           _buildTextFormField("Email", "Masukkan email",
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress),
-                          // Field NIK
                           _buildTextFormField("NIK", "Masukkan NIK",
                               controller: _nikController,
                               keyboardType: TextInputType.number,
@@ -327,11 +287,9 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
                               return 'NIK harus terdiri dari 16 digit angka.';
                             return null;
                           }),
-                          // Field no HP
                           _buildTextFormField("Nomor HP", "Masukkan nomor HP",
                               controller: _noHpController,
                               keyboardType: TextInputType.phone),
-                          // Field password
                           _buildTextFormField("Password", "Masukkan password",
                               controller: _passwordController,
                               isPassword: true, validator: (value) {
@@ -344,19 +302,16 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
                             }
                             return null;
                           }),
-                          // Field konfirmasi password
                           _buildTextFormField("Konfirmasi Password",
                               "Masukkan kembali password",
                               controller: _confirmPasswordController,
                               isPassword: true),
-                          // Dropdown role
                           _buildDropdownField(
                               "Role",
                               "-- Pilih Role --",
                               _selectedRole,
                               _roleList,
                               (val) => setState(() => _selectedRole = val)),
-                          // Dropdown jenis kelamin
                           _buildDropdownField(
                               "Jenis Kelamin",
                               "-- Pilih Jenis Kelamin --",
@@ -367,7 +322,6 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
                           const SizedBox(height: 30),
                           Row(
                             children: [
-                              // Tombol simpan
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: _handleSubmit,
@@ -387,7 +341,6 @@ class _TambahPenggunaPageState extends State<TambahPenggunaPage> {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              // Tombol reset
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: _handleReset,

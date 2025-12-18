@@ -32,15 +32,42 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
   }
 
   Future<void> _loadData() async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('users')
+    final wargaSnapshot = await FirebaseFirestore.instance
+        .collection('warga')
         .orderBy('created_at', descending: true)
         .get();
 
+    final usersSnapshot =
+        await FirebaseFirestore.instance.collection('users').get();
+
+    // Buat map user berdasarkan uid
+    final usersMap = {
+      for (var doc in usersSnapshot.docs) doc.id: doc.data(),
+    };
+
     setState(() {
-      data = snapshot.docs
-          .map((doc) => User.fromFirestore(doc.id, doc.data()))
-          .toList();
+      data = wargaSnapshot.docs.map((doc) {
+        final wargaData = doc.data();
+        final userData = usersMap[wargaData['uid']] ?? {};
+
+        return User(
+          docId: doc.id,
+          nama: wargaData['nama'] ?? '',
+          email: userData['email'] ?? '-', 
+          role: userData['role'] ?? '-', 
+          statusWarga: wargaData['status_warga'] ?? '',
+          nik: wargaData['nik'] ?? '',
+          noHp: wargaData['no_hp'] ?? '',
+          jenisKelamin: wargaData['jenis_kelamin'] ?? '',
+          fotoIdentitas: wargaData['photoUrl'] ?? null,
+          createdAt: wargaData['created_at'] != null
+              ? (wargaData['created_at'] as Timestamp).toDate()
+              : null,
+          updatedAt: wargaData['updated_at'] != null
+              ? (wargaData['updated_at'] as Timestamp).toDate()
+              : null,
+        );
+      }).toList();
     });
   }
 
@@ -59,13 +86,12 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
             style:
                 ElevatedButton.styleFrom(backgroundColor: AppTheme.redMedium),
             onPressed: () async {
-              // Hapus dari Firestore
+              // Hapus dari users
               await FirebaseFirestore.instance
                   .collection('users')
                   .doc(item.docId)
                   .delete();
 
-              // Hapus dari list lokal agar UI langsung update
               setState(() {
                 data.removeWhere((u) => u.docId == item.docId);
               });
@@ -79,14 +105,13 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                 ),
               );
             },
-            child: const Text("Hapus"), // <-- harus di dalam ElevatedButton
+            child: const Text("Hapus"),
           ),
         ],
       ),
     );
   }
 
-  // CETAK PDF DATA PENGGUNA
   Future<void> _cetakPdf(List<User> list) async {
     if (list.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -118,8 +143,6 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
               style: const pw.TextStyle(fontSize: 10),
             ),
             pw.SizedBox(height: 16),
-
-            // Tabel data pengguna
             pw.Table.fromTextArray(
               headerStyle: pw.TextStyle(
                 fontWeight: pw.FontWeight.bold,
@@ -149,7 +172,7 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                   u.noHp,
                   u.jenisKelamin.toUpperCase(),
                   u.role,
-                  u.statusPengguna,
+                  u.statusWarga,
                 ];
               }),
             ),
@@ -172,7 +195,6 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Filter search
     final filteredList = search.isEmpty
         ? data
         : data
@@ -184,8 +206,6 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFE9F2F9),
       drawer: const AppSidebar(),
-
-      // Dua FAB: cetak PDF + tambah pengguna
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -215,12 +235,10 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
           ),
         ],
       ),
-
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // HEADER
             MainHeader(
               title: "Data Pengguna",
               searchHint: "Cari nama pengguna...",
@@ -238,10 +256,7 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                 );
               },
             ),
-
             const SizedBox(height: 16),
-
-            // LIST PENGGUNA
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -252,17 +267,38 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                   return PenggunaCard(
                     data: user,
                     onDetail: () {
-                      showDialog(
-                        context: context,
-                        builder: (_) => DetailPenggunaPage(user: user),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DetailPenggunaPage(user: user),
+                        ),
                       );
                     },
                     onEdit: () async {
-                      final updated = await showDialog(
-                        context: context,
-                        builder: (_) => EditPenggunaPage(user: user),
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EditPenggunaPage(user: user),
+                        ),
                       );
-                      if (updated == true) _loadData();
+
+                      _loadData();
+
+                      if (result != null && result is Map<String, dynamic>) {
+                        final status = result['status'] as String?;
+                        final message = result['message'] as String?;
+                        if (status != null && message != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(message),
+                              backgroundColor: status == "success"
+                                  ? AppTheme.greenMedium
+                                  : AppTheme.redMedium,
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      }
                     },
                     onDelete: () => _confirmDelete(user),
                   );

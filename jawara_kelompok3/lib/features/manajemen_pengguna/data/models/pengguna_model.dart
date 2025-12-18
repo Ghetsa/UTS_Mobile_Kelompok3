@@ -6,7 +6,7 @@ class User {
 
   final String nama;
   final String email;
-  final String statusPengguna;
+  final String statusWarga;
   final String role;
   final String nik;
   final String noHp;
@@ -20,7 +20,7 @@ class User {
     required this.docId,
     required this.nama,
     required this.email,
-    required this.statusPengguna,
+    required this.statusWarga,
     required this.role,
     required this.nik,
     required this.noHp,
@@ -30,18 +30,18 @@ class User {
     this.updatedAt,
   });
 
-  /// Firestore → Model
+  // Firestore → Model
   factory User.fromFirestore(String docId, Map<String, dynamic> data) {
     return User(
       docId: docId,
       nama: data['nama'] ?? '',
       email: data['email'] ?? '',
-      statusPengguna: data['statusRegistrasi'] ?? '',
+      statusWarga: data['status_warga'] ?? '',
       role: data['role'] ?? '',
       nik: data['nik'] ?? '',
-      noHp: data['noHp'] ?? '',
-      jenisKelamin: data['jenisKelamin'] ?? '',
-      fotoIdentitas: data['fotoIdentitas'],
+      noHp: data['no_hp'] ?? '',
+      jenisKelamin: data['jenis_kelamin'] ?? '',
+      fotoIdentitas: data['foto_identitas'] ?? data['photoUrl'],
       createdAt: data['created_at'] != null
           ? (data['created_at'] as Timestamp).toDate()
           : null,
@@ -56,7 +56,7 @@ class User {
     return {
       'nama': nama,
       'email': email,
-      'status_warga': statusPengguna,
+      'status_warga': statusWarga,
       'role': role,
       'nik': nik,
       'no_hp': noHp,
