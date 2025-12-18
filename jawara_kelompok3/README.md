@@ -26,7 +26,7 @@ Aplikasi **JAWARA** dibuat untuk memberikan kemudahan dalam:
 | 4 | **Pengeluaran** | 2 | Mencatat pengeluaran dana perumahan. |
 | 5 | **Laporan Keuangan** | 3 | Menampilkan laporan rekap pemasukan dan pengeluaran secara periodik. |
 | 6 | **Kegiatan & Broadcast** | 4 | Mengelola agenda kegiatan dan menyebarkan pengumuman kepada warga. |
-| 7 | **Pesan Warga** | 1 | Fitur pesan internal antarwarga dan pengurus. |
+| 7 | **Pesan Warga** | 2 | Fitur pesan internal antarwarga dan pengurus. |
 | 8 | **Mutasi Keluarga** | 2 | Mengelola data perpindahan warga (masuk/keluar kompleks). |
 | 9 | **Log Aktivitas** | 1 | Menampilkan histori aktivitas pengguna di sistem. |
 | 10 | **Manajemen Pengguna** | 2 | Mengatur data pengguna (admin, pengurus, warga). |
@@ -40,7 +40,7 @@ Aplikasi **JAWARA** dibuat untuk memberikan kemudahan dalam:
 |----|------|-------------|-----------------------|
 | 1 | **Ghetsa Ramadhani Riska A.** | 12 / 2341720004 |Dashboard, Data Warga & Rumah |
 | 2 | **Oltha Rosyeda Al'haq** | 12 / 2341720145 | Pemasukan, Laporan Keuangan |
-| 3 | **Muhammad Syahrul Gunawan** | 12 / 2341720002 | Manajemen Pengguna, Channel Transfer, Log Aktivitas, Pesan Warga, Login, Pendaftaran |
+| 3 | **Muhammad Syahrul Gunawan** | 22 / 2341720002 | Manajemen Pengguna, Channel Transfer, Log Aktivitas, Pesan Warga, Login, Register |
 | 4 | **Luthfi Triaswangga** | 12 / 2341720208 | Kegiatan & Broadcast, Pengeluaran, Mutasi Keluarga |
 
 ---
@@ -49,6 +49,8 @@ Aplikasi **JAWARA** dibuat untuk memberikan kemudahan dalam:
 
 - **Flutter** — Framework utama untuk pengembangan UI multiplatform.
 - **Dart** — Bahasa pemrograman utama.
+- **Firebase** — .
+- **Cloudinary** — Storage tempat menyimpan data file/foto.
 
 ---
 
@@ -148,7 +150,7 @@ Kelas: **[TI-3D / Pemprograman Mobile]**
 |------|--------|
 | Ghetsa Ramadhani Riska A. | UI Dashboard & Data Warga |
 | Oltha Rosyeda Al’haq | UI Keuangan (Pemasukan & Laporan) |
-| Muhammad Syahrul Gunawan | UI Autentikasi, Pesan, Channel Transfer dan Manajemen Pengguna |
+| Muhammad Syahrul Gunawan | UI Autentikasi, Pesan Aspirasi, Channel Transfer, Log Aktivitas dan Manajemen Pengguna |
 | Luthfi Triaswangga | UI Kegiatan, Broadcast, dan Mutasi Keluarga |
 
 ---
