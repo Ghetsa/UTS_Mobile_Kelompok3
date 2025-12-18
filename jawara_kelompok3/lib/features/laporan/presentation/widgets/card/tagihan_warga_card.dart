@@ -15,107 +15,124 @@ class TagihanCardWarga extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Remove 'static' from here, define the colors in the 'State' class instead
+    final Color _green = const Color(0xFF2F6F4E);
+    final Color _brown = const Color(0xFF8B6B3E);
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 18),
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12.withOpacity(.05),
-            blurRadius: 18,
+            color: Colors.black12.withOpacity(.06),
+            blurRadius: 16,
             offset: const Offset(0, 6),
           ),
         ],
+        border: Border.all(color: _green.withOpacity(0.10)),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.receipt_long, color: Colors.blue),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+          // Header Row
+          Row(
+            children: [
+              Expanded(
+                child: Text(
                   data.keluarga,
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  "Iuran: ${data.iuran}",
-                  style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                ),
-                Text(
-                  "Periode: ${data.periode}",
-                  style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                ),
-                Text(
-                  "Nominal: Rp ${data.nominal}",
-                  style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                ),
-                const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: data.tagihanStatus == "Belum Dibayar"
-                        ? Colors.red.shade50
-                        : Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(8),
+                  style: TextStyle(
+                    fontSize: 16.5,
+                    fontWeight: FontWeight.w800,
+                    color: _green,
                   ),
-                  child: Text(
-                    data.tagihanStatus,
-                    style: TextStyle(
-                      color: data.tagihanStatus == "Belum Dibayar"
-                          ? Colors.red.shade700
-                          : Colors.green.shade700,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'detail' && onDetail != null) onDetail!();
-              if (value == 'bayar' && onEdit != null) onEdit!(); 
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'detail',
-                child: Row(
-                  children: [
-                    Icon(Icons.visibility, color: Colors.blue),
-                    SizedBox(width: 8),
-                    Text("Detail"),
-                  ],
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              // Only show "Bayar Tagihan" if status is "Belum Dibayar"
-              if (data.tagihanStatus == "Belum Dibayar")
-                const PopupMenuItem(
-                  value: 'bayar', 
-                  child: Row(
-                    children: [
-                      Icon(Icons.payment, color: Colors.green),
-                      SizedBox(width: 8),
-                      Text("Bayar Tagihan"),
-                    ],
+              const SizedBox(width: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _green.withOpacity(0.10),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: _green.withOpacity(0.25)),
+                ),
+                child: Text(
+                  data.tagihanStatus,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: data.tagihanStatus == "Belum Dibayar"
+                        ? Colors.red
+                        : Colors.green,
                   ),
                 ),
+              ),
             ],
-          )
+          ),
+          const SizedBox(height: 10),
+
+          // Info Rows
+          Row(
+            children: [
+              _Pill(icon: Icons.category, text: data.iuran, color: _brown),
+              const SizedBox(width: 8),
+              _Pill(icon: Icons.place, text: data.periode, color: _green),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          Row(
+            children: [
+              Icon(Icons.money, size: 18, color: _brown),
+              const SizedBox(width: 8),
+              Text(
+                "Rp ${data.nominal}",
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final Color color;
+
+  const _Pill({required this.icon, required this.text, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: Colors.grey.shade800,
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );
