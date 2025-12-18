@@ -2,13 +2,13 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'dialogs.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class RegisterController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   Future<void> registerUser({
     required BuildContext context,
@@ -59,22 +59,70 @@ class RegisterController {
       final String uid = userCredential.user!.uid;
       String? photoUrl;
 
-      // UPLOAD FOTO IDENTITAS (JIKA ADA)
-      if (fotoIdentitas != null && profilePhotoName != null) {
+      // FUNCTION UPLOAD CLOUDINARY
+      Future<String?> _uploadToCloudinary({
+        required Uint8List bytes,
+        required String filename,
+        required String uid,
+      }) async {
         try {
-          final storageRef =
-              _storage.ref().child('user_photos/$uid/$profilePhotoName');
-
-          final metadata = SettableMetadata(
-            contentType: 'image/jpeg',
+          final uri = Uri.parse(
+            'https://api.cloudinary.com/v1_1/droup6ar3/image/upload',
           );
 
-          await storageRef.putData(fotoIdentitas, metadata);
-          photoUrl = await storageRef.getDownloadURL();
+          final request = http.MultipartRequest('POST', uri)
+            ..fields['upload_preset'] = 'jawara_unsigned'
+            ..fields['folder'] = 'jawara/identitas/$uid'
+            ..files.add(
+              http.MultipartFile.fromBytes(
+                'file',
+                bytes,
+                filename: filename,
+              ),
+            );
+
+          final response = await request.send();
+          final responseData = await response.stream.bytesToString();
+          final json = jsonDecode(responseData);
+
+          return json['secure_url'];
         } catch (e) {
-          debugPrint('Upload foto gagal: $e');
-          photoUrl = null; // lanjutkan tanpa foto
+          debugPrint('Cloudinary upload error: $e');
+          return null;
         }
+      }
+
+      // VALIDASI & UPLOAD FOTO IDENTITAS (JIKA ADA)
+      if (fotoIdentitas != null && profilePhotoName != null) {
+        final fileName = profilePhotoName.toLowerCase();
+
+        if (!fileName.endsWith('.jpg') &&
+            !fileName.endsWith('.jpeg') &&
+            !fileName.endsWith('.png')) {
+          await showMessageDialog(
+            context: context,
+            title: 'Gagal!',
+            message: 'Format foto harus JPG atau PNG',
+            success: false,
+          );
+          return;
+        }
+
+        if (fotoIdentitas.lengthInBytes > 1024 * 1024) {
+          await showMessageDialog(
+            context: context,
+            title: 'Gagal!',
+            message: 'Ukuran foto maksimal 1 MB',
+            success: false,
+          );
+          return;
+        }
+
+        photoUrl = await _uploadToCloudinary(
+          bytes: fotoIdentitas,
+          filename: profilePhotoName,
+          uid: uid,
+        );
       }
 
       // TENTUKAN RUMAH
@@ -107,7 +155,7 @@ class RegisterController {
         'agama': agama,
         'pekerjaan': pekerjaan,
         'status_warga': 'aktif',
-        'photoUrl': photoUrl,
+        'photoUrl': photoUrl ?? '',
         'created_at': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),
       });
@@ -132,7 +180,6 @@ class RegisterController {
       await _auth.signOut();
       Navigator.pushReplacementNamed(context, '/login');
     } on FirebaseAuthException catch (e) {
-      // Error khusus Auth
       String message = 'Terjadi kesalahan, coba lagi.';
       if (e.code == 'email-already-in-use') message = 'Email sudah terdaftar.';
       if (e.code == 'invalid-email') message = 'Email tidak valid.';
@@ -145,7 +192,6 @@ class RegisterController {
         success: false,
       );
     } catch (e) {
-      // Error umum (Firestore, logic, dll)
       await showMessageDialog(
         context: context,
         title: 'Gagal!',
