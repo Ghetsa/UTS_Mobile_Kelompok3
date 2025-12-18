@@ -4,7 +4,6 @@ import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/layout/header.dart';
 
-// SESUAIKAN PATH MODEL & SERVICE
 import '../../data/models/keuangan_dashboard_model.dart';
 import '../../data/services/keuangan_dashboard_service.dart';
 
@@ -20,9 +19,8 @@ class DashboardKeuanganPage extends StatelessWidget {
 
   final KeuanganService _service = KeuanganService();
 
-  /// Format angka pendek: 1.2 jt / 2.1 rb / 950
   String _formatShortNominal(double value) {
-    final v = value.abs(); // biar -1.2jt tetap tampil rapi
+    final v = value.abs();
     if (v >= 1000000) {
       final s = (v / 1000000).toStringAsFixed(1);
       return value < 0 ? '-$s jt' : '$s jt';
@@ -35,7 +33,6 @@ class DashboardKeuanganPage extends StatelessWidget {
     }
   }
 
-  /// Inisialisasi map 12 bulan
   Map<String, double> _initMonthMap() {
     return {
       'Jan': 0,
@@ -53,14 +50,12 @@ class DashboardKeuanganPage extends StatelessWidget {
     };
   }
 
-  void _incrementKategori(
-      Map<String, double> map, String? rawKey, double value) {
-    final key = (rawKey == null || rawKey.isEmpty) ? 'Lainnya' : rawKey;
-    map[key] = (map[key] ?? 0) + value;
+  void _inc(Map<String, double> map, String key, double value) {
+    final k = key.trim().isEmpty ? 'Lainnya' : key.trim();
+    map[k] = (map[k] ?? 0) + value;
   }
 
-  String _monthLabelFromDate(DateTime? date) {
-    if (date == null) return '';
+  String _monthLabel(DateTime date) {
     switch (date.month) {
       case 1:
         return 'Jan';
@@ -91,6 +86,41 @@ class DashboardKeuanganPage extends StatelessWidget {
     }
   }
 
+  /// ✅ Ambil TOP N kategori, sisanya digabung ke "Lainnya"
+  Map<String, double> topNWithOthers(
+    Map<String, double> source, {
+    int topN = 4,
+  }) {
+    if (source.isEmpty) return {};
+    if (source.length <= topN) return source;
+
+    // urutkan dari nominal terbesar
+    final entries = source.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    final top = entries.take(topN).toList();
+    final rest = entries.skip(topN);
+
+    double othersTotal = 0;
+    for (final e in rest) {
+      othersTotal += e.value;
+    }
+
+    final Map<String, double> result = {};
+    for (final e in top) {
+      result[e.key] = (result[e.key] ?? 0) + e.value;
+    }
+
+    // gabungkan sisa ke "Lainnya" (aman kalau "Lainnya" sudah ada)
+    result['Lainnya'] = (result['Lainnya'] ?? 0) + othersTotal;
+
+    if ((result['Lainnya'] ?? 0) == 0) {
+      result.remove('Lainnya');
+    }
+
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,7 +142,6 @@ class DashboardKeuanganPage extends StatelessWidget {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
-
                   if (snapshot.hasError) {
                     return Center(
                       child: Text(
@@ -134,58 +163,58 @@ class DashboardKeuanganPage extends StatelessWidget {
                   final pemasukanPerBulan = _initMonthMap();
                   final pengeluaranPerBulan = _initMonthMap();
 
-                  // map NOMINAL per kategori
-                  final pemasukanKategori = <String, double>{};
-                  final pengeluaranKategori = <String, double>{};
+                  // ✅ Pie: pakai JENIS sebagai kategori
+                  final pemasukanByJenis = <String, double>{};
+                  final pengeluaranByJenis = <String, double>{};
 
                   for (final t in list) {
                     final nominal = t.nominal;
                     if (nominal == 0) continue;
 
-                    final bulanLabel = _monthLabelFromDate(t.tanggal);
-                    final kategori = t.kategori;
-                    final tipeLower = t.tipe.toLowerCase();
+                    final bulan = _monthLabel(t.tanggal);
+                    final jenis =
+                        t.jenis.trim().isEmpty ? 'Lainnya' : t.jenis.trim();
 
-                    final isPemasukan = tipeLower == 'pemasukan';
-                    final isPengeluaran = tipeLower == 'pengeluaran';
-
-                    if (isPemasukan) {
+                    // ✅ PEMASUKAN vs PENGELUARAN ditentukan dari KOLEKSI (sumber)
+                    if (t.sumber == 'pemasukan') {
                       totalPemasukan += nominal;
                       countPemasukan++;
 
-                      if (bulanLabel.isNotEmpty &&
-                          pemasukanPerBulan.containsKey(bulanLabel)) {
-                        pemasukanPerBulan[bulanLabel] =
-                            (pemasukanPerBulan[bulanLabel] ?? 0) + nominal;
+                      if (pemasukanPerBulan.containsKey(bulan)) {
+                        pemasukanPerBulan[bulan] =
+                            (pemasukanPerBulan[bulan] ?? 0) + nominal;
                       }
 
-                      _incrementKategori(pemasukanKategori, kategori, nominal);
-                    } else if (isPengeluaran) {
+                      _inc(pemasukanByJenis, jenis, nominal);
+                    } else if (t.sumber == 'pengeluaran') {
                       totalPengeluaran += nominal;
                       countPengeluaran++;
 
-                      if (bulanLabel.isNotEmpty &&
-                          pengeluaranPerBulan.containsKey(bulanLabel)) {
-                        pengeluaranPerBulan[bulanLabel] =
-                            (pengeluaranPerBulan[bulanLabel] ?? 0) + nominal;
+                      if (pengeluaranPerBulan.containsKey(bulan)) {
+                        pengeluaranPerBulan[bulan] =
+                            (pengeluaranPerBulan[bulan] ?? 0) + nominal;
                       }
 
-                      _incrementKategori(
-                          pengeluaranKategori, kategori, nominal);
+                      _inc(pengeluaranByJenis, jenis, nominal);
                     }
                   }
 
-                  // ✅ TOTAL KAS
-                  final double totalKas = totalPemasukan - totalPengeluaran;
+                  final totalKas = totalPemasukan - totalPengeluaran;
 
                   final screenWidth = MediaQuery.of(context).size.width;
                   final cardWidth = screenWidth * 0.85;
+
+                  //  LIMIT PIE CHART KE TOP 4
+                  final pemasukanPieLimited =
+                      topNWithOthers(pemasukanByJenis, topN: 4);
+
+                  final pengeluaranPieLimited =
+                      topNWithOthers(pengeluaranByJenis, topN: 4);
 
                   return SingleChildScrollView(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        // ====== TOTAL PEMASUKAN / PENGELUARAN ======
                         StatCardRow(
                           cards: [
                             StatCard(
@@ -204,60 +233,48 @@ class DashboardKeuanganPage extends StatelessWidget {
                             ),
                           ],
                         ),
-
                         const SizedBox(height: 12),
-
-                        // ====== TOTAL KAS SAAT INI (CARD KHUSUS) ======
                         KeuanganKasCard(
                           value: _formatShortNominal(totalKas),
                           isNegative: totalKas < 0,
                         ),
-
                         const SizedBox(height: 16),
-
-                        // ====== TOTAL TRANSAKSI ala 'Total Kegiatan' ======
                         KeuanganSummaryCard(
                           pemasukanCount: countPemasukan,
                           pengeluaranCount: countPengeluaran,
                           totalTransaksi: jumlahTransaksi,
                         ),
-
                         const SizedBox(height: 16),
-
-                        // ===== PIE CHART (1 BARIS, SCROLL HORIZONTAL) =====
                         SizedBox(
-                          height: 320,
+                          height: 370,
                           child: ListView(
                             scrollDirection: Axis.horizontal,
                             children: [
                               SizedBox(
                                 width: cardWidth,
                                 child: PieCard(
-                                  title: "Pemasukan Berdasarkan Kategori",
+                                  title: "Pemasukan Berdasarkan Jenis",
                                   textColor: AppTheme.greenDark,
-                                  data: pemasukanKategori.isEmpty
+                                  data: pemasukanPieLimited.isEmpty
                                       ? {"Belum ada data": 1}
-                                      : pemasukanKategori,
+                                      : pemasukanPieLimited,
                                 ),
                               ),
                               const SizedBox(width: 16),
                               SizedBox(
                                 width: cardWidth,
                                 child: PieCard(
-                                  title: "Pengeluaran Berdasarkan Kategori",
+                                  title: "Pengeluaran Berdasarkan Jenis",
                                   textColor: AppTheme.redDark,
-                                  data: pengeluaranKategori.isEmpty
+                                  data: pengeluaranPieLimited.isEmpty
                                       ? {"Belum ada data": 1}
-                                      : pengeluaranKategori,
+                                      : pengeluaranPieLimited,
                                 ),
                               ),
                             ],
                           ),
                         ),
-
                         const SizedBox(height: 16),
-
-                        // ===== BAR CHART (1 BARIS, SCROLL HORIZONTAL) =====
                         SizedBox(
                           height: 450,
                           child: ListView(
@@ -283,7 +300,6 @@ class DashboardKeuanganPage extends StatelessWidget {
                             ],
                           ),
                         ),
-
                         const SizedBox(height: 16),
                       ],
                     ),

@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/layout/header_warga.dart';
 import '../../../../core/layout/sidebar_warga.dart';
 
-// ✅ PAKAI MODEL + SERVICE YANG SAMA DENGAN ADMIN
+// PAKAI MODEL + SERVICE YANG SAMA DENGAN ADMIN
 // Sesuaikan path kalau strukturmu beda
 import '../../../../features/dashboard/data/models/keuangan_dashboard_model.dart';
 import '../../../../features/dashboard/data/services/keuangan_dashboard_service.dart';
@@ -35,7 +35,7 @@ class WargaDashboardPage extends StatelessWidget {
     final wargaStream =
         FirebaseFirestore.instance.collection('warga').snapshots();
 
-    // ✅ sama dengan admin
+    // sama dengan admin
     final KeuanganService keuanganService = KeuanganService();
 
     return Scaffold(
@@ -179,7 +179,7 @@ class WargaDashboardPage extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    // ✅✅✅ KEUANGAN (SINKRON ADMIN) ✅✅✅
+                    // ✅✅KEUANGAN (SINKRON ADMIN) ✅✅✅
                     FutureBuilder<List<KeuanganModel>>(
                       future: keuanganService.getAllKeuangan(),
                       builder: (context, snap) {
@@ -206,13 +206,14 @@ class WargaDashboardPage extends StatelessWidget {
                         int countPemasukan = 0;
                         int countPengeluaran = 0;
 
+                        // FIX: sinkron dengan Admin -> pakai t.sumber
                         for (final t in list) {
                           final nominal = t.nominal; // dari model admin
                           if (nominal == 0) continue;
 
-                          final tipeLower = t.tipe.toLowerCase();
-                          final isPemasukan = tipeLower == 'pemasukan';
-                          final isPengeluaran = tipeLower == 'pengeluaran';
+                          final sumber = (t.sumber).toLowerCase().trim();
+                          final isPemasukan = sumber == 'pemasukan';
+                          final isPengeluaran = sumber == 'pengeluaran';
 
                           if (isPemasukan) {
                             totalPemasukan += nominal;

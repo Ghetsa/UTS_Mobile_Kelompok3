@@ -37,6 +37,18 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
   final TextEditingController agamaC = TextEditingController();
   final TextEditingController pendidikanC = TextEditingController();
   final TextEditingController pekerjaanC = TextEditingController();
+  final List<String> pekerjaanList = const [
+    "Belum bekerja",
+    "Pelajar / Mahasiswa",
+    "PNS",
+    "TNI / POLRI",
+    "Karyawan Swasta",
+    "Wiraswasta",
+    "Petani",
+    "Buruh",
+    "Ibu Rumah Tangga",
+    "Lainnya",
+  ];
 
   String jenisKelamin = "P";
   String statusWarga = "Aktif";
@@ -66,7 +78,7 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
     // mode bayi
     if (widget.modeBayi) {
       pendidikanC.text = "Belum sekolah";
-      pekerjaanC.text = "";
+      pekerjaanC.text = "Belum bekerja";
       noHpC.text = "";
       nikC.text = ""; // kalau belum ada NIK, user bisa isi nanti
     }
@@ -297,9 +309,21 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                               : null,
                         ),
                         const SizedBox(height: 16),
-                        TextFormField(
-                          controller: pekerjaanC,
-                          decoration: _inputDecoration("Pekerjaan"),
+                        DropdownButtonFormField<String>(
+                          value:
+                              pekerjaanC.text.isEmpty ? null : pekerjaanC.text,
+                          decoration: _inputDecoration("Pekerjaan")
+                              .copyWith(labelText: "Pekerjaan"),
+                          items: pekerjaanList
+                              .map((p) =>
+                                  DropdownMenuItem(value: p, child: Text(p)))
+                              .toList(),
+                          onChanged: (v) {
+                            setState(() => pekerjaanC.text = v ?? '');
+                          },
+                          validator: (v) => (v == null || v.isEmpty)
+                              ? "Pekerjaan wajib dipilih"
+                              : null,
                         ),
                         const SizedBox(height: 16),
                         const Text(

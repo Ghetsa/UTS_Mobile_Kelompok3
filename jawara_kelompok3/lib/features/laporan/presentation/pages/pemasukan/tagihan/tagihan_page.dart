@@ -5,6 +5,7 @@ import '../../../widgets/card/tagihan_card.dart';
 import '../../../../data/models/tagihan_model.dart';
 import '../../../../controller/tagihan_controller.dart';
 import '../../../../../../core/layout/header.dart';
+import '../../../../../../core/layout/sidebar.dart';
 import '../../../widgets/dialog/edit_tagihan_dialog.dart';
 import '../../../widgets/dialog/detail_tagihan_dialog.dart';
 import 'package:flutter/services.dart';
@@ -23,9 +24,8 @@ class _TagihanPageState extends State<TagihanPage> {
   final TagihanController _controller = TagihanController();
   List<TagihanModel> dataTagihan = [];
   bool _loading = true;
-  String search = ""; // Define search variable
+  String search = "";
 
-  // Filter variables
   Map<String, dynamic> _activeFilter = {};
 
   @override
@@ -43,7 +43,6 @@ class _TagihanPageState extends State<TagihanPage> {
     });
   }
 
-  // Function to generate PDF
   void _generatePdf() async {
     final filteredList = dataTagihan.where((item) {
       if (search.isNotEmpty &&
@@ -91,8 +90,6 @@ class _TagihanPageState extends State<TagihanPage> {
               style: const pw.TextStyle(fontSize: 10),
             ),
             pw.SizedBox(height: 16),
-
-            // Table for tagihan data
             pw.Table.fromTextArray(
               headerStyle: pw.TextStyle(
                 fontWeight: pw.FontWeight.bold,
@@ -140,9 +137,7 @@ class _TagihanPageState extends State<TagihanPage> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal mencetak PDF: $e'),
-        ),
+        SnackBar(content: Text('Gagal mencetak PDF: $e')),
       );
     }
   }
@@ -159,27 +154,44 @@ class _TagihanPageState extends State<TagihanPage> {
             !item.periode.contains(_activeFilter['periode'])) {
           return false;
         }
-
       }
       return true;
     }).toList();
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
-      
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 40.0), 
-        child: FloatingActionButton(
-          heroTag: 'printTagihan',
-          backgroundColor: Colors.red,
-          elevation: 4,
-          onPressed: _generatePdf,
-          child: const Icon(
-            Icons.picture_as_pdf,
-            size: 26,
-            color: Colors.white,
+      drawer: const AppSidebar(),
+
+      // ✅ RAPINYA DI SINI: 2 FAB (PDF + Tagih Iuran) seperti DaftarWargaPage
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: 'printTagihan',
+            backgroundColor: Colors.red,
+            elevation: 4,
+            onPressed: _generatePdf,
+            child: const Icon(
+              Icons.picture_as_pdf,
+              size: 26,
+              color: Colors.white,
+            ),
           ),
-        ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'tagihIuran',
+            backgroundColor: const Color(0xFF0C88C2),
+            elevation: 4,
+            onPressed: () {
+              Navigator.pushNamed(context, '/pemasukan/tagihIuran');
+            },
+            child: const Icon(
+              Icons.add_task, // boleh ganti Icons.payment / Icons.receipt_long
+              size: 26,
+              color: Colors.white,
+            ),
+          ),
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
@@ -192,16 +204,13 @@ class _TagihanPageState extends State<TagihanPage> {
               searchHint: "Cari tagihan...",
               showSearchBar: true,
               showFilterButton: true,
-              onSearch: (v) =>
-                  setState(() => search = v.trim()), // Set the search
+              onSearch: (v) => setState(() => search = v.trim()),
               onFilter: () => showDialog(
                 context: context,
                 builder: (_) => const FilterTagihanDialog(),
               ),
             ),
-            
             const SizedBox(height: 16),
-            
             Expanded(
               child: _loading
                   ? const Center(child: CircularProgressIndicator())
@@ -223,20 +232,21 @@ class _TagihanPageState extends State<TagihanPage> {
                               },
                               onEdit: () async {
                                 final updatedTagihan =
-                                    await showDialog<TagihanModel>( 
+                                    await showDialog<TagihanModel>(
                                   context: context,
                                   builder: (_) =>
                                       EditTagihanDialog(tagihan: row),
                                 );
                                 if (updatedTagihan != null) {
                                   await _controller.updateTagihan(
-                                      updatedTagihan.id,
-                                      updatedTagihan.toMap());
+                                    updatedTagihan.id,
+                                    updatedTagihan.toMap(),
+                                  );
                                   setState(() {
-                                    final index = dataTagihan.indexWhere(
+                                    final idx = dataTagihan.indexWhere(
                                         (item) => item.id == updatedTagihan.id);
-                                    if (index != -1) {
-                                      dataTagihan[index] = updatedTagihan;
+                                    if (idx != -1) {
+                                      dataTagihan[idx] = updatedTagihan;
                                     }
                                   });
                                 }
@@ -250,45 +260,6 @@ class _TagihanPageState extends State<TagihanPage> {
                             );
                           },
                         ),
-            ),
-            
-            // Bottom buttons: Kembali dan Tagih Iuran
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/pemasukan');
-                    },
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    label: const Text(
-                      "Kembali",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:  const Color(0xFF0C88C2),
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/pemasukan/tagihIuran');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:  const Color(0xFF0C88C2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      "Tagih Iuran",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),

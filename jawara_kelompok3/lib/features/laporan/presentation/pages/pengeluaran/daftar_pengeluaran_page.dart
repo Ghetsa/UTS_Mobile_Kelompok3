@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
 import '../../../../../../core/layout/header.dart';
 import '../../../../../../core/layout/sidebar.dart';
 import '../../../../../../core/theme/app_theme.dart';
+
 import '../../../data/models/semua_pengeluaran_model.dart';
 import '../../../data/services/semua_pengeluaran_service.dart';
 import '../../widgets/card/semua_pengeluaran_card.dart';
@@ -15,47 +17,79 @@ class PengeluaranDaftarPage extends StatefulWidget {
 }
 
 class _PengeluaranDaftarPageState extends State<PengeluaranDaftarPage> {
-  // ...existing code...
-  List<PengeluaranModel> pengeluaran = [];
-  bool _loading = true;
-  String search = "";
-
+  // Sumber data (Service utama yang dipakai di halaman lain juga)
   final PengeluaranService _service = PengeluaranService();
 
-  // Stream realtime dari Firestore
+  // State UI
+  final List<PengeluaranModel> _pengeluaranCache = [];
+  String _search = "";
+
+  // Stream realtime dari Firestore (menggunakan factory dari model agar robust)
   Stream<List<PengeluaranModel>> _pengeluaranStream() {
     return FirebaseFirestore.instance
         .collection('pengeluaran')
         .orderBy('created_at', descending: true)
         .snapshots()
-        .map((qs) => qs.docs.map((doc) {
-              final data = doc.data() as Map<String, dynamic>;
-              return PengeluaranModel(
-                id: doc.id,
-                nama: data['nama'] ?? '',
-                jenis: data['jenis'] ?? '',
-                tanggal: data['tanggal'] ?? '',
-                nominal: data['nominal']?.toString() ?? '',
-              );
-            }).toList());
+        .map((qs) => qs.docs
+            .map(
+              (doc) => PengeluaranModel.fromFirestore(
+                doc.id,
+                doc.data() as Map<String, dynamic>,
+              ),
+            )
+            .toList());
   }
 
   Future<void> _deleteData(String id) async {
     final ok = await _service.delete(id);
     if (ok) {
       setState(() {
-        pengeluaran.removeWhere((e) => e.id == id);
+        _pengeluaranCache.removeWhere((e) => e.id == id);
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Data berhasil dihapus')));
+          const SnackBar(content: Text('Data berhasil dihapus')),
+        );
       }
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Gagal menghapus data')));
+          const SnackBar(content: Text('Gagal menghapus data')),
+        );
       }
     }
+  }
+
+  // Opsional: seed dummy untuk pengujian cepat (long press FAB)
+  Future<void> _seedDummy() async {
+    final col = FirebaseFirestore.instance.collection('pengeluaran');
+    final batch = FirebaseFirestore.instance.batch();
+    final now = FieldValue.serverTimestamp();
+
+    final d1 = col.doc();
+    batch.set(d1, {
+      'nama': 'Perawatan Taman',
+      'jenis': 'Perawatan',
+      'tanggal': '14/12/2025', // simpan String atau seragamkan sesuai kebutuhan
+      'nominal': '75000', // boleh String/number, tapi konsistenkan
+      'created_at': now,
+    });
+
+    final d2 = col.doc();
+    batch.set(d2, {
+      'nama': 'Konsumsi Rapat',
+      'jenis': 'Konsumsi',
+      'tanggal': '15/12/2025',
+      'nominal': '50000',
+      'created_at': now,
+    });
+
+    await batch.commit();
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Dummy pengeluaran ditambahkan')),
+    );
   }
 
   @override
@@ -64,19 +98,12 @@ class _PengeluaranDaftarPageState extends State<PengeluaranDaftarPage> {
       backgroundColor: AppTheme.backgroundBlueWhite,
       drawer: const AppSidebar(),
       floatingActionButton: GestureDetector(
-        onLongPress: () async {
-          // Hidden: seed two dummy docs for quick testing
-          await _service.seedDummy();
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Dummy pengeluaran ditambahkan')),
-          );
-        },
+        onLongPress: _seedDummy, // tahan lama untuk seed data uji
         child: FloatingActionButton(
           backgroundColor: const Color(0xFF0C88C2),
           onPressed: () async {
             await Navigator.pushNamed(context, '/pengeluaran/tambah');
-            // Dengan StreamBuilder, data akan otomatis muncul saat dokumen baru ditambahkan.
+            // Dengan StreamBuilder, data otomatis ter-update setelah kembali
           },
           child: const Icon(Icons.add, color: Colors.white),
         ),
@@ -90,7 +117,7 @@ class _PengeluaranDaftarPageState extends State<PengeluaranDaftarPage> {
               searchHint: "Cari pengeluaran...",
               showSearchBar: true,
               showFilterButton: false,
-              onSearch: (v) => setState(() => search = v.trim()),
+              onSearch: (v) => setState(() => _search = v.trim()),
             ),
             const SizedBox(height: 16),
             Expanded(
@@ -101,15 +128,31 @@ class _PengeluaranDaftarPageState extends State<PengeluaranDaftarPage> {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (snapshot.hasError) {
-                    return const Center(child: Text('Gagal memuat data'));
+                    // Tampilkan pesan error asli untuk memudahkan debug
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'Gagal memuat data: ${snapshot.error}',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    );
                   }
 
-                  final list = (snapshot.data ?? [])
-                      .where((item) => search.isEmpty
+                  final List<PengeluaranModel> data =
+                      snapshot.data ?? const <PengeluaranModel>[];
+                  // simpan ke cache (opsional)
+                  _pengeluaranCache
+                    ..clear()
+                    ..addAll(data);
+
+                  final list = data
+                      .where((item) => _search.isEmpty
                           ? true
                           : item.nama
                               .toLowerCase()
-                              .contains(search.toLowerCase()))
+                              .contains(_search.toLowerCase()))
                       .toList();
 
                   if (list.isEmpty) {
@@ -159,65 +202,5 @@ class _PengeluaranDaftarPageState extends State<PengeluaranDaftarPage> {
         ),
       ),
     );
-  }
-}
-
-class PengeluaranService {
-  final CollectionReference _pengeluaranCollection =
-      FirebaseFirestore.instance.collection('pengeluaran');
-
-  Future<List<PengeluaranModel>> getAll() async {
-    try {
-      final snapshot = await _pengeluaranCollection.get();
-      return snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        return PengeluaranModel(
-          id: doc.id,
-          nama: data['nama'] ?? '',
-          jenis: data['jenis'] ?? '',
-          tanggal: data['tanggal'] ?? '',
-          nominal: data['nominal'] ?? '',
-        );
-      }).toList();
-    } catch (e) {
-      print('Error fetching pengeluaran data: $e');
-      return [];
-    }
-  }
-
-  Future<bool> delete(String id) async {
-    try {
-      await _pengeluaranCollection.doc(id).delete();
-      return true;
-    } catch (e) {
-      print('Error deleting pengeluaran: $e');
-      return false;
-    }
-  }
-
-  // Seed two dummy pengeluaran docs for testing
-  Future<void> seedDummy() async {
-    final batch = FirebaseFirestore.instance.batch();
-    final now = FieldValue.serverTimestamp();
-
-    final d1 = _pengeluaranCollection.doc();
-    batch.set(d1, {
-      'nama': 'Perawatan Taman',
-      'jenis': 'Perawatan',
-      'tanggal': '14/12/2025',
-      'nominal': '75000',
-      'created_at': now,
-    });
-
-    final d2 = _pengeluaranCollection.doc();
-    batch.set(d2, {
-      'nama': 'Konsumsi Rapat',
-      'jenis': 'Konsumsi',
-      'tanggal': '15/12/2025',
-      'nominal': '50000',
-      'created_at': now,
-    });
-
-    await batch.commit();
   }
 }

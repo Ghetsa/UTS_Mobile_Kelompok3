@@ -12,7 +12,7 @@ class EditRumahDialog extends StatefulWidget {
 
 class _EditRumahDialogState extends State<EditRumahDialog> {
   final _alamatC = TextEditingController();
-  final _nomorC = TextEditingController(); // ✅ TAMBAH
+  final _nomorC = TextEditingController();
   final _rtC = TextEditingController();
   final _rwC = TextEditingController();
 
@@ -22,23 +22,54 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
   final RumahService _service = RumahService();
   bool _loading = false;
 
+  static const List<String> _statusRumahItems = [
+    "Dihuni",
+    "Kosong",
+    "Renovasi"
+  ];
+  static const List<String> _kepemilikanItems = [
+    "Pemilik",
+    "Penyewa",
+    "Kosong"
+  ];
+
+  String _safeText(dynamic v) => (v == null) ? '' : v.toString().trim();
+
+  String? _safeDropdown(String? value, List<String> allowed) {
+    if (value == null) return null;
+    final v = value.trim();
+    if (v.isEmpty) return null;
+
+    // exact match
+    if (allowed.contains(v)) return v;
+
+    // case-insensitive match (mis: "dihuni" -> "Dihuni")
+    final idx = allowed.indexWhere((e) => e.toLowerCase() == v.toLowerCase());
+    if (idx != -1) return allowed[idx];
+
+    // tidak ada di items -> null supaya dropdown tidak error
+    return null;
+  }
+
   @override
   void initState() {
     super.initState();
 
-    _alamatC.text = widget.rumah.alamat;
-    _nomorC.text = widget.rumah.nomor; // ✅ TAMBAH
-    _rtC.text = widget.rumah.rt;
-    _rwC.text = widget.rumah.rw;
+    // ✅ controller aman walau data null
+    _alamatC.text = _safeText(widget.rumah.alamat);
+    _nomorC.text = _safeText(widget.rumah.nomor);
+    _rtC.text = _safeText(widget.rumah.rt);
+    _rwC.text = _safeText(widget.rumah.rw);
 
-    _statusRumah = widget.rumah.statusRumah;
-    _kepemilikan = widget.rumah.kepemilikan;
+    // ✅ dropdown aman walau null / tidak ada di list
+    _statusRumah = _safeDropdown(widget.rumah.statusRumah, _statusRumahItems);
+    _kepemilikan = _safeDropdown(widget.rumah.kepemilikan, _kepemilikanItems);
   }
 
   @override
   void dispose() {
     _alamatC.dispose();
-    _nomorC.dispose(); // ✅ TAMBAH
+    _nomorC.dispose();
     _rtC.dispose();
     _rwC.dispose();
     super.dispose();
@@ -72,7 +103,7 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
 
     final data = {
       "alamat": _alamatC.text.trim(),
-      "nomor": _nomorC.text.trim(), // ✅ TAMBAH
+      "nomor": _nomorC.text.trim(),
       "status_rumah": _statusRumah,
       "kepemilikan": _kepemilikan,
       "rt": _rtC.text.trim(),
@@ -106,14 +137,11 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
               decoration: const InputDecoration(labelText: 'Alamat'),
             ),
             const SizedBox(height: 8),
-
-            // ✅ TAMBAH: Nomor Rumah
             TextField(
               controller: _nomorC,
               decoration: const InputDecoration(labelText: 'Nomor Rumah'),
             ),
             const SizedBox(height: 8),
-
             Row(
               children: [
                 Expanded(
@@ -132,26 +160,20 @@ class _EditRumahDialogState extends State<EditRumahDialog> {
               ],
             ),
             const SizedBox(height: 8),
-
             DropdownButtonFormField<String>(
               value: _statusRumah,
-              items: const [
-                DropdownMenuItem(value: "Dihuni", child: Text("Dihuni")),
-                DropdownMenuItem(value: "Kosong", child: Text("Kosong")),
-                DropdownMenuItem(value: "Renovasi", child: Text("Renovasi")),
-              ],
+              items: _statusRumahItems
+                  .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+                  .toList(),
               onChanged: (v) => setState(() => _statusRumah = v),
               decoration: const InputDecoration(labelText: 'Status Rumah'),
             ),
             const SizedBox(height: 8),
-
             DropdownButtonFormField<String>(
               value: _kepemilikan,
-              items: const [
-                DropdownMenuItem(value: "Pemilik", child: Text("Pemilik")),
-                DropdownMenuItem(value: "Penyewa", child: Text("Penyewa")),
-                DropdownMenuItem(value: "Kosong", child: Text("Kosong")),
-              ],
+              items: _kepemilikanItems
+                  .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+                  .toList(),
               onChanged: (v) => setState(() => _kepemilikan = v),
               decoration: const InputDecoration(labelText: 'Kepemilikan'),
             ),

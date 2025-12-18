@@ -35,16 +35,6 @@ class _FilterWargaDialogState extends State<FilterWargaDialog> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Filter: Nama Warga
-            TextField(
-              controller: namaController,
-              decoration: const InputDecoration(
-                labelText: "Nama Warga",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-
             // Filter: Jenis Kelamin
             DropdownButtonFormField<String>(
               value: selectedJenisKelamin,
@@ -109,8 +99,7 @@ class _FilterWargaDialogState extends State<FilterWargaDialog> {
               ),
               items: const [
                 DropdownMenuItem(value: "aktif", child: Text("Aktif")),
-                DropdownMenuItem(value: "pindah", child: Text("Pindah")),
-                DropdownMenuItem(value: "meninggal", child: Text("Meninggal")),
+                DropdownMenuItem(value: "nonaktif", child: Text("Nonaktif")),
               ],
               onChanged: (v) => setState(() => selectedStatus = v),
             ),

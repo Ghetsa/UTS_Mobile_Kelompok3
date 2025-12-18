@@ -14,9 +14,6 @@ class _AppSidebarState extends State<AppSidebar> {
   final Map<String, bool> _expanded = {};
   String? _lastRoute;
 
-  final Duration _animationDuration = const Duration(milliseconds: 300);
-  bool _isAnimating = false;
-
   final Gradient mainGradient = const LinearGradient(
     colors: [
       Color(0xFF48B0E0),
@@ -33,6 +30,11 @@ class _AppSidebarState extends State<AppSidebar> {
       'dashboard': false,
       'data_warga': false,
       'keuangan': false,
+
+      // nested
+      'keuangan_pemasukan': false,
+      'keuangan_pengeluaran': false,
+
       'manajemen_pengguna': false,
       'channel_transfer': false,
       'log_aktifitas': false,
@@ -42,37 +44,46 @@ class _AppSidebarState extends State<AppSidebar> {
     });
   }
 
-  /// ✅ COCOKKAN DENGAN PREFIX ROUTE YANG KAMU PAKAI
+  /// ✅ cocokkan prefix route
   bool _routeMatches(String menuKey, String route) {
     if (route.isEmpty) return false;
 
     switch (menuKey) {
       case 'dashboard':
         return route.startsWith('/dashboard');
+
       case 'data_warga':
         return route.startsWith('/data-warga') ||
             route.startsWith('/data-rumah') ||
             route.startsWith('/data-keluarga') ||
             route.startsWith('/mutasi');
+
       case 'keuangan':
         return route.startsWith('/keuangan') ||
             route.startsWith('/pemasukan') ||
             route.startsWith('/pengeluaran') ||
-            route.startsWith('/laporan');
-      case 'pengeluaran':
+            route.startsWith('/laporan') ||
+            route.startsWith('/dashboard/keuangan');
+
+      case 'keuangan_pemasukan':
+        return route.startsWith('/pemasukan');
+      case 'keuangan_pengeluaran':
         return route.startsWith('/pengeluaran');
+
       case 'manajemen_pengguna':
         return route.startsWith('/pengguna');
+
       case 'channel_transfer':
         return route.startsWith('/channel');
+
       case 'log_aktifitas':
         return route.startsWith('/aktifitas');
       case 'pesan_warga':
         return route.startsWith('/aspirasi');
-      case 'pengeluaran':
-        return route.startsWith('/pengeluaran');
+
       case 'mutasi_keluarga':
         return route.startsWith('/mutasi');
+
       default:
         return false;
     }
@@ -82,21 +93,62 @@ class _AppSidebarState extends State<AppSidebar> {
     if (_lastRoute == currentRoute) return;
     _lastRoute = currentRoute;
 
-    _expanded.forEach((k, _) {
-      _expanded[k] = _routeMatches(k, currentRoute);
-    });
+    // default: tutup semua dulu
+    _expanded.forEach((k, _) => _expanded[k] = false);
+
+    // buka yang match route (prioritas nested dulu)
+    // 1) kalau sedang di /pemasukan..., buka keuangan & nested pemasukan
+    if (_routeMatches('keuangan_pemasukan', currentRoute)) {
+      _expanded['keuangan'] = true;
+      _expanded['keuangan_pemasukan'] = true;
+      return;
+    }
+
+    // 1b) kalau sedang di /pengeluaran..., buka keuangan & nested pengeluaran
+    if (_routeMatches('keuangan_pengeluaran', currentRoute)) {
+      _expanded['keuangan'] = true;
+      _expanded['keuangan_pengeluaran'] = true;
+      return;
+    }
+
+    // 2) kalau route match salah satu menu utama, buka itu
+    for (final k in _expanded.keys) {
+      if (_routeMatches(k, currentRoute)) {
+        _expanded[k] = true;
+        break;
+      }
+    }
   }
 
-  void _expandOnlyAnimated(String key, bool expanded) {
-    if (_isAnimating) return;
-
-    _isAnimating = true;
+  /// ✅ ACCORDION: buka 1, yang lain auto tutup
+  void _setExpandedExclusive(String key, bool expanded) {
     setState(() {
-      _expanded[key] = expanded;
-    });
+      // kalau ditutup, cukup tutup key itu (+ anaknya kalau parent)
+      if (!expanded) {
+        _expanded[key] = false;
 
-    Future.delayed(_animationDuration, () {
-      _isAnimating = false;
+        // kalau parent keuangan ditutup, nested harus ikut ketutup
+        if (key == 'keuangan') {
+          _expanded['keuangan_pemasukan'] = false;
+          _expanded['keuangan_pengeluaran'] = false;
+        }
+        return;
+      }
+
+      // kalau dibuka, tutup semua dulu
+      _expanded.forEach((k, _) => _expanded[k] = false);
+
+      // lalu buka key yang diminta
+      _expanded[key] = true;
+
+      // kalau buka nested pemasukan, parent keuangan harus ikut terbuka
+      if (key == 'keuangan_pemasukan') {
+        _expanded['keuangan'] = true;
+      }
+      // kalau buka nested pengeluaran, parent keuangan harus ikut terbuka
+      if (key == 'keuangan_pengeluaran') {
+        _expanded['keuangan'] = true;
+      }
     });
   }
 
@@ -239,64 +291,14 @@ class _AppSidebarState extends State<AppSidebar> {
                     context: context,
                     currentRoute: currentRoute,
                     children: [
-                      _buildSubMenuItem(
-                        "Informasi & Aspirasi",
-                        "/aspirasi/informasiAspirasi",
-                        context,
-                        currentRoute,
-                      ),
-                      _buildSubMenuItem(
-                        "Tambah Aspirasi",
-                        "/aspirasi/tambahAspirasi",
-                        context,
-                        currentRoute,
-                      ),
+                      _buildSubMenuItem("Informasi & Aspirasi",
+                          "/aspirasi/informasiAspirasi", context, currentRoute),
+                      _buildSubMenuItem("Tambah Aspirasi",
+                          "/aspirasi/tambahAspirasi", context, currentRoute),
                     ],
                   ),
 
-                  /// PEMASUKAN
-                  _buildMenuSection(
-                    icon: Icons.payments_rounded,
-                    title: "Pemasukan",
-                    keyValue: "pemasukan",
-                    context: context,
-                    currentRoute: currentRoute,
-                    children: [
-                      _buildSubMenuItem("Kategori Iuran",
-                          "/pemasukan/pages/kategori", context, currentRoute),
-                      _buildSubMenuItem("Tagih Iuran", "/pemasukan/tagihIuran",
-                          context, currentRoute),
-                      _buildSubMenuItem("Tagihan", "/pemasukan/tagihan",
-                          context, currentRoute),
-                      _buildSubMenuItem(
-                          "Pemasukan Lain - Daftar",
-                          "/pemasukan/pemasukanLain-daftar",
-                          context,
-                          currentRoute),
-                      _buildSubMenuItem(
-                          "Pemasukan Lain - Tambah",
-                          "/pemasukan/pemasukanLain-tambah",
-                          context,
-                          currentRoute),
-                    ],
-                  ),
-
-                  /// PENGELUARAN LAIN
-                  _buildMenuSection(
-                    icon: Icons.money_off_rounded,
-                    title: "Pengeluaran",
-                    keyValue: "pengeluaran_lain",
-                    context: context,
-                    currentRoute: currentRoute,
-                    children: [
-                      _buildSubMenuItem("Pengeluaran - Daftar",
-                          "/pengeluaran/daftar", context, currentRoute),
-                      _buildSubMenuItem("Pengeluaran - Tambah",
-                          "/pengeluaran/tambah", context, currentRoute),
-                    ],
-                  ),
-
-                  /// KEUANGAN (LAPORAN)
+                  /// KEUANGAN (PARENT)
                   _buildMenuSection(
                     icon: Icons.bar_chart_rounded,
                     title: "Keuangan",
@@ -304,10 +306,49 @@ class _AppSidebarState extends State<AppSidebar> {
                     context: context,
                     currentRoute: currentRoute,
                     children: [
-                      _buildSubMenuItem(
-                          "Pemasukan", "/pemasukan", context, currentRoute),
-                      _buildSubMenuItem(
-                          "Pengeluaran", "/pengeluaran", context, currentRoute),
+                      /// NESTED: PEMASUKAN
+                      _buildNestedMenuSection(
+                        title: "Pemasukan",
+                        keyValue: "keuangan_pemasukan",
+                        context: context,
+                        currentRoute: currentRoute,
+                        children: [
+                          _buildSubMenuItem(
+                              "Kategori Iuran",
+                              "/pemasukan/pages/kategori",
+                              context,
+                              currentRoute),
+                          _buildSubMenuItem("Tagihan", "/pemasukan/tagihan",
+                              context, currentRoute),
+                          _buildSubMenuItem(
+                              "Pemasukan (Lainnya)",
+                              "/pemasukan/pemasukanLain-daftar",
+                              context,
+                              currentRoute),
+                        ],
+                      ),
+
+                      /// NESTED: PENGELUARAN
+                      _buildNestedMenuSection(
+                        title: "Pengeluaran",
+                        keyValue: "keuangan_pengeluaran",
+                        context: context,
+                        currentRoute: currentRoute,
+                        children: [
+                          _buildSubMenuItem(
+                            "Daftar Pengeluaran",
+                            "/pengeluaran/daftar",
+                            context,
+                            currentRoute,
+                          ),
+                          _buildSubMenuItem(
+                            "Tambah Pengeluaran",
+                            "/pengeluaran/tambah",
+                            context,
+                            currentRoute,
+                          ),
+                        ],
+                      ),
                     ],
                   ),
 
@@ -368,12 +409,9 @@ class _AppSidebarState extends State<AppSidebar> {
                     ),
                     onTap: () async {
                       final prefs = await SharedPreferences.getInstance();
-                      await prefs.setBool(
-                          'logged_out', true); // tandai sudah logout
-                      await FirebaseAuth.instance
-                          .signOut(); // logout dari Firebase
+                      await prefs.setBool('logged_out', true);
+                      await FirebaseAuth.instance.signOut();
 
-                      // Navigasi ke login dan hapus semua route sebelumnya
                       Navigator.pushNamedAndRemoveUntil(
                         context,
                         '/login',
@@ -390,6 +428,7 @@ class _AppSidebarState extends State<AppSidebar> {
     );
   }
 
+  /// SECTION UTAMA
   Widget _buildMenuSection({
     required IconData icon,
     required String title,
@@ -404,7 +443,7 @@ class _AppSidebarState extends State<AppSidebar> {
         key: ValueKey('${keyValue}_${_expanded[keyValue]}'),
         initiallyExpanded: _expanded[keyValue] ?? false,
         onExpansionChanged: (expanded) =>
-            _expandOnlyAnimated(keyValue, expanded),
+            _setExpandedExclusive(keyValue, expanded),
         leading: ShaderMask(
           shaderCallback: (bounds) => mainGradient.createShader(bounds),
           child: Icon(icon, color: Colors.white, size: 24),
@@ -418,6 +457,42 @@ class _AppSidebarState extends State<AppSidebar> {
           ),
         ),
         children: children,
+      ),
+    );
+  }
+
+  /// SECTION NESTED
+  Widget _buildNestedMenuSection({
+    required String title,
+    required String keyValue,
+    required BuildContext context,
+    required String currentRoute,
+    required List<Widget> children,
+  }) {
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 6),
+        child: ExpansionTile(
+          key: ValueKey('${keyValue}_${_expanded[keyValue]}'),
+          initiallyExpanded: _expanded[keyValue] ?? false,
+          onExpansionChanged: (expanded) =>
+              _setExpandedExclusive(keyValue, expanded),
+          leading: const Icon(
+            Icons.arrow_drop_down_circle_outlined,
+            size: 18,
+            color: Color(0xFF0C88C2),
+          ),
+          title: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF0C88C2),
+            ),
+          ),
+          children: children,
+        ),
       ),
     );
   }
