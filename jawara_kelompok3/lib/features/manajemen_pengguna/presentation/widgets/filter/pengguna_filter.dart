@@ -10,9 +10,13 @@ class FilterPenggunaDialog extends StatefulWidget {
 }
 
 class _FilterPenggunaDialogState extends State<FilterPenggunaDialog> {
-  TextEditingController namaController = TextEditingController();
+  final TextEditingController namaController = TextEditingController();
   String? selectedRole;
   String? selectedStatus;
+
+  // Role dan Status sesuai update terbaru
+  final List<String> roleList = ['Warga', 'Admin'];
+  final List<String> statusList = ['aktif', 'nonaktif'];
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +25,7 @@ class _FilterPenggunaDialogState extends State<FilterPenggunaDialog> {
         "Filter Pengguna",
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       content: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,11 +47,10 @@ class _FilterPenggunaDialogState extends State<FilterPenggunaDialog> {
                 labelText: "Role Pengguna",
                 border: OutlineInputBorder(),
               ),
-              items: const [
-                DropdownMenuItem(value: "admin", child: Text("Admin")),
-                DropdownMenuItem(value: "staff", child: Text("Staff")),
-                DropdownMenuItem(value: "user", child: Text("User")),
-              ],
+              items: roleList
+                  .map((role) =>
+                      DropdownMenuItem(value: role, child: Text(role)))
+                  .toList(),
               onChanged: (v) => setState(() => selectedRole = v),
             ),
             const SizedBox(height: 16),
@@ -61,10 +62,10 @@ class _FilterPenggunaDialogState extends State<FilterPenggunaDialog> {
                 labelText: "Status Akun",
                 border: OutlineInputBorder(),
               ),
-              items: const [
-                DropdownMenuItem(value: "aktif", child: Text("Aktif")),
-                DropdownMenuItem(value: "nonaktif", child: Text("Nonaktif")),
-              ],
+              items: statusList
+                  .map((status) =>
+                      DropdownMenuItem(value: status, child: Text(status)))
+                  .toList(),
               onChanged: (v) => setState(() => selectedStatus = v),
             ),
           ],
@@ -77,11 +78,14 @@ class _FilterPenggunaDialogState extends State<FilterPenggunaDialog> {
         ),
         ElevatedButton(
           onPressed: () {
-            final filterData = {
-              "nama": namaController.text.trim(),
-              "role": selectedRole,
-              "status": selectedStatus,
-            };
+            final filterData = <String, dynamic>{};
+            if (namaController.text.trim().isNotEmpty) {
+              filterData['nama'] = namaController.text.trim();
+            }
+            if (selectedRole != null) filterData['role'] = selectedRole;
+            if (selectedStatus != null)
+              filterData['status_warga'] = selectedStatus;
+
             widget.onApply(filterData);
             Navigator.pop(context);
           },
@@ -89,5 +93,11 @@ class _FilterPenggunaDialogState extends State<FilterPenggunaDialog> {
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    namaController.dispose();
+    super.dispose();
   }
 }

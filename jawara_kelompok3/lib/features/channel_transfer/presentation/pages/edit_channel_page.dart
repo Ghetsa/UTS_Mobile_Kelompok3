@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:cloudinary_public/cloudinary_public.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/layout/header.dart';
 import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class EditChannelPage extends StatefulWidget {
-  final Map<String, String>? channel;
+  final Map<String, dynamic>? channel;
 
   const EditChannelPage({super.key, this.channel});
 
@@ -24,35 +26,112 @@ class _EditChannelPageState extends State<EditChannelPage> {
   File? newThumbnailFile;
   File? newQRFile;
 
+  String? _feedbackMessage;
+  Color _feedbackColor = Colors.green;
+
   final List<String> tipeItems = ["Bank", "E-Wallet", "Qris"];
+  final CloudinaryPublic cloudinary = CloudinaryPublic(
+    'droup6ar3',
+    'jawara_unsigned',
+    cache: false,
+  );
 
   @override
   void initState() {
     super.initState();
-    namaController = TextEditingController(text: widget.channel?['nama'] ?? '');
+    namaController =
+        TextEditingController(text: widget.channel?['nama_channel'] ?? '');
     tipeController = TextEditingController(
         text: tipeItems.firstWhere(
             (e) =>
                 e.toLowerCase() ==
-                (widget.channel?['tipe'] ?? '').toLowerCase(),
+                (widget.channel?['tipe'] ?? '').toString().toLowerCase(),
             orElse: () => 'Bank'));
-    nomorController = TextEditingController(text: widget.channel?['no'] ?? '');
+    nomorController =
+        TextEditingController(text: widget.channel?['no_rekening'] ?? '');
     pemilikController =
-        TextEditingController(text: widget.channel?['a/n'] ?? '');
+        TextEditingController(text: widget.channel?['nama_pemilik'] ?? '');
     catatanController =
         TextEditingController(text: widget.channel?['catatan'] ?? '');
   }
 
-  Future<void> _pickFile(bool isThumbnail) async {
+  void _pickFile(bool isThumbnail) async {
     final filePicker =
         await FilePicker.platform.pickFiles(type: FileType.image);
     if (filePicker != null && filePicker.files.single.path != null) {
+      final path = filePicker.files.single.path!;
       setState(() {
         if (isThumbnail) {
-          newThumbnailFile = File(filePicker.files.single.path!);
+          newThumbnailFile = File(path);
         } else {
-          newQRFile = File(filePicker.files.single.path!);
+          newQRFile = File(path);
         }
+      });
+    }
+  }
+
+  Future<String?> _uploadToCloudinary(File file) async {
+    try {
+      CloudinaryResponse response =
+          await cloudinary.uploadFile(CloudinaryFile.fromFile(file.path));
+      return response.secureUrl;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> _saveChannel() async {
+    String? thumbnailUrl = widget.channel?['thumbnail_url'];
+    String? qrUrl = widget.channel?['qr_url'];
+
+    setState(() {
+      _feedbackMessage = null; // reset feedback
+    });
+
+    try {
+      if (newThumbnailFile != null) {
+        String? url = await _uploadToCloudinary(newThumbnailFile!);
+        if (url != null) thumbnailUrl = url;
+      }
+      if (newQRFile != null) {
+        String? url = await _uploadToCloudinary(newQRFile!);
+        if (url != null) qrUrl = url;
+      }
+
+      if (widget.channel != null && widget.channel!['docId'] != null) {
+        await FirebaseFirestore.instance
+            .collection('channel_transfer')
+            .doc(widget.channel!['docId'])
+            .update({
+          'nama_channel': namaController.text,
+          'tipe': tipeController.text,
+          'no_rekening': nomorController.text,
+          'nama_pemilik': pemilikController.text,
+          'catatan': catatanController.text,
+          'thumbnail_url': thumbnailUrl,
+          'qr_url': qrUrl,
+        });
+
+        // Kirim feedback ke halaman daftar channel
+        Navigator.pop(context, {
+          "status": "success",
+          "message": "Data channel ${namaController.text} berhasil diperbarui!",
+          "nama_channel": namaController.text,
+          "tipe": tipeController.text,
+          "no_rekening": nomorController.text,
+          "nama_pemilik": pemilikController.text,
+          "catatan": catatanController.text,
+          "thumbnail_url": thumbnailUrl,
+          "qr_url": qrUrl,
+        });
+      } else {
+        throw Exception("DocId tidak ditemukan.");
+      }
+    } catch (e) {
+      // Kirim feedback gagal ke halaman daftar channel
+      Navigator.pop(context, {
+        "status": "error",
+        "message": "Gagal menyimpan data channel: $e",
       });
     }
   }
@@ -107,27 +186,19 @@ class _EditChannelPageState extends State<EditChannelPage> {
                         _buildImagePickerField(
                             "Thumbnail Channel",
                             newThumbnailFile,
-                            widget.channel?['thumbnail'],
+                            widget.channel?['thumbnail_url'],
                             true),
-                        _buildImagePickerField(
-                            "QR Code", newQRFile, widget.channel?['qr'], false),
+                        _buildImagePickerField("QR Code", newQRFile,
+                            widget.channel?['qr_url'], false),
                         _buildField("Catatan", catatanController, maxLines: 3),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 16),
+
+                        // TOMBOL
                         Row(
                           children: [
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context, {
-                                    "nama": namaController.text,
-                                    "tipe": tipeController.text,
-                                    "no": nomorController.text,
-                                    "a/n": pemilikController.text,
-                                    "catatan": catatanController.text,
-                                    "thumbnailFile": newThumbnailFile,
-                                    "qrFile": newQRFile,
-                                  });
-                                },
+                                onPressed: _saveChannel,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF48B0E0),
                                   foregroundColor: Colors.white,
@@ -277,8 +348,10 @@ class _EditChannelPageState extends State<EditChannelPage> {
               ),
               child: file != null
                   ? Image.file(file, fit: BoxFit.cover)
-                  : Image.asset(oldPath ?? "assets/images/default.jpg",
-                      fit: BoxFit.cover),
+                  : (oldPath != null
+                      ? Image.network(oldPath, fit: BoxFit.cover)
+                      : Image.asset("assets/images/default.jpg",
+                          fit: BoxFit.cover)),
             ),
           ),
         ],

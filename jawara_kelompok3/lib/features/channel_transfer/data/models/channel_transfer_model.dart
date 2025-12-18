@@ -3,10 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ChannelTransfer {
   final String docId;
   final String namaChannel;
-  final String kodeBank;
   final String nomorRekening;
   final String namaPemilik;
-  final String statusAktif;
   final String jenis;
   final String? catatan;
   final String? thumbnail;
@@ -17,10 +15,8 @@ class ChannelTransfer {
   ChannelTransfer({
     required this.docId,
     required this.namaChannel,
-    required this.kodeBank,
     required this.nomorRekening,
     required this.namaPemilik,
-    required this.statusAktif,
     required this.jenis,
     this.catatan,
     this.thumbnail,
@@ -34,10 +30,8 @@ class ChannelTransfer {
     return ChannelTransfer(
       docId: docId,
       namaChannel: data['nama_channel'] ?? '',
-      kodeBank: data['kode_bank'] ?? '', // jika tidak ada bisa pakai ''
       nomorRekening: data['no_rekening'] ?? '',
       namaPemilik: data['nama_pemilik'] ?? '',
-      statusAktif: data['status_aktif'] ?? 'Nonaktif', // kalau tidak ada
       jenis: data['tipe'] ?? 'manual',
       catatan: data['catatan'],
       thumbnail: data['thumbnail_url'],
@@ -54,10 +48,8 @@ class ChannelTransfer {
   Map<String, dynamic> toMap() {
     return {
       'nama_channel': namaChannel,
-      'kode_bank': kodeBank,
       'no_rekening': nomorRekening,
       'nama_pemilik': namaPemilik,
-      'status_aktif': statusAktif,
       'tipe': jenis,
       'catatan': catatan ?? '',
       'thumbnail_url': thumbnail ?? '',

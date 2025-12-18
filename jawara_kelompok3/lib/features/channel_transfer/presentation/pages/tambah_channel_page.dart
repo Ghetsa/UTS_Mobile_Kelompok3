@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
@@ -8,6 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/layout/header.dart';
 import '../../../../core/layout/sidebar.dart';
 import '../../../../core/theme/app_theme.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class TambahChannelPage extends StatefulWidget {
   const TambahChannelPage({super.key});
@@ -44,31 +45,57 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
     super.dispose();
   }
 
-  Future<String?> _uploadFile({
-    required Uint8List? bytes,
-    required File? file,
-    required String folder,
+  Future<String?> _uploadToCloudinary({
+    required Uint8List bytes,
+    required String filename,
+    required String tipeChannel,
+    required String channelId,
+    required String subfolder, // 'qr' atau 'thumbnail'
   }) async {
     try {
-      final fileName = DateTime.now().millisecondsSinceEpoch.toString();
-      final ref = FirebaseStorage.instance.ref("$folder/$fileName.jpg");
+      final uri =
+          Uri.parse('https://api.cloudinary.com/v1_1/droup6ar3/image/upload');
+      final request = http.MultipartRequest('POST', uri)
+        ..fields['upload_preset'] = 'jawara_unsigned'
+        ..fields['folder'] =
+            'channel_transfer/$tipeChannel/$channelId/$subfolder'
+        ..files.add(
+            http.MultipartFile.fromBytes('file', bytes, filename: filename));
 
-      UploadTask uploadTask;
-      if (kIsWeb) {
-        if (bytes == null) return null;
-        uploadTask =
-            ref.putData(bytes, SettableMetadata(contentType: "image/jpeg"));
+      final response = await request.send();
+      final responseData = await response.stream.bytesToString();
+      final jsonData = jsonDecode(responseData);
+
+      if (response.statusCode == 200) {
+        return jsonData['secure_url'];
       } else {
-        if (file == null) return null;
-        uploadTask = ref.putFile(file);
+        debugPrint("Cloudinary Error: $responseData");
+        return null;
       }
-
-      final snapshot = await uploadTask;
-      return await snapshot.ref.getDownloadURL();
     } catch (e) {
-      print("UPLOAD ERROR ($folder): $e");
+      debugPrint('Cloudinary upload error: $e');
       return null;
     }
+  }
+
+  Future<void> _showMessageDialog({
+    required String title,
+    required String message,
+    required bool success,
+  }) async {
+    return showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _handleSubmit() async {
@@ -81,46 +108,134 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
     );
 
     try {
-      String? qrUrl;
-      String? thumbUrl;
+      final channelId =
+          FirebaseFirestore.instance.collection('channel_transfer').doc().id;
 
-      // Upload QR wajib
-      // if (_qrBytes != null || _qrFile != null) {
-      //   qrUrl = await _uploadFile(
-      //       bytes: _qrBytes, file: _qrFile, folder: "qr_images");
-      //   if (qrUrl == null) throw "Gagal upload QR";
-      // }
+      String qrUrl = "";
+      String thumbUrl = "";
 
-      // if (_thumbBytes != null || _thumbFile != null) {
-      //   thumbUrl = await _uploadFile(
-      //       bytes: _thumbBytes, file: _thumbFile, folder: "thumbnails");
-      //   if (thumbUrl == null) throw "Gagal upload Thumbnail";
-      // }
+      // ================= Upload QR =================
+      if (_qrBytes != null && _qrFileName != null) {
+        final ext = _qrFileName!.split('.').last.toLowerCase();
+        final fileName =
+            "${_namaChannelController.text.toLowerCase().replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}.$ext";
 
-      // Upload QR opsional
-      if (_qrBytes != null || _qrFile != null) {
-        qrUrl = await _uploadFile(
-            bytes: _qrBytes, file: _qrFile, folder: "qr_images");
+        if (!['jpg', 'jpeg', 'png'].contains(ext)) {
+          Navigator.pop(context);
+          await _showMessageDialog(
+            title: 'Gagal!',
+            message: 'Format file QR harus JPG/PNG',
+            success: false,
+          );
+          return;
+        }
+
+        if (_qrBytes!.lengthInBytes > 1024 * 1024) {
+          Navigator.pop(context);
+          await _showMessageDialog(
+            title: 'Gagal!',
+            message: 'Ukuran file QR maksimal 1MB',
+            success: false,
+          );
+          return;
+        }
+
+        debugPrint(
+            "Uploading QR: $fileName, size: ${_qrBytes!.lengthInBytes} bytes");
+
+        final uploadedQrUrl = await _uploadToCloudinary(
+          bytes: _qrBytes!,
+          filename: fileName,
+          tipeChannel: _selectedTipe ?? 'lainnya',
+          channelId: channelId,
+          subfolder: 'qr',
+        );
+
+        if (uploadedQrUrl == null) {
+          Navigator.pop(context);
+          await _showMessageDialog(
+            title: 'Gagal!',
+            message: 'Upload QR ke Cloudinary gagal. Cek preset dan koneksi.',
+            success: false,
+          );
+          return;
+        }
+        qrUrl = uploadedQrUrl;
+        debugPrint("QR uploaded: $qrUrl");
       }
 
-      // Upload Thumbnail opsional
-      if (_thumbBytes != null || _thumbFile != null) {
-        thumbUrl = await _uploadFile(
-            bytes: _thumbBytes, file: _thumbFile, folder: "thumbnails");
+      // ================= Upload Thumbnail =================
+      if (_thumbBytes != null && _thumbnailFileName != null) {
+        final ext = _thumbnailFileName!.split('.').last.toLowerCase();
+        final fileName =
+            "${_namaChannelController.text.toLowerCase().replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}.$ext";
+
+        if (!['jpg', 'jpeg', 'png'].contains(ext)) {
+          Navigator.pop(context);
+          await _showMessageDialog(
+            title: 'Gagal!',
+            message: 'Format file Thumbnail harus JPG/PNG',
+            success: false,
+          );
+          return;
+        }
+
+        if (_thumbBytes!.lengthInBytes > 1024 * 1024) {
+          Navigator.pop(context);
+          await _showMessageDialog(
+            title: 'Gagal!',
+            message: 'Ukuran file Thumbnail maksimal 1MB',
+            success: false,
+          );
+          return;
+        }
+
+        debugPrint(
+            "Uploading Thumbnail: $fileName, size: ${_thumbBytes!.lengthInBytes} bytes");
+
+        final uploadedThumbUrl = await _uploadToCloudinary(
+          bytes: _thumbBytes!,
+          filename: fileName,
+          tipeChannel: _selectedTipe ?? 'lainnya',
+          channelId: channelId,
+          subfolder: 'thumbnail',
+        );
+
+        if (uploadedThumbUrl == null) {
+          Navigator.pop(context);
+          await _showMessageDialog(
+            title: 'Gagal!',
+            message:
+                'Upload Thumbnail ke Cloudinary gagal. Cek preset dan koneksi.',
+            success: false,
+          );
+          return;
+        }
+        thumbUrl = uploadedThumbUrl;
+        debugPrint("Thumbnail uploaded: $thumbUrl");
       }
 
-      await FirebaseFirestore.instance.collection("channel_transfer").add({
+      // ================= Simpan ke Firestore =================
+      final data = {
+        "id": channelId,
         "nama_channel": _namaChannelController.text,
         "tipe": _selectedTipe,
         "no_rekening": _nomorRekeningController.text,
         "nama_pemilik": _namaPemilikController.text,
         "catatan": _catatanController.text,
-        "qr_url": qrUrl,
-        "thumbnail_url": thumbUrl,
+        "qr_url": qrUrl, // Pasti string
+        "thumbnail_url": thumbUrl, // Pasti string
         "created_at": DateTime.now(),
-      });
+      };
 
-      Navigator.pop(context);
+      debugPrint("Saving to Firestore: $data");
+
+      await FirebaseFirestore.instance
+          .collection("channel_transfer")
+          .doc(channelId)
+          .set(data);
+
+      Navigator.pop(context); // tutup loading
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Channel berhasil ditambahkan!"),
@@ -130,8 +245,10 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
       );
 
       _handleReset();
-    } catch (e) {
-      Navigator.pop(context);
+    } catch (e, stack) {
+      Navigator.pop(context); // pastikan loading tertutup
+      debugPrint("Error: $e");
+      debugPrint("$stack");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Gagal menyimpan: $e"),

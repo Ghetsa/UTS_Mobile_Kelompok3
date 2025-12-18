@@ -242,11 +242,29 @@ class _InformasiAspirasiState extends State<InformasiAspirasi> {
                       );
                     },
                     onEdit: () async {
-                      final updated = await showDialog(
+                      // Modifikasi: feedback dikirim ke halaman daftar
+                      final result = await showDialog(
                         context: context,
                         builder: (_) => EditAspirasi(model: p),
                       );
-                      if (updated == true) _loadData();
+                      if (result != null) {
+                        if (result['status'] == 'success') {
+                          _loadData();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(result['message']),
+                              backgroundColor: AppTheme.greenMedium,
+                            ),
+                          );
+                        } else if (result['status'] == 'error') {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(result['message']),
+                              backgroundColor: AppTheme.redMedium,
+                            ),
+                          );
+                        }
+                      }
                     },
                     onDelete: () => _confirmDelete(p),
                   );

@@ -60,6 +60,10 @@ import '../../features/channel_transfer/presentation/pages/tambah_channel_page.d
 import '../../features/pesan_warga/presentation/pages/informasi_aspirasi_page.dart';
 import '../../features/pesan_warga/presentation/pages/tambah_aspirasi_page.dart';
 
+// === Log Aktivitas ===
+import '../../features/aktivitas/presentation/log_aktivitas_page.dart';
+import '../../features/aktivitas/presentation/pages/daftar_log_aktivitas.dart';
+
 // Gate route (auto pilih dashboard sesuai role)
 import '../../features/dashboard/presentation/pages/dashboard_gate_page.dart';
 
@@ -155,9 +159,11 @@ class AppRoutes {
     '/channel/channelDaftar': (context) => const DaftarChannelPage(),
     '/channel/channelTambah': (context) => const TambahChannelPage(),
 
-    // ============================================================
-    // PESAN WARGA → INFORMASI & ASPIRASI
-    // ============================================================
+    // === Log Aktivitas ===
+    '/aktivitas': (context) => const LogAktivitasPage(),
+    '/aktivitas/daftar': (context) => const DaftarLogAktivitasPage(),
+
+    // === Pesan/Aspirasi Warga ===
     '/aspirasi/informasiAspirasi': (context) => const InformasiAspirasi(),
     '/aspirasi/tambahAspirasi': (context) => const TambahAspirasiPage(),
 

@@ -101,21 +101,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // HELPERS
   void _pickFile() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: false,
-        withData: true,
-      );
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+      withData: true,
+    );
 
-      if (result != null && result.files.isNotEmpty) {
-        setState(() {
-          _profilePhotoBytes = result.files.first.bytes;
-          _profilePhotoName = result.files.first.name;
-        });
-      }
-    } catch (e) {
-      print("Error picking file: $e");
+    if (result != null && result.files.isNotEmpty) {
+      final file = result.files.first;
+
+      setState(() {
+        _profilePhotoBytes = file.bytes;
+        _profilePhotoName = file.name;
+      });
     }
   }
 

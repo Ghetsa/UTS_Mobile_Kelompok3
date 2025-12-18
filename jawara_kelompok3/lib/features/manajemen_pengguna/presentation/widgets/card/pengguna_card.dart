@@ -32,8 +32,10 @@ class PenggunaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rawStatus =
-        (data.statusPengguna.isEmpty ? "aktif" : data.statusPengguna);
+    // Fallback untuk email dan role jika kosong
+    final email = (data.email.isNotEmpty) ? data.email : '-';
+    final role = (data.role.isNotEmpty) ? data.role : '-';
+    final rawStatus = (data.statusWarga.isEmpty ? "aktif" : data.statusWarga);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -52,7 +54,7 @@ class PenggunaCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // HANYA ICON PENGGUNA (nomor urut dihapus)
+          // Icon pengguna
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -94,13 +96,13 @@ class PenggunaCard extends StatelessWidget {
                 const SizedBox(height: 8),
 
                 // Field data vertikal dengan label
-                Text("Email: ${data.email}",
+                Text("Email: $email",
                     style: TextStyle(color: Colors.grey.shade700)),
                 Text("No HP: ${data.noHp.isEmpty ? '-' : data.noHp}",
                     style: TextStyle(color: Colors.grey.shade700)),
                 Text("NIK: ${data.nik}",
                     style: TextStyle(color: Colors.grey.shade700)),
-                Text("Role: ${data.role}",
+                Text("Role: $role",
                     style: TextStyle(color: Colors.grey.shade700)),
                 Text("Jenis Kelamin: ${data.jenisKelamin}",
                     style: TextStyle(color: Colors.grey.shade700)),
