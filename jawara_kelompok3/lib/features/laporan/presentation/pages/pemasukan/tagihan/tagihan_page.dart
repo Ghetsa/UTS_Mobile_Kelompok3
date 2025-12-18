@@ -24,9 +24,8 @@ class _TagihanPageState extends State<TagihanPage> {
   final TagihanController _controller = TagihanController();
   List<TagihanModel> dataTagihan = [];
   bool _loading = true;
-  String search = ""; // Define search variable
+  String search = "";
 
-  // Filter variables
   Map<String, dynamic> _activeFilter = {};
 
   @override
@@ -44,7 +43,6 @@ class _TagihanPageState extends State<TagihanPage> {
     });
   }
 
-  // Function to generate PDF
   void _generatePdf() async {
     final filteredList = dataTagihan.where((item) {
       if (search.isNotEmpty &&
@@ -92,8 +90,6 @@ class _TagihanPageState extends State<TagihanPage> {
               style: const pw.TextStyle(fontSize: 10),
             ),
             pw.SizedBox(height: 16),
-
-            // Table for tagihan data
             pw.Table.fromTextArray(
               headerStyle: pw.TextStyle(
                 fontWeight: pw.FontWeight.bold,
@@ -141,9 +137,7 @@ class _TagihanPageState extends State<TagihanPage> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal mencetak PDF: $e'),
-        ),
+        SnackBar(content: Text('Gagal mencetak PDF: $e')),
       );
     }
   }
@@ -167,21 +161,40 @@ class _TagihanPageState extends State<TagihanPage> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundBlueWhite,
       drawer: const AppSidebar(),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 40.0),
-        child: FloatingActionButton(
-          heroTag: 'printTagihan',
-          backgroundColor: Colors.red,
-          elevation: 4,
-          onPressed: _generatePdf,
-          child: const Icon(
-            Icons.picture_as_pdf,
-            size: 26,
-            color: Colors.white,
+
+      // ✅ RAPINYA DI SINI: 2 FAB (PDF + Tagih Iuran) seperti DaftarWargaPage
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: 'printTagihan',
+            backgroundColor: Colors.red,
+            elevation: 4,
+            onPressed: _generatePdf,
+            child: const Icon(
+              Icons.picture_as_pdf,
+              size: 26,
+              color: Colors.white,
+            ),
           ),
-        ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'tagihIuran',
+            backgroundColor: const Color(0xFF0C88C2),
+            elevation: 4,
+            onPressed: () {
+              Navigator.pushNamed(context, '/pemasukan/tagihIuran');
+            },
+            child: const Icon(
+              Icons.add_task, // boleh ganti Icons.payment / Icons.receipt_long
+              size: 26,
+              color: Colors.white,
+            ),
+          ),
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,16 +204,13 @@ class _TagihanPageState extends State<TagihanPage> {
               searchHint: "Cari tagihan...",
               showSearchBar: true,
               showFilterButton: true,
-              onSearch: (v) =>
-                  setState(() => search = v.trim()), // Set the search
+              onSearch: (v) => setState(() => search = v.trim()),
               onFilter: () => showDialog(
                 context: context,
                 builder: (_) => const FilterTagihanDialog(),
               ),
             ),
-
             const SizedBox(height: 16),
-
             Expanded(
               child: _loading
                   ? const Center(child: CircularProgressIndicator())
@@ -229,13 +239,14 @@ class _TagihanPageState extends State<TagihanPage> {
                                 );
                                 if (updatedTagihan != null) {
                                   await _controller.updateTagihan(
-                                      updatedTagihan.id,
-                                      updatedTagihan.toMap());
+                                    updatedTagihan.id,
+                                    updatedTagihan.toMap(),
+                                  );
                                   setState(() {
-                                    final index = dataTagihan.indexWhere(
+                                    final idx = dataTagihan.indexWhere(
                                         (item) => item.id == updatedTagihan.id);
-                                    if (index != -1) {
-                                      dataTagihan[index] = updatedTagihan;
+                                    if (idx != -1) {
+                                      dataTagihan[idx] = updatedTagihan;
                                     }
                                   });
                                 }
@@ -249,31 +260,6 @@ class _TagihanPageState extends State<TagihanPage> {
                             );
                           },
                         ),
-            ),
-
-            // Bottom buttons: Kembali dan Tagih Iuran
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/pemasukan/tagihIuran');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0C88C2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                  ),
-                  child: const Text(
-                    "Tagih Iuran",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
             ),
           ],
         ),

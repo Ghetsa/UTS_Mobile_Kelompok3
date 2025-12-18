@@ -9,6 +9,10 @@ class TagihanWargaModel {
   final String nominal;
   final String periode;
   final String tagihanStatus;
+
+  // ✅ tambahan
+  final String? idKepalaWarga;
+
   final String? buktiBayar;
   final String? nominalDibayar;
   final String? catatanPembayaran;
@@ -24,6 +28,7 @@ class TagihanWargaModel {
     required this.nominal,
     required this.periode,
     required this.tagihanStatus,
+    this.idKepalaWarga, // ✅
     this.buktiBayar,
     this.nominalDibayar,
     this.catatanPembayaran,
@@ -31,24 +36,26 @@ class TagihanWargaModel {
     this.createdAt,
   });
 
-  factory TagihanWargaModel.fromFirestore(String id, Map<String, dynamic> data) {
+  factory TagihanWargaModel.fromFirestore(
+      String id, Map<String, dynamic> data) {
     return TagihanWargaModel(
       id: id,
-      keluarga: data['keluarga'] ?? '',
-      status: data['status'] ?? '',
-      iuran: data['iuran'] ?? '',
-      kode: data['kode'] ?? '',
-      nominal: data['nominal'] ?? '',
-      periode: data['periode'] ?? '',
-      tagihanStatus: data['tagihanStatus'] ?? '',
+      keluarga: (data['keluarga'] ?? '').toString(),
+      status: (data['status'] ?? '').toString(),
+      iuran: (data['iuran'] ?? '').toString(),
+      kode: (data['kode'] ?? '').toString(),
+      nominal: (data['nominal'] ?? '').toString(),
+      periode: (data['periode'] ?? '').toString(),
+      tagihanStatus: (data['tagihanStatus'] ?? '').toString(),
+
       buktiBayar: data['buktiBayar'],
       nominalDibayar: data['nominalDibayar'],
       catatanPembayaran: data['catatanPembayaran'],
-      tanggalBayar: data['tanggalBayar'] != null 
-          ? (data['tanggalBayar'] as Timestamp).toDate() 
+      tanggalBayar: data['tanggalBayar'] != null
+          ? (data['tanggalBayar'] as Timestamp).toDate()
           : null,
-      createdAt: data['created_at'] != null 
-          ? (data['created_at'] as Timestamp).toDate() 
+      createdAt: data['created_at'] != null
+          ? (data['created_at'] as Timestamp).toDate()
           : null,
     );
   }
@@ -62,35 +69,16 @@ class TagihanWargaModel {
       'nominal': nominal,
       'periode': periode,
       'tagihanStatus': tagihanStatus,
+
+      // ✅ simpan juga kalau diperlukan update
+      'id_kepala_warga': idKepalaWarga,
+
       'buktiBayar': buktiBayar,
       'nominalDibayar': nominalDibayar,
       'catatanPembayaran': catatanPembayaran,
-      'tanggalBayar': tanggalBayar != null ? Timestamp.fromDate(tanggalBayar!) : null,
+      'tanggalBayar':
+          tanggalBayar != null ? Timestamp.fromDate(tanggalBayar!) : null,
       'created_at': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
     };
-  }
-
-  TagihanWargaModel copyWith({
-    String? tagihanStatus,
-    String? buktiBayar,
-    String? nominalDibayar,
-    String? catatanPembayaran,
-    DateTime? tanggalBayar,
-  }) {
-    return TagihanWargaModel(
-      id: this.id,
-      keluarga: this.keluarga,
-      status: this.status,
-      iuran: this.iuran,
-      kode: this.kode,
-      nominal: this.nominal,
-      periode: this.periode,
-      tagihanStatus: tagihanStatus ?? this.tagihanStatus,
-      buktiBayar: buktiBayar ?? this.buktiBayar,
-      nominalDibayar: nominalDibayar ?? this.nominalDibayar,
-      catatanPembayaran: catatanPembayaran ?? this.catatanPembayaran,
-      tanggalBayar: tanggalBayar ?? this.tanggalBayar,
-      createdAt: this.createdAt,
-    );
   }
 }
