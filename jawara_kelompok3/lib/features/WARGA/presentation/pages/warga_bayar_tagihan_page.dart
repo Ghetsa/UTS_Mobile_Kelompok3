@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../laporan/data/models/tagihan_warga_model.dart';
 import '../../../laporan/controller/tagihan_warga_controller.dart';
+import '../../../laporan/controller/bayar_tagihan_warga_controller.dart';
 
 class BayarTagihanPage extends StatefulWidget {
   const BayarTagihanPage({super.key});
@@ -12,9 +13,7 @@ class BayarTagihanPage extends StatefulWidget {
 
 class _BayarTagihanPageState extends State<BayarTagihanPage> {
   final _formKey = GlobalKey<FormState>();
-  final TagihanWargaController _controller = TagihanWargaController();
-  
-  bool _isLoading = false;
+  final BayarTagihanController _controller = BayarTagihanController();
   
   final TextEditingController _nominalController = TextEditingController();
   final TextEditingController _catatanController = TextEditingController();
@@ -26,103 +25,11 @@ class _BayarTagihanPageState extends State<BayarTagihanPage> {
     super.dispose();
   }
 
-  Future<void> _submitPembayaran(TagihanWargaModel tagihan) async {
-    if (!_formKey.currentState!.validate()) return;
-
-    // Konfirmasi sebelum submit
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Konfirmasi Pembayaran'),
-        content: Text(
-          'Apakah Anda yakin ingin mengkonfirmasi pembayaran sebesar Rp ${_nominalController.text}?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryBlue,
-            ),
-            child: const Text(
-              'Ya, Konfirmasi',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      bool success = await _controller.bayarTagihan(
-        context,
-        tagihan.id,
-        _nominalController.text,
-        _catatanController.text.isEmpty ? '-' : _catatanController.text,
-      );
-
-      setState(() => _isLoading = false);
-
-      if (success && mounted) {
-        // Show success dialog
-        await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => AlertDialog(
-            title: Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.green.shade600, size: 28),
-                const SizedBox(width: 12),
-                const Text('Berhasil'),
-              ],
-            ),
-            content: const Text(
-              'Pembayaran berhasil dikonfirmasi. Status tagihan Anda telah diperbarui.',
-            ),
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context); // Close dialog
-                  Navigator.pop(context, true); // Return to list with refresh
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
-                ),
-                child: const Text(
-                  'OK',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        );
-      }
-    } catch (e) {
-      setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     // Get tagihan from route arguments
     final tagihan = ModalRoute.of(context)!.settings.arguments as TagihanWargaModel;
     
-    // Set default nominal only once
     if (_nominalController.text.isEmpty) {
       _nominalController.text = tagihan.nominal;
     }
@@ -236,35 +143,31 @@ class _BayarTagihanPageState extends State<BayarTagihanPage> {
                       const SizedBox(height: 16),
                       const Divider(height: 1),
                       const SizedBox(height: 16),
-                      
+
                       _buildInfoRow(
                         icon: Icons.family_restroom,
                         label: "Keluarga",
                         value: tagihan.keluarga,
                       ),
                       const SizedBox(height: 12),
-                      
                       _buildInfoRow(
                         icon: Icons.category,
                         label: "Jenis Iuran",
                         value: tagihan.iuran,
                       ),
                       const SizedBox(height: 12),
-                      
                       _buildInfoRow(
                         icon: Icons.calendar_today,
                         label: "Periode",
                         value: tagihan.periode,
                       ),
                       const SizedBox(height: 12),
-                      
                       _buildInfoRow(
                         icon: Icons.qr_code,
                         label: "Kode Tagihan",
                         value: tagihan.kode,
                       ),
                       const SizedBox(height: 12),
-                      
                       _buildInfoRow(
                         icon: Icons.payments,
                         label: "Nominal",
@@ -377,95 +280,24 @@ class _BayarTagihanPageState extends State<BayarTagihanPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // Info Box
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orange.shade200),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.info_outline, color: Colors.orange.shade700, size: 20),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          "Setelah konfirmasi, status tagihan akan berubah menjadi 'Sudah Dibayar' dan data akan tersimpan di sistem.",
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.orange.shade900,
-                            height: 1.4,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
                 // Submit Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : () => _submitPembayaran(tagihan),
+                    onPressed: () => _controller.submitPembayaran(context, tagihan, _nominalController.text, _catatanController.text),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryBlue,
-                      disabledBackgroundColor: Colors.grey.shade300,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      elevation: _isLoading ? 0 : 2,
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.check_circle, color: Colors.white),
-                              SizedBox(width: 8),
-                              Text(
-                                "Konfirmasi Pembayaran",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Cancel Button
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: _isLoading
-                        ? null
-                        : () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      side: BorderSide(color: Colors.grey.shade400),
                     ),
                     child: const Text(
-                      "Batal",
+                      "Konfirmasi Pembayaran",
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

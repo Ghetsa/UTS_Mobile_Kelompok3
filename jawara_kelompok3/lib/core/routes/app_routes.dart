@@ -68,7 +68,7 @@ import '../../features/WARGA/presentation/pages/warga_dashboard_page.dart';
 import '../../features/WARGA/presentation/pages/warga_kegiatan_page.dart';
 import '../../features/WARGA/presentation/pages/warga_aspirasi_page.dart';
 import '../../features/WARGA/presentation/pages/warga_profile_page.dart';
-import '../../features/WARGA/presentation/pages/tagihan_warga_page.dart';
+import '../../features/WARGA/presentation/pages/warga_tagihan_page.dart';
 import '../../features/WARGA/presentation/pages/warga_bayar_tagihan_page.dart';
 
 class AppRoutes {
@@ -168,7 +168,7 @@ class AppRoutes {
     '/warga/kegiatan': (context) => const WargaKegiatanPage(),
     '/warga/aspirasi': (context) => const WargaAspirasiPage(),
     '/warga/profil': (context) => const WargaProfilePage(),
-    '/warga/tagihan': (context) => const TagihanWargaPage(),
+    '/warga/tagihan': (context) => const TagihanWargaPage(), 
     '/warga/bayarTagihan': (context) => const BayarTagihanPage(),
   };
 }

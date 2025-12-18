@@ -1,45 +1,56 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import '../models/tagihan_warga_model.dart';
+import '../models/tagihan_model.dart';
 
 class TagihanWargaService {
-  final CollectionReference _tagihanRef = FirebaseFirestore.instance.collection('tagihan');
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final CollectionReference _ref =
+      FirebaseFirestore.instance.collection('tagihan');
 
-  Future<List<TagihanWargaModel>> getTagihanWarga(String keluargaId) async {
+  // Get all tagihan by kepala keluarga id
+  Future<List<TagihanModel>> getByKepalaKeluargaId(String id) async {
     try {
-      final querySnapshot = await _tagihanRef
-          .where('keluarga', isEqualTo: keluargaId)
-          .orderBy('created_at', descending: true)
-          .get();
-      
-      return querySnapshot.docs
-          .map((doc) => TagihanWargaModel.fromFirestore(
-              doc.id, doc.data() as Map<String, dynamic>))
+      final snap = await _ref.where('id_kepala_warga', isEqualTo: id).get();
+      return snap.docs
+          .map((d) => TagihanModel.fromFirestore(d.id, d.data() as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      print('Error fetching tagihan: $e');
+      print('ERROR getByKepalaKeluargaId: $e');
       return [];
     }
   }
 
-    Future<bool> bayarTagihan(
-    String tagihanId,
-    String nominal,
-    String catatan,
-  ) async {
+  // Get a specific tagihan by its ID
+  Future<TagihanModel?> getById(String id) async {
     try {
-      await _tagihanRef.doc(tagihanId).update({
-        'tagihanStatus': 'Sudah Dibayar',
-        'nominalDibayar': nominal,
-        'catatanPembayaran': catatan,
-        'tanggalBayar': FieldValue.serverTimestamp(),
+      final doc = await _ref.doc(id).get();
+      if (!doc.exists) return null;
+      return TagihanModel.fromFirestore(doc.id, doc.data() as Map<String, dynamic>);
+    } catch (e) {
+      print('ERROR getById Tagihan: $e');
+      return null;
+    }
+  }
+
+  // Update tagihan based on its ID
+  Future<bool> update(String id, Map<String, dynamic> data) async {
+    try {
+      await _ref.doc(id).update({
+        ...data, 
         'updated_at': FieldValue.serverTimestamp(),
       });
-
       return true;
     } catch (e) {
-      print('Error updating tagihan status: $e');
+      print('ERROR update Tagihan: $e');
+      return false;
+    }
+  }
+
+  // Delete a tagihan based on its ID
+  Future<bool> delete(String id) async {
+    try {
+      await _ref.doc(id).delete();
+      return true;
+    } catch (e) {
+      print('ERROR delete Tagihan: $e');
       return false;
     }
   }
