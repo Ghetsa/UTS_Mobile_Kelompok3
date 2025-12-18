@@ -66,7 +66,7 @@ class _AppSidebarState extends State<AppSidebar> {
       case 'channel_transfer':
         return route.startsWith('/channel');
       case 'log_aktifitas':
-        return route.startsWith('/semuaAktifitas');
+        return route.startsWith('/aktifitas');
       case 'pesan_warga':
         return route.startsWith('/aspirasi');
       case 'pengeluaran':
@@ -338,6 +338,23 @@ class _AppSidebarState extends State<AppSidebar> {
                           "/channel/channelDaftar", context, currentRoute),
                       _buildSubMenuItem("Tambah Channel",
                           "/channel/channelTambah", context, currentRoute),
+                    ],
+                  ),
+
+                  /// LOG AKTIVITAS
+                  _buildMenuSection(
+                    icon: Icons.history_rounded,
+                    title: "Log Aktivitas",
+                    keyValue: "log_aktifitas",
+                    context: context,
+                    currentRoute: currentRoute,
+                    children: [
+                      _buildSubMenuItem(
+                        "Daftar Log Aktivitas",
+                        "/aktivitas/daftar",
+                        context,
+                        currentRoute,
+                      ),
                     ],
                   ),
 
