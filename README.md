@@ -1,90 +1,142 @@
 # 🏠 JAWARA — Sistem Manajemen Perumahan
 
-**JAWARA** (singkatan dari *Jaringan Warga dan Rumah*) adalah aplikasi manajemen perumahan berbasis Flutter yang dirancang untuk membantu pengelolaan data kependudukan, keuangan, kegiatan, dan komunikasi dalam satu platform terpadu.  
-Proyek ini merupakan tugas **UAS** yang telah selesai dan mencakup implementasi fitur end-to-end untuk **Admin** dan **Warga**.
+**JAWARA** (*Jaringan Warga dan Rumah*) adalah aplikasi manajemen perumahan berbasis **Flutter** yang membantu pengelolaan **data kependudukan, rumah, keuangan, kegiatan, tagihan, dan komunikasi** dalam satu platform terpadu.
+
+Proyek ini dibuat untuk kebutuhan **UAS Pemrograman Mobile**, dan saat ini **sudah selesai** dengan implementasi **fitur end-to-end** untuk **Admin** dan **Warga**.
+
+---
+
+## ✨ Fitur Utama
+
+### 👤 Multi Role
+- **Admin**: mengelola seluruh data & operasional perumahan.
+- **Warga**: akses fitur khusus warga (kegiatan, aspirasi, profil, tagihan, pembayaran).
+
+### ✅ CRUD Lengkap + Alur & Logic
+- CRUD **Data Warga**, **Rumah**, **Keluarga**, **Mutasi** (beserta aturan status aktif/nonaktif).
+- CRUD **Kegiatan** (admin) + tampilan kegiatan untuk warga.
+- CRUD modul keuangan (pemasukan/pengeluaran/kategori/channel).
+- Tagihan: pembuatan tagihan, pembayaran warga, verifikasi admin, dan integrasi pencatatan pemasukan.
+
+### 🧾 Cetak & Export PDF
+- Cetak PDF untuk beberapa data utama (misal: warga, tagihan) sesuai data yang sedang tampil / terfilter.
+- Tersedia fallback handling ketika platform tidak mendukung printing (mis. web tertentu).
+
+### 🔐 Autentikasi & Session
+- Login/Logout dengan role berbeda.
+- Pengelolaan session (misalnya `SharedPreferences`) agar alur logout aman.
 
 ---
 
 ## 🎯 Tujuan Aplikasi
 
-Aplikasi **JAWARA** dibuat untuk memberikan kemudahan dalam:
-- Mengelola **data kependudukan & rumah** (warga, keluarga, rumah, mutasi).
-- Memantau **pemasukan dan pengeluaran** keuangan perumahan.
-- Mengelola **kegiatan warga** serta penyebaran informasi/pengumuman.
-- Mengatur pengguna dan memantau aktivitas sistem.
-- Memfasilitasi komunikasi warga melalui informasi & aspirasi.
-- Mengelola **tagihan** dan alur **pembayaran warga → verifikasi admin**.
+Aplikasi **JAWARA** dibuat untuk mempermudah pengurus dan warga dalam:
+- Pengelolaan data kependudukan perumahan yang rapi dan konsisten.
+- Monitoring keuangan (pemasukan, pengeluaran, laporan).
+- Pengelolaan kegiatan warga (agenda & informasi).
+- Komunikasi internal melalui informasi & aspirasi.
+- Pengelolaan tagihan iuran (buat tagihan, bayar, verifikasi admin).
+- Rekap data dan pencetakan laporan dalam format PDF.
 
 ---
 
-## 🧩 Menu / Fitur yang Tersedia
+## 🧩 Modul / Menu yang Tersedia
 
-| No | Menu | Deskripsi Singkat |
+| No | Modul | Deskripsi Singkat |
 |----|------|-------------------|
-| 1 | **Dashboard (Admin)** | Ringkasan statistik & informasi penting (kependudukan, kegiatan, keuangan). |
-| 2 | **Data Kependudukan & Rumah (Admin)** | Kelola data **Warga, Rumah, Keluarga**, serta **Mutasi Keluarga**. |
-| 3 | **Pesan Warga (Admin)** | Informasi & aspirasi dari warga (lihat & kelola). |
-| 4 | **Keuangan → Pemasukan (Admin)** | Kelola **Kategori Iuran**, **Tagihan**, serta **Pemasukan Lainnya**. |
-| 5 | **Keuangan → Pengeluaran (Admin)** | Kelola daftar pengeluaran dan tambah pengeluaran. |
-| 6 | **Kegiatan & Broadcast (Admin)** | Kelola kegiatan (CRUD kegiatan) serta publikasi informasi. |
-| 7 | **Manajemen Pengguna (Admin)** | Kelola pengguna (tambah/lihat). |
-| 8 | **Channel Transfer (Admin)** | Kelola metode pembayaran/transfer. |
-| 9 | **Log Aktivitas (Admin)** | Riwayat aktivitas pengguna pada sistem. |
-| 10 | **Dashboard (Warga)** | Ringkasan informasi untuk warga. |
-| 11 | **Kegiatan Warga (Warga)** | Warga melihat daftar kegiatan & detail kegiatan. |
-| 12 | **Informasi & Aspirasi (Warga)** | Warga mengirim aspirasi / melihat informasi. |
-| 13 | **Profil Saya (Warga)** | Lihat data profil warga. |
-| 14 | **Tagihan (Warga)** | Lihat tagihan, lakukan pembayaran, dan pantau status (Belum Dibayar → Menunggu Verifikasi → Sudah Dibayar). |
+| 1 | **Dashboard** | Ringkasan statistik & informasi penting (chart/insight). |
+| 2 | **Data Kependudukan & Rumah** | Sub menu: **Warga, Rumah, Keluarga, Mutasi** + logic status aktif/nonaktif. |
+| 3 | **Keuangan — Pemasukan** | Kategori Iuran, Tagihan, Pemasukan Lainnya. |
+| 4 | **Keuangan — Pengeluaran** | Daftar Pengeluaran + Tambah Pengeluaran. |
+| 5 | **Laporan Keuangan** | Rekap periodik pemasukan & pengeluaran. |
+| 6 | **Kegiatan & Informasi** | CRUD kegiatan (admin) + tampilan kegiatan warga. |
+| 7 | **Informasi & Aspirasi** | Komunikasi warga ↔ pengurus. |
+| 8 | **Manajemen Pengguna** | Kelola akun admin/pengurus/warga. |
+| 9 | **Channel Transfer** | Metode pembayaran/transfer. |
+| 10 | **Log Aktivitas** | Riwayat aktivitas dalam sistem. |
+| 11 | **Aplikasi Warga (User Side)** | Dashboard, Kegiatan, Aspirasi, Profil, Tagihan, Bayar Tagihan. |
 
 ---
 
-## 👩‍💻 Pembagian Tugas Tim (UAS)
+## 🔄 Flow Penting (Highlight Logic)
 
-| No | Nama | Absen | NIM | Modul yang Dikerjakan |
-|----|------|------|-----|------------------------|
-| 1 | **Ghetsa Ramadhani Riska A.** | 12 | 2341720004 | **Project Manager (PM)**, **Seluruh sisi Warga (Dashboard Warga, Kegiatan Warga, Informasi & Aspirasi Warga, Profil Warga, Tagihan Warga + Bayar Tagihan)**, **CRUD Kegiatan (Admin)**, serta kontribusi besar pada integrasi alur fitur utama |
-| 2 | **Oltha Rosyeda Al'haq** | 25 | 2341720145 | Pemasukan, Laporan Keuangan |
-| 3 | **Muhammad Syahrul Gunawan** | 22 | 2341720002 | Autentikasi, Manajemen Pengguna, Channel Transfer, Log Aktivitas, Pesan Warga |
-| 4 | **Luthfi Triaswangga** | 19 | 2341720208 | Kegiatan & Broadcast, Pengeluaran, Mutasi Keluarga |
+### 🧍‍♀️ Mutasi Warga / Keluarga
+- Ketika mutasi “keluar”, sistem **otomatis mengubah status warga menjadi nonaktif** (sesuai aturan yang diterapkan).
+- Penambahan anggota keluarga / keluarga baru mempengaruhi relasi data (warga ↔ keluarga ↔ rumah).
 
-> Catatan: **UAT dikerjakan keseluruhan** (bukan hanya oleh Ghetsa).
+### 💳 Tagihan (End-to-End)
+1. Admin membuat/kelola tagihan iuran.
+2. Warga melihat tagihan.
+3. Jika status **Belum Dibayar**, warga bisa klik **Bayar Tagihan**.
+4. Setelah bayar → status jadi **Menunggu Verifikasi**.
+5. Admin verifikasi → status jadi **Sudah Dibayar**.
+6. Ketika status menjadi **Sudah Dibayar**, sistem dapat mencatat ke **Pemasukan Lainnya** (sesuai logic controller).
 
 ---
 
 ## 🧱 Teknologi yang Digunakan
 
-- **Flutter** — Framework utama untuk pengembangan aplikasi multiplatform.
-- **Dart** — Bahasa pemrograman utama.
-- **Firebase Authentication** — Autentikasi pengguna (Admin/Warga).
-- **Database/Backend** — Terintegrasi sesuai implementasi proyek (fitur CRUD dan alur data berjalan).
-- **PDF & Printing** — Export / cetak laporan pada modul tertentu.
+- **Flutter** — framework utama.
+- **Dart** — bahasa pemrograman.
+- **Firebase Auth** — autentikasi.
+- **SharedPreferences** — pengelolaan session / flag logout.
+- **pdf + printing** — generate & print laporan PDF.
+
+---
+
+## ▶️ Cara Menjalankan Project
+
+1. Clone repo:
+```bash
+git clone <repo-url>
+cd jawara
+```
+
+2. Install dependencies:
+```bash
+flutter pub get
+```
+
+3. Jalankan aplikasi:
+```bash
+flutter run
+```
+
+> Catatan: Untuk fitur PDF/printing, beberapa fitur bisa memiliki perbedaan dukungan di Web vs Android/iOS. Pastikan testing dilakukan di device/emulator yang sesuai.
+
+---
+
+## 👩‍💻 Pembagian Tugas Tim
+
+> **Keterangan:**  
+> **Ghetsa Ramadhani Riska A.** adalah **PM (Project Manager)** dan juga mengerjakan modul krusial, termasuk flow & integrasi lintas fitur.
+
+| No | Nama | Absen | NIM | Tugas / Modul yang Dikerjakan |
+|----|------|------:|-----:|-------------------------------|
+| 1 | **Ghetsa Ramadhani Riska A. (PM)** | 12 | 2341720004 | Dashboard (termasuk chart & integrasi data), Data Kependudukan & Rumah (Warga, Rumah, Keluarga, Mutasi + logic status), CRUD Kegiatan, Seluruh halaman sisi Warga (Dashboard, Kegiatan, Aspirasi, Profil, Tagihan & Bayar Tagihan), Perapihan flow & integrasi Tagihan Warga, PDF Export untuk modul terkait |
+| 2 | **Oltha Rosyeda Al'haq** | 25 | 2341720145 | Pemasukan (Tagihan, Iuran, Lainnya), Laporan Keuangan |
+| 3 | **Muhammad Syahrul Gunawan** | 22 | 2341720002 | Manajemen Pengguna, Channel Transfer, Log Aktivitas, Pesan Warga, Login, Pendaftaran |
+| 4 | **Luthfi Triaswangga** | 19 | 2341720208 | Kegiatan & Broadcast, Pengeluaran, Mutasi Keluarga (UI) |
+
+---
+
+## 🧪 Testing
+
+Pengujian dilakukan menggunakan metode **UAT (User Acceptance Testing)** untuk role:
+- **Admin**
+- **Warga**
+- serta flow end-to-end (contoh: **Bayar Tagihan → Verifikasi Admin → Status sinkron**)
 
 ---
 
 ## 🎨 Desain & Tampilan
 
-Aplikasi ini mengusung tema **biru profesional** dengan nuansa lembut (soft blue) agar nyaman dilihat dan tetap modern.  
-Desain dibuat dengan fokus pada **tampilan mobile** yang **user-friendly** dan **responsif**.
+Aplikasi mengusung tema **biru profesional** dengan nuansa lembut agar nyaman dilihat.
 
 Fitur desain utama:
 - Navigasi menggunakan **Drawer Sidebar** (Admin & Warga).
-- Komponen interaktif seperti **Card**, **Icon Button**, **ListView**, **Dialog/Form**.
-- Warna status & tombol dibuat kontras namun tetap lembut (biru/hijau/oranye/merah sesuai konteks).
-- Tampilan responsif menyesuaikan ukuran layar.
-
----
-
-## ⚙️ Status Pengembangan
-
-✅ **Selesai (UAS)** — Fitur aplikasi sudah terimplementasi untuk peran **Admin** dan **Warga**, termasuk alur pembayaran tagihan dan verifikasi.
-
----
-
-## ✅ Alur Utama yang Berjalan
-
-- **Warga melihat tagihan** → klik **Bayar Tagihan** → status menjadi **Menunggu Verifikasi**
-- **Admin membuka tagihan** → melakukan **Verifikasi / Tolak** → status berubah menjadi **Sudah Dibayar** atau kembali **Belum Dibayar**
-- Laporan tertentu dapat **diexport/cetak PDF** (bergantung platform dan dukungan plugin)
+- Komponen **Card**, **ListView**, **Dialog**, dan **Button** yang konsisten.
+- Tampilan **responsif** untuk device mobile, dengan pertimbangan kompatibilitas di web.
 
 ---
 
@@ -95,17 +147,17 @@ Kelas: **TI-3D / Pemrograman Mobile**
 
 | Nama | Peran |
 |------|------|
-| Ghetsa Ramadhani Riska A. | **Project Manager (PM)**, Sisi Warga (semua halaman), CRUD Kegiatan (Admin), integrasi alur fitur utama |
-| Oltha Rosyeda Al’haq | Keuangan (Pemasukan & Laporan) |
-| Muhammad Syahrul Gunawan | Autentikasi, Manajemen Pengguna, Channel Transfer, Log Aktivitas, Pesan Warga |
-| Luthfi Triaswangga | Kegiatan & Broadcast, Pengeluaran, Mutasi Keluarga |
+| Ghetsa Ramadhani Riska A. | PM + Dashboard, Kependudukan & Rumah, Kegiatan, Seluruh fitur Warga, integrasi flow & PDF |
+| Oltha Rosyeda Al’haq | Keuangan: Pemasukan & Laporan |
+| Muhammad Syahrul Gunawan | Autentikasi, Manajemen Pengguna, Channel Transfer, Log Aktivitas, Pesan |
+| Luthfi Triaswangga | Kegiatan/Broadcast, Pengeluaran, Mutasi |
 
 ---
 
 ## 📄 Lisensi
 
 Proyek ini dibuat untuk keperluan **akademik (UAS)** dan **tidak untuk distribusi komersial**.  
-Segala aset, warna, dan tampilan merupakan hasil karya kelompok.
+Semua aset, warna, dan tampilan merupakan hasil karya tim.
 
 ---
 
