@@ -89,7 +89,7 @@ Aplikasi **JAWARA** dibuat untuk mempermudah pengurus dan warga dalam:
 1. Clone repo:
 ```bash
 git clone <repo-url>
-cd jawara
+cd jawara_kelompok3
 ```
 
 2. Install dependencies:
